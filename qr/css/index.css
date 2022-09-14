@@ -1,0 +1,272 @@
+﻿html{color:#000;background:#FFF}body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,textarea,p,blockquote,th,td{margin:0;padding:0}table{border-collapse:collapse;border-spacing:0}fieldset,img{border:0}address,caption,cite,code,dfn,em,strong,th,var{font-style:normal;font-weight:normal}ol,ul{list-style:none}caption,th{text-align:left}h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal}q:before,q:after{content:''}abbr,acronym{border:0;font-variant:normal}sup{vertical-align:text-top}sub{vertical-align:text-bottom}input,textarea,select{font-family:inherit;font-size:inherit;font-weight:inherit;*font-size:100%}legend{color:#000}#yui3-css-stamp.cssreset{display:none}
+
+.container{
+	overflow: hidden;
+}
+
+.mod-head{
+	padding: 0 16px;
+	height: 48px;
+	margin-bottom: 15px;
+	background: #3f3f3f;
+	line-height: 48px;
+	text-align: center;
+}
+.mod-head .logo{
+	float: left;
+	font-size: 0;
+}
+.mod-head img{
+	vertical-align: middle;
+}
+.mod-head ul{
+	float: right;
+}
+.mod-head li{
+	float: left;
+}
+.mod-head li a{
+	display: block;
+	height: 48px;
+	padding: 0 15px;
+	color: #eee;
+}
+.mod-head li.active a{
+	background: rgba(255,255,255,.15);
+}
+
+.mod-search{
+	position: relative;
+	margin: 0 16px 15px;
+	line-height: 36px;
+}
+.mod-search .bd{
+	position: relative;
+	height: 34px;
+	margin-bottom: 10px;
+	border:1px solid #bdbdbd;
+	border-radius: 3px;
+	background: #fff;
+}
+.mod-search .input-text{
+	height: 20px;
+	padding:0 8px;
+	margin: 7px 0;
+	outline: none;
+	border: medium none;
+	line-height: 20px;
+	font-size:16px;
+	color:#808080;
+	-webkit-appearance: none;
+	border-radius: 0;
+}
+.mod-search .cross{
+	display: none;
+	position: absolute;
+	top:0;
+	right: 80px;
+	z-index: 7;
+	width: 36px;
+	height: 36px;
+	background: url("../images/icon-close.png") no-repeat scroll center center transparent;
+	background-size: 16px 16px;
+}
+.mod-search .msgbox{
+	background: #fff;
+	letter-spacing: 0;
+	line-height: 20px;
+	font-size:14px;
+	color:#555;
+}
+.mod-search .msgbox span{
+	display: inline-block;
+	border:1px solid #ccc;
+	padding:0 10px;
+}
+.mod-search .btn{
+	position: absolute;
+	top: -1px;
+	right: -1px;
+	background:url("../images/btn-bg.png") 0 center repeat-x;
+	width:80px;
+	height: 36px;
+	border:1px solid #bdbdbd;
+	cursor: pointer;
+	font-size:14px;
+	border-radius: 0 3px 3px 0;
+	-webkit-appearance: none;
+}
+.mod-search .infos{padding:17px 0 0;text-align: center;position: relative;}
+.mod-search .infos dl{color:#000;overflow: hidden;width:100%;text-align: center;}
+.mod-search .infos dt{
+	margin-bottom: 10px;
+	line-height: 24px;
+	font-size:16px;
+	text-align: left;
+}
+.mod-search .infos dd{
+	margin-bottom: 10px;
+	line-height: 24px;
+	font-size:14px;
+	text-align: left;
+}
+.mod-search .infos .hr{
+	height: 1px;
+    margin: 16px 0 16px;
+    background: #ccc;
+}
+.mod-search .infos dd span{color:#c00;}
+
+.mod-qrcode{
+	margin-bottom: 45px;
+}
+.mod-qrcode .hd{
+	margin: 0 16px 10px;
+}
+.mod-qrcode .hd h3{
+	height: 24px;
+	border-left: 3px solid #33b5e5;
+	padding-left: 8px;
+	line-height: 24px;
+	font-weight: normal;
+	font-size: 16px;
+}
+.mod-qrcode .bd{
+	padding: 10px;
+	text-align: center;
+}
+.mod-qrcode .bd canvas{
+	width: 180px;
+	height: 180px;
+	box-shadow: 1px 1px 5px rgba(0,0,0,.1);
+}
+.mod-qrcode .ft{
+	margin: 0 16px;
+	font-size: 14px;
+}
+.mod-qrcode .ft textarea{
+	display: block;
+	width: 100%;
+	height: 72px;
+	padding: 5px 10px;
+	margin: 0 auto;
+	background: #f4f4f4;
+	border: 1px solid #666;
+	line-height: 24px;
+	box-sizing: border-box;
+	border-radius: 4px;
+}
+.mod-qrcode .ft .row{
+	height: 36px;
+	line-height: 36px;
+	white-space: nowrap;
+}
+.mod-qrcode .ft .box{
+	position: relative;
+	margin-bottom: 10px;
+}
+.mod-qrcode .ft .group{
+	padding: 5px 0;
+	border-bottom: 1px dotted #e2e2e2;
+}
+.mod-qrcode .ft input,.mod-qrcode .ft select,.mod-qrcode .ft label{
+	height: 24px;
+	line-height: 24px;
+	vertical-align: middle;
+}
+.mod-qrcode .ft .btn{
+	display: block;
+	width: 100px;
+	height: 36px;
+	margin: 20px auto;
+	border: medium none;
+	background: #33b5e5;
+	line-height: 36px;
+	text-align: center;
+	font-size: 16px;
+	color: #fff;
+	border-radius: 4px;
+}
+.mod-qrcode .ft input[type="range"]{
+	display: block;
+	width: 80%;
+	margin: 0 auto 30px;
+}
+.mod-qrcode .ft a{
+	margin-left: -16px;
+	color:#666;
+}
+.mod-qrcode .ft a#resetRound{
+	position: absolute;
+	top: 20px;
+	left: 50%;
+}
+.mod-qrcode .ft a#resetRound1{
+	position: absolute;
+	top: 20px;
+	left: 10%;
+}
+.mod-qrcode .ft a#resetRound2{
+	position: absolute;
+	top: 20px;
+	left: 90%;
+}
+.mod-qrcode .ft .J_clear{
+	float: right;
+	display: inline-block;
+	width: 72px;
+	height: 24px;
+	margin: 5px 0;
+	line-height: 24px;
+	text-align: center;
+	font-size: 13px;
+	border: 1px solid rgb(247, 64, 64);
+	color:rgb(247, 64, 64);
+	border-radius: 4px;
+	cursor: pointer;
+}
+.mod-qrcode .mask{
+	display: none;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8) url('../images/wx_android.png') 92% 25px no-repeat;
+    background-size: 292px auto;
+    z-index: 999;
+}
+
+.mod-friendlink{
+	margin:0 10px 20px;
+	line-height: 24px;
+	text-align: center;
+	font-size: 14px;
+}
+
+.mod-friendlink a {
+	margin: 0 5px;
+	color: #666;
+}
+.mod-friendlink .mod-banner-common {
+	margin-bottom: 10px;
+}
+.mod-friendlink .mod-banner-common a {
+	margin:0;
+}
+.mod-friendlink img{
+	max-width: 100%;
+	height: auto;
+	vertical-align: middle;
+}
+
+.mod-foot p{
+	line-height: 22px;
+	margin-bottom: 5px;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:2){
+	body{
+		cursor:pointer;
+	}
+}
