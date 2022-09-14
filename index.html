@@ -1,0 +1,108 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>未来科技</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="./assets/images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="./assets/css/font.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <link rel="stylesheet" href="./assets/css/main.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+    <!-- 头部 -->
+    <header class="core hd">
+        <!-- 时间 -->
+        <h1 class="time_econd"></span></h1>
+        <h3><span class="time_moon"></span>&nbsp;&nbsp;<span id="clock"></span>&#128513;</h3>
+        <!-- 搜索栏 -->
+        <div class="xf_baidu xf_style">
+            <form action="http://m.baidu.com/s?word=%s" target="_blank">
+                <i></i>
+                <input type="text" name="word" size="30" autocomplete="off" placeholder="百度一下">
+                <input type="submit">
+            </form>
+        </div>
+    </header>
+    <!-- 主体 -->
+    <section class="core main xf_style">
+        <!-- 头像 -->
+        <div class="tx">
+            <!-- https://q1.qlogo.cn/g?b=qq&nk=1&s=100 -->
+            <img src="./assets/images/tx.jpg" alt="" title="">
+        </div>
+        <!-- 姓名 个签 -->
+        <div class="xf_name">
+            <h2>未来科技</h2>
+            <h4 id="xf_txt"></h4>
+        </div>
+        <!-- 图标 （img里面的是透明图是用来转换超链接） -->
+        <div class="xf_ico_link">
+            <ul>
+                <li><a href="#" target="_blank" rel="noopener noreferrer"><img src="./assets/images/transparent.png"
+                            alt="抖音" title="抖音"></a></li>
+                <li><a href="#" target="_blank" rel="noopener noreferrer"><img src="./assets/images/transparent.png"
+                            alt="QQ" title="QQ"></a></li>
+                <li><a href="#" target="_blank" rel="noopener noreferrer"><img src="./assets/images/transparent.png"
+                            alt="邮箱" title="邮箱"></a></li>
+                <li><a href="#" target="_blank" rel="noopener noreferrer"><img src="./assets/images/transparent.png"
+                            alt="bilibili" title="bilibili"></a></li>
+            </ul>
+        </div>
+        <!-- 介绍 -->
+        <div class="xf_introduce">
+            <p id="xf_type"></p>
+        </div>
+        <!-- 滑动效果 -->
+        <p class="xf_slide">&#xeb6d;</p>
+        <div class="xf_website">
+            <a href="pay/zfb.html" target="_blank" rel="noopener noreferrer">支付宝业务</a>
+            <a href="jsq/index.html" target="_blank" rel="noopener noreferrer">计算器</a>
+            <a href="#" target="_blank" rel="noopener noreferrer">额度变现</a>
+            <a href="#" target="_blank" rel="noopener noreferrer">POS🐔</a>
+            <a href="http://91haoka.cn/91haoka_platform/#/minishop?share_id=386983&shop_name=%E5%A5%BD%E5%A4%9A%E5%8D%A1%E5%8F%B7%E5%95%86%E5%9F%8E" target="_blank" rel="noopener noreferrer">卡号商城</a>  
+            <a href="#" target="_blank" rel="noopener noreferrer">敬请期待</a>
+        </div>
+    </section>
+    <!-- 底部 -->
+    <footer class="core copy">
+        <p>Copyright © <script>document.write( new Date().getFullYear() );</script> <a href="/" target="_blank" rel="noopener noreferrer">未来科技</a> 版权所有</p>
+        <p><a href="#" target="_blank"
+                rel="noopener noreferrer"></a></p>
+    </footer>
+    <audio autoplay>
+        <source src="https://api.uomg.com/api/rand.music?sort=热歌榜" type="audio/mpeg">
+    </audio>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(".xf_slide").click(function () {
+                $(".xf_website").slideToggle("slow");
+            })
+        })
+    </script>
+    <script src="./assets/js/time.js"></script>
+    <script src="./assets/js/text.js"></script>
+    <script src="./assets/js/fireworks.js"></script>
+    
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<textarea style="display:none"> 
+</body>
+
+</html>
