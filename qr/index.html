@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>付款码数字转二维码</title>
+        <meta name="description" content="在线二维码生成器提供免费的在线二维码生成服务，可以把电子名片、文本、wifi网络、电子邮件、短信、电话号码、网址等信息生成对应的二维码图片。二维码手机扫描软件下载。" />
+        <meta name="keywords" content="二维码,二维码生成器,二维码图片,二维码是什么,手机二维码,二维码生成,二维码扫描软件,二维码识别软件,手机二维码识别软件,二维码解码器,二维码软件,手机二维码软件,二维码开放平台,二维码接口,二维码API" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <link href="css/public.css" type="text/css" rel="stylesheet"/>
+        <link href="css/index.css" type="text/css" rel="stylesheet"/>
+ <!-- Baidu tongji analytics -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+    </head>
+    <body>
+        <div class="wrapper">
+            <div class="header">
+                <div class="mod-head">
+           <!--   <a class="logo" href="/"><img src="picture/logo2.gif" alt="二维码" width="100" height="30"/></a>-->
+
+                     <span style="font-size:22px;color: #e8e8e8;">生成付款码</span>
+                   <ul>
+                <!--         <li class="active"><a href="/">首页</a></li>
+                        <li><a href="/">条码查询</a></li> -->
+                    </ul>
+                </div>
+            </div>
+            <div class="container">
+                <div class="mod-qrcode">
+              <!--      <div class="hd"><h3></h3></div>-->
+                    <div class="bd">
+                        <canvas id="canvas" width="180" height="180"></canvas>
+                    </div>
+                    <div class="ft">
+                        <div class="box">
+                            <p><input type="range" name="round" value="" min="-0.5" max="0.5" step="0.01"/></p>
+                            <p>
+                                <a id="resetRound1" href="javascript:">液态</a>
+                                <a id="resetRound" href="javascript:">直角</a>
+                                <a id="resetRound2" href="javascript:">圆角</a>
+                            </p>
+                        </div>
+                       <div style="font-size:16px;color:#000"> <h3>请输入付款码数字</h3></div>
+                        <div class="box">
+                            <textarea name="content" cols="30" rows="10" placeholder=""></textarea>
+                        </div>
+                       <h3>使用说明：此系统用于客户手机不能截屏付款码而开发，首先跟客户语音通话让客户说出付款码上面的数字，客户一边说这边一边输入，输入以后自动生成付款码，然后反扫即可。</h3>
+         
+                            <form action="https://www.liantu.com/save.php" method="post" target="_blank" id="form">
+                                <input type="hidden" name="data" value="" id="pngdata">
+                                <input type="hidden" name="format" value="base64">
+                                <input type="hidden" name="filename" value="liantu.png">
+                                <a class="btn" href="javascript:;" id="savepng" download="二维码.png">保存图片</a>
+                            </form>
+                        </div>
+                    </div>
+
+
+
+        <script type="text/javascript" src="js/jquery.js"></script>
+        <script type="text/javascript" src="js/qrcode.js"></script>
+        <script type="text/javascript" src="js/canvas.js"></script>
+        <script type="text/javascript" src="js/jquery.colorpicker.js"></script>
+        <script type="text/javascript" src="js/index.js?v=202007061021"></script>
+
+ <textarea style="display:none">   
+    </body>
+</html>
