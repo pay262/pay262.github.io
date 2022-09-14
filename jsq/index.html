@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+        <title>计算器</title>
+		<meta name="keywords" content="TX计算器、交易计算器、套现计算器、商家计算器、代扣计算器、商家中介计算器">
+        <meta name="description" content="TX计算器是一款免费的金融小工具，专为商家精心打造，一键计算给客户多少，给中介多少！为广大金融从业者提供便利！">
+        <link rel="stylesheet" href="Css/bootstrap.min.css">
+        <style>
+			*{
+				margin: 0;
+				padding: 0;
+			}
+			h3{
+				text-align:center;
+				color:skyblue;
+				font-weight:bold;
+				margin-bottom:20px;
+			}
+			.con_box{
+				margin-top:10px;
+			}
+			.cal{
+				width: 100%;
+				margin-bottom:20px;
+			}
+			p{
+				text-align:center;
+				font-size:20px;
+				margin:0px 0px 0px 0px;
+			}
+			#zanzhu{
+				width: 60px;
+				height: 60px;
+				border-radius:30px;
+				background-color:#f40;
+				color:#fff;
+			}
+			.zz{
+				width:100%;
+				text-align: center;
+				margin:0 auto;
+			}
+			.ewm{
+				/* width:150px; */
+				/* height:150px; */
+				background-color:#000;
+				position:absolute;
+				/* top: 200px; */
+				/* left:50%; */
+				/* margin-left:-75px; */
+				border-radius:5px;
+				display:none;
+			}
+			.ewm img{
+				width:100%;
+				height:100%;
+			}
+			#qrcode img {
+            position: absolute;
+			top: 20%;
+            left: 10%;
+            width: 300px;
+            height: 300px;
+            display: block;
+        }
+
+        #qrcode {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.6);
+            z-index: 9999;
+            display: none;
+        }
+        </style>
+	<script>
+        function stop(){
+        return false;
+        }
+        document.oncontextmenu=stop;
+      </script>
+ 
+ <!-- Baidu tongji analytics -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+ <script src="Scripts/jquery-3.2.1.min.js"></script>
+<script src="Scripts/zepto.js"></script>  
+ </head>
+
+
+<body onmousemove="\HideMenu()\" oncontextmenu="return false" ondragstart="return false" onselectstart="return false" onselect="document.selection.empty()" oncopy="document.selection.empty()" onbeforecopy="return false" onmouseup="document.selection.empty()">
+    <div class="container con_box">
+<div id="fontset">
+    <p style="text-align: center;">
+        <span style="font-size: 24px; color: rgb(255, 76, 65);"><a style="font-weight: bold;font-family: helvetica;text-align:center;background: -webkit-linear-gradient(left, #4f185d , #fe5d4b);-webkit-background-clip: text;-webkit-text-fill-color: transparent; ">交易计算器</a></span>
+ </p>	 <!--打赏功能代码2开始-->	
+        <button style="float:right;width:15%;background:#FF8C00;" id="main" class="btn btn-info">赞助</button>         
+		<center><span style="padding-left:15%;text-align:center; font-size:10px; color:#00A600">右上角设置“浮窗”方便再次打开↗</span></center>
+		 <!--打赏功能代码2结束-->
+
+    	<div class="form-group">
+	    <label for="money">交易金额<span style="font-size:12px;color:#A1A1A1;"></span></label>
+	    <input type="number" class="form-control" id="a" placeholder="请输入交易金额">
+
+	  	  <label for="point">中介点数<span style="font-size:12px;color:#A1A1A1;"></span></label>
+	  	  <input type="number" class="form-control" id="b" placeholder="请输入点数">
+
+	  	  <label for="point">客户点数<span style="font-size:12px;color:#A1A1A1;"></span></label>
+	  	  <input type="number" class="form-control" id="bb" placeholder="请输入点数">
+	  	</div>
+
+                   <div onclick="s();" class="btn btn-info cal" style="float:left;width:40%;background:#32CD32;">计算</div>
+                   <div onclick="$('#a,#b,#bb').val('');" class="btn btn-info cal" style="float:right;width:40%;background:#FF4500;">清除</div>
+
+<div class="success">
+<div class="seccess-text"  style="text-align:center;">
+<textarea name="text" id="sl" readonly="readonly" style="text-align:center;border-style:none;margin:1px;padding:8px;width:80%;height:130px;font-size:16px;">本计算器用于金融商家或中介计算手续费及回款金额，支持一键复制结果🙂</textarea>
+<div class="btn btn-info cal" style="text-align: center;background:#00BFFF;" onclick="slcopy()">复制</div>
+</div>
+
+
+
+<script>
+var _0xod2='jsjiami.com.v6',_0x2cbe=[_0xod2,'w5jCjkjCjBp7wos=','wozDssOTw75k','bMO5ZG/ClQ==','w6blm4PmrpzkuYbkuqPvvrs=','w7vmlJPljIXmiKXnuqXotI/vvrw=','XsKbwo9QX8O6QQHCnsKLw4/Ch14W','dQ9BL8OV','fcKEwq1jUA==','XcKswpk2wqE=','6K+u6L+g5YWD6Yak6aO0','wrDDvcKYw6wo','D2DCvDfCuXUMX8OXw7XCqXh+HA==','a8KDwpcvwpg=','wqLDnMOGw4ljwrReBsKXZsOAw6R2woQ=','XMKEYsO9HcK0bSbDq8OlwpFhwpMS','JcKmABzCpg==','P8OcwpzDvlg=','6K6O6L+R5YWj5LqC5Lmt54GO5L2p','6K2N6LyO5YWF5a255omu54OB5L2V','AMKPw7DCrcOm','WsKUBsO7XA==','C8KBJU/CvQ==','w6bCgsOhZmHCpm5TwoTCjcK+woDChFQ=','MVTCo8OewqfDqcKTB8KP','wpfCtsK/wqBR','RcKaTsK0w7c=','wq9aw4w/Og==','YCpdOsO2','dMK/Y8Knw7Y=','wqrCm8K5E1Q=','wrflm4rmr5Tku7rkuJvvvLQ=','wojDn8OkfMOE','wrDmlqvlj7bmipDnurTotYHvvII=','w4TCgkjDkMKBZGg=','44OC5py75q+s6K6o57mX44KsYOS4teabnemFtumjou+9iQ==','FeWavuavlOWvqOaIvO+/uQ==','w47Cl3AS','wqvCh0MPw6k=','5aSk5YuS5om65YiN','TsKHO8Onbg==','Cidyw7zDg8KbQcK5bMO8SMO6w5zCuDnDk8OA','wqt1woBnwo8=','aCx2KcOrdA==','XMKGwp52cMOwQQnCkcKRw6k=','b8OCw75qwr0=','QcO8w79zwpA=','XEkWbcOo','GsOTA8KRZQ==','b8Oqw4tVwocdPg==','csK8wopEUg==','woPDu8KJw70jwogG','FcK2w4vCocOr','jsjiJGamgCPi.OQGcomBZW.qvq6CCJJ=='];(function(_0x492119,_0x2e2269,_0x2a6e1a){var _0x5001ca=function(_0x2f4303,_0x34eca3,_0x3eea63,_0x1dfb67,_0x3d7407){_0x34eca3=_0x34eca3>>0x8,_0x3d7407='po';var _0x4bc0cd='shift',_0x4bc7a5='push';if(_0x34eca3<_0x2f4303){while(--_0x2f4303){_0x1dfb67=_0x492119[_0x4bc0cd]();if(_0x34eca3===_0x2f4303){_0x34eca3=_0x1dfb67;_0x3eea63=_0x492119[_0x3d7407+'p']();}else if(_0x34eca3&&_0x3eea63['replace'](/[JGgCPOQGBZWqqCCJJ=]/g,'')===_0x34eca3){_0x492119[_0x4bc7a5](_0x1dfb67);}}_0x492119[_0x4bc7a5](_0x492119[_0x4bc0cd]());}return 0x86789;};return _0x5001ca(++_0x2e2269,_0x2a6e1a)>>_0x2e2269^_0x2a6e1a;}(_0x2cbe,0xd9,0xd900));var _0xee11=function(_0x5b1a4b,_0x35b78e){_0x5b1a4b=~~'0x'['concat'](_0x5b1a4b);var _0x396dbf=_0x2cbe[_0x5b1a4b];if(_0xee11['ZNZAfh']===undefined){(function(){var _0x5c57d5=typeof window!=='undefined'?window:typeof process==='object'&&typeof require==='function'&&typeof global==='object'?global:this;var _0x1beba1='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';_0x5c57d5['atob']||(_0x5c57d5['atob']=function(_0x16282d){var _0x51300e=String(_0x16282d)['replace'](/=+$/,'');for(var _0x32bae1=0x0,_0x3348aa,_0xaa6b89,_0x55fde0=0x0,_0x235719='';_0xaa6b89=_0x51300e['charAt'](_0x55fde0++);~_0xaa6b89&&(_0x3348aa=_0x32bae1%0x4?_0x3348aa*0x40+_0xaa6b89:_0xaa6b89,_0x32bae1++%0x4)?_0x235719+=String['fromCharCode'](0xff&_0x3348aa>>(-0x2*_0x32bae1&0x6)):0x0){_0xaa6b89=_0x1beba1['indexOf'](_0xaa6b89);}return _0x235719;});}());var _0x53850b=function(_0x169b38,_0x35b78e){var _0x51d639=[],_0x1218fb=0x0,_0x2cf7fa,_0x34106e='',_0xb03dcf='';_0x169b38=atob(_0x169b38);for(var _0x9a4e9=0x0,_0x43d27a=_0x169b38['length'];_0x9a4e9<_0x43d27a;_0x9a4e9++){_0xb03dcf+='%'+('00'+_0x169b38['charCodeAt'](_0x9a4e9)['toString'](0x10))['slice'](-0x2);}_0x169b38=decodeURIComponent(_0xb03dcf);for(var _0x445130=0x0;_0x445130<0x100;_0x445130++){_0x51d639[_0x445130]=_0x445130;}for(_0x445130=0x0;_0x445130<0x100;_0x445130++){_0x1218fb=(_0x1218fb+_0x51d639[_0x445130]+_0x35b78e['charCodeAt'](_0x445130%_0x35b78e['length']))%0x100;_0x2cf7fa=_0x51d639[_0x445130];_0x51d639[_0x445130]=_0x51d639[_0x1218fb];_0x51d639[_0x1218fb]=_0x2cf7fa;}_0x445130=0x0;_0x1218fb=0x0;for(var _0x3b2e8b=0x0;_0x3b2e8b<_0x169b38['length'];_0x3b2e8b++){_0x445130=(_0x445130+0x1)%0x100;_0x1218fb=(_0x1218fb+_0x51d639[_0x445130])%0x100;_0x2cf7fa=_0x51d639[_0x445130];_0x51d639[_0x445130]=_0x51d639[_0x1218fb];_0x51d639[_0x1218fb]=_0x2cf7fa;_0x34106e+=String['fromCharCode'](_0x169b38['charCodeAt'](_0x3b2e8b)^_0x51d639[(_0x51d639[_0x445130]+_0x51d639[_0x1218fb])%0x100]);}return _0x34106e;};_0xee11['QdnmYZ']=_0x53850b;_0xee11['UHuCaG']={};_0xee11['ZNZAfh']=!![];}var _0x235451=_0xee11['UHuCaG'][_0x5b1a4b];if(_0x235451===undefined){if(_0xee11['pKifSr']===undefined){_0xee11['pKifSr']=!![];}_0x396dbf=_0xee11['QdnmYZ'](_0x396dbf,_0x35b78e);_0xee11['UHuCaG'][_0x5b1a4b]=_0x396dbf;}else{_0x396dbf=_0x235451;}return _0x396dbf;};function s(){var _0x50f971={'GiWxs':function(_0x20911f,_0x32db14){return _0x20911f(_0x32db14);},'OzZeJ':_0xee11('0','G&T4'),'sJcUb':'6|2|7|9|8|0|5|3|10|4|1','VOEMF':function(_0x22402c,_0x44e334){return _0x22402c*_0x44e334;},'dNYRJ':function(_0x19ba83,_0x643e80){return _0x19ba83-_0x643e80;},'CGnTR':function(_0x293f88,_0x30b9bb){return _0x293f88+_0x30b9bb;},'dcEti':function(_0x363274,_0x4d924b){return _0x363274+_0x4d924b;},'UktAK':function(_0x12679f,_0x196ae1){return _0x12679f+_0x196ae1;},'wzRoZ':'【本次交易明细】\x0a交易金额：','cnWRc':'\x0a回款客户：'};a=_0x50f971[_0xee11('1','k88m')](parseFloat,document[_0xee11('2','c3ib')]('a')['value']);b=_0x50f971[_0xee11('3','K(9S')](parseFloat,document[_0xee11('4','Ij%6')]('b')['value']);bb=_0x50f971['GiWxs'](parseFloat,document[_0xee11('5',']%fC')]('bb')[_0xee11('6','HRC8')]);if(!a){_0x50f971[_0xee11('7','Fa0Q')](alert,_0x50f971['OzZeJ']);}else if(!b){_0x50f971['GiWxs'](alert,_0xee11('8','(!QA'));}else if(!bb){_0x50f971['GiWxs'](alert,_0xee11('9',']L!*'));}else{var _0x271fe7=_0x50f971[_0xee11('a','Np!%')][_0xee11('b','i3!(')]('|'),_0x5f290a=0x0;while(!![]){switch(_0x271fe7[_0x5f290a++]){case'0':dd=_0x50f971[_0xee11('c','zGGN')](a,cc);continue;case'1':document[_0xee11('d','@MHK')]('sl')[_0xee11('e','!Xlk')]=wotext;continue;case'2':c=_0x50f971[_0xee11('f','DWde')](b,0.01);continue;case'3':e=_0x50f971[_0xee11('10','a(@m')](_0x50f971['dNYRJ'](a,d),dd);continue;case'4':wotext=_0x50f971['CGnTR'](_0x50f971[_0xee11('11','cwVZ')](_0x50f971[_0xee11('12','se(j')](_0x50f971['UktAK'](_0x50f971[_0xee11('13','a(@m')](_0x50f971[_0xee11('14','%QN4')](_0x50f971['UktAK'](_0x50f971['wzRoZ'],a),_0xee11('15','Qaml')),dd),_0x50f971[_0xee11('16','*YUN')]),e),_0xee11('17',']L!*')),d);continue;case'5':dd=dd[_0xee11('18',')h@S')](0x2);continue;case'6':bb=_0x50f971['dNYRJ'](bb,b);continue;case'7':cc=bb*0.01;continue;case'8':d=d['toFixed'](0x2);continue;case'9':d=_0x50f971['VOEMF'](a,c);continue;case'10':e=e['toFixed'](0x2);continue;}break;}}}function slcopy(){var _0x2dcecb={'PppZK':function(_0x511baf,_0x5515bc){return _0x511baf*_0x5515bc;},'KBqQa':function(_0x2ea8d3,_0x3dfb51){return _0x2ea8d3*_0x3dfb51;},'fsXYo':function(_0x140b58,_0x2ba884){return _0x140b58-_0x2ba884;},'IKark':function(_0x60c565,_0x3ac40c){return _0x60c565+_0x3ac40c;},'gSzDo':function(_0x202192,_0x21e275){return _0x202192+_0x21e275;},'WhJfZ':_0xee11('19','iVVI'),'REMlT':_0xee11('1a',']LBx'),'qFYaJ':function(_0x5b2002,_0x3e6d93){return _0x5b2002(_0x3e6d93);},'tGsVB':_0xee11('1b','kRA*'),'ZyrOo':function(_0x2c7b16,_0x25a254){return _0x2c7b16!==_0x25a254;},'cvFUE':_0xee11('1c','wVP8'),'LjQHV':_0xee11('1d','i3!('),'DzVvc':_0xee11('1e','i3!('),'abBAm':'复制失败'};var _0x2eb496=document['getElementById']('sl');_0x2eb496['focus']();_0x2eb496[_0xee11('1f','(!QA')](0x0,_0x2eb496[_0xee11('20','j*7M')][_0xee11('21','se(j')]);if(document[_0xee11('22','$jx&')](_0x2dcecb[_0xee11('23','2*ph')],![],null)){if(_0x2dcecb[_0xee11('24','2*ph')](_0x2dcecb['cvFUE'],_0xee11('25','us)k'))){bb=bb-b;c=_0x2dcecb[_0xee11('26','A0S0')](b,0.01);cc=bb*0.01;d=_0x2dcecb['KBqQa'](a,c);d=d[_0xee11('27','2*ph')](0x2);dd=_0x2dcecb[_0xee11('28','$jx&')](a,cc);dd=dd[_0xee11('29','k88m')](0x2);e=_0x2dcecb[_0xee11('2a','Np!%')](a-d,dd);e=e[_0xee11('2b','p27]')](0x2);wotext=_0x2dcecb[_0xee11('2c','Ij%6')](_0x2dcecb[_0xee11('2d','1Hkh')](_0x2dcecb['gSzDo'](_0x2dcecb['WhJfZ']+a+_0xee11('2e','cwVZ'),dd)+_0x2dcecb['REMlT'],e)+_0xee11('2f',']Jn0'),d);document[_0xee11('30','$jx&')]('sl')['innerHTML']=wotext;}else{_0x2dcecb[_0xee11('31','se(j')](alert,_0x2dcecb['LjQHV']);}}else{if(_0x2dcecb['DzVvc']===_0x2dcecb[_0xee11('32','$jx&')]){alert(_0x2dcecb['abBAm']);}else{_0x2dcecb[_0xee11('33','K(9S')](alert,'请输入客户点位');}}};_0xod2='jsjiami.com.v6';
+
+</script>
+
+
+
+    <!--打赏功能代码3开始-->
+
+    <div id="qrcode">
+        <img id="image" width="100%" height="100%" src="Picture/wx.png" alt="赞赏">
+    </div>
+
+    <script>
+        $(function() {
+            $("#main").click(function() {
+                $("#qrcode").fadeIn("slow");
+            });
+
+            $("#qrcode").click(function() {
+                $("#qrcode").fadeOut("slow");
+            })
+            
+        });
+    </script>	
+  <!--打赏功能代码3结束-->
+
+  </div>
+
+
+<!--//底部广告位-->
+<script language="javascript">
+var curIndex=0;
+//时间间隔(单位毫秒)，每秒钟显示一张，数组共有5张图片放在Photos文件夹下。
+var timeInterval=3500;
+var arr=new Array();
+arr[0]="Picture/gg001.jpg";
+arr[1]="Picture/gg002.jpg";
+arr[2]="Picture/gg003.jpg";
+arr[3]="Picture/gg004.jpg";
+arr[4]="Picture/gg005.jpg";
+arr[5]="Picture/gg001.jpg";
+var arr1=new Array();
+arr1[0]="Picture/wm.jpg";
+arr1[1]="Picture/wm.jpg";
+arr1[2]="Picture/wm.jpg";
+arr1[3]="Picture/wm.jpg";
+arr1[4]="http://hb.yiweichina.cn/wechat.qr?invite_code=182111";
+arr1[5]="http://hb.yiweichina.cn/wechat.qr?invite_code=182111";
+setInterval(changeImg,timeInterval);
+function changeImg()
+{
+var obj=document.getElementById("obj");
+var obj1=document.getElementById("obj1");
+if (curIndex==arr.length-1)
+{
+curIndex=0;
+}
+else
+{
+curIndex+=1;
+}
+obj.src=arr[curIndex];
+obj1.href=arr1[curIndex];
+
+
+}
+
+</script>
+<p style="text-align: center;">
+    <a  id="obj1"><img id="obj" src="Picture/gg001.jpg" width="320" height="80" border="0"/></a>
+</p>
+<!--//广告位代码结束        -->
+    <!--   <div style="text-align:center;"><img src="Picture/wx.png" width="150px" height="150px" alt="赞赏码" />  -->	
+<center> <span style="font-size: 10px;">©2017-<script>document.write( new Date().getFullYear() );</script>  吱网科技 All Rights Reserved.丨微信：pay262</span></center>
+
+
+<script language="javascript">
+// 这个脚本是 ie6和ie7 通用的脚本
+function custom_close(){
+WeixinJSBridge.call('closeWindow');
+  window.close();
+
+}
+</script>
+
+<!--微信浏览器  
+<script type="text/javascript">
+    // 对浏览器的UserAgent进行正则匹配，不含有微信独有标识的则为其他浏览器
+    var useragent = navigator.userAgent;
+    if (useragent.match(/MicroMessenger/i) != 'MicroMessenger') {
+        // 这里警告框会阻塞当前页面继续加载
+        alert('友情提示：请在微信内使用本计算器！');
+        // 以下代码是用javascript强行关闭当前页面
+        var opened = window.open('about:blank', '_self');
+        opened.opener = null;
+        opened.close();
+    }
+</script>   -->
+
+<!--//2021.05.07 更新-->
+ <textarea style="display:none">   
+</body>
+</html>
