@@ -1,0 +1,14 @@
+@charset "utf-8";
+/* 站点说明： 中国联通手机客户端
+ * 开发时间： 2014-03-14
+ * 开发者： 胡建
+ * 维护者： 胡建
+ *
+ * 样式版本： v1.0
+ * 版本时间： 2014-03-14
+ * 注意事项： 布局样式,所有布局样式将在这里定义,请勿轻易修改,此次布局兼顾屏幕自适应,客户端和wap均使用此文件
+ */
+ 
+body{-webkit-text-size-adjust:none; -webkit-touch-callout:none; font-weight:normal; height:100%; background:#fff none;}
+body,button,input,select,textarea{font-family:"Microsoft YaHei",Arial, Helvetica, sans-serif;}
+#pageNew{ width:100%; min-width:320px; margin:0 auto; overflow:hidden; background:#fff none; font-size:12px; color:#333; position:relative;}
