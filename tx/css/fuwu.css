@@ -1,0 +1,204 @@
+body {
+    margin: 0 auto;
+    max-width:640px;
+}
+
+html {
+    background-color: #fff;
+}
+
+.topsearch {
+    height: .7rem;
+    background-color: #ff7744;
+    text-align: center;
+    font-size: .28rem;
+    color: #fff;
+    line-height: 2.5;
+}
+
+.topsearch img {
+    width: .32rem;
+    vertical-align: middle;
+    float: right;
+    margin: .18rem .18rem 0 0;
+}
+
+.bannerImg {
+    background-color: #f0f0f0;
+}
+
+.bannerImg img {
+    width: 100%;
+    display: block;
+}
+
+.zt_body {
+    width: 6.4rem;
+    overflow: hidden;
+}
+
+.zcl {
+    width: 1.2rem;
+    background: #F0F0F0;
+    position: fixed;
+}
+
+.zcl li {
+    width: 1.2rem;
+    height: 1.2rem;
+    font-size: 0.26rem;
+    text-align: center;
+    line-height: 1.2rem;
+}
+
+.lb_li1 {
+    background: #FFFFFF;
+    border-left: 0.05rem solid #FF7744;
+    color: #FF7744;
+}
+
+.lb_li2, .lb_li3, .lb_li4, .lb_li5, .lb_li6, .lb_li7 {
+    background: #F0F0F0;
+    color: #666666;
+}
+
+.xian {
+    width: 4rem;
+    height: 0.15rem;
+    margin-left: 0.27rem;
+    text-align: center;
+    margin-bottom: 0.4rem;
+    border-bottom: 1px solid #f3f3f3;
+}
+
+.xian p {
+    width: 1.5rem;
+    font-size: 0.2rem;
+    color: #999999;
+    background: #FFFFFF;
+    margin-top: 0.45rem;
+}
+
+ul {
+    overflow: hidden;
+}
+
+.db_xia {
+    width: 6.4rem;
+    height: auto;
+    background: #FFFFFF;
+    position: fixed;
+    bottom: 0;
+    padding-top: 0.1rem;
+    box-shadow: 0 -2px 2px #efefef;
+}
+
+.db_xia li {
+    width: 1.27rem;
+    height: auto;
+    float: left;
+    font-size: 0.2rem;
+    font-weight: 800;
+    color: #7c7c7c;
+    text-align: center;
+}
+
+.db_xia li img {
+    width: 0.4rem;
+    height: auto;
+    margin-bottom: 0.1rem;
+}
+
+.db_xia li:nth-child(5) img {
+    width: 0.36rem;
+    margin-bottom: 0.08rem !important;
+}
+
+.db_xia li:nth-child(2) {
+    color: #ff8448;
+}
+
+.t1 {
+    font-size: 0.21rem;
+    color: #333333;
+    padding-left: 1.2rem;
+    padding-right: 0.22rem;
+    background: #FFFFFF;
+    float: left;
+    /*height: 6.4rem;*/
+    overflow: scroll;
+    margin-bottom: 1rem;
+}
+
+.t2, .t3, .t4, .t5, .t6, .t7  {
+    font-size: 0.21rem;
+    padding-left: 1.2rem;
+    padding-right: 0.22rem;
+    /*float:left;*/
+    display: none;
+    margin-bottom: 1rem;
+}
+
+.t1 li, .t2 li, .t3 li, .t4 li, .t5 li, .t6 li, .t7 li {
+    width: 33.3%;
+    height: 1.5rem;
+    float: left;
+    /*line-height: 2.5;*/
+    background: #FFFFFF;
+    text-align: center;
+}
+
+.t1 li p, .t2 li p, .t3 li p, .t4 li p, .t5 li p, .t6 li p, .t7 li p {
+    color: #333333;
+}
+
+.t1 li img, .t2 li img, .t3 li img, .t4 li img, .t5 li img, .t6 li img, .t7 li img {
+    margin-top: 0.4rem;
+    margin-bottom: 0.1rem;
+}
+
+.t1_1, .t1_2, .t1_3, .t1_4, .t1_5, .t1_6, .t1_7, .t1_8 {
+    padding-left: 0.24rem;
+    /*height: 4.5rem;*/
+    margin-left: 0;
+    margin-bottom: 0.6rem;
+}
+
+.t1_6{
+	height: 2rem;
+}
+
+/*.t1_2{
+	height:3.5rem;
+}*
+.t1_6{
+	height: 2rem;
+}
+.t1_7{
+	height: 6rem;
+}*/
+.tu1 {
+    width: 0.4rem;
+    height: 0.33rem;
+}
+
+.tu2 {
+    width: 0.29rem;
+    height: 0.36rem;
+    margin-top: 0.35rem;
+}
+
+.tu3 {
+    width: 0.36rem;
+    height: 0.33rem;
+}
+
+.tu4 {
+    width: 0.4rem;
+    height: auto;
+}
+
+.tu5 {
+    width: 0.4rem;
+    height: 0.4rem;
+}
