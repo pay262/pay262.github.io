@@ -101,8 +101,13 @@
     <div class="t1 div_nav">
         <div class="t1_1">
             <ul>
-                
- <div class="top1"><a href="http://91haoka.cn/webapp/merchant/templet1.html?share_id=386983&id=2493347"><img width="290rem" height="100rem" src="img/top_1.jpg"></a></div>                   
+
+<!--                
+ <div class="top1"><a href="http://91haoka.cn/webapp/merchant/templet1.html?share_id=386983&id=2493347"><img width="290rem" height="100rem" src="img/top_1.jpg"></a></div>-->
+ 
+<p style="text-align: center;">
+    <a id="obj1"><img id="obj" src="img/top_1.jpg" width="290rem" height="130rem" border="0"/></a>
+</p>                                       
                    
  					 <li name="https%3a%2f%2fm.client.10010.com%2fmobileService%2foperationservice%2fqueryOrderRelationshipTwo.htm" onclick="window.location.href=&quot;https://wap.10010.com/mobileService/clickCountLogRecord/pageClickCount.htm?flag=new&amp;urlApp=xxx&amp;urlName=xxx&amp;application=113000010&amp;title=%e6%88%91%e5%b7%b2%e8%ae%a2%e8%b4%ad&amp;openUrl=https%3a%2f%2fm.client.10010.com%2fmobileService%2foperationservice%2fqueryOrderRelationshipTwo.htm&quot;"> 
                             <img src="img/20161026170548.png" onerror="javascript:this.src='https://img.client.10010.com/mobileService/view/client/wap/images/default_logo.png';" class="tu1">
@@ -849,6 +854,45 @@
 			<p class="dkkud">打开<br>客户端</p>
 		</div>
 	-->
+<!--//-->
+<script language="javascript">
+var curIndex=0;
+//时间间隔(单位毫秒)，每秒钟显示一张，数组共有5张图片放在Photos文件夹下。
+var timeInterval=3500;
+var arr=new Array();
+arr[0]="img/top_1.jpg";
+arr[1]="img/top_2.jpg";
+arr[2]="img/top_3.jpg";
+arr[3]="img/top_2.jpg";
+arr[4]="img/top_3.jpg";
+arr[5]="img/top_2.jpg";
+var arr1=new Array();
+arr1[0]="http://ka.05321888.com/ka/taocan/chengxu/tyldy/386983/index.html";
+arr1[1]="http://91haoka.cn/webapp/merchant/templet1.html?share_id=386983&id=2493347";
+arr1[2]="http://91haoka.cn/webapp/merchant/templet1.html?share_id=386983&id=2482971";
+arr1[3]="http://91haoka.cn/webapp/merchant/templet1.html?share_id=386983&id=2493347";
+arr1[4]="http://91haoka.cn/webapp/merchant/templet1.html?share_id=386983&id=2482971";
+arr1[5]="http://91haoka.cn/webapp/merchant/templet1.html?share_id=386983&id=2493347";
+setInterval(changeImg,timeInterval);
+function changeImg()
+{
+var obj=document.getElementById("obj");
+var obj1=document.getElementById("obj1");
+if (curIndex==arr.length-1)
+{
+curIndex=0;
+}
+else
+{
+curIndex+=1;
+}
+obj.src=arr[curIndex];
+obj1.href=arr1[curIndex];
+
+
+}
+
+</script>
 
 
 <script type="text/javascript">
