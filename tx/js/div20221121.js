@@ -179,6 +179,7 @@ document.writeln("                        </li>");
 document.writeln("                    ");
 document.writeln("                     	 <li name=\"\" onclick=\"window.location.href=&quot;http://upay.10010.com/npfwap/npfMobWap/query/index.html?navUrlCode=1217&activiChannel=wap&quot;\">                              <img src=\"img/20200807103824.png\" onerror=\"javascript:this.src=\'https://img.client.10010.com/mobileService/view/client/wap/images/default_logo.png\';\" class=\"tu1\">");
 document.writeln("                            <p>交费记录</p>                    ");
+document.writeln("                        </li>");
 document.writeln("                ");
 document.writeln("            </ul>");
 document.writeln("        </div>");
