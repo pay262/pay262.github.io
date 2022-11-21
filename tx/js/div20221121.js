@@ -55,6 +55,7 @@ document.writeln("            <li></li>");
 document.writeln("            <li></li>");
 document.writeln("        </ul>");
 document.writeln("    </div>");
+document.writeln("</div>");
 document.writeln("");
 document.writeln("    <div class=\"t1 div_nav\">");
 document.writeln("        <div class=\"t1_1\">");
