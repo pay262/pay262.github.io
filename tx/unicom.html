@@ -1,0 +1,355 @@
+<html><head>
+<meta charset="utf-8"></head><body>    
+<meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1.0,user-scalable=0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>联通查询</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<meta name="format-detection" content="telephone=no">
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="expires" content="0">
+
+<!-- 解决页面防御--html注释陷阱 -->
+<!--
+<head>
+</head>
+<body>
+</body>
+</html>
+-->
+<input type="hidden" id="static_path" value="https://img.client.10010.com/mobileService/view/client">
+<input type="hidden" id="ctx_path" value="/mobileService">
+<link type="image/x-icon" href="img/chinaunicom.png" rel="shortcut icon">
+<link type="image/x-icon" href="img/chinaunicom.png" rel="icon">
+<link href="img/chinaunicom.png" rel="apple-touch-icon-precomposed">
+
+<link href="css/reset.css" type="text/css" rel="stylesheet">
+<link href="css/layoutNew.css" type="text/css" rel="stylesheet">
+
+<link href="css/baseNew.css" type="text/css" rel="stylesheet">
+
+<link href="css/addNew.css" type="text/css" rel="stylesheet">
+<link href="css/smartService.css" type="text/css" rel="stylesheet">    
+<link rel="stylesheet" type="text/css" href="css/reset_1.css">
+<link rel="stylesheet" type="text/css" href="css/index.css">
+<link rel="stylesheet" type="text/css" href="css/fuwu.css">
+<link rel="stylesheet" type="text/css" href="css/mxhtest.css">
+<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>  
+<script type="text/javascript" src="js/jquery.cookie.js"></script>  
+<script type="text/javascript" src="js/autosize.js"></script>
+<script type="text/javascript" src="js/data.js"></script>
+
+
+
+    
+
+<input type="hidden" id="static_path" value="https://img.client.10010.com/mobileService/view/client">
+<style type="text/css">
+    .top_nav{
+        height:1rem;
+        background:#f9f9f9;
+        position:fixed;
+        bottom:0;
+        left:0;
+        z-index:3;
+        width:100%;
+        max-width: 640px;
+        border-top: 1px solid #dcdcdc;
+        line-height: 0.35rem;
+    }
+    @media screen and ( min-width:640px) {
+        .top_nav{
+            height:1rem;
+            background:#f9f9f9;
+            position:fixed;
+            bottom:0;
+            left:50%;
+            z-index:3;
+            width:100%;
+            max-width: 640px;
+            margin-left:-320px;
+            border-top: 1px solid #dcdcdc;
+        }
+    }
+    .gapfixedSpace{
+        height:0.8rem;
+        line-height:0.8rem;
+        width: 100%;
+    }
+    .top_nav ul{
+        overflow:hidden;
+    }
+    .top_nav li.active{
+        font-size:0.18rem;
+    }
+    .top_nav li p{
+        position: relative;
+        width: 100%;
+        z-index: 5;
+    }
+    .top_nav li{
+        float:left;
+        width:20%;
+        text-align:center;
+        color:#000;
+        font-size:0.18rem;
+    }
+    .top_nav li img{
+        height: 0.4rem;
+        vertical-align: middle;
+        margin-top: 0.1rem;
+    }
+    .top_nav li span{
+        display: inline-block;
+        margin-top: 0.05rem;
+    }
+</style>
+<div class="top_nav">
+    <ul>
+        <li class="index" id="index4" onclick="wapHref('#')">
+            <img src="img/index4IconIn.png" class="InIcon">
+            <br>
+            <span>首页</span>
+        </li>
+        <li class="server" id="myServer" onclick="wapHref('#')">
+            <img src="img/myServerIconOut.png" class="OutIcon">
+            <br>
+            <span>查询</span>
+        </li>
+        <li class="shopping" id="shopping" onclick="wapHref('http://ka.05321888.com/ka/taocan/chengxu/tyldy/386983/index.html')">
+            <img src="img/shoppingIconOut.png" class="OutIcon">
+            <br>
+            <span>套餐</span>
+        </li>
+        <li class="myUnion" id="myUnicom" onclick="wapHref('http://m.client.10010.com/mobileService/hotline.jsp')">
+            <img src="img/myUnicomIconOut.png" class="OutIcon">
+            <br>
+            <span>客服</span>
+        </li>
+        
+        <li id="client" onclick="wapHref('https://support.qq.com/embed/phone/433218')">
+            <img src="img/clientIconOut.png" class="OutIcon">
+            <br>
+            <span>留言板</span>
+        </li>
+    </ul>
+</div>
+<script type="text/javascript">
+    function wapHref(url) {
+        if (url) {
+            window.location.href = url;
+        }
+    }
+    $(function(){
+        $(".top_nav ul li").each(function(){
+            $(this).find("img").attr("src", 'https://img.client.10010.com/mobileService/view/client/wap/images/'+$(this).attr("id")+'IconOut.png');
+        });
+        $("#myServer img").attr("src", 'https://img.client.10010.com/mobileService/view/client/wap/images/myServerIconIn.png');
+    });
+</script>
+</div>
+	
+	<style type="text/css">
+	.gg_tanceng {
+		width: 100%;
+		height: 100%;
+		position: fixed;
+		top: 0;
+		left: 0;
+		background: rgba(0,0,0,0.5);
+		z-index: 10;
+		text-align: center;
+		display: none;
+	}
+	.nebuc {
+		width: 4.33rem;
+		height: 5.38rem;
+		margin: 0 auto;
+		margin-top: 20%;
+		position: relative;
+	}
+	.nebuc img {
+		width: 100%;
+	}
+	.guanbi {
+		width: 0.44rem;
+		margin-top:0.35rem;
+	}
+	#bott {
+		width: 1.82rem;
+		position: absolute;
+		bottom: 0.6rem;
+		left: 50%;
+		margin-left: -0.91rem;
+	}
+ .youicon {
+           width: 1.55rem;
+           height: 0.88rem;
+           background: rgba(254, 145, 104, 0.8);
+           position: fixed;
+           bottom: 2rem;
+           right: 0;
+           border-radius: 50px 0 0 50px;
+       }
+	.gb {
+		width: 0.26rem;
+		height: 0.26rem;
+		position: absolute;
+		top: 0.3rem;
+		left: -0.35rem;
+	}
+	.logo {
+		width: 0.66rem;
+		margin: 0.12rem;
+	}
+	.dkkud {
+		font-size: 0.2rem;
+		color: #FFFFFF;
+		width: 40%;
+		position: absolute;
+		top: 0.17rem;
+		right: 0.05rem;
+		text-align: center;
+	}
+	</style>
+	
+<!--		
+		<div class="youicon">
+			<img src="img/gb2.png" class="gb">
+			<img src="img/logo2.png" class="logo">
+			<p class="dkkud">打开<br>客户端</p>
+		</div>
+	-->
+<!--//-->
+<script language="javascript">
+var curIndex=0;
+//时间间隔(单位毫秒)，每秒钟显示一张，数组共有5张图片放在Photos文件夹下。
+var timeInterval=3500;
+var arr=new Array();
+arr[0]="img/top_1.jpg";
+arr[1]="img/top_2.jpg";
+arr[2]="img/top_3.jpg";
+arr[3]="img/top_2.jpg";
+arr[4]="img/top_3.jpg";
+arr[5]="img/top_2.jpg";
+var arr1=new Array();
+arr1[0]="http://ka.05321888.com/ka/taocan/chengxu/tyldy/386983/index.html";
+arr1[1]="http://91haoka.cn/webapp/merchant/templet1.html?share_id=386983&id=2589480";
+arr1[2]="http://91haoka.cn/webapp/merchant/templet1.html?share_id=386983&id=2589466";
+arr1[3]="http://91haoka.cn/webapp/merchant/templet1.html?share_id=386983&id=2589480";
+arr1[4]="http://91haoka.cn/webapp/merchant/templet1.html?share_id=386983&id=2589466";
+arr1[5]="http://91haoka.cn/webapp/merchant/templet1.html?share_id=386983&id=2589480";
+setInterval(changeImg,timeInterval);
+function changeImg()
+{
+var obj=document.getElementById("obj");
+var obj1=document.getElementById("obj1");
+if (curIndex==arr.length-1)
+{
+curIndex=0;
+}
+else
+{
+curIndex+=1;
+}
+obj.src=arr[curIndex];
+obj1.href=arr1[curIndex];
+
+
+}
+
+</script>
+
+
+<script type="text/javascript">
+	function stopBubble(e){
+	    var evt = e||window.event;
+	    evt.stopPropagation?evt.stopPropagation():(evt.cancelBubble=true);//阻止冒泡
+	    //evt.preventDefault();//阻止浏览器默认行为，这样链接就不会跳转
+	}
+	var serviceHref = '';	
+	if(serviceHref == ''|| serviceHref ==null){
+		serviceHref="https://u.10010.cn/qADjf";
+	}
+	$(".youicon").click(function(){
+		window.location.href = serviceHref;
+	});
+	$(".gb").click(function(e){
+		stopBubble(e);
+		$(".youicon").animate({
+			right:'-1.6rem',
+			opacity:'0',
+		},1000);
+	});
+    $(function () {
+        $("#tab_li_div li.oper").click(function () {
+            $(this).siblings("li.oper").css({
+                "background": "#F0F0F0",
+                "border-left": "none",
+                "color": "#666666"
+            });
+            $(this).css({
+                "background": "#FFFFFF",
+                "border-left": "0.05rem solid #FF7744",
+                "color": "#FF7744"
+            });
+            var id = $(this).attr("data-index");
+            $(".t" + id).css("display", "block");
+            $("div.div_nav:not(.t" + id + ")").css("display", "none");
+            document.cookie = "wap_nav_sec=" + $(this).attr("data-oper") + ";domain=wap.10010.com;path=/";
+        });
+        fireSecChange();
+    });
+
+    function fireSecChange() {
+        var sec = getCookieValue("wap_nav_sec");
+        var curTab = $("#tab_li_div li.oper[data-oper='" + sec + "']");
+        if (typeof curTab == 'object') {
+            curTab.click();
+        } else {
+            $("#tab_li_div li.oper[data-oper='query']").click();
+        }
+    }
+
+    function getCookieValue(cookieKey) {
+        //获取cookie字符串
+        var strCookie = document.cookie;
+        //将多cookie切割为多个名/值对
+        var arrCookie = strCookie.split("; ");
+        //遍历cookie数组，处理每个cookie对
+        for (var i = 0; i < arrCookie.length; i++) {
+            var arr = arrCookie[i].split("=");
+            //找到名称为userId的cookie，并返回它的值
+            if (cookieKey === arr[0]) {
+                return arr[1];
+            }
+        }
+        return "";
+    }
+
+	//调整左侧导航条位置新加js(20170222)
+	window.onload = function(){
+		var deviceHeight = $(window).height();
+		var titleHeight = $('.newHeader').height();
+		var gapTitle = $('.gapTitle').height();
+		var footHeight = $('.top_nav').height();
+		var navTop = titleHeight + gapTitle;
+		var bodyBoxHeight = deviceHeight - titleHeight - gapTitle - footHeight;
+		$('.t1').height(bodyBoxHeight);
+		$('.zcl').css('top',navTop);
+	}
+</script>
+ <!-- Baidu tongji analytics -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+</body></html>
