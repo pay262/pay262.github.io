@@ -1,0 +1,43 @@
+table.metro a{
+        display:block;text-decoration:none;
+        font-size:22px;color:#fff;text-align:center;
+        overflow:hidden;height:69px;line-height:69px;
+        margin:4px;
+    }
+body {
+	background-color: #000000;
+}
+
+.STYLE1 {
+	font-size: 20px;
+	color: #FFFFFF;
+}
+.STYLE2 {
+	font-size: 14px;
+	color: #FFFFFF;
+}
+.STYLE3 {
+	font-size: 14px;
+	color: #FFFFFF;
+}
+.STYLE4 {
+	font-size: 12px;
+	color: #FFFFFF;
+}
+body {
+	background-color: #000000;
+}
+.a2:link {
+ color: #FFFFFF;
+ text-decoration: none !important;
+}
+.a2:visited {
+ color:#FFFFFF;
+  text-decoration: none !important;
+}
+.a2:hover {
+ color:#FFFFFF;
+}
+.a2:active {
+ color:#FFFFFF;
+}
