@@ -14,7 +14,7 @@ document.write("<marquee behavior=\"\" scrolldelay=\"100\" scrollamount=\"1\" di
 document.write("");
 document.write("🎤最新套餐推荐：<\/br>");
 document.write("");
-document.write("<a href=\"http:\/\/91haoka.cn\/webapp\/merchant\/templet1.html?share_id=386983&id=2624641\" target=\"_blank\">");
+document.write("<a href=\"http:\/\/91haoka.cn\/webapp\/merchant\/templet1.html?share_id=386983&id=2649371\" target=\"_blank\">");
 document.write("");
 document.write("1.联通29元103g全国通用流量＋100分钟通话(点击办理)。<\/a><\/br>");
 document.write("");
@@ -1074,7 +1074,7 @@ document.write("          		 <li name=\"\" onclick=\"window.location.href=&quot;
 document.write("");
 document.write("                            <p>京东秒杀<\/br>爆品限时抢<\/p>");
 document.write("");
-document.write("                        <\/li>                                                                                                ");
+document.write("                        <\/li>                                                                                               ");
 document.write("");
 document.write("            <\/ul>");
 document.write("");
