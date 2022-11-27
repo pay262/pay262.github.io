@@ -808,7 +808,7 @@ document.write("                        <\/li>                                  
 document.write("");
 document.write("                                                                         		 <li name=\"\" onclick=\"window.location.href=&quot;https:\/\/m.client.10010.com\/error\/busy.html&quot;\">                                                         <img src=\"img\/20161026175846.png\" onerror=\"javascript:this.src='https:\/\/img.client.10010.com\/mobileService\/view\/client\/wap\/images\/default_logo.png';\" class=\"tu1\">");
 document.write("");
-document.write("                            <p>河南·200M<\/br>39元低消宽带<\/p>");
+document.write("                            <p>河南·200M<\/br>低消宽带<\/p>");
 document.write("");
 document.write("                        <\/li>      ");
 document.write("");
