@@ -1,0 +1,51 @@
+<html>
+    <head>
+        <meta name="wechat-enable-text-zoom-em" content="true">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="color-scheme" content="light dark">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0,viewport-fit=cover">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <meta name="format-detection" content="telephone=no">
+        <link rel="shortcut icon" href="https://res.wx.qq.com/a/wx_fed/assets/res/NTI4MWU5.ico">
+        <!--样式文件-->
+        <link rel="stylesheet" href="css/kf.common.css">
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <script src="http://code.jquery.com/jquery-1.9.0.js"></script>  
+        <script src="js/clipboard.min.js"></script>
+    </head>
+<body>
+    
+<div id="zhanwei"></div><title>在线客服</title><div id="kf_safety"><div class="icon"></div><div class="text">二维码已通过安全验证</div></div><div id="kf_beizhu"><p style="color:#f00;text-align:center;">在线时间</p>09:00——12:00；  14:00——18:00</div><p id="scanTips">请扫描下方二维码联系客服</p><div id="kfzm_qrcode"><img src="img/wx.png" /></div>
+
+<p id="wxnum">微信:<span style="color:#ff7575" id="target">pay262</span></p>
+<p id="wxnum">当前咨询人数较多，可能回复较慢！</p>
+<!--
+<div id="kf_online_false">当前咨询人数较多，可能回复较慢！</div>-->
+<div id="kf_online_false" class="btns"><a class="btn" data-clipboard-target="#target" id="copy_btn">    
+    复制微信号</a></div>
+
+
+   <script>    
+    $(document).ready(function(){      
+        var clipboard = new Clipboard('#copy_btn');    
+        clipboard.on('success', function(e) {    
+            alert("微信号复制成功",1500);
+               
+        });    
+    });    
+</script>    
+
+
+ <!-- Baidu tongji analytics -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+</body></html>
