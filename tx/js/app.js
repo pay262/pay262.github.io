@@ -886,7 +886,7 @@ document.write("                            <p>广东·语音包<\/br>20元300�
 document.write("");
 document.write("                        <\/li>               ");
 document.write("");
-document.write("		 <li name=\"\" onclick=\"window.location.href=&quot;https:\/\/m.client.10010.com\/error\/busy.html&quot;\"> ");
+document.write("		 <li name=\"\" onclick=\"window.location.href=&quot;https:\/\/apis.17wo.cn\/flowq-web\/#\/goods\/goodsOrder?productId=MTAxNjE1OA%3D%3D&wealthUserId=MzUwNDE1&rebateType=2&quot;\"> ");
 document.write("");
 document.write("                            <img src=\"img\/20161026175846.png\" onerror=\"javascript:this.src='https:\/\/img.client.10010.com\/mobileService\/view\/client\/wap\/images\/default_logo.png';\" class=\"tu1\">");
 document.write("");
