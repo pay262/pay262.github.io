@@ -31,8 +31,8 @@
     $(document).ready(function(){      
         var clipboard = new Clipboard('#copy_btn');    
         clipboard.on('success', function(e) {    
-           // alert("微信号复制成功",1500);
-               
+            alert("微信号复制成功",1500);
+           	location.href="weixin://";	    
         });    
     });    
 </script>    
