@@ -2,7 +2,7 @@ document.write("<div id=\"new\" class=\"newHeader\">");
 document.write("");
 document.write("    <div class=\"topsearch\">");
 document.write("");
-document.write("        查询");
+document.write("        因为相信 所以看见");
 document.write("");
 document.write("    <!--    <img src=\"img\/searchNew.png\" alt=\"\" onclick=\"wapHref('http:\/\/wap.10010.com\/mobileService\/search.htm')\">-->");
 document.write("");
