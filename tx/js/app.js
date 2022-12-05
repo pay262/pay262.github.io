@@ -432,11 +432,11 @@ document.write("                            <p>京东<\/br>积分兑换\/快充<
 document.write("");
 document.write("                        <\/li>");
 document.write("");
-document.write("                    	 <li name=\"\" onclick=\"window.location.href=&quot;http:\/\/u.10010.cn\/0tyJgi9w?channel=Face&quot;\">     ");
+document.write("                    	 <li name=\"\" onclick=\"window.location.href=&quot;http:\/\/u.10010.cn\/0tykYLi3?channel=Face&quot;\">     ");
 document.write("");
 document.write("                            <img src=\"img\/20161026172853.png\" onerror=\"javascript:this.src='https:\/\/img.client.10010.com\/mobileService\/view\/client\/wap\/images\/default_logo.png';\" class=\"tu1\">");
 document.write("");
-document.write("                            <p>抢·5折话费<\/br>每月3、28日<\/p>");
+document.write("                            <p>年终福利<\/br>红包&五折话费<\/p>");
 document.write("");
 document.write("                        <\/li>");
 document.write("");
