@@ -584,7 +584,7 @@ document.write("                    ");
 document.write("");
 document.write("                   ");
 document.write("");
-document.write(" 					 <li name=\"\" onclick=\"window.location.href=&quot;https:\/\/sourl.cn\/3PVnxP&quot;\"> ");
+document.write(" 					 <li name=\"\" onclick=\"window.location.href=&quot;https:\/\/sourl.cn\/k9bDum&quot;\"> ");
 document.write("");
 document.write("                            <img src=\"img\/20200807103824.png\" onerror=\"javascript:this.src='https:\/\/img.client.10010.com\/mobileService\/view\/client\/wap\/images\/default_logo.png';\" class=\"tu1\">");
 document.write("");
