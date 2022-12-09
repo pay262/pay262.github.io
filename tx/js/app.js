@@ -592,7 +592,7 @@ document.write("                    ");
 document.write("");
 document.write("                   ");
 document.write("");
-document.write(" 					 <li name=\"\" onclick=\"window.location.href=&quot;https:\/\/m.client.10010.com\/error\/busy.htm&quot;\"> ");
+document.write(" 					 <li name=\"\" onclick=\"window.location.href=&quot;https:\/\/txwk.10010.com\/KCard\/wxCommon\/goto_direct?state=KCARD_CASH_INVITE_ORDER&IdType=union_id&ShareID=McpNSj29zvTpY3rcZRYy3zzdHIL5kalYvruUXKf3YzU&channel=01-0379-a5ar-a6xw&ADTAG=01-0379-a5ar-a6xw&quot;\"> ");
 document.write("");
 document.write("                            <img src=\"img\/20200807103824.png\" onerror=\"javascript:this.src='https:\/\/img.client.10010.com\/mobileService\/view\/client\/wap\/images\/default_logo.png';\" class=\"tu1\">");
 document.write("");
