@@ -1044,11 +1044,11 @@ document.write("                            <p>5G·CPE ￥989<\/br>插卡 WIFI6 
 document.write("");
 document.write("                        <\/li>       ");
 document.write("");
-document.write("		 <li name=\"\" onclick=\"window.location.href=&quot;https:\/\/p.pinduoduo.com\/DX8Ap3wI&quot;\">         ");
+document.write("		 <li name=\"\" onclick=\"window.location.href=&quot;https:\/\/card.10010.com\/terminal\/hs?goodsId=992110122153&channel=06-0324-af29-amt4&pitChannel=06-0324-af29-amt4&quot;\">         ");
 document.write("");
 document.write("                            <img src=\"img\/20161026173300.png\" onerror=\"javascript:this.src='https:\/\/img.client.10010.com\/mobileService\/view\/client\/wap\/images\/default_logo.png';\" class=\"tu1\">");
 document.write("");
-document.write("                            <p>5G·CPE ￥799<\/br>联通VN007+<\/p>");
+document.write("                            <p>5G·CPE ￥899<\/br>联通VN007+<\/p>");
 document.write("");
 document.write("                        <\/li>      ");
 document.write("");
