@@ -680,11 +680,11 @@ document.write("                            <p>领1元话费<\/br>11月30日截�
 document.write("");
 document.write("                        <\/li>           -->         ");
 document.write("");
-document.write(" 					 <li name=\"\" onclick=\"window.location.href=&quot;https:\/\/club.10010.com\/&quot;\"> ");
+document.write(" 					 <li name=\"\" onclick=\"window.location.href=&quot;https:\/\/club.10010.com\/uf\/daily\/draw?isAuto=true&shorturl=8b40e5&quot;\"> ");
 document.write("");
 document.write("  					   <img src=\"img\/20161026173300.png\" onerror=\"javascript:this.src='https:\/\/img.client.10010.com\/mobileService\/view\/client\/wap\/images\/default_logo.png';\" class=\"tu1\">");
 document.write("");
-document.write("                            <p>客户俱乐部<\/p>");
+document.write("                            <p>每日抽E卡<\/br>12.7-12.16<\/p>");
 document.write("");
 document.write("                        <\/li>       ");
 document.write("");
