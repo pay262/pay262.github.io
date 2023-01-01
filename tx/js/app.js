@@ -450,6 +450,12 @@ document.write("                            <p>慢充·200话费<\/br>限时9折
 document.write("");
 document.write("                        <\/li>");
 document.write("");
+document.write("                    	 <li name=\"\" onclick=\"window.location.href=&quot;https:\/\/wx.abchina.com\/webank\/main-view\/openTagForGD?id=zkI6Pi4nlMo%3D&dynamicData=7Uv%2BzJmtZCuB%2FcrsqjG4kmJugE6vPYQN&quot;\">                                                <img src=\"img\/20190827172359.png\" onerror=\"javascript:this.src='https:\/\/img.client.10010.com\/mobileService\/view\/client\/wap\/images\/default_logo.png';\" class=\"tu1\">");
+document.write("");
+document.write("                            <p>广东农行30-5<\/br>3月31日截止<\/p>");
+document.write("");
+document.write("                        <\/li>          ");
+document.write("");
 document.write(" ");
 document.write("");
 document.write("                    	 <li name=\"\" onclick=\"window.location.href=&quot;https:\/\/atp.bol.wo.cn\/atp\/unity\/ACT2022113015554913066840hz5G9?product=woemail&quot;\">                                                <img src=\"img\/20190827172359.png\" onerror=\"javascript:this.src='https:\/\/img.client.10010.com\/mobileService\/view\/client\/wap\/images\/default_logo.png';\" class=\"tu1\">");
