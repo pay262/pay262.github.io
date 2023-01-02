@@ -124,15 +124,17 @@
 					</div>
 
 					<div class="menu__header">设置</div>
-<!--					<img style="height:80px" src="img/wx.jpg">  -->
-						<div class="credits">
-							<p class="copyright">
-								您的IP：
-								<script src="https://pv.sohu.com/cityjson?ie=utf-8">
-								</script>
-								<script type="text/javascript">
-									document.write(returnCitySN["cip"])
-								</script>
+					<img style="height:80px" src="img/2023.jpg">  
+						<div id="myip" class="credits">
+							<p id="ip" class="my">
+					
+	当前ip：<span id="idTestJson"></span><br/>
+<script>
+function testJson(obj) {
+    document.getElementById("idTestJson").innerHTML = "["+obj.ip+"]["+obj.addr+"]";
+}
+</script>
+<script src="http://whois.pconline.com.cn/ipJson.jsp?callback=testJson"></script>
                          </div>					
 		<!--			<div class="menu__subheader"><br>微信公众号： 
 					</div>   -->
@@ -259,7 +261,7 @@
 			});
 		}
 		function start() {
-			let str = "未来科技带你一起迎接新年❤️<br>凑不够满天星辰💫<br>那就去看看烟花吧💥<br>人间烟火气🍗<br>最抚慰人心💖<br>——点击屏幕点燃更多烟花哟🎉"
+			let str = "我们一起迎接新年❤️<br>凑不够满天星辰💫<br>那就去看看烟花吧💥<br>——点击屏幕<br>点燃更多烟花哟🎉"
 			let str_ = ''
 			let i = 0
 			let content = document.getElementById('contents')
