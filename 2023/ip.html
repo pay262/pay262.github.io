@@ -1,0 +1,27 @@
+<!DOCTYPE html><html lang="en"><head>
+		<title>IP地址查询</title>
+</head>
+<body>
+<div id="myip" class="credits">
+		<p id="ip" class="my">
+					
+	您的ip：<span id="idTestJson"></span><br/>
+<script>
+function testJson(obj) {
+    document.getElementById("idTestJson").innerHTML = "["+obj.ip+"]["+obj.addr+"]["+obj.cityCode+"]";
+}
+</script>
+<script src="http://whois.pconline.com.cn/ipJson.jsp?callback=testJson"></script>
+                         </div>					
+    <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
+      var s = document.getElementsByTagName("script")[0]; 
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>‭‫‎‫‬‫‫‭‪‭‬‫‭‫‎‬‏‭‬
+    
+</body>
+</html>
