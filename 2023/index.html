@@ -124,11 +124,11 @@
 					</div>
 
 					<div class="menu__header">设置</div>
-					<img style="height:80px" src="img/2023.jpg">  
+					<img style="height:80px" src="img/wx.jpg">  
 						<div id="myip" class="credits">
 							<p id="ip" class="my">
 					
-	当前ip：<span id="idTestJson"></span><br/>
+	您的ip：<span id="idTestJson"></span><br/>
 <script>
 function testJson(obj) {
     document.getElementById("idTestJson").innerHTML = "["+obj.ip+"]["+obj.addr+"]";
@@ -181,7 +181,27 @@ function testJson(obj) {
 						</div>
 						<div class="form-option form-option--checkbox">
 							<label class="long-exposure-label">背景音乐</label>
-					<audio id="audioDom" src="media/7170534431801838367.mp3" preload="auto" loop="loop" controls></audio>							
+					<audio id="audioDom" src="media/7170534431801838367.mp3" preload="auto" loop="loop" controls="controls" volume=""></audio>			
+				<!--	<button onclick="getVolume()" type="button">当前音量</button>
+<button onclick="setZeroVolume()" type="button">静音</button>			-->		
+<button onclick="setHalfVolume()" type="button">Vol -</button>
+<button onclick="setFullVolume()" type="button">Vol +</button>
+<script>
+var x = document.getElementById("audioDom");
+function getVolume(){ 
+	alert(x.volume);
+} 
+function setZeroVolume(){ 
+	x.volume = 0.0;
+} 
+function setHalfVolume(){ 
+	x.volume = 0.1;
+} 
+function setFullVolume(){ 
+	x.volume = 1.0;
+} 
+</script> 
+			
 						</div>														
 					</form>
 					<!-- <div class="credits">
