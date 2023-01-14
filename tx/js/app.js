@@ -692,6 +692,14 @@ document.write("                            <img src=\"img\/20200807103824.png\"
 document.write("");
 document.write("                            <p>超级办<\/p>                          <\/li>                           ");
 document.write("");
+document.write(" 					 <li name=\"\" onclick=\"window.location.href=&quot;https:\/\/img.client.10010.com\/2023springfestival\/#\/Login?shareCode=&channel=UnicomAppN11&quot;\"> ");
+document.write("");
+document.write("                            <img src=\"img\/20161026175256.png\" onerror=\"javascript:this.src='https:\/\/img.client.10010.com\/mobileService\/view\/client\/wap\/images\/default_logo.png';\" class=\"tu1\">");
+document.write("");
+document.write("                            <p>2022年度报告<\/p>");
+document.write("");
+document.write("                        <\/li>");
+document.write("");
 document.write("                                    ");
 document.write("");
 document.write("            <\/ul>");
