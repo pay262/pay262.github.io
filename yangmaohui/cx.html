@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>订单查询</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no"/>
+		<link rel="stylesheet" href="" />
+		<link rel="stylesheet" href="" />
+		<script type="text/javascript" src="https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058" ></script>
+<style type="text/css">	
+@charset "utf-8";
+body{
+	max-width: 750px;
+	margin: 0 auto;
+}
+.wrap{
+	padding-top: 4.3rem;
+}
+.h_top{
+	line-height: 4.4rem;
+	position: fixed;
+	z-index: 20;
+	width: 100%;
+	max-width: 750px;
+	margin: 0 auto;
+	top:0;
+	background-color: #4f9afe;
+}
+.h_top h1{
+	line-height: 4.4rem;
+	color: #fff;
+	font-size: 1.6rem;
+	text-align: center;
+	font-weight: 500;
+}
+.h_top a{
+	position: absolute;
+	left: 1%;
+	color: #f77f0c;
+	font-size: 1.5rem;
+	top:0;
+	width: 10%;
+}
+.h_top a span img{
+	width:2rem;
+	padding:1.2rem 6%;
+}
+.jieguo{
+  padding: 5rem 5%;
+}
+.jgimg{
+  display: block;
+  width: 20rem;
+  margin: 0 auto;
+}
+.jgh1{
+  line-height: 3rem;
+  font-size: 1.6rem;
+  color: #333;
+  padding: 0 8%;
+  text-align: center;
+}
+.jgp{
+  padding: 0.5rem 5%;
+  font-size: 1.3rem;
+  color: #888;
+  text-align: center;
+  line-height: 2rem;
+}
+.sq1{
+  width: 90%;
+  display: block;
+  height: 4rem;
+  margin: 1rem auto;
+  background-color: #4f9afe;
+  color: #fff;
+  line-height: 4rem;
+  text-align: center;
+  border-radius: 0.5rem;
+  font-size: 1.5rem;
+  border: none;
+  outline: none;
+  text-decoration:none;
+}
+.jgh2{
+  line-height: 3rem;
+  font-size: 1.3rem;
+  color: #333;
+  padding: 0 8%;
+}
+</style>
+<script>
+//设置根目录font-size,1rem=20px
+(function(doc, win) {
+
+    var docEl = doc.documentElement,
+
+        resizeEvt = 'orientationchange' in window ? 'orientationchange' : 'resize',
+
+        recalc = function() {
+
+            var clientWidth = docEl.clientWidth;
+
+            if (!clientWidth) return;
+            if(clientWidth>=750){
+                     docEl.style.fontSize = '20px';
+                 }else{
+                     docEl.style.fontSize = 10 * (clientWidth / 375) + 'px';
+                 }
+            /*docEl.style.fontSize = 20 * (clientWidth / 320) + 'px';*/
+
+        };
+
+    if (!doc.addEventListener) return;
+
+    win.addEventListener(resizeEvt, recalc, false);
+
+    doc.addEventListener('DOMContentLoaded', recalc, false);
+	
+})(document, window);
+
+</script>
+	</head>
+	<body>
+
+	
+		<header class="h_top">
+			<h1>订单查询</h1>
+		</header>
+		<div class="wrap">			
+			<div class='jieguo'>
+			  <img src='https://vkceyugu.cdn.bspapp.com/VKCEYUGU-0a1ab0dc-ec1f-41c6-a071-49d5ef759869/5ebce0db-2c0d-418a-8066-64caa3ac1940.png' class='jgimg'>
+			  
+				  
+				  
+				  <div class='jgh1'>提供几个查单渠道供大家使用，官方查询链接理论可查所有订单，以实际为准		<!--		  <span style="color: rgb(255, 0, 0)">若有弹框提示，请点击下面“打开”进入小程序</span>  -->
+				  </div>
+				  
+			  
+			</div>
+		</div>
+<!--		<a class='sq1' onclick="toWechat();" href="javascript:void(0);">进入复机小程序</a>-->
+		<a class='sq1' onclick="" href="http://91haoka.cn/webapp/merchant/query.html" target="_self">店铺订单查询</a>
+		<a class='sq1' onclick="" href="https://dev.coc.10086.cn/coc/web/coc2020/cardqueryorder/" target="_self">移动订单查询</a>		
+		<a class='sq1' onclick="" href="https://m.10010.com/myorder" target="_self">联通订单查询</a>
+		<a class='sq1' onclick="" href="https://pms.189.cn/cljy-web/static/xshkzzfw/xshkzzfw_index.html" target="_self">电信订单查询</a>				
+		<a class='sq1' onclick="" href="https://getsimnum.caict.ac.cn/m/#/" target="_self">一证通查</a>				
+<div>【联通/电信订单限制】</br>
+一、联通系统规定：最近15天有申请过全国任意联通卡订单但未激活的，重复提交任何联通订单都会被驳回，取消当前在途订单后方可重新提交。</br>
+撤单方法1：打开上方联通订单查询链接 输入收货号码，找到在途订单，点击取消订单，取消流程大约几小时不等，确定完全取消后再重新下单。</br>
+撤单方法2：拨打10010联通客服电话转人工服务，告诉他们取消最近15天内未激活的订单。</br>
+二、电信方法同上</br>
+</div>
+	</body>
+<!--  //跳转小程序
+
+		<script type="text/javascript" src="https://hb.189.cn/pages/vrnaWap/loadWechat/js/jquery-1.9.1.min.js" ></script>
+
+<script type="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+<script>
+$(function(){
+   var ua = navigator.userAgent.toLowerCase();
+   if(ua.match(/MicroMessenger/i)=="micromessenger") {
+   	//var vrnaNo = $("#vrnaNo").val();
+       //ios的ua中无miniProgram，但都有MicroMessenger（表示是微信浏览器）
+       //alert("在微信里");
+       wx.miniProgram.getEnv(function(res){
+          if (res.miniprogram) {
+       	   //console.info("在小程序里");
+          } else {
+             //console.info("在微信，不在小程序里");
+        	  window.location.href="weixin://dl/business/?t=CTEhieOo5sc";
+          }
+       })
+   }else{
+	   window.location.href="weixin://dl/business/?t=CTEhieOo5sc";
+       //console.info('不在微信里");
+   }
+})
+
+function toWechat(){
+	   window.location.href="weixin://dl/business/?t=CTEhieOo5sc";
+}
+</script>   -->
+ <!-- Baidu tongji analytics -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+</html>
