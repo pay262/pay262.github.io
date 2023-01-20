@@ -1,2 +1,12 @@
-【版本】2【版本】
-【下载】http://m.baidu.com【下载】
+
+
+
+{更新:
+【版本:1.0.7:END】
+【大小:3.02:END】
+【更新日志:【1.0.7更新日志】
+修复bug。
+:END】
+【下载地址】https://pay262.github.io/yangmaohui/app.apk:END】
+【版本号更新:TRUE:END】
+:END}
