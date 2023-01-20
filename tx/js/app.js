@@ -402,7 +402,7 @@ document.write("                            <p>积分兑换(200元)<\/p>");
 document.write("");
 document.write("                        <\/li>                      ");
 document.write("");
-document.write("                    	 <li name=\"\" onclick=\"window.location.href=&quot;https:\/\/m.tb.cn\/h.UlWe0f1&quot;\">                                                <img src=\"img\/20190827172359.png\" onerror=\"javascript:this.src='https:\/\/img.client.10010.com\/mobileService\/view\/client\/wap\/images\/default_logo.png';\" class=\"tu1\">");
+document.write("                    	 <li name=\"\" onclick=\"window.location.href=&quot;https:\/\/m.tb.cn\/h.UOg9x5U&quot;\">                                                <img src=\"img\/20190827172359.png\" onerror=\"javascript:this.src='https:\/\/img.client.10010.com\/mobileService\/view\/client\/wap\/images\/default_logo.png';\" class=\"tu1\">");
 document.write("");
 document.write("                            <p>领话费1<\/br>1月31日截止<\/p>");
 document.write("");
