@@ -1,11 +1,9 @@
 
-
-
 {更新:
-【版本:1.0.7:END】
-【大小:3.02:END】
-【更新日志:【1.0.7更新日志】
-修复bug。
+【版本:1.0:END】
+【大小:2.2:END】
+【更新日志:【1.0更新日志】
+新版发布！
 :END】
 【下载地址】https://pay262.github.io/yangmaohui/app.apk:END】
 【版本号更新:TRUE:END】
