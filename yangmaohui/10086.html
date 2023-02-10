@@ -7,6 +7,7 @@
     <title>中国移动</title>
     <meta name="keywords" content="">
     <meta name="description" content="">
+    <meta name="format-detection" content="telephone=no">
     <link href="css/normalize.css" rel="stylesheet">
     <link href="https://fonts.cdnfonts.com/css/opposans" rel="stylesheet">
     <link href="css/index.css" rel="stylesheet">
@@ -463,22 +464,22 @@
 
 </div>
 
+<script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
 <script>
-function () {
-	function onBridgeReady() {
-	    WeixinJSBridge.call('hideOptionMenu');
-	}
- 
-	if (typeof WeixinJSBridge == "undefined") {
-	    if (document.addEventListener) {
-	        document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
-	    } else if (document.attachEvent) {
-	        document.attachEvent('WeixinJSBridgeReady', onBridgeReady);
-	        document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
-	    }
-	} else {
-	    onBridgeReady();
-	}
+    function onBridgeReady() {
+        WeixinJSBridge.call('hideOptionMenu');
+    }
+
+    if (typeof WeixinJSBridge == "undefined") {
+        if (document.addEventListener) {
+            document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
+        } else if (document.attachEvent) {
+            document.attachEvent('WeixinJSBridgeReady', onBridgeReady);
+            document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
+        }
+    } else {
+        onBridgeReady();
+    }
 </script>
 
 <script>
@@ -492,6 +493,7 @@ var _hmt = _hmt || [];
 </script>
 <script type="text/javascript" src="https://txwk.10010.com/static/actops/mPages/js/businessDealWithArea.1bef10.js"></script>
 <script type="text/javascript" src="https://txwk.10010.com/static/actops/mPages/js/vendor.8a588e.js"></script>
+<script type="text/javascript" src="http://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
 <script type="text/javascript" src="https://txwk.10010.com/static/actops/mPages/js/manifest.a2b13f.js"></script>
 <script type="text/javascript" src="https://txwk.10010.com/static/actops/mPages/static/js/sentry-release.js"></script>
 
