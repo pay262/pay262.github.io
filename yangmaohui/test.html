@@ -1,38 +1,21 @@
 <script type="text/javascript" src="http://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
-
- <div> 
- <script>
- // 跳转提示
-  
- if (is_weixn_qq()) {;
+<script>
+// 跳转提示
+if (is_weixn_qq()) {;
+window.location.href = 'https://c.pc.qq.com/middle.html?pfurl=https://www.123pan.com/s/GYWrVv-YXrHH';
  
-  window.location.href = ‘https://c.pc.qq.com/middle.html?pfurl=’+window.location.href;
-  
-  }
- 
- function is_weixn_qq(){
- 
- // 判断当前是否微信/QQ浏览器
- 
- var ua = navigator.userAgent;
- 
- var isWeixin = !!/MicroMessenger/i.test(ua);
- 
- var isQQ = !!/QQ\//i.test(ua);
- 
- if(isWeixin||isQQ){
- 
- return true;
- 
- }
- 
- return false;
- 
- }
- 
- </script></div>
-
-
+}
+// 判断QQUA的代码无需修改
+function is_weixn_qq(){
+var ua = navigator.userAgent.toLowerCase();
+if(ua.match(/MicroMessenger/i)=="micromessenger") {
+return "weixin";
+} else if (ua.match(/QQ/i) == "qq") {
+return "QQ";
+}
+return false;
+}
+</script>
 
 <script>
 var _hmt = _hmt || [];
