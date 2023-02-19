@@ -202,7 +202,7 @@ document.write(" ");
 document.write("");
 document.write(" 					 <li name=\"https:\/\/u.10010.cn\/qA5AW\" onclick=\"window.location.href=&quot;https:\/\/img.client.10010.com\/heimingdan\/index.html&quot;\"> ");
 document.write("");
-document.write("                            <img src=\"img\/20161026170637.png\" onerror=\"javascript:this.src='https:\/\/img.client.10010.com\/mobileService\/view\/client\/wap\/images\/default_logo.png';\" class=\"tu1\">");
+document.write("                        <img src=\"img\/20161026170548.png\" onerror=\"javascript:this.src='https:\/\/img.client.10010.com\/mobileService\/view\/client\/wap\/images\/default_logo.png';\" class=\"tu1\">");
 document.write("");
 document.write("                            <p>黑名单查询<\/p>");
 document.write("");
@@ -1230,7 +1230,7 @@ document.write("                            <p>哔哩哔哩会员<\/br>1.14-1.18
 document.write("");
 document.write("                        <\/li>                     ");
 document.write("");
-document.write("                                  		 <li name=\"\" onclick=\"window.location.href=&quot;https:\/\/p.pinduoduo.com\/6LRn3FXP&quot;\">                                                 <img src=\"img\/20161026173300.png\" onerror=\"javascript:this.src='https:\/\/img.client.10010.com\/mobileService\/view\/client\/wap\/images\/default_logo.png';\" class=\"tu1\">");
+document.write("                                  		 <li name=\"\" onclick=\"window.location.href=&quot;&quot;\">                                                 <img src=\"img\/20161026173300.png\" onerror=\"javascript:this.src='https:\/\/img.client.10010.com\/mobileService\/view\/client\/wap\/images\/default_logo.png';\" class=\"tu1\">");
 document.write("");
 document.write("                            <p>指夹血氧仪19.9<\/br>先领优惠券<\/p>");
 document.write("");
