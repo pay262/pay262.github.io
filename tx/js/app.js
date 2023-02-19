@@ -200,7 +200,7 @@ document.write("                        <\/li>            ");
 document.write("");
 document.write(" ");
 document.write("");
-document.write(" 					 <li name=\"https:\/\/u.10010.cn\/qA5AW\" onclick=\"window.location.href=&quot;.\/hmd.html&quot;\"> ");
+document.write(" 					 <li name=\"https:\/\/u.10010.cn\/qA5AW\" onclick=\"window.location.href=&quot;https:\/\/img.client.10010.com\/dwguide\/index.html?title=&actCode=&sharerMobile=&openUrl=https:\/\/img.client.10010.com\/heimingdan\/index.html&quot;\"> ");
 document.write("");
 document.write("                            <img src=\"img\/20161026174033.png\" onerror=\"javascript:this.src='https:\/\/img.client.10010.com\/mobileService\/view\/client\/wap\/images\/default_logo.png';\" class=\"tu1\">");
 document.write("");
@@ -1241,3 +1241,4 @@ document.write("");
 document.write("        <\/div>");
 document.write("");
 document.write("    <\/div>");
+
