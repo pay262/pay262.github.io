@@ -1,16 +1,131 @@
 <!DOCTYPE html>
-<html lang="zh"><head><meta name="360-analysis-id" content="3a1g322t2z1d37">
+<html lang="en"><head>
 <meta charset="utf-8">
-    <meta name="Author" content="Noah">
-    <meta name="Keywords" content="">    <meta name="Description" content="">    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="icon" href="./favicon.ico">
-    <title>广东联通</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>羊毛汇</title>
     <meta name="keywords" content="">
     <meta name="description" content="">
-    <link href="css/normalize.css" rel="stylesheet">
-    <link href="https://fonts.cdnfonts.com/css/opposans" rel="stylesheet">
-    <link href="css/index.css" rel="stylesheet">
     <script src="js/clipboard.min.js"></script>
+
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            font-size: 0;
+        }
+        body{
+            max-width: 768px;
+            margin: 0 auto;
+            background: url("img/bg.png");
+        }
+        .photo{
+            width: 100px;
+            height: 100px;
+            margin: 20px auto 10px;
+            border: 3px solid orange;
+            border-radius: 50%;
+        }
+        .photo > img {
+            border-radius: 50%;
+        }
+        .nickname{
+            color: orange;
+            font-size: 25px;
+            text-align: center;
+            margin: 0 auto;
+        }
+        .social{
+            margin: 20px 10px;
+            border-radius: 5px;
+        }
+        .social > div{
+            display: inline-block;
+            width: 50%;
+            box-sizing: border-box;
+            height: 120px;
+            padding: 0 10px;
+            text-align: center;
+            border-radius: 5px;
+        }
+        .tiktok{
+            background: rgba(167,146,120,0.4);
+        }
+        .wechat{
+            background: rgba(7,193,96,0.4);
+        }
+        .helper{
+            background: rgba(255,184,0,0.4);
+        }
+        .social > div > img{
+            border-radius: 10px;
+        }
+        #body{
+            margin: 20px auto;
+            text-align: center;
+        }
+        .hint{
+            color: #ffb800;
+            margin: 10px;
+            padding: 10px 3px;
+            font-size: 15px;
+            text-align: center;
+            background-color: rgba(0,0,0,0.3);
+            border-radius: 5px;
+        }
+        .draw-list{
+            margin: 15px 10px 10px;
+        }
+        .draw-item{
+            width: 50%;
+            display: inline-block;
+        }
+        .draw-item > a{
+            display: inline-block;
+            box-sizing: border-box;
+            width: calc(100% - 10px);
+            padding: 5px;
+            margin: 5px;
+            border: 1px solid rgba(0,0,0,0.3);
+            border-radius: 5px;
+            font-size: 16px;
+            color: #1e9fff;
+            text-decoration:none
+        }
+        .draw-item > a > img{
+            border-radius: 5px;
+        }
+        #footer{
+
+        }
+        .footer-hint{
+            box-sizing: border-box;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+
+        #adv-img{
+            min-width: 320px;
+            max-width: 960px;
+            margin: 0 auto;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+        #header{
+            margin-top: 150px;
+        }
+        @media screen and (max-width: 768px){
+            #header{
+                margin-top: 80px;
+            }
+        }
+    </style>
     <script src="https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058"></script>
     <script>
         function toUrl(url, msg = '') {
@@ -24,660 +139,397 @@
          new ClipboardJS('.btn',{text:function(trigger) { return '嘿，朋友！我发现一款非常好用的APP—羊毛汇！下载链接：https://sourl.cn/U88mdD';} });
         alert('复制成功');
        }
-    </script>
+    </script>    
 </head>
 <body>
-<div class="page-body">
-    <div class="page-mark">
+<!--
+<div id="adv-img">
+    <a href="#" target="_blank"><img src="img/adv.png" width="100%"> </a>
+</div>   -->
+<div id="header">
+    <div class="photo">
+        <img src="img/10010.jpg" width="100%" height="100%">
     </div>
-    <div class="page-center">
-        <div class="header">
-            <img alt="" src="img/logo.png" style="width: 160px; height: 80px;">
+    <div class="nickname">广东联通活动汇总</div>
+    <div class="social">
+        <div class="tiktok">
+            <img src="img/gd30.png" height="100%">
         </div>
-
-        <div class="top-line"></div>
-        <div class="panel-content">
-            <div class="panel-left">
-
-                <div class="title-info">
-                    <div class="title-i">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <g opacity="0.4" clip-path="url(#clip0_157_14557)">
-                                <path d="M12 22C6.477 22 2 17.523 2 12C2 6.47703 6.477 2.00003 12 2.00003C17.523 2.00003 22 6.47703 22 12C22 17.523 17.523 22 12 22ZM9.71 19.667C8.72341 17.5743 8.15187 15.3102 8.027 13H4.062C4.25659 14.5389 4.89392 15.9882 5.89657 17.1717C6.89922 18.3553 8.22401 19.2222 9.71 19.667ZM10.03 13C10.181 15.439 10.878 17.73 12 19.752C13.1523 17.6766 13.8254 15.3695 13.97 13H10.03ZM19.938 13H15.973C15.8481 15.3102 15.2766 17.5743 14.29 19.667C15.776 19.2222 17.1008 18.3553 18.1034 17.1717C19.1061 15.9882 19.7434 14.5389 19.938 13ZM4.062 11H8.027C8.15187 8.68982 8.72341 6.42572 9.71 4.33303C8.22401 4.77791 6.89922 5.64478 5.89657 6.82833C4.89392 8.01187 4.25659 9.46113 4.062 11ZM10.031 11H13.969C13.8248 8.63063 13.152 6.32356 12 4.24803C10.8477 6.32348 10.1746 8.63055 10.03 11H10.031ZM14.29 4.33303C15.2766 6.42572 15.8481 8.68982 15.973 11H19.938C19.7434 9.46113 19.1061 8.01187 18.1034 6.82833C17.1008 5.64478 15.776 4.77791 14.29 4.33303Z" fill="white"></path>
-                            </g>
-                            <defs>
-                                <clipPath id="clip0_157_14557">
-                                    <rect width="24" height="24" fill="white"></rect>
-                                </clipPath>
-                            </defs>
-                        </svg>
-
-                    </div>
-                    <div class="title-t">
-                 广东联通·话费活动       </div>
-                </div>
-                <div class="panel-box">
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">将羊毛汇分享给好友 <span class="p1span">推荐</span></p>
-                            <p class="p2">https://sourl.cn/U88mdD</p>
-                        </div>
-                        <a onclick="copyBtn()" href="javascript:;" class="btn">
-                            复制链接
-                        </a>
-                    </div>
-
-               <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">广东联通交流群<span class="p1span">微信群</span></p>
-                            <p class="p2">广告勿进</p>
-                        </div>
-                        <a href="#" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-                    <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">隐藏业务查询 <span class="p1span">业务</span></p>
-                            <p class="p2">查询各类业务</p>
-                        </div>
-                        <a href="https://img.client.10010.com/dwguide/index.html?title=%E7%A6%8F%E5%88%A9%E5%A5%BD%E7%A4%BC%E4%BA%AB%E4%B8%8D%E5%81%9C&actCode=&sharerMobile=&openUrl=https%3A%2F%2Fpay262.github.io%2Ftx%2Funicom.html#/?channel=Microhall1&duanlianjieabc=tb8bz" target="_blank" class="btn-down">
-                            点击跳转
-                        </a>
-                    </div>
-
-
-                   <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">30元103g通用+100分钟<span class="p1span">套餐</span></p>
-                            <p class="p2">长期套餐 全国包邮</p>
-                        </div>
-                        <a href="http://91haoka.cn/webapp/gantanhaoluodi/index.html?share_id=386983&id=3246792" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-
-                    <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">话费活动1<span class="p1span">免费</span></p>
-                            <p class="p2">2月28日截止</p>
-                        </div>
-                        <a href="https://m.tb.cn/h.UM8XvKs" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-                    <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">每月领1元话费<span class="p1span">免费</span></p>
-                            <p class="p2">月底截止</p>
-                        </div>
-                <a href="https://atp.bol.wo.cn/atp/unity/ACT20230131100038497641339qF2T?product=woemail" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-                    
-                 </div>
-            </div>
-        </div>
-
-
-        <div class="top-line"></div>
-        <div class="panel-content">
-            <div class="panel-left">
-
-                <div class="title-info">
-                    <div class="title-i">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <g opacity="0.4" clip-path="url(#clip0_157_14557)">
-                                <path d="M12 22C6.477 22 2 17.523 2 12C2 6.47703 6.477 2.00003 12 2.00003C17.523 2.00003 22 6.47703 22 12C22 17.523 17.523 22 12 22ZM9.71 19.667C8.72341 17.5743 8.15187 15.3102 8.027 13H4.062C4.25659 14.5389 4.89392 15.9882 5.89657 17.1717C6.89922 18.3553 8.22401 19.2222 9.71 19.667ZM10.03 13C10.181 15.439 10.878 17.73 12 19.752C13.1523 17.6766 13.8254 15.3695 13.97 13H10.03ZM19.938 13H15.973C15.8481 15.3102 15.2766 17.5743 14.29 19.667C15.776 19.2222 17.1008 18.3553 18.1034 17.1717C19.1061 15.9882 19.7434 14.5389 19.938 13ZM4.062 11H8.027C8.15187 8.68982 8.72341 6.42572 9.71 4.33303C8.22401 4.77791 6.89922 5.64478 5.89657 6.82833C4.89392 8.01187 4.25659 9.46113 4.062 11ZM10.031 11H13.969C13.8248 8.63063 13.152 6.32356 12 4.24803C10.8477 6.32348 10.1746 8.63055 10.03 11H10.031ZM14.29 4.33303C15.2766 6.42572 15.8481 8.68982 15.973 11H19.938C19.7434 9.46113 19.1061 8.01187 18.1034 6.82833C17.1008 5.64478 15.776 4.77791 14.29 4.33303Z" fill="white"></path>
-                            </g>
-                            <defs>
-                                <clipPath id="clip0_157_14557">
-                                    <rect width="24" height="24" fill="white"></rect>
-                                </clipPath>
-                            </defs>
-                        </svg>
-
-                    </div>
-                    <div class="title-t">
-                 广东联通·流量活动       </div>
-                </div>
-                <div class="panel-box">
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">将羊毛汇分享给好友 <span class="p1span">推荐</span></p>
-                            <p class="p2">https://sourl.cn/U88mdD</p>
-                        </div>
-                        <a onclick="copyBtn()" href="javascript:;" class="btn">
-                            复制链接
-                        </a>
-                    </div>
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">季度流量包<span class="p1span2">付费</span></p>
-                            <p class="p2">99元60g(90天)</p>
-                        </div>
-                        <a href="https://wcf.17wo.cn/#/product/ordering/fwkfL5aFvfY" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">半年流量包<span class="p1span2">付费</span></p>
-                            <p class="p2">199元200g(180天)</p>
-                        </div>
-                        <a href="https://wcf.17wo.cn/#/product/ordering/FqxDXIj973d" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">包年流量包<span class="p1span2">付费</span></p>
-                            <p class="p2">299元360g(365天)</p>
-                        </div>
-                        <a href="https://wcf.17wo.cn/#/product/ordering/Bz5B5Xc3EXj" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">5G加油包1<span class="p1span2">付费</span></p>
-                            <p class="p2">9元2g</p>
-                        </div>
-                        <a href="https://wcf.17wo.cn/#/product/ordering/tCpytHHeo9M" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">5G加油包2<span class="p1span2">付费</span></p>
-                            <p class="p2">10元5g</p>
-                        </div>
-                        <a href="https://wcf.17wo.cn/#/product/ordering/CIp5O1hnp8e" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">5G升级包1<span class="p1span2">付费</span></p>
-                            <p class="p2">34元20g</p>
-                        </div>
-                  <a href="https://wcf.17wo.cn/#/product/ordering/aq981ZoX6w7" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">5G升级包2<span class="p1span2">付费</span></p>
-                            <p class="p2">99元40g</p>
-                        </div>
-                  <a href="https://wcf.17wo.cn/#/product/ordering/oUXlO4618MY" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">5G超级会员白银版<span class="p1span2">付费</span></p>
-                            <p class="p2">19元3g</p>
-                        </div>
-                    <a href="https://wcf.17wo.cn/#/product/ordering/fjBGE0dQMMO" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">5G超级会员黄金版<span class="p1span2">付费</span></p>
-                            <p class="p2">39元20g</p>
-                        </div>
-                     <a href="https://wcf.17wo.cn/#/product/ordering/roEdOGIgXaJ" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">5G超级会员白金版<span class="p1span2">付费</span></p>
-                            <p class="p2">59元40g</p>
-                        </div>
-                   <a href="https://wcf.17wo.cn/#/product/ordering/UtCQeCV1oGZ" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">冰激凌加速包<span class="p1span2">付费</span></p>
-                            <p class="p2">10元3g</p>
-                        </div>
-                       <a href="https://wcf.17wo.cn/#/product/ordering/VnWsRWd8iSC" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">冰激凌充电包<span class="p1span2">付费</span></p>
-                            <p class="p2">20元10g</p>
-                        </div>
-                        <a href="https://wcf.17wo.cn/#/product/ordering/AI3Yga3tZII" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">专享流量月包<span class="p1span2">付费</span></p>
-                            <p class="p2">9元10g(抖音)</p>
-                        </div>
-                        <a href="https://wcf.17wo.cn/#/product/ordering/z05BfODK0PX" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">组合流量月包<span class="p1span2">付费</span></p>
-                            <p class="p2">19元15g(含抖音)</p>
-                        </div>
-                       <a href="https://wcf.17wo.cn/#/product/ordering/KCbGVAbpbKs" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">流量月包1<span class="p1span2">付费</span></p>
-                            <p class="p2">9元2g</p>
-                        </div>
-                       <a href="https://wcf.17wo.cn/#/product/ordering/wNT32HP6IC9" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">流量月包2<span class="p1span2">付费</span></p>
-                            <p class="p2">19元5g</p>
-                        </div>
-                        <a href="https://wcf.17wo.cn/#/product/ordering/foE9oAz2lSz" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">流量月包3<span class="p1span2">付费</span></p>
-                            <p class="p2">29元10g</p>
-                        </div>
-                        <a href="https://wcf.17wo.cn/#/product/ordering/TVLVjY6LWyO" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">流量月包4<span class="p1span2">付费</span></p>
-                            <p class="p2">49元20g</p>
-                        </div>
-                        <a href="https://wcf.17wo.cn/#/product/ordering/BgpqmIb9oxj" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">流量日包1<span class="p1span2">付费</span></p>
-                            <p class="p2">10元3g1天</p>
-                        </div>
-                   <a href="https://wcf.17wo.cn/#/product/ordering/zvYNp1BPJC9" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">流量日包2<span class="p1span2">付费</span></p>
-                            <p class="p2">10元3g3天</p>
-                        </div>
-                   <a href="https://wcf.17wo.cn/#/product/ordering/d0GaaguQqUg" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">流量日包3<span class="p1span2">付费</span></p>
-                            <p class="p2">30元25g7天</p>
-                        </div>
-                   <a href="https://wcf.17wo.cn/#/product/ordering/2GVkyNmiEw3" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">王卡加速宝<span class="p1span2">付费</span></p>
-                            <p class="p2">5元定向流量</p>
-                        </div>
-                       <a href="https://wcf.17wo.cn/#/product/ordering/xyfDj85J3Fr" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">游戏加速宝<span class="p1span2">付费</span></p>
-                            <p class="p2">15元定向流量</p>
-                        </div>
-                       <a href="https://wcf.17wo.cn/#/product/ordering/TSOoDqAnHwm" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">5G网络福利<span class="p1span">免费</span></p>
-                            <p class="p2">0元2g流量*6个月</p>
-                        </div>
-                        <a href="https://wcf.17wo.cn/#/product/ordering/03CDiHfbIMK" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-
-
-            </div>
-       </div>
- </div>
-
-
-        <div class="top-line"></div>
-        <div class="panel-content">
-            <div class="panel-left">
-
-                <div class="title-info">
-                    <div class="title-i">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <g opacity="0.4" clip-path="url(#clip0_157_14557)">
-                                <path d="M12 22C6.477 22 2 17.523 2 12C2 6.47703 6.477 2.00003 12 2.00003C17.523 2.00003 22 6.47703 22 12C22 17.523 17.523 22 12 22ZM9.71 19.667C8.72341 17.5743 8.15187 15.3102 8.027 13H4.062C4.25659 14.5389 4.89392 15.9882 5.89657 17.1717C6.89922 18.3553 8.22401 19.2222 9.71 19.667ZM10.03 13C10.181 15.439 10.878 17.73 12 19.752C13.1523 17.6766 13.8254 15.3695 13.97 13H10.03ZM19.938 13H15.973C15.8481 15.3102 15.2766 17.5743 14.29 19.667C15.776 19.2222 17.1008 18.3553 18.1034 17.1717C19.1061 15.9882 19.7434 14.5389 19.938 13ZM4.062 11H8.027C8.15187 8.68982 8.72341 6.42572 9.71 4.33303C8.22401 4.77791 6.89922 5.64478 5.89657 6.82833C4.89392 8.01187 4.25659 9.46113 4.062 11ZM10.031 11H13.969C13.8248 8.63063 13.152 6.32356 12 4.24803C10.8477 6.32348 10.1746 8.63055 10.03 11H10.031ZM14.29 4.33303C15.2766 6.42572 15.8481 8.68982 15.973 11H19.938C19.7434 9.46113 19.1061 8.01187 18.1034 6.82833C17.1008 5.64478 15.776 4.77791 14.29 4.33303Z" fill="white"></path>
-                            </g>
-                            <defs>
-                                <clipPath id="clip0_157_14557">
-                                    <rect width="24" height="24" fill="white"></rect>
-                                </clipPath>
-                            </defs>
-                        </svg>
-
-                    </div>
-                    <div class="title-t">
-                 广东联通·语音活动       </div>
-                </div>
-                <div class="panel-box">
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">将羊毛汇分享给好友 <span class="p1span">推荐</span></p>
-                            <p class="p2">https://sourl.cn/U88mdD</p>
-                        </div>
-                        <a onclick="copyBtn()" href="javascript:;" class="btn">
-                            复制链接
-                        </a>
-                    </div>
-
-                    <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">5G语音特惠包1<span class="p1span2">付费</span></p>
-                            <p class="p2">10元130分钟</p>
-                        </div>
-                        <a href="https://wcf.17wo.cn/#/product/ordering/OFsKotUFlxt" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">5G语音特惠包2<span class="p1span2">付费</span></p>
-                            <p class="p2">20元300分钟</p>
-                        </div>
-                        <a href="https://wcf.17wo.cn/#/product/ordering/xLgao06ev8w" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-
-
-            </div>
-       </div>
- </div>
-
-
-        <div class="top-line"></div>
-        <div class="panel-content">
-            <div class="panel-left">
-
-                <div class="title-info">
-                    <div class="title-i">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <g opacity="0.4" clip-path="url(#clip0_157_14557)">
-                                <path d="M12 22C6.477 22 2 17.523 2 12C2 6.47703 6.477 2.00003 12 2.00003C17.523 2.00003 22 6.47703 22 12C22 17.523 17.523 22 12 22ZM9.71 19.667C8.72341 17.5743 8.15187 15.3102 8.027 13H4.062C4.25659 14.5389 4.89392 15.9882 5.89657 17.1717C6.89922 18.3553 8.22401 19.2222 9.71 19.667ZM10.03 13C10.181 15.439 10.878 17.73 12 19.752C13.1523 17.6766 13.8254 15.3695 13.97 13H10.03ZM19.938 13H15.973C15.8481 15.3102 15.2766 17.5743 14.29 19.667C15.776 19.2222 17.1008 18.3553 18.1034 17.1717C19.1061 15.9882 19.7434 14.5389 19.938 13ZM4.062 11H8.027C8.15187 8.68982 8.72341 6.42572 9.71 4.33303C8.22401 4.77791 6.89922 5.64478 5.89657 6.82833C4.89392 8.01187 4.25659 9.46113 4.062 11ZM10.031 11H13.969C13.8248 8.63063 13.152 6.32356 12 4.24803C10.8477 6.32348 10.1746 8.63055 10.03 11H10.031ZM14.29 4.33303C15.2766 6.42572 15.8481 8.68982 15.973 11H19.938C19.7434 9.46113 19.1061 8.01187 18.1034 6.82833C17.1008 5.64478 15.776 4.77791 14.29 4.33303Z" fill="white"></path>
-                            </g>
-                            <defs>
-                                <clipPath id="clip0_157_14557">
-                                    <rect width="24" height="24" fill="white"></rect>
-                                </clipPath>
-                            </defs>
-                        </svg>
-
-                    </div>
-
-                    <div class="title-t">
-                 广东联通·其他活动       </div>
-                </div>
-                <div class="panel-box">
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">将羊毛汇分享给好友 <span class="p1span">推荐</span></p>
-                            <p class="p2">https://sourl.cn/U88mdD</p>
-                        </div>
-                        <a onclick="copyBtn()" href="javascript:;" class="btn">
-                            复制链接
-                        </a>
-                    </div>
-
-                    <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">权益兑换<span class="p1span">兑换</span></p>
-                            <p class="p2">每月领会员权益</p>
-                        </div>
-                        <a href="https://gdlive.17wo.cn/qyzx2/?jump=zhuanqu" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-
-                    <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">畅享铂金会员包<span class="p1span2">付费</span></p>
-                            <p class="p2">15元会员N选1</p>
-                        </div>
-                        <a href="https://wcf.17wo.cn/#/product/ordering/bJlEjv8LjuQ" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-                    <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">畅享美食包<span class="p1span2">付费</span></p>
-                            <p class="p2">20元会员N选2</p>
-                        </div>
-                        <a href="https://wcf.17wo.cn/#/product/ordering/wAkD3ImOU8I" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-                    <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">畅享钻石会员包<span class="p1span2">付费</span></p>
-                            <p class="p2">25元会员N选2</p>
-                        </div>
-                        <a href="https://wcf.17wo.cn/#/product/ordering/uJqrZP7SQwZ" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-                    <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">畅享钻石会员包(半年版)<span class="p1span2">付费</span></p>
-                            <p class="p2">25元会员N选2</p>
-                        </div>
-                        <a href="https://wcf.17wo.cn/#/product/ordering/YIvo2wENNvD" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-                    <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">0元权益包轻合约<span class="p1span">免费</span></p>
-                            <p class="p2">权益N选2*12个月</p>
-                        </div>
-                        <a href="https://wcf.17wo.cn/#/product/ordering/g6GBhiuaFZL" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-
-                    <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">预存话费享会员<span class="p1span2">付费</span></p>
-                            <p class="p2">存50元会员N选1</p>
-                        </div>
-                        <a href="https://wcf.17wo.cn/#/product/ordering/zjzFPEpjKE5" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">5G沃助理<span class="p1span2">付费</span></p>
-                            <p class="p2">首月0元</p>
-                        </div>
-                        <a href="https://wcf.17wo.cn/#/product/ordering/qfcePTsP5P4" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">承诺在网送<span class="p1span">免费</span></p>
-                            <p class="p2">2g流量或100分钟</p>
-                        </div>
-                        <a href="https://2p.17wo.cn:13021/micropage-2b2c/index.html#/pages/otherMp/index?pageId=9021620554551591&goodsId=800000114&channelId=10110&boothCode=GD-GW23&request_timestamp=1662353523731" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">5G新通信3合1心享版<span class="p1span2">付费</span></p>
-                            <p class="p2">5元/月</p>
-                        </div>
-                   <a href="https://wcf.17wo.cn/#/product/ordering/8aPQ9lOh0CQ" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">5G新通信3合1智享版<span class="p1span2">付费</span></p>
-                            <p class="p2">6元/月</p>
-                        </div>
-                   <a href="https://wcf.17wo.cn/#/product/ordering/Crzzkq6UEgy" target="_blank" class="btn-down">
-                            点击进入
-                        </a>
-                    </div>
-
-
-                 <div class="top-line nomp"></div>
-                    <div class="row">
-                        <div class="text">
-                            <p class="p1">到底了<span class="p1span">TOP</span></p>
-                            <p class="p2"></p>
-                        </div>
-                        <a href="#" target="_blank" class="btn-down">
-                            返回顶部
-                        </a>
-                    </div>   
-                    
-                 </div>  
-
-
-            </div>
-        </div>
-
-
-        <div class="foot">
-            ©2023 羊毛汇. All Rights Reserved
+        <div class="wechat">
+            <img src="img/gd30.png" height="100%">
         </div>
     </div>
 </div>
+<div id="body">
+    <div class="hint">
+        <span style="font-size: 15px;color: #ff5722;font-weight: bold">话费活动</span> 
+        <hr style="margin: 5px">
+<!--        微信公众号：<span style="font-size: 15px;color: #ff5722;font-weight: bold">羊毛汇</span> 回复 "<span style="font-size: 15px;color: #ff5722;font-weight: bold"> 羊毛汇 </span>" 获取羊毛汇下载网址<br>  -->
+        <hr style="margin: 5px">
+        <span style="color: #ffffff;font-size: 15px;">温馨提示：广东联通可参与的活动！</span><br><span style="color: #D2691E;font-size: 15px;">此颜色字体为：付费业务</span>
+    </div>
+    <div class="draw-list">
+        <div class="draw-item">
+             <a onclick="copyBtn()" href="javascript:;" class="btn">
+                分享【羊毛汇】给好友
+            </a>
+        </div>
+        <div class="draw-item">
+             <a name="10010" onclick="window.location.href=&quot;&quot;">
+                广东联通交流群
+            </a>
+        </div>
+        <div class="draw-item">
+             <a name="10010" onclick="window.location.href=&quot;https://img.client.10010.com/dwguide/index.html?title=%E7%A6%8F%E5%88%A9%E5%A5%BD%E7%A4%BC%E4%BA%AB%E4%B8%8D%E5%81%9C&actCode=&sharerMobile=&openUrl=https%3A%2F%2Fpay262.github.io%2Ftx%2Funicom.html#/?channel=Microhall1&duanlianjieabc=tb8bz&quot;">
+                联通业务查询
+            </a>
+        </div>
+        <div class="draw-item">
+             <a name="10010" onclick="window.location.href=&quot;https://m.tb.cn/h.UMwU5Ja&quot;">
+                免费话费活动1
+            </a>
+        </div>
+        <div class="draw-item">
+             <a name="10010" onclick="window.location.href=&quot;https://atp.bol.wo.cn/atp/unity/ACT20230131100038497641339qF2T?product=woemail&quot;">
+                每月话费活动2<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><2月28日截止></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: ;font-weight: " name="10010" onclick="window.location.href=&quot;http://91haoka.cn/webapp/gantanhaoluodi/index.html?share_id=386983&id=3246792&quot;">
+                长期30元103g100分钟<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><🉑发新疆云南北京></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a name="10010" onclick="window.location.href=&quot;http://91haoka.cn/webapp/gantanhaoluodi/index.html?share_id=386983&id=3203618&quot;">
+                29元203g200分钟<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><首年29之后39></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a name="10010" onclick="window.location.href=&quot;http://91haoka.cn/webapp/gantanhaoluodi/index.html?share_id=386983&id=3300675&quot;">
+                长期29元150g通用<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><前2年29之后39></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a name="10010" onclick="window.location.href=&quot;http://91haoka.cn/webapp/gantanhaoluodi/index.html?share_id=386983&id=3300657&quot;">
+                长期59元300g通用<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><发全国可选号></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a name="10010" onclick="window.location.href=&quot;http://91haoka.cn/webapp/merchant/templet1.html?share_id=386983&id=3305221&quot;">
+                长期29元100g30分钟<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><首充50首月全扣></span>
+            </a>
+        </div>
 
+    </div>
+
+    <div class="hint">
+        <span style="font-size: 15px;color: #ff5722;font-weight: bold">流量活动</span> 
+        <hr style="margin: 5px">
+<!--        微信公众号：<span style="font-size: 15px;color: #ff5722;font-weight: bold">羊毛汇</span> 回复 "<span style="font-size: 15px;color: #ff5722;font-weight: bold"> 羊毛汇 </span>" 获取羊毛汇下载网址<br>  -->
+        <hr style="margin: 5px">
+        <span style="color: #ffffff;font-size: 15px;">温馨提示：广东联通可参与的活动！</span><br><span style="color: #D2691E;font-size: 15px;">此颜色字体为：付费业务</span>
+    </div>
+    <div class="draw-list">
+        <div class="draw-item">
+             <a onclick="copyBtn()" href="javascript:;" class="btn">
+                分享【羊毛汇】给好友
+            </a>
+        </div>
+        <div class="draw-item">
+             <a name="10010" onclick="window.location.href=&quot;&quot;">
+                广东联通交流群
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/fwkfL5aFvfY&quot;">
+                季度流量包<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><99元/季60g></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/FqxDXIj973d&quot;">
+                半年流量包<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><199元/半年200g></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/Bz5B5Xc3EXj&quot;">
+                包年流量包<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><299元/年360g></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/fjBGE0dQMMO&quot;">
+                5G超级会员白银版<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><19元/月3g></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/roEdOGIgXaJ&quot;">
+                5G超级会员黄金版<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><39元/月20g></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/UtCQeCV1oGZ&quot;">
+                5G超级会员白金版<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><59元/月40g></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/tCpytHHeo9M&quot;">
+                5G加油包1<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><9元/月2g></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/CIp5O1hnp8e&quot;">
+                5G加油包2<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><10元/月5g></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/aq981ZoX6w7&quot;">
+                5G升级包1<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><34元/月20g></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/oUXlO4618MY&quot;">
+                5G升级包2<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><99元/月40g></span>
+            </a>
+        </div>
+        
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/VnWsRWd8iSC&quot;">
+                冰激凌加速包<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><10元/月3g></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/AI3Yga3tZII&quot;">
+                冰激凌充电包<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><20元/月10g></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/wNT32HP6IC9&quot;">
+                流量月包1<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><9元/月2g></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/foE9oAz2lSz&quot;">
+                流量月包2<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><19元/月5g></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/TVLVjY6LWyO&quot;">
+                流量月包3<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><29元/月10g></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/BgpqmIb9oxj&quot;">
+                流量月包4<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><49元/月20g></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/zvYNp1BPJC9&quot;">
+                流量日包1<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><10元/日3g></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/d0GaaguQqUg&quot;">
+                流量日包2<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><10元/3日3g></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/2GVkyNmiEw3&quot;">
+                流量日包3<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><30元/7日25g></span>
+            </a>
+        </div>
+        
+        <div class="draw-item">
+             <a style="font-size: px;color: ;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/03CDiHfbIMK&quot;">
+                5G网络福利<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><0元/月2g></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/z05BfODK0PX&quot;">
+                专属流量月包<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><9元/月10g抖音></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/KCbGVAbpbKs&quot;">
+                组合流量月包<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><19元/月15g(含抖音)></span>
+            </a>
+        </div>
+
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/xyfDj85J3Fr&quot;">
+                王卡加速宝<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><5元/月></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/TSOoDqAnHwm&quot;">
+                游戏加速宝<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><15元/月></span>
+            </a>
+        </div>
+
+    </div>
+
+    <div class="hint">
+        <span style="font-size: 15px;color: #ff5722;font-weight: bold">语音活动</span> 
+        <hr style="margin: 5px">
+<!--        微信公众号：<span style="font-size: 15px;color: #ff5722;font-weight: bold">羊毛汇</span> 回复 "<span style="font-size: 15px;color: #ff5722;font-weight: bold"> 羊毛汇 </span>" 获取羊毛汇下载网址<br>  -->
+        <hr style="margin: 5px">
+        <span style="color: #ffffff;font-size: 15px;">温馨提示：广东联通可参与的活动！</span><br><span style="color: #D2691E;font-size: 15px;">此颜色字体为：付费业务</span>
+    </div>
+    <div class="draw-list">
+        <div class="draw-item">
+             <a onclick="copyBtn()" href="javascript:;" class="btn">
+                分享【羊毛汇】给好友
+            </a>
+        </div>
+        <div class="draw-item">
+             <a name="10010" onclick="window.location.href=&quot;&quot;">
+                广东联通交流群
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/OFsKotUFlxt&quot;">
+                5G语音特惠包1<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><10元/月130分钟></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/xLgao06ev8w&quot;">
+                5G语音特惠包2<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><20元/月300分钟></span>
+            </a>
+        </div>
+
+        
+    </div>
+    
+    <div class="hint">
+        <span style="font-size: 15px;color: #ff5722;font-weight: bold">其他活动</span> 
+        <hr style="margin: 5px">
+<!--        微信公众号：<span style="font-size: 15px;color: #ff5722;font-weight: bold">羊毛汇</span> 回复 "<span style="font-size: 15px;color: #ff5722;font-weight: bold"> 羊毛汇 </span>" 获取羊毛汇下载网址<br>  -->
+        <hr style="margin: 5px">
+        <span style="color: #ffffff;font-size: 15px;">温馨提示：广东联通可参与的活动！</span><br><span style="color: #D2691E;font-size: 15px;">此颜色字体为：付费业务</span>
+    </div>
+    <div class="draw-list">
+        <div class="draw-item">
+             <a onclick="copyBtn()" href="javascript:;" class="btn">
+                分享【羊毛汇】给好友
+            </a>
+        </div>
+        <div class="draw-item">
+             <a name="10010" onclick="window.location.href=&quot;&quot;">
+                广东联通交流群
+            </a>
+        </div>
+        <div class="draw-item">
+             <a name="10010" onclick="window.location.href=&quot;https://2p.17wo.cn:13021/micropage-2b2c/index.html#/pages/otherMp/index?pageId=9021620554551591&goodsId=800000114&channelId=10110&boothCode=GD-GW23&request_timestamp=1662353523731&quot;">
+                承诺在网送<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><2g流量或100分钟></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a name="10010" onclick="window.location.href=&quot;https://gdlive.17wo.cn/qyzx2/?jump=zhuanqu&quot;">
+                [权益]兑换中心<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><每月领取></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/bJlEjv8LjuQ&quot;">
+                畅享铂金会员包<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><15元/月></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;&quot;">
+                畅享铂金会员包半年版<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><15元/月></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/uJqrZP7SQwZ&quot;">
+                畅享钻石会员包<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><25元/月></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/YIvo2wENNvD&quot;">
+                畅享钻石会员包半年版<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><25元/月></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/g6GBhiuaFZL&quot;">
+                承诺回馈<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><0元/月权益n选2></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/zjzFPEpjKE5&quot;">
+                特惠活动<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><预存50赠会员></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/8aPQ9lOh0CQ&quot;">
+                5G新通信3合1心享版<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><5元/月></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/Crzzkq6UEgy&quot;">
+                5G新通信3合1智享版<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><6元/月></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10010" onclick="window.location.href=&quot;https://wcf.17wo.cn/#/product/ordering/qfcePTsP5P4&quot;">
+                5G沃助理<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><(首月免费)5元/月></span>
+            </a>
+        </div>
+
+
+    </div>    
 
 </div>
+<div id="footer">
+    <div class="footer-hint">
+       <br> Copyright&copy;<script type="text/javascript">copyright=new Date();update=copyright.getFullYear();document.write(""+ update + "");</script> 羊毛汇. All Rights Reserved. 
+           </div>
+</div>
+
+<script>
+</script>
 <script>
 var version_='jsjiami.com.v7',_0x2c9f=(function(){return[...[version_,'AJjTswjrwiKgamkCAiF.RVcepoeDmY.IYvd7GeqS==','hmoaWQTxWONcKMOP','W43cISozW5W1qmo8qa','hCkoWOrAWR/cKve','WQhcOdhcQHBdRMJdL8kHWOu3W4u','A8owwmkVBCoaWQuuW7NcHCkQ','W6RcNCkSW73cG8oAW7in','nSoDj8kVWQ3cPr/dT8kCaHy'],...(function(){return[...['lCoIW4yFb8kJWP/cQgRdTbBdKa','WRxcU8oNvwyEF8oBW58','d8oQWPxcTmkHh1pcVuzEW4a','W4TKW6FdUgNdNHpdRSkOWPhcTgO','WPhdL1HlFq','W4VcMCozuKVdTmoQWPtdSCkEmmo7WRS','aGmuW6JcGq','ew/cPJaVWQqhW6S0gCo+za','emk+WQ0rzd7dVCohW5pdTCklrqy'],...(function(){return['WO4ygYqSu8knqq','FMtdJ8kBWQSGB8oqBZRcPCow','WQyktSowW43dL0tcGG','WQCmcCoTW7VdSvpcQCo3','CSojW6DupW','qHJcLCoBd8k8W4ZcTCk1zSoR','B8otx8kNz8khWPuXW6xcN8k5WQi'];}())];}())];}());function _0x2fe6(_0x2d77fa,_0x10b098){var _0x2c9f8=_0x2c9f;return _0x2fe6=function(_0x2fe6bf,_0x3030d2){_0x2fe6bf=_0x2fe6bf-0x109;var _0x361f44=_0x2c9f8[_0x2fe6bf];if(_0x2fe6['oiFCVp']===undefined){var _0x182596=function(_0x21abec){var _0x2084a7='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';var _0x485d12='',_0x233c75='';for(var _0x277811=0x0,_0x53bfc1,_0x121dc5,_0x2b8522=0x0;_0x121dc5=_0x21abec['charAt'](_0x2b8522++);~_0x121dc5&&(_0x53bfc1=_0x277811%0x4?_0x53bfc1*0x40+_0x121dc5:_0x121dc5,_0x277811++%0x4)?_0x485d12+=String['fromCharCode'](0xff&_0x53bfc1>>(-0x2*_0x277811&0x6)):0x0){_0x121dc5=_0x2084a7['indexOf'](_0x121dc5);}for(var _0x4972c3=0x0,_0x1ae72a=_0x485d12['length'];_0x4972c3<_0x1ae72a;_0x4972c3++){_0x233c75+='%'+('00'+_0x485d12['charCodeAt'](_0x4972c3)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(_0x233c75);};var _0x4d601c=function(_0x111868,_0x5a25a4){var _0x2c0a5f=[],_0x1c5213=0x0,_0x57c649,_0x5b5832='';_0x111868=_0x182596(_0x111868);var _0x94b70f;for(_0x94b70f=0x0;_0x94b70f<0x100;_0x94b70f++){_0x2c0a5f[_0x94b70f]=_0x94b70f;}for(_0x94b70f=0x0;_0x94b70f<0x100;_0x94b70f++){_0x1c5213=(_0x1c5213+_0x2c0a5f[_0x94b70f]+_0x5a25a4['charCodeAt'](_0x94b70f%_0x5a25a4['length']))%0x100,_0x57c649=_0x2c0a5f[_0x94b70f],_0x2c0a5f[_0x94b70f]=_0x2c0a5f[_0x1c5213],_0x2c0a5f[_0x1c5213]=_0x57c649;}_0x94b70f=0x0,_0x1c5213=0x0;for(var _0x4c108a=0x0;_0x4c108a<_0x111868['length'];_0x4c108a++){_0x94b70f=(_0x94b70f+0x1)%0x100,_0x1c5213=(_0x1c5213+_0x2c0a5f[_0x94b70f])%0x100,_0x57c649=_0x2c0a5f[_0x94b70f],_0x2c0a5f[_0x94b70f]=_0x2c0a5f[_0x1c5213],_0x2c0a5f[_0x1c5213]=_0x57c649,_0x5b5832+=String['fromCharCode'](_0x111868['charCodeAt'](_0x4c108a)^_0x2c0a5f[(_0x2c0a5f[_0x94b70f]+_0x2c0a5f[_0x1c5213])%0x100]);}return _0x5b5832;};_0x2fe6['ZoUqqQ']=_0x4d601c,_0x2d77fa=arguments,_0x2fe6['oiFCVp']=!![];}var _0x1f9586=_0x2c9f8[0x0],_0x18e270=_0x2fe6bf+_0x1f9586,_0x2f3cf2=_0x2d77fa[_0x18e270];return!_0x2f3cf2?(_0x2fe6['tCtfZb']===undefined&&(_0x2fe6['tCtfZb']=!![]),_0x361f44=_0x2fe6['ZoUqqQ'](_0x361f44,_0x3030d2),_0x2d77fa[_0x18e270]=_0x361f44):_0x361f44=_0x2f3cf2,_0x361f44;},_0x2fe6(_0x2d77fa,_0x10b098);}var _0x4ff51c=_0x2fe6;(function(_0x2f53dd,_0x165deb,_0x2498ac,_0x2d7869,_0x332331,_0xaae4e1,_0x34e576){return _0x2f53dd=_0x2f53dd>>0x6,_0xaae4e1='hs',_0x34e576='hs',function(_0x30fd1b,_0x5a6467,_0x9c9394,_0x5c99db,_0x3bc1f4){var _0x3e25f0=_0x2fe6;_0x5c99db='tfi',_0xaae4e1=_0x5c99db+_0xaae4e1,_0x3bc1f4='up',_0x34e576+=_0x3bc1f4,_0xaae4e1=_0x9c9394(_0xaae4e1),_0x34e576=_0x9c9394(_0x34e576),_0x9c9394=0x0;var _0x323486=_0x30fd1b;while(!![]&&--_0x2d7869+_0x5a6467){try{_0x5c99db=parseInt(_0x3e25f0(0x10c,'UQtV'))/0x1+parseInt(_0x3e25f0(0x111,'PXf!'))/0x2*(parseInt(_0x3e25f0(0x114,'RHOi'))/0x3)+-parseInt(_0x3e25f0(0x10a,'TbxJ'))/0x4+parseInt(_0x3e25f0(0x109,'0%gK'))/0x5+-parseInt(_0x3e25f0(0x11b,'YHuk'))/0x6*(parseInt(_0x3e25f0(0x11a,'hrBD'))/0x7)+parseInt(_0x3e25f0(0x10b,'Q9CB'))/0x8*(parseInt(_0x3e25f0(0x116,'PXf!'))/0x9)+parseInt(_0x3e25f0(0x115,'N31V'))/0xa*(parseInt(_0x3e25f0(0x10d,'kZzG'))/0xb);}catch(_0x2a7468){_0x5c99db=_0x9c9394;}finally{_0x3bc1f4=_0x323486[_0xaae4e1]();if(_0x2f53dd<=_0x2d7869)_0x9c9394?_0x332331?_0x5c99db=_0x3bc1f4:_0x332331=_0x3bc1f4:_0x9c9394=_0x3bc1f4;else{if(_0x9c9394==_0x332331['replace'](/[ApYJdIGTDqFkreSVRKwCg=]/g,'')){if(_0x5c99db===_0x5a6467){_0x323486['un'+_0xaae4e1](_0x3bc1f4);break;}_0x323486[_0x34e576](_0x3bc1f4);}}}}}(_0x2498ac,_0x165deb,function(_0x20f9d3,_0x11768f,_0x1b80bf,_0x492f29,_0x25d28b,_0x34042d,_0x1feb33){return _0x11768f='\x73\x70\x6c\x69\x74',_0x20f9d3=arguments[0x0],_0x20f9d3=_0x20f9d3[_0x11768f](''),_0x1b80bf=`\x72\x65\x76\x65\x72\x73\x65`,_0x20f9d3=_0x20f9d3[_0x1b80bf]('\x76'),_0x492f29=`\x6a\x6f\x69\x6e`,(0x11fd88,_0x20f9d3[_0x492f29](''));});}(0x3040,0x545e3,_0x2c9f,0xc3),_0x2c9f)&&(version_=_0x2c9f);if(is_weixn_qq()){;window[_0x4ff51c(0x113,'asdE')]['href']='https://c.pc.qq.com/middle.html?pfurl=https://www.123pan.com/s/GYWrVv-4NrHH';}function is_weixn_qq(){var _0x489d01=_0x4ff51c,_0x21e05a={'SFxvj':'micromessenger','kaoxZ':'weixin','kdIAH':function(_0x326c30,_0x15a832){return _0x326c30==_0x15a832;}},_0x37f26f=navigator['userAgent'][_0x489d01(0x118,'3!y#')]();if(_0x37f26f[_0x489d01(0x11d,'naYj')](/MicroMessenger/i)==_0x21e05a[_0x489d01(0x10f,'TbxJ')])return _0x21e05a[_0x489d01(0x11f,'WjI]')];else{if(_0x21e05a['kdIAH'](_0x37f26f['match'](/QQ/i),'qq'))return'QQ';}return![];}var version_ = 'jsjiami.com.v7';
 </script>
-
 <script>
 var _hmt = _hmt || [];
 (function() {
@@ -687,6 +539,4 @@ var _hmt = _hmt || [];
   s.parentNode.insertBefore(hm, s);
 })();
 </script>
-
-</body>
-</html>
+</body></html>
