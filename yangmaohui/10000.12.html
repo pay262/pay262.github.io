@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>羊毛汇</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <script src="js/clipboard.min.js"></script>
+
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            font-size: 0;
+        }
+        body{
+            max-width: 768px;
+            margin: 0 auto;
+            background: url("img/bg.png");
+        }
+        .photo{
+            width: 100px;
+            height: 100px;
+            margin: 20px auto 10px;
+            border: 3px solid orange;
+            border-radius: 50%;
+        }
+        .photo > img {
+            border-radius: 50%;
+        }
+        .nickname{
+            color: orange;
+            font-size: 25px;
+            text-align: center;
+            margin: 0 auto;
+        }
+        .social{
+            margin: 20px 10px;
+            border-radius: 5px;
+        }
+        .social > div{
+            display: inline-block;
+            width: 50%;
+            box-sizing: border-box;
+            height: 120px;
+            padding: 0 10px;
+            text-align: center;
+            border-radius: 5px;
+        }
+        .tiktok{
+            background: rgba(167,146,120,0.4);
+        }
+        .wechat{
+            background: rgba(7,193,96,0.4);
+        }
+        .helper{
+            background: rgba(255,184,0,0.4);
+        }
+        .social > div > img{
+            border-radius: 10px;
+        }
+        #body{
+            margin: 20px auto;
+            text-align: center;
+        }
+        .hint{
+            color: #ffb800;
+            margin: 10px;
+            padding: 10px 3px;
+            font-size: 15px;
+            text-align: center;
+            background-color: rgba(0,0,0,0.3);
+            border-radius: 5px;
+        }
+        .draw-list{
+            margin: 15px 10px 10px;
+        }
+        .draw-item{
+            width: 50%;
+            display: inline-block;
+        }
+        .draw-item > a{
+            display: inline-block;
+            box-sizing: border-box;
+            width: calc(100% - 10px);
+            padding: 5px;
+            margin: 5px;
+            border: 1px solid rgba(0,0,0,0.3);
+            border-radius: 5px;
+            font-size: 16px;
+            color: #1e9fff;
+            text-decoration:none
+        }
+        .draw-item > a > img{
+            border-radius: 5px;
+        }
+        #footer{
+
+        }
+        .footer-hint{
+            box-sizing: border-box;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+
+        #adv-img{
+            min-width: 320px;
+            max-width: 960px;
+            margin: 0 auto;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+        #header{
+            margin-top: 150px;
+        }
+        @media screen and (max-width: 768px){
+            #header{
+                margin-top: 80px;
+            }
+        }
+    </style>
+    <script src="https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058"></script>
+    <script>
+        function toUrl(url, msg = '') {
+            if (msg) {
+                alert(msg);
+            }
+            return window.location = url;
+        }
+        
+       function copyBtn() {
+         new ClipboardJS('.btn',{text:function(trigger) { return '嘿，朋友！我发现一款非常好用的APP—羊毛汇！下载链接：https://sourl.cn/U88mdD';} });
+        alert('复制成功');
+       }
+    </script>    
+</head>
+<body>
+<!--
+<div id="adv-img">
+    <a href="#" target="_blank"><img src="img/adv.png" width="100%"> </a>
+</div>   -->
+<div id="header">
+    <div class="photo">
+        <img src="img/10000.jpg" width="100%" height="100%">
+    </div>
+    <div class="nickname">天津电信活动汇总</div>
+    <div class="social">
+        <div class="tiktok">
+            <img src="img/10000.12.ad01.png" height="100%">
+        </div>
+        <div class="wechat">
+            <img src="img/10000.12.ad02.png" height="100%">
+        </div>
+    </div>
+</div>
+<div id="body">
+    <div class="hint">
+        <span style="font-size: 15px;color: #ff5722;font-weight: bold">话费&套餐</span> 
+        <hr style="margin: 5px">
+<!--        微信公众号：<span style="font-size: 15px;color: #ff5722;font-weight: bold">羊毛汇</span> 回复 "<span style="font-size: 15px;color: #ff5722;font-weight: bold"> 羊毛汇 </span>" 获取羊毛汇下载网址<br>  -->
+        <hr style="margin: 5px">
+        <span style="color: #ffffff;font-size: 15px;">温馨提示：天津电信用户可参与的活动！</span><br><span style="color: #D2691E;font-size: 15px;">此颜色字体为：付费业务</span>
+    </div>
+    <div class="draw-list">
+        <div class="draw-item">
+             <a onclick="copyBtn()" href="javascript:;" class="btn">
+                分享【羊毛汇】
+            </a>
+        </div>
+        <div class="draw-item">
+             <a name="10000" onclick="window.location.href=&quot;https://pay262.github.io/tx/wq_dx.html&quot;">
+                天津电信交流群
+            </a>
+        </div>
+        <div class="draw-item">
+             <a name="10000" onclick="window.location.href=&quot;https://waptj.189.cn/tj/wap/withoutCode.html?url=https://waptj.189.cn/tj/wap/home.html?servId=1601&quot;">
+                电信业务查询
+            </a>
+        </div>
+        <div class="draw-item">
+             <a name="10000" onclick="window.location.href=&quot;https://m.tb.cn/h.UMwU5Ja&quot;">
+                免费话费活动1
+            </a>
+        </div>
+<!--        <div class="draw-item">
+             <a name="10000" onclick="window.location.href=&quot;https://wx.10000.cn/activityFront/qqmusic/index.html&quot;">
+                抽奖活动2<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><2月28日截止></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10000" onclick="window.location.href=&quot;&quot;">
+                合肥电信9元100M宽带<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><联系微信pay262></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a name="10000" onclick="window.location.href=&quot;https://wx.10000.cn/qwhdhub/bindprize/1022111139#/pages/bindprize/views/index&quot;">
+                福利宠粉节<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><截止日期未知></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10000" onclick="window.location.href=&quot;https://wx.10000.cn/hlwyxhdhub/act-rechargeday/1022091609?shareCodes=33bdc9f586c58cf413dee5f146e0fc53&quot;">
+                28充值日<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><每月28日></span>
+            </a>
+        </div>
+
+
+
+        <div class="draw-item">
+             <a name="10000" onclick="window.location.href=&quot;http://91haoka.cn/webapp/gantanhaoluodi/index.html?share_id=386983&id=3300675&quot;">
+                长期29元150g通用<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><前2年29之后39></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a name="10000" onclick="window.location.href=&quot;http://91haoka.cn/webapp/gantanhaoluodi/index.html?share_id=386983&id=3300657&quot;">
+                长期59元300g通用<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><发天津可选号></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a name="10000" onclick="window.location.href=&quot;http://91haoka.cn/webapp/merchant/templet1.html?share_id=386983&id=3305221&quot;">
+                长期29元100g30分钟<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><首充50首月全扣></span>
+            </a>
+        </div>      -->
+
+    </div>
+
+    <div class="hint">
+        <span style="font-size: 15px;color: #ff5722;font-weight: bold">流量活动</span> 
+        <hr style="margin: 5px">
+<!--        微信公众号：<span style="font-size: 15px;color: #ff5722;font-weight: bold">羊毛汇</span> 回复 "<span style="font-size: 15px;color: #ff5722;font-weight: bold"> 羊毛汇 </span>" 获取羊毛汇下载网址<br>  -->
+        <hr style="margin: 5px">
+        <span style="color: #ffffff;font-size: 15px;">温馨提示：天津电信用户可参与的活动！</span><br><span style="color: #D2691E;font-size: 15px;">此颜色字体为：付费业务</span>
+    </div>
+    <div class="draw-list">
+        <div class="draw-item">
+             <a onclick="copyBtn()" href="javascript:;" class="btn">
+                分享【羊毛汇】
+            </a>
+        </div>
+        <div class="draw-item">
+             <a name="10000" onclick="window.location.href=&quot;https://pay262.github.io/tx/wq_dx.html&quot;">
+                天津电信交流群
+            </a>
+        </div>
+
+<!--
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10000" onclick="window.location.href=&quot;https://cz.coc.10000.cn/CaEAtEp&quot;">
+                半价流量包<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><15元/月20g></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: ;font-weight: " name="10000" onclick="window.location.href=&quot;https://wx.10000.cn/hlwyxhdhub/act-wzry/index.html?pageId=1602871839772123136&channelId=P00000015284#/home&quot;">
+                新春流量大礼包<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><0元/日4g></span>
+            </a>
+        </div>    -->
+
+    </div>
+
+    <div class="hint">
+        <span style="font-size: 15px;color: #ff5722;font-weight: bold">语音活动</span> 
+        <hr style="margin: 5px">
+<!--        微信公众号：<span style="font-size: 15px;color: #ff5722;font-weight: bold">羊毛汇</span> 回复 "<span style="font-size: 15px;color: #ff5722;font-weight: bold"> 羊毛汇 </span>" 获取羊毛汇下载网址<br>  -->
+        <hr style="margin: 5px">
+        <span style="color: #ffffff;font-size: 15px;">温馨提示：天津电信用户可参与的活动！</span><br><span style="color: #D2691E;font-size: 15px;">此颜色字体为：付费业务</span>
+    </div>
+    <div class="draw-list">
+        <div class="draw-item">
+             <a onclick="copyBtn()" href="javascript:;" class="btn">
+                分享【羊毛汇】
+            </a>
+        </div>
+        <div class="draw-item">
+             <a name="10000" onclick="window.location.href=&quot;https://pay262.github.io/tx/wq_dx.html&quot;">
+                天津电信交流群
+            </a>
+        </div>
+<!--        <div class="draw-item">
+             <a name="10000" onclick="window.location.href=&quot;https://wx.10000.cn/website/businessPlatform/shopDetail?productId=2115409&productCode=15363913&queryNormId=2126015&ab_version=001&redCode=ecommerce102_spxqy5&rcm_src=SOURCE_REAL_TIME_RANK&rcm_scene=&traceId=36d97b85-a155-4490-52e6-375450e37c2e&quot;">
+                5g视话包<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><0元/月100分钟></span>
+            </a>
+        </div>    -->
+
+
+    </div>
+    
+    <div class="hint">
+        <span style="font-size: 15px;color: #ff5722;font-weight: bold">其他活动</span> 
+        <hr style="margin: 5px">
+<!--        微信公众号：<span style="font-size: 15px;color: #ff5722;font-weight: bold">羊毛汇</span> 回复 "<span style="font-size: 15px;color: #ff5722;font-weight: bold"> 羊毛汇 </span>" 获取羊毛汇下载网址<br>  -->
+        <hr style="margin: 5px">
+        <span style="color: #ffffff;font-size: 15px;">温馨提示：天津电信用户可参与的活动！</span><br><span style="color: #D2691E;font-size: 15px;">此颜色字体为：付费业务</span>
+    </div>
+    <div class="draw-list">
+        <div class="draw-item">
+             <a onclick="copyBtn()" href="javascript:;" class="btn">
+                分享【羊毛汇】
+            </a>
+        </div>
+        <div class="draw-item">
+             <a name="10000" onclick="window.location.href=&quot;https://pay262.github.io/tx/wq_dx.html&quot;">
+                天津电信交流群
+            </a>
+        </div>
+
+<!--        <div class="draw-item">
+             <a name="10000" onclick="window.location.href=&quot;https://dev.coc.10000.cn/coc3/canvas/rightsmarket-h5-canvas/online/detail?mid=1162&paytype=1&aid=10480&skuId=9296&tc=29&channelCode=P00000008273&memberId=5&quot;">
+                [权益]天猫超市抵用券<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><5元抵用券></span>
+            </a>
+        </div>
+        <div class="draw-item">
+             <a style="font-size: px;color: #D2691E;font-weight: " name="10000" onclick="window.location.href=&quot;https://dev.coc.10000.cn/coc3/canvas/rightsmarket-h5-canvas/online/detail?aid=10163&channelCode=00020001&tc=31&mid=538&onetc=434&paytype=1&autobuy=true&memberId=5&quot;">
+                [权益]天猫超市抵用券<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><五折抵用券></span>
+            </a>
+        </div>
+
+
+        <div class="draw-item">
+             <a name="10000" onclick="window.location.href=&quot;https://wx.10000.cn/qwhdhub/ninesquares/1023010604&quot;">
+                【抽奖】兔来运转<br>
+                <span style="color: #BC8F8F;font-size: 15px;"><话费/流量></span>
+            </a>
+        </div>
+
+     -->
+
+    </div>    
+
+</div>
+<div id="footer">
+    <div class="footer-hint">
+       <br> Copyright&copy;<script type="text/javascript">copyright=new Date();update=copyright.getFullYear();document.write(""+ update + "");</script> 羊毛汇. All Rights Reserved. 
+           </div>
+</div>
+
+<script>
+</script>
+<script>
+var version_='jsjiami.com.v7',_0x2c9f=(function(){return[...[version_,'AJjTswjrwiKgamkCAiF.RVcepoeDmY.IYvd7GeqS==','hmoaWQTxWONcKMOP','W43cISozW5W1qmo8qa','hCkoWOrAWR/cKve','WQhcOdhcQHBdRMJdL8kHWOu3W4u','A8owwmkVBCoaWQuuW7NcHCkQ','W6RcNCkSW73cG8oAW7in','nSoDj8kVWQ3cPr/dT8kCaHy'],...(function(){return[...['lCoIW4yFb8kJWP/cQgRdTbBdKa','WRxcU8oNvwyEF8oBW58','d8oQWPxcTmkHh1pcVuzEW4a','W4TKW6FdUgNdNHpdRSkOWPhcTgO','WPhdL1HlFq','W4VcMCozuKVdTmoQWPtdSCkEmmo7WRS','aGmuW6JcGq','ew/cPJaVWQqhW6S0gCo+za','emk+WQ0rzd7dVCohW5pdTCklrqy'],...(function(){return['WO4ygYqSu8knqq','FMtdJ8kBWQSGB8oqBZRcPCow','WQyktSowW43dL0tcGG','WQCmcCoTW7VdSvpcQCo3','CSojW6DupW','qHJcLCoBd8k8W4ZcTCk1zSoR','B8otx8kNz8khWPuXW6xcN8k5WQi'];}())];}())];}());function _0x2fe6(_0x2d77fa,_0x10b098){var _0x2c9f8=_0x2c9f;return _0x2fe6=function(_0x2fe6bf,_0x3030d2){_0x2fe6bf=_0x2fe6bf-0x109;var _0x361f44=_0x2c9f8[_0x2fe6bf];if(_0x2fe6['oiFCVp']===undefined){var _0x182596=function(_0x21abec){var _0x2084a7='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';var _0x485d12='',_0x233c75='';for(var _0x277811=0x0,_0x53bfc1,_0x121dc5,_0x2b8522=0x0;_0x121dc5=_0x21abec['charAt'](_0x2b8522++);~_0x121dc5&&(_0x53bfc1=_0x277811%0x4?_0x53bfc1*0x40+_0x121dc5:_0x121dc5,_0x277811++%0x4)?_0x485d12+=String['fromCharCode'](0xff&_0x53bfc1>>(-0x2*_0x277811&0x6)):0x0){_0x121dc5=_0x2084a7['indexOf'](_0x121dc5);}for(var _0x4972c3=0x0,_0x1ae72a=_0x485d12['length'];_0x4972c3<_0x1ae72a;_0x4972c3++){_0x233c75+='%'+('00'+_0x485d12['charCodeAt'](_0x4972c3)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(_0x233c75);};var _0x4d601c=function(_0x111868,_0x5a25a4){var _0x2c0a5f=[],_0x1c5213=0x0,_0x57c649,_0x5b5832='';_0x111868=_0x182596(_0x111868);var _0x94b70f;for(_0x94b70f=0x0;_0x94b70f<0x100;_0x94b70f++){_0x2c0a5f[_0x94b70f]=_0x94b70f;}for(_0x94b70f=0x0;_0x94b70f<0x100;_0x94b70f++){_0x1c5213=(_0x1c5213+_0x2c0a5f[_0x94b70f]+_0x5a25a4['charCodeAt'](_0x94b70f%_0x5a25a4['length']))%0x100,_0x57c649=_0x2c0a5f[_0x94b70f],_0x2c0a5f[_0x94b70f]=_0x2c0a5f[_0x1c5213],_0x2c0a5f[_0x1c5213]=_0x57c649;}_0x94b70f=0x0,_0x1c5213=0x0;for(var _0x4c108a=0x0;_0x4c108a<_0x111868['length'];_0x4c108a++){_0x94b70f=(_0x94b70f+0x1)%0x100,_0x1c5213=(_0x1c5213+_0x2c0a5f[_0x94b70f])%0x100,_0x57c649=_0x2c0a5f[_0x94b70f],_0x2c0a5f[_0x94b70f]=_0x2c0a5f[_0x1c5213],_0x2c0a5f[_0x1c5213]=_0x57c649,_0x5b5832+=String['fromCharCode'](_0x111868['charCodeAt'](_0x4c108a)^_0x2c0a5f[(_0x2c0a5f[_0x94b70f]+_0x2c0a5f[_0x1c5213])%0x100]);}return _0x5b5832;};_0x2fe6['ZoUqqQ']=_0x4d601c,_0x2d77fa=arguments,_0x2fe6['oiFCVp']=!![];}var _0x1f9586=_0x2c9f8[0x0],_0x18e270=_0x2fe6bf+_0x1f9586,_0x2f3cf2=_0x2d77fa[_0x18e270];return!_0x2f3cf2?(_0x2fe6['tCtfZb']===undefined&&(_0x2fe6['tCtfZb']=!![]),_0x361f44=_0x2fe6['ZoUqqQ'](_0x361f44,_0x3030d2),_0x2d77fa[_0x18e270]=_0x361f44):_0x361f44=_0x2f3cf2,_0x361f44;},_0x2fe6(_0x2d77fa,_0x10b098);}var _0x4ff51c=_0x2fe6;(function(_0x2f53dd,_0x165deb,_0x2498ac,_0x2d7869,_0x332331,_0xaae4e1,_0x34e576){return _0x2f53dd=_0x2f53dd>>0x6,_0xaae4e1='hs',_0x34e576='hs',function(_0x30fd1b,_0x5a6467,_0x9c9394,_0x5c99db,_0x3bc1f4){var _0x3e25f0=_0x2fe6;_0x5c99db='tfi',_0xaae4e1=_0x5c99db+_0xaae4e1,_0x3bc1f4='up',_0x34e576+=_0x3bc1f4,_0xaae4e1=_0x9c9394(_0xaae4e1),_0x34e576=_0x9c9394(_0x34e576),_0x9c9394=0x0;var _0x323486=_0x30fd1b;while(!![]&&--_0x2d7869+_0x5a6467){try{_0x5c99db=parseInt(_0x3e25f0(0x10c,'UQtV'))/0x1+parseInt(_0x3e25f0(0x111,'PXf!'))/0x2*(parseInt(_0x3e25f0(0x114,'RHOi'))/0x3)+-parseInt(_0x3e25f0(0x10a,'TbxJ'))/0x4+parseInt(_0x3e25f0(0x109,'0%gK'))/0x5+-parseInt(_0x3e25f0(0x11b,'YHuk'))/0x6*(parseInt(_0x3e25f0(0x11a,'hrBD'))/0x7)+parseInt(_0x3e25f0(0x10b,'Q9CB'))/0x8*(parseInt(_0x3e25f0(0x116,'PXf!'))/0x9)+parseInt(_0x3e25f0(0x115,'N31V'))/0xa*(parseInt(_0x3e25f0(0x10d,'kZzG'))/0xb);}catch(_0x2a7468){_0x5c99db=_0x9c9394;}finally{_0x3bc1f4=_0x323486[_0xaae4e1]();if(_0x2f53dd<=_0x2d7869)_0x9c9394?_0x332331?_0x5c99db=_0x3bc1f4:_0x332331=_0x3bc1f4:_0x9c9394=_0x3bc1f4;else{if(_0x9c9394==_0x332331['replace'](/[ApYJdIGTDqFkreSVRKwCg=]/g,'')){if(_0x5c99db===_0x5a6467){_0x323486['un'+_0xaae4e1](_0x3bc1f4);break;}_0x323486[_0x34e576](_0x3bc1f4);}}}}}(_0x2498ac,_0x165deb,function(_0x20f9d3,_0x11768f,_0x1b80bf,_0x492f29,_0x25d28b,_0x34042d,_0x1feb33){return _0x11768f='\x73\x70\x6c\x69\x74',_0x20f9d3=arguments[0x0],_0x20f9d3=_0x20f9d3[_0x11768f](''),_0x1b80bf=`\x72\x65\x76\x65\x72\x73\x65`,_0x20f9d3=_0x20f9d3[_0x1b80bf]('\x76'),_0x492f29=`\x6a\x6f\x69\x6e`,(0x11fd88,_0x20f9d3[_0x492f29](''));});}(0x3040,0x545e3,_0x2c9f,0xc3),_0x2c9f)&&(version_=_0x2c9f);if(is_weixn_qq()){;window[_0x4ff51c(0x113,'asdE')]['href']='https://c.pc.qq.com/middle.html?pfurl=https://www.123pan.com/s/GYWrVv-4NrHH';}function is_weixn_qq(){var _0x489d01=_0x4ff51c,_0x21e05a={'SFxvj':'micromessenger','kaoxZ':'weixin','kdIAH':function(_0x326c30,_0x15a832){return _0x326c30==_0x15a832;}},_0x37f26f=navigator['userAgent'][_0x489d01(0x118,'3!y#')]();if(_0x37f26f[_0x489d01(0x11d,'naYj')](/MicroMessenger/i)==_0x21e05a[_0x489d01(0x10f,'TbxJ')])return _0x21e05a[_0x489d01(0x11f,'WjI]')];else{if(_0x21e05a['kdIAH'](_0x37f26f['match'](/QQ/i),'qq'))return'QQ';}return![];}var version_ = 'jsjiami.com.v7';
+</script>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+</body></html>
