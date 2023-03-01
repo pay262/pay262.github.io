@@ -265,7 +265,9 @@
             </svg>
         </button>
         <h1 class="mdc-typography--headline2">流量杀手</h1>
-        <p class="mdc-typography--body1">多线程消耗流量 机场佬直呼内行.</p>
+        <p class="mdc-typography--body1">多线程消耗流量 机场佬直呼内行</p>
+        <p class="mdc-typography--body1">当前测速源：腾讯系</p>
+        
         <br>
         <div class="option__unlimited mdc-switch mdc-switch--checked" data-mdc-auto-init="MDCSwitch">
             <div class="mdc-switch__track"></div>
@@ -275,20 +277,21 @@
                 </div>
             </div>
         </div>
-        <label class="mdc-switch__label" for="option--unlimited-input">无限制的跑下去</label>
+        <label class="mdc-switch__label" for="option--unlimited-input">无限跑下去</label>
         <div class="option__mbs mdc-text-field mdc-text-field--outlined mdc-text-field--disabled" data-mdc-auto-init="MDCTextField">
-            <input type="number" min="1" id="goal" value="100" class="mdc-text-field__input" disabled>
+            <input type="number" min="1" id="goal" value="1" class="mdc-text-field__input" disabled>
             <div class="mdc-notched-outline">
                 <div class="mdc-notched-outline__leading"></div>
                 <div class="mdc-notched-outline__notch">
-                    <label for="goal" class="mdc-floating-label">MBs of data to waste</label>
+                    <label for="goal" class="mdc-floating-label">要消耗的流量，单位：MB(实际中会超出一点)</label>
                 </div>
                 <div class="mdc-notched-outline__trailing"></div>
             </div>
         </div>
         <br>
         <br>
-        <p class="option__threads-title mdc-typography--body2">线程（较高浪费速度更快，较低浪费精度更高）</p>
+        <p class="option__threads-title mdc-typography--body2">
+        运行线程（数值越高流量就消耗的越快，数值越低流量就消耗的越慢）</p>
         <div class="option__threads mdc-slider mdc-slider--discrete mdc-slider--display-markers" tabindex="0" role="slider" aria-valuemin="1" aria-valuemax="32" aria-valuenow="8" aria-label="Select Value" data-mdc-auto-init="MDCSlider">
             <div class="mdc-slider__track-container">
                 <div class="mdc-slider__track"></div>
@@ -310,7 +313,7 @@
                 <path fill="none" d="M0 0h24v24H0V0z" />
                 <path d="M10 8.64L15.27 12 10 15.36V8.64M8 5v14l11-7L8 5z" />
             </svg>
-            <span class="mdc-fab__label">GO</span>
+            <span class="mdc-fab__label">开始</span>
         </button>
         <br>
         <br>
@@ -321,7 +324,7 @@
                     <path d="M13 2.05v3.03c3.39.49 6 3.39 6 6.92 0 .9-.18 1.75-.48 2.54l2.6 1.53c.56-1.24.88-2.62.88-4.07 0-5.18-3.95-9.45-9-9.95zM12 19c-3.87 0-7-3.13-7-7 0-3.53 2.61-6.43 6-6.92V2.05c-5.06.5-9 4.76-9 9.95 0 5.52 4.47 10 9.99 10 3.31 0 6.24-1.61 8.06-4.09l-2.6-1.53C16.17 17.98 14.21 19 12 19z" />
                 </svg>
                 <span class="mdc-list-item__text">
-      <span class="mdc-list-item__primary-text">已消失的流量</span>
+      <span class="mdc-list-item__primary-text">已消耗的流量</span>
                 <span class="mdc-list-item__secondary-text output__wasted">0.00 MB</span>
                 </span>
             </li>
@@ -345,8 +348,16 @@
                 <span class="output__time mdc-list-item__secondary-text">0 seconds</span>
                 </span>
             </li>
+        <li class="mdc-list-item" data-mdc-auto-init="MDCRipple">
+          <svg class="mdc-list-item__graphic" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <path fill="none" d="M0 0h24v24H0V0z"></path>
+            <path d="M13 2.05v3.03c3.39.49 6 3.39 6 6.92 0 .9-.18 1.75-.48 2.54l2.6 1.53c.56-1.24.88-2.62.88-4.07 0-5.18-3.95-9.45-9-9.95zM12 19c-3.87 0-7-3.13-7-7 0-3.53 2.61-6.43 6-6.92V2.05c-5.06.5-9 4.76-9 9.95 0 5.52 4.47 10 9.99 10 3.31 0 6.24-1.61 8.06-4.09l-2.6-1.53C16.17 17.98 14.21 19 12 19z"></path>
+          </svg>
+          <span class="mdc-list-item__text"><span class="mdc-list-item__primary-text">当前IP</span>
+            <span class="mdc-list-item__secondary-text" id="myIp">敬请期待</span></span>   
+        </li>
             
-            <li class="mdc-list-item" data-mdc-auto-init="MDCRipple">
+<!--            <li class="mdc-list-item" data-mdc-auto-init="MDCRipple">
                 <svg class="mdc-list-item__graphic" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <path fill="none" d="M0 0h24v24H0V0z" />
                     <path d="" />
@@ -360,7 +371,7 @@
 
 
                 </span>
-            </li>
+            </li>          -->
             
             
         </ul>
@@ -371,7 +382,7 @@
         <div class="snackbar__done mdc-snackbar mdc-snackbar--leading" data-mdc-auto-init="MDCSnackbar">
             <div class="mdc-snackbar__surface">
                 <div class="mdc-snackbar__label" role="status" aria-live="polite">
-                    The specified amount of data was wasted.
+                    指定数量的数据消耗完毕。
                 </div>
             </div>
         </div>
@@ -511,7 +522,7 @@
             $(".output__progress").
             get(0).
             MDCLinearProgress.open();
-            $(".option__waste > .mdc-fab__label").html("Stop Wasting");
+            $(".option__waste > .mdc-fab__label").html("停止");
             $(".option__waste > .mdc-fab__icon").html('<path fill="none" d="M0 0h24v24H0V0z"/><path d="M16 8v8H8V8h8m2-2H6v12h12V6z"/>');
             running = true;
             wasted = 0;
@@ -531,7 +542,7 @@
             $(".output__progress").
             get(0).
             MDCLinearProgress.close();
-            $(".option__waste > .mdc-fab__label").html("Start Wasting");
+            $(".option__waste > .mdc-fab__label").html("开始");
             $(".option__waste > .mdc-fab__icon").html('<path fill="none" d="M0 0h24v24H0V0z"/><path d="M10 8.64L15.27 12 10 15.36V8.64M8 5v14l11-7L8 5z"/>');
         };
 
@@ -557,6 +568,13 @@
             else if (stopped === false) stop();
         });
     </script>
+<script type="application/javascript">
+    function getip(json){
+        $('#myIp').text(json.ip)
+    }
+</script>
+<script type="application/javascript" src="https://api.ip.sb/jsonip?callback=getip"></script>
+    
 <script>
 var _hmt = _hmt || [];
 (function() {
