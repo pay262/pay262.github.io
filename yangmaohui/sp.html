@@ -115,7 +115,7 @@ body {
         });
         bind(get('switch'), 'click', function () {
             auto = !auto;
-            this.innerText = '自动播放: ' + (auto ? '开' : '关');
+            this.innerText = '连续播放: ' + (auto ? '开' : '关');
         });
         bind(player, 'ended', function () {
             if (auto) randomm();
