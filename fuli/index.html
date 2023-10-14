@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+  <title>每日福利合集</title>
+  <link href="static/css/minireset.min.css" rel="stylesheet">
+  <link rel="shortcut icon" href="./assets/img/icon.png" type="image/x-icon">
+</head>
+<style>
+html{font-size:16px;font-family:-apple-system,blinkmacsystemfont,"Helvetica Neue",helvetica,segoe ui,arial,roboto,"PingFang SC",miui,"Hiragino Sans GB","Microsoft Yahei",sans-serif}
+body{background-color:#f5f5f5;font-size:.8rem;color:#333}
+a{text-decoration:none;color:#333}
+.container{min-height:100vh;position:relative;display:flex;flex-direction:column;padding-top:3rem}
+.header-title{height:3rem;line-height:3rem;text-align:center;background-image:linear-gradient(to right top,#ec1611,#ee3129,#ef433c,#ef534e,#ee625f);color:#fff;position:fixed;box-shadow:0 -.3rem .8rem 0 #000;top:0;width:100%;font-size:1rem;z-index:2}
+.content{padding:.8rem}
+.card{display:flex;background-color:#fff;border-radius:5px;width:100%;margin-bottom:.8rem;height:6rem;align-items:center;position:relative;justify-content:space-between;overflow:hidden}
+.card::before{content:'';width:.8rem;height:.8rem;position:absolute;right:5.6rem;top:-.4rem;background:#f5f5f5;border-radius:.8rem}
+.card::after{content:'';width:.8rem;height:.8rem;position:absolute;right:5.6rem;bottom:-.4rem;background:#f5f5f5;border-radius:.8rem}
+.left{flex:1;height:100%;display:flex;align-items:center;padding-left:1rem}
+.right{width:6rem;height:100%;background-color:#fde6e9;border-left:1px dashed #d7d7d7;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.brand-logo{width:3rem;height:3rem;margin-right:1rem}
+.brand-logo img{width:100%;height:100%;border-radius:.4rem}
+.price{color:#ec1611;margin-top:.4rem}
+.price span{font-size:1.8rem;margin:0 .5rem;line-height:1em}
+.speed{margin:.6rem 0;height:.6rem;width:5rem;background:#e6e6e6;border-radius:.5rem}
+.speed-pro{height:100%;background:#fc5b6f;border-radius:1rem}
+.lq-btn{width:4.5rem;height:1.4rem;line-height:1.4rem;border:1px solid #e83145;background:0 0;border-radius:4rem;font-size:.6rem;background-image:-webkit-gradient(linear,left top,right top,from(#fd6e5c),to(#ef1336));background-image:-webkit-linear-gradient(left,#fd6e5c,#ef1336);background-image:-moz-linear-gradient(left,#fd6e5c,#ef1336);background-image:linear-gradient(to right,#fd6e5c,#ef1336);background-color:#ef1336;color:#fff;border:none}
+.card:hover .left{background-color:#f1f1f1}
+</style>
+<script>
+  var ua = navigator.userAgent.toLowerCase();
+  var is_weixin = ua.indexOf('micromessenger') != -1 ? true : false;
+</script>
+
+<body>
+  <div class="container">
+    <div class="header-title">
+      每日福利合集
+    </div>
+    <div class="content">
+      <a class="card" href="" target="_blank">
+        <div class="left">
+          <div class="brand-logo">
+            <img src="static/picture/didi_hy_icon.png">
+          </div>
+          <div class="brand-desc">
+            <p>运货搬家找滴滴运费8折</p>
+            <p class="price">¥<span>8折</span>搬家只要8折起</p>
+          </div>
+        </div>
+        <div class="right">
+          <p style="color: #666;font-size: 0.6rem">已抢52%</p>
+        <div class="speed">
+          <div class="speed-pro" style="width: 2.6rem;"></div>
+        </div>
+          <p>
+            <button class="lq-btn">立即领取</button>
+          </p>
+        </div>
+      </a>
+      <a class="card" href="https://dpurl.cn/OL2sxV1z#waimaimtid33" target="_blank">
+        <div class="left">
+          <div class="brand-logo">
+            <img src="static/picture/meituan.png">
+          </div>
+          <div class="brand-desc">
+            <p>每天领取美团外卖红包</p>
+            <p class="price">¥<span>56</span>每日最高可领41元</p>
+          </div>
+        </div>
+        <div class="right">
+          <p style="color: #666;font-size: 0.6rem">已抢88%</p>
+        <div class="speed">
+          <div class="speed-pro" style="width: 4.4rem;"></div>
+        </div>
+          <p>
+            <button class="lq-btn">立即领取</button>
+          </p>
+        </div>
+      </a>
+      <a class="card" href="https://wx.lanjingv.com/h10/?code=071TZmGa1PI3cG0cwsHa10ch9j2TZmGY&state=123#/pages/waimai/ele" target="_blank">
+        <div class="left">
+          <div class="brand-logo">
+            <img src="static/picture/ele.png">
+          </div>
+          <div class="brand-desc">
+            <p>饿了么外卖红包天天领</p>
+            <p class="price">¥<span>88</span>最高领满15减15红包</p>
+          </div>
+        </div>
+        <div class="right">
+          <p style="color: #666;font-size: 0.6rem">已抢56%</p>
+        <div class="speed">
+          <div class="speed-pro" style="width: 2.8rem;"></div>
+        </div>
+          <p>
+            <button class="lq-btn">立即领取</button>
+          </p>
+        </div>
+      </a>
+      <a class="card" href="https://wx.lanjingv.com/h10/?code=071TZmGa1PI3cG0cwsHa10ch9j2TZmGY&state=123#/pages/waimai/dd" target="_blank">
+        <div class="left">
+          <div class="brand-logo">
+            <img src="static/picture/didi_dc_icon.png">
+          </div>
+          <div class="brand-desc">
+            <p>每天领8折滴滴券</p>
+            <p class="price">¥<span>8折</span>免费领滴滴打车券</p>
+          </div>
+        </div>
+        <div class="right">
+          <p style="color: #666;font-size: 0.6rem">已抢42%</p>
+        <div class="speed">
+          <div class="speed-pro" style="width: 2.1rem;"></div>
+        </div>
+          <p>
+            <button class="lq-btn">立即领取</button>
+          </p>
+        </div>
+      </a>
+      <a class="card" href="https://wx.lanjingv.com/h10/?code=071TZmGa1PI3cG0cwsHa10ch9j2TZmGY&state=123#/pages/waimai/dd" target="_blank">
+        <div class="left">
+          <div class="brand-logo">
+            <img src="static/picture/dache.png">
+          </div>
+          <div class="brand-desc">
+            <p>出行打车合集</p>
+            <p class="price">¥<span>10</span>新人免费领取15元券</p>
+          </div>
+        </div>
+        <div class="right">
+          <p style="color: #666;font-size: 0.6rem">已抢74%</p>
+        <div class="speed">
+          <div class="speed-pro" style="width: 3.7rem;"></div>
+        </div>
+          <p>
+            <button class="lq-btn">立即领取</button>
+          </p>
+        </div>
+      </a>
+      <a class="card" href="https://jidada.zhongrr.cn/?agentId=A23042202921&parentId=779218" target="_blank">
+        <div class="left">
+          <div class="brand-logo">
+            <img src="static/picture/jijian.png">
+          </div>
+          <div class="brand-desc">
+            <p>超低价寄快递</p>
+            <p class="price">¥<span>10</span>寄件单单打折运费低至5元起</p>
+          </div>
+        </div>
+        <div class="right">
+          <p style="color: #666;font-size: 0.6rem">已抢68%</p>
+        <div class="speed">
+          <div class="speed-pro" style="width: 3.4rem;"></div>
+        </div>
+          <p>
+            <button class="lq-btn">立即领取</button>
+          </p>
+        </div>
+      </a>
+      <a class="card" href="" target="_blank">
+        <div class="left">
+          <div class="brand-logo">
+            <img src="static/picture/xingbake.png">
+          </div>
+          <div class="brand-desc">
+            <p>大牌点餐专享优惠</p>
+            <p class="price">¥<span>1折起</span>星巴克/肯德基/麦当劳/瑞幸等</p>
+          </div>
+        </div>
+        <div class="right">
+          <p style="color: #666;font-size: 0.6rem">已抢57%</p>
+        <div class="speed">
+          <div class="speed-pro" style="width: 2.85rem;"></div>
+        </div>
+          <p>
+            <button class="lq-btn">立即领取</button>
+          </p>
+        </div>
+      </a>
+      <a class="card" href="https://actkr.kuaizhan.com/?Hm5qmdOt" target="_blank">
+        <div class="left">
+          <div class="brand-logo">
+            <img src="static/picture/yidong.png">
+          </div>
+          <div class="brand-desc">
+            <p>全国3网话费充值优惠</p>
+            <p class="price">¥<span>优惠</span>话费充值有优惠</p>
+          </div>
+        </div>
+        <div class="right">
+          <p style="color: #666;font-size: 0.6rem">已抢66%</p>
+        <div class="speed">
+          <div class="speed-pro" style="width: 3.3rem;"></div>
+        </div>
+          <p>
+            <button class="lq-btn">立即领取</button>
+          </p>
+        </div>
+      </a>
+      <a class="card" href="http://turl.iqiyi.com/d9D07jo-fa" target="_blank">
+        <div class="left">
+          <div class="brand-logo">
+            <img src="static/picture/iqiyi.png">
+          </div>
+          <div class="brand-desc">
+            <p>爱奇艺会员</p>
+            <p class="price">¥<span>5折</span>半价在线开通</p>
+          </div>
+        </div>
+        <div class="right">
+          <p style="color: #666;font-size: 0.6rem">已抢52%</p>
+        <div class="speed">
+          <div class="speed-pro" style="width: 2.6rem;"></div>
+        </div>
+          <p>
+            <button class="lq-btn">立即领取</button>
+          </p>
+        </div>
+      </a>
+      <a class="card" href="https://actkr.kuaizhan.com/?Hmv0PeLD" target="_blank">
+        <div class="left">
+          <div class="brand-logo">
+            <img src="static/picture/maidanglao.png">
+          </div>
+          <div class="brand-desc">
+            <p>麦当劳</p>
+            <p class="price">¥<span>5折</span>在线点餐5折起</p>
+          </div>
+        </div>
+        <div class="right">
+          <p style="color: #666;font-size: 0.6rem">已抢76%</p>
+        <div class="speed">
+          <div class="speed-pro" style="width: 3.1rem;"></div>
+        </div>
+          <p>
+            <button class="lq-btn">立即领取</button>
+          </p>
+        </div>
+      </a>
+      <a class="card" href="" target="_blank">
+        <div class="left">
+          <div class="brand-logo">
+            <img src="static/picture/kendeji.png">
+          </div>
+          <div class="brand-desc">
+            <p>肯德基</p>
+            <p class="price">¥<span>5折</span>在线点餐5折起</p>
+          </div>
+        </div>
+        <div class="right">
+          <p style="color: #666;font-size: 0.6rem">已抢62%</p>
+        <div class="speed">
+          <div class="speed-pro" style="width: 3.1rem;"></div>
+        </div>
+          <p>
+            <button class="lq-btn">立即领取</button>
+          </p>
+        </div>
+      </a>
+      <a class="card" href="https://jidada.zhongrr.cn/?agentId=A23042202921&parentId=779218#/pages/movie" target="_blank">
+        <div class="left">
+          <div class="brand-logo">
+            <img src="static/picture/dianying.png">
+          </div>
+          <div class="brand-desc">
+            <p>特价电影票</p>
+            <p class="price">¥<span>8.8折</span>全国电影票8.8折起</p>
+          </div>
+        </div>
+        <div class="right">
+          <p style="color: #666;font-size: 0.6rem">已抢49%</p>
+        <div class="speed">
+          <div class="speed-pro" style="width: 2.45rem;"></div>
+        </div>
+          <p>
+            <button class="lq-btn">立即领取</button>
+          </p>
+        </div>
+      </a>
+      <a class="card" href="" target="_blank">
+        <div class="left">
+          <div class="brand-logo">
+            <img src="static/picture/jiudian.png">
+          </div>
+          <div class="brand-desc">
+            <p>美团酒店</p>
+            <p class="price">¥<span>8折</span>住酒店领券更优惠</p>
+          </div>
+        </div>
+        <div class="right">
+          <p style="color: #666;font-size: 0.6rem">已抢59%</p>
+        <div class="speed">
+          <div class="speed-pro" style="width: 2.95rem;"></div>
+        </div>
+          <p>
+            <button class="lq-btn">立即领取</button>
+          </p>
+        </div>
+      </a>
+      <a class="card" href="" target="_blank">
+        <div class="left">
+          <div class="brand-logo">
+            <img src="static/picture/jiayou.png">
+          </div>
+          <div class="brand-desc">
+            <p>低价加油</p>
+            <p class="price">¥<span>5折</span>用户专享加油优惠</p>
+          </div>
+        </div>
+        <div class="right">
+          <p style="color: #666;font-size: 0.6rem">已抢44%</p>
+        <div class="speed">
+          <div class="speed-pro" style="width: 2.2rem;"></div>
+        </div>
+          <p>
+            <button class="lq-btn">立即领取</button>
+          </p>
+        </div>
+      </a>
+    </div>
+  </div>
+</body>
+<script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
+<script>LA.init({id:"3GBQy07pYlIVc3g8",ck:"3GBQy07pYlIVc3g8",autoTrack:true})</script>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+</html>
