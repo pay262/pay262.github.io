@@ -68,19 +68,22 @@
             <li onclick="CNMSBshowDetails(this,0)" class="li-bg"><i class="iconfont icon-home"><em></em></i></li> <!--首页-->
        <!--     <li onclick="CNMSBshowDetails(this,1)" class="li-bg2"><i class="iconfont icon-sousuo search-color"></i></li>  -->  <!--搜索-->
             <p class="h"></p><!--我是分割线-->
-            <li onclick="CNMSBshowDetails(this,7)" class="li-bg2"><i class="iconfont icon-link"></i></li>   <!--友情链接-->
+            <li onclick="CNMSBshowDetails(this,8)" class="li-bg2"><i class="iconfont icon-link"></i></li>   <!--友情链接-->
 
-            <li onclick="CNMSBshowDetails(this,6)" class="li-bg3"><i class="iconfont icon-link"></i></li> 
+            <li onclick="CNMSBshowDetails(this,7)" class="li-bg3"><i class="iconfont icon-link"></i></li> 
             <!--本站源码-->
-            <li onclick="CNMSBshowDetails(this,8)" class="li-bg4"><i class="iconfont icon-link"></i></li>   <!--友情链接-->
+            <li onclick="CNMSBshowDetails(this,9)" class="li-bg4"><i class="iconfont icon-link"></i></li>   <!--友情链接-->
 
             <p class="h"></p><!--我是分割线-->
 
             <li onclick="CNMSBshowDetails(this,4)" class="li-bg5"><i class="iconfont icon-wangzhan"><em></em></i></li> <!--网站介绍-->
       <!--      <li onclick="CNMSBshowDetails(this,5)" class="li-bg6"><i class="iconfont icon-other"></i></li>--><!--旗下站点-->
-            <li onclick="CNMSBshowDetails(this,15)" class="li-bg6"><i class="iconfont icon-shipin"></i></li> <!--视频-->
+            <li onclick="CNMSBshowDetails(this,16)" class="li-bg6"><i class="iconfont icon-shipin"></i></li> <!--视频-->
 
-            <li onclick="CNMSBshowDetails(this,9)" class="li-bg"><i class="iconfont icon-Chat"></i></li>   <!--聊天室-->
+            <li onclick="CNMSBshowDetails(this,10)" class="li-bg"><i class="iconfont icon-Chat"></i></li>   <!--贴吧/聊天室-->
+
+            <li onclick="CNMSBshowDetails(this,5)" class="li-bg2"><i class="iconfont icon-game"></i></li>
+            
             <p class="h"></p><!--我是分割线-->
 <!--            <li onclick="CNMSBshowDetails(this,10)" class="li-bg6"><i class="iconfont icon-kaixin-yuan"><em></em></i>
             </li> --> <!--个人介绍-->
@@ -90,15 +93,15 @@
       <!--      <li onclick="CNMSBshowDetails(this,12)" class="li-bg"><i class="iconfont icon-pic"></i></li> --> <!--图片-->
             <!--<li onclick="CNMSBshowDetails(this,14)"><i class="iconfont icon-meishi"></i></li> &lt;!&ndash;美食&ndash;&gt;-->
      <!--       <li onclick="CNMSBshowDetails(this,14)" class="li-bg3"><i class="iconfont icon-email"></i></li> -->  <!--邮箱-->
-            <li onclick="CNMSBshowDetails(this,17)" class="li-bg2"><i class="iconfont icon-dashang2"></i></li>   <!--打赏-->
+            <li onclick="CNMSBshowDetails(this,18)" class="li-bg3"><i class="iconfont icon-dashang2"></i></li>   <!--打赏-->
       <!--      <li onclick="CNMSBshowDetails(this,16)" class="li-bg5"><i class="iconfont icon-chushoujiage"></i></li>  -->
             <!--域名等等售卖-->
      <!--       <li onclick="CNMSBshowDetails(this,17)" class="li-bg6"><i class="iconfont icon-gengduo"><em></em></i></li> -->  <!--更多-->
        <!--     <li onclick="CNMSBshowDetails(this,18)" class="li-bg"><i class="iconfont icon-admin"></i></li> -->  <!--加号-->
       <!--      <li onclick="CNMSBshowDetails(this,19)"><i class="iconfont icon-jia"></i></li> -->  <!--加号-->
       <!--      <li onclick="CNMSBshowDetails(this,20)"><i class="iconfont icon-jia"></i></li> -->  <!--加号-->
-            <li onclick="CNMSBshowDetails(this,10)" class="li-bg3"><i class="iconfont icon-liuyan"></i></li>   <!--留言-->
-              <li onclick="CNMSBshowDetails(this,2)" class="li-bg4"><i class="iconfont icon-lianxiren"></i></li>     <!--联系方式-->
+            <li onclick="CNMSBshowDetails(this,11)" class="li-bg4"><i class="iconfont icon-liuyan"></i></li>   <!--留言-->
+              <li onclick="CNMSBshowDetails(this,2)" class="li-bg5"><i class="iconfont icon-lianxiren"></i></li>     <!--联系方式-->
     
       
         </ul>
@@ -106,7 +109,7 @@
     </div>
     <!--右侧栏-->
     <div class="right">
-        <!--首页-->
+        <!--第1页 首页-->
         <div class="items-box">
       <!--      <div class="search-box">
                 <input type="text" placeholder="一个暂时不能用的搜索框">
@@ -196,7 +199,7 @@
         </div>
 
 
-        <!--第二页 搜索-->
+        <!--第2页 搜索-->
         <div class="items-box cnmsb">
             <div class="search-box">
                 <input type="text" placeholder="一个暂时不能用的搜索框">
@@ -262,7 +265,7 @@
             </div>
             <div style="height:2rem;"></div>
         </div>
-        <!--第三页 联系方式-->
+        <!--第3页 联系方式-->
         <div class="items-box cnmsb">
       <!--      <div class="search-box">
                 <input type="text" placeholder="一个暂时不能用的搜索框">
@@ -305,7 +308,7 @@
                 </li>
             </ul>
         </div>
-        <!--第四页 本站源码-->
+        <!--第4页 本站源码-->
         <div class="items-box cnmsb">
             <div class="search-box">
                 <input type="text" placeholder="一个暂时不能用的搜索框">
@@ -354,7 +357,7 @@
             </ul>
         </div>
 
-        <!--第五页 号卡中心-->
+        <!--第5页 号卡中心-->
         <div class="items-box cnmsb">
     <!--        <div class="search-box">
                 <input type="text" placeholder="一个暂时不能用的搜索框">
@@ -383,12 +386,51 @@
                             <p>可尝试iframe标签引入网页聊天页面</p>
                         </li>
                     </ul>  -->
-             <!--       <span>招代理：<a style="font-size: px;color: red;">全职兼职(宝妈，在校大学生)均可，咨询微信：pay262【备注:号卡代理】</a></span>  -->
+<!--                    <span>招代理：<a style="font-size: px;color: red;">全职兼职(宝妈，在校大学生)均可，咨询微信：pay262【备注:号卡代理】</a></span>  -->
 
                 </li>  
                 <!--iframe标签嵌入网页-->
-<iframe name="pro" height="688px"
+<iframe name="pro" height="700px"
 id="pro" src="http://vip.777haoka.cn/index?k=T1RwMzdMQWw4cGc9" frameborder="no"
+scrolling="yes" style="overflow: hidden;">您的浏览器不支持iframe，请升级</iframe>
+             </ul>
+        </div>
+
+        <!--第6页 网络面板-->
+        <div class="items-box cnmsb">
+    <!--        <div class="search-box">
+                <input type="text" placeholder="一个暂时不能用的搜索框">
+                <i class="iconfont icon-sousuo search-color postion-serarch"></i>
+                <span class="search-btn">搜索</span>
+            </div>  -->
+    <!--        <div class="items-banner">
+                <div class="top" style=" background-image: url('hao/img/bg.webp');">
+                    <p style="font-size: 18px;color:#ffffff;">聊天室</p>
+                </div>
+            </div>   -->
+            <ul class="list-box">
+                <li>
+                    <div class="top-header">
+                        <span>
+                            <h3></h3></span>
+                    </div>
+   <!--                 <ul class="list-item">
+                        <li>
+                            <p>聊天室页面2.0版本推出</p>
+                        </li>
+                        <li>
+                            <p>敬请期待</p>
+                        </li>
+                        <li>
+                            <p>可尝试iframe标签引入网页聊天页面</p>
+                        </li>
+                    </ul>  -->
+<!--                    <span>招代理：<a style="font-size: px;color: red;">全职兼职(宝妈，在校大学生)均可，咨询微信：pay262【备注:号卡代理】</a></span>  -->
+
+                </li>  
+                <!--iframe标签嵌入网页-->
+<iframe name="pro" height="700px"
+id="pro" src="https://pay262.github.io/NetworkPanel" frameborder="no"
 scrolling="yes" style="overflow: hidden;">您的浏览器不支持iframe，请升级</iframe>
              </ul>
         </div>
@@ -489,7 +531,7 @@ scrolling="yes" style="overflow: hidden;">您的浏览器不支持iframe，请�
             </ul>
         </div>  -->
 
-        <!--第六页 旗下站点-->
+        <!--第7页 旗下站点-->
         <div class="items-box cnmsb">
             <div class="search-box">
                 <input type="text" placeholder="一个暂时不能用的搜索框">
@@ -563,7 +605,7 @@ scrolling="yes" style="overflow: hidden;">您的浏览器不支持iframe，请�
             </ul>
             <div style="height:2rem;"></div>
         </div>
-        <!--第七页 友情链接-->
+        <!--第8页 联通-->
         <div class="items-box cnmsb">
 <!--            <div class="search-box">
                 <input type="text" placeholder="一个暂时不能用的搜索框">
@@ -827,7 +869,7 @@ scrolling="yes" style="overflow: hidden;">您的浏览器不支持iframe，请�
             </ul>
         </div>
         
-        <!--第七页 友情链接-->
+        <!--第9页 移动-->
         <div class="items-box cnmsb">
 <!--            <div class="search-box">
                 <input type="text" placeholder="一个暂时不能用的搜索框">
@@ -1091,7 +1133,7 @@ scrolling="yes" style="overflow: hidden;">您的浏览器不支持iframe，请�
             </ul>
         </div>
 
-        <!--第七页 友情链接-->
+        <!--第10页 电信-->
         <div class="items-box cnmsb">
 <!--            <div class="search-box">
                 <input type="text" placeholder="一个暂时不能用的搜索框">
@@ -1355,7 +1397,7 @@ scrolling="yes" style="overflow: hidden;">您的浏览器不支持iframe，请�
             </ul>
         </div>
         
-        <!--第八页 聊天室-->
+        <!--第11页 贴吧/聊天室-->
         <div class="items-box cnmsb">
     <!--        <div class="search-box">
                 <input type="text" placeholder="一个暂时不能用的搜索框">
@@ -1391,7 +1433,7 @@ id="processResultMsg" src="https://youhua.baidu.com/" frameborder="no"
 scrolling="yes" style="overflow: hidden;">您的浏览器不支持iframe，请升级</iframe>
              </ul>
         </div>
-        <!--第九页 留言-->
+        <!--第12页 留言-->
         <div class="items-box cnmsb">
      <!--       <div class="search-box">
                 <input type="text" placeholder="一个暂时不能用的搜索框">
@@ -1426,7 +1468,7 @@ scrolling="yes" style="overflow: hidden;">您的浏览器不支持iframe，请�
                 </li>
             </ul>
         </div>
-        <!--第十页 个人介绍-->
+        <!--第13页 个人介绍-->
         <div class="items-box cnmsb">
             <div class="search-box">
                 <input type="text" placeholder="一个暂时不能用的搜索框">
@@ -1472,7 +1514,7 @@ scrolling="yes" style="overflow: hidden;">您的浏览器不支持iframe，请�
                 </li>
             </ul>
         </div>
-        <!--第十一页 游戏生涯-->
+        <!--第14页 游戏生涯-->
         <div class="items-box cnmsb">
             <div class="search-box">
                 <input type="text" placeholder="一个暂时不能用的搜索框">
@@ -1513,7 +1555,7 @@ scrolling="yes" style="overflow: hidden;">您的浏览器不支持iframe，请�
             </ul>
 
         </div>
-        <!--第十二页 文案馆-->
+        <!--第15页 文案馆-->
         <div class="items-box cnmsb">
             <div class="search-box">
                 <input type="text" placeholder="一个暂时不能用的搜索框">
@@ -1634,7 +1676,7 @@ scrolling="yes" style="overflow: hidden;">您的浏览器不支持iframe，请�
                 </li>
             </ul>
         </div>
-        <!--第十三页 图片-->
+        <!--第16页 图片-->
         <div class="items-box cnmsb">
             <div class="search-box">
                 <input type="text" placeholder="一个暂时不能用的搜索框">
@@ -1673,7 +1715,7 @@ scrolling="yes" style="overflow: hidden;">您的浏览器不支持iframe，请�
             </ul>
             <div style="height:2rem;"></div>
         </div>
-        <!--第十四页 视频-->
+        <!--第17页 视频-->
         <div class="items-box cnmsb">
 <!--            <div class="search-box">
                 <input type="text" placeholder="一个暂时不能用的搜索框">
@@ -1719,7 +1761,7 @@ scrolling="yes" style="overflow: hidden;">您的浏览器不支持iframe，请�
         <!--            </div>-->
         <!--            <h2>记录站长喜欢的美食</h2>-->
         <!--        </div>-->
-        <!--第十六页 邮箱-->
+        <!--第18页 邮箱-->
         <div class="items-box cnmsb">
             <div class="search-box">
                 <input type="text" placeholder="一个暂时不能用的搜索框">
@@ -1757,7 +1799,7 @@ scrolling="yes" style="overflow: hidden;">您的浏览器不支持iframe，请�
                 </li>
             </ul>
         </div>
-        <!--第十七页 捐助打赏-->
+        <!--第19页 捐助打赏-->
         <div class="items-box cnmsb">
    <!--         <div class="search-box">
                 <input type="text" placeholder="一个暂时不能用的搜索框">
@@ -1803,7 +1845,7 @@ scrolling="yes" style="overflow: hidden;">您的浏览器不支持iframe，请�
                 </li>
             </ul>
         </div>
-        <!--第十八页 售卖-->
+        <!--第20页 售卖-->
         <div class="items-box cnmsb">
             <div class="search-box">
                 <input type="text" placeholder="一个暂时不能用的搜索框">
@@ -1830,7 +1872,7 @@ scrolling="yes" style="overflow: hidden;">您的浏览器不支持iframe，请�
                 </li>
             </ul>
         </div>
-        <!--第十九页 更多-->
+        <!--第21页 更多-->
         <div class="items-box cnmsb">
             <div class="search-box">
                 <input type="text" placeholder="一个暂时不能用的搜索框">
@@ -1860,7 +1902,7 @@ scrolling="yes" style="overflow: hidden;">您的浏览器不支持iframe，请�
                 </li>
             </ul>
         </div>
-        <!--第十九页 后台管理-->
+        <!--第22页 后台管理-->
         <div class="items-box cnmsb">
             <div class="search-box">
                 <input type="text" placeholder="一个暂时不能用的搜索框">
@@ -1884,7 +1926,7 @@ scrolling="yes" style="overflow: hidden;">您的浏览器不支持iframe，请�
             </div>
         </div>
 
-        <!--第二十页 加号-->
+        <!--第23页 加号-->
         <div class="items-box cnmsb">
             <div class="search-box">
                 <input type="text" placeholder="一个暂时不能用的搜索框">
@@ -1895,7 +1937,7 @@ scrolling="yes" style="overflow: hidden;">您的浏览器不支持iframe，请�
                 <p>自定义开发</p>
             </div>
         </div>
-        <!--第二十一页 加号-->
+        <!--第24页 加号-->
         <div class="items-box cnmsb">
             <div class="search-box">
                 <input type="text" placeholder="一个暂时不能用的搜索框">
