@@ -89,8 +89,8 @@ body {
         <video id="player" src="http://v.nrzj.vip/video.php" controls webkit-playsinline playsinline></video>
     </section>
     <section id="buttons">
-        <button id="switch">自动播放: 开</button>
-        <button id="next">播放下一个</button>
+        <button id="switch">连续: 开</button>
+        <button id="next">下一个</button>
         </section>
     <script>
     (function (window, document) {
@@ -115,7 +115,7 @@ body {
         });
         bind(get('switch'), 'click', function () {
             auto = !auto;
-            this.innerText = '自动播放: ' + (auto ? '开' : '关');
+            this.innerText = '连续: ' + (auto ? '开' : '关');
         });
         bind(player, 'ended', function () {
             if (auto) randomm();
