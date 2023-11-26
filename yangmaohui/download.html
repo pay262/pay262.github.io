@@ -128,6 +128,19 @@
     </style>
 
 </head>
+    <script>
+        function toUrl(url, msg = '') {
+            if (msg) {
+                alert(msg);
+            }
+            return window.location = url;
+        }
+        
+       function copyBtn() {
+         new ClipboardJS('.btn',{text:function(trigger) { return 'https://sourl.cn/U88mdD';} });
+        alert('复制成功');
+       }
+    </script>
 
 <body>
 
@@ -140,9 +153,8 @@
   
               <!--上面数字自己改-->
 <button class="down" onclick="window.location.href ='https://www.123pan.com/s/GYWrVv-32KHH.html'">安卓版</button>
-
   <button class="down" onclick="window.location.href ='#'">苹果版</button>
- 
+   <button class="down btn" onclick="copyBtn()" href="javascript:;">复制下载链接</button>
 </div>
 
   
