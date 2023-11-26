@@ -41,7 +41,7 @@ var binft = function (r) {
             setTimeout(i, d)
     }
     var l = "",
-        o = ["大道至简,自在由我",].map(function (r) {
+        o = ["因为相信,所以看见",].map(function (r) {
             return r + "."
         }),
         a = 2,
