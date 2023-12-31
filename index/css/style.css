@@ -136,19 +136,22 @@ margin-top:15px;
 	background-repeat: no-repeat
 }
 
-.lx:before {
+.zh:before {
 
-	background-image: url(../picture/lx.png)
+	background-image: url(../picture/zh.png)
 }
 
-.dh:before {
-	background-image: url(../picture/dh.png)
+.hf:before {
+	background-image: url(../picture/hf.png)
 }
 
-.zy:before {
-	background-image: url(../picture/zy.png)
+.yy:before {
+	background-image: url(../picture/yy.png)
 }
 
+.qt:before {
+	background-image: url(../picture/qt.png)
+}
 
 .app-list {
 	width: 100%;
