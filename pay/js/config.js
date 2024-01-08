@@ -5,7 +5,7 @@ const basic = { // 基础设置
     title: '未来的收款码', // 页面标题
     avatar: 'images/logo.png', // 头像 URL
     name: '未来', // 头像下的昵称
-    sign: '支持微信、支付宝 ( •̀ ω •́ )✧', // 个性签名或提示文字，可使用 HTML 格式
+    sign: '二合一收款码 ( •̀ ω •́ )✧', // 个性签名或提示文字，可使用 HTML 格式
     user_page: '', // 点击头像或名字时跳转的链接，留空或删除则不跳转
     footer: '', // 页脚文字，可使用 HTML 格式
     uri_redirect: false // 若收款码 URL 是网址，是否直接跳转而不显示二维码
