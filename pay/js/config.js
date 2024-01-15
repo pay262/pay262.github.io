@@ -8,7 +8,7 @@ const basic = { // 基础设置
     sign: '因为相信，所以看见( •̀ ω •́ )✧', // 个性签名或提示文字，可使用 HTML 格式
     user_page: '', // 点击头像或名字时跳转的链接，留空或删除则不跳转
     footer: '', // 页脚文字，可使用 HTML 格式
-    uri_redirect: false // 若收款码 URL 是网址，是否直接跳转而不显示二维码
+    uri_redirect: true // 若收款码 URL 是网址，是否直接跳转而不显示二维码-true/false
 }
 
 const theme = { // 主题设置
@@ -19,8 +19,8 @@ const theme = { // 主题设置
 }
 
 const tools = { // 右上角小工具设置
-    dl_btn: true, // 二维码下载
-    badge_generator: true // 徽章生成器
+    dl_btn: false, // 二维码下载-true/false
+    badge_generator: false // 徽章生成器-true/false
 }
 
 const urls = [ // 付款方式列表
