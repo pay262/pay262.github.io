@@ -16,8 +16,8 @@
           <!--   <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.4/jquery.min.js"></script>-->
          <script src="index/js/jquery.min3.6.4.js"></script>
 
-    <!--onselectstart:禁止选中 oncontextmenu:右键弹出版权 event.keyCode==27:按esc键表示放弃Esc键阻止网页继续载入,也就是说你按ESC键网页还是继续加载-->
-<body onselectstart="return false;" oncontextmenu="alert('请尊重本站版权！');return false;" onkeydown="if(event.keyCode==27) return false;">
+    <!--onselectstart:禁止选中 oncontextmenu:右键弹出版权 event.keyCode==27:按esc键表示放弃Esc键阻止网页继续载入,也就是说你按ESC键网页还是继续加载
+<body onselectstart="return false;" oncontextmenu="alert('请尊重本站版权！');return false;" onkeydown="if(event.keyCode==27) return false;">  -->
 <script type="text/javascript">
 document.onmousedown = click;  //绑定禁用鼠标右键事件
 document.onkeydown = ctrl_key; //绑定禁用键盘事件
@@ -43,7 +43,7 @@ return false;
     
     </head>
     
-    <body _c_t_j1="1" style="">
+    <body _c_t_j1="1" style="" onselectstart="return false;" oncontextmenu="alert('请尊重本站版权！');return false;" onkeydown="if(event.keyCode==27) return false;">
         <div id="app">
            
                    
