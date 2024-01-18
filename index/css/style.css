@@ -136,21 +136,21 @@ margin-top:15px;
 	background-repeat: no-repeat
 }
 
-.zh:before {
+.jr:before {
 
-	background-image: url(../picture/zh.png)
+	background-image: url(../picture/jr.png)
 }
 
-.hf:before {
-	background-image: url(../picture/hf.png)
+.tx:before {
+	background-image: url(../picture/tx.png)
 }
 
-.yy:before {
-	background-image: url(../picture/yy.png)
+.dh:before {
+	background-image: url(../picture/dh.png)
 }
 
-.qt:before {
-	background-image: url(../picture/qt.png)
+.gy:before {
+	background-image: url(../picture/gy.png)
 }
 
 .app-list {
