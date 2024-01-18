@@ -70,17 +70,23 @@ return false;
                     
                     
                         <div class="tab-list">
-                               <div class="tab-item zh">
+                               <div class="tab-item jr">
                                 <span class="text">
                                     金融
                                 </span>
                             </div>
-                            <div class="tab-item hf">
+                            <div class="tab-item tx">
                                 <span class="text">
                                     通信
                                 </span>
                             </div>
-                            <div class="tab-item yy">
+                            <div class="tab-item dh">
+                                <span class="text">
+                                    导航
+                                </span>
+                            </div>
+
+                           <div class="tab-item gy">
                                 <span class="text">
                                     关于
                                 </span>
@@ -137,7 +143,7 @@ return false;
                                         <img src="index/picture/app.png" alt="">
                                     </div>
                                     <p class="app-name">
-                                        羊毛汇App
+                                        羊毛汇<br>安卓版
                                     </p>
                                 </div>                           
                             </a>
@@ -153,7 +159,7 @@ return false;
                                     </p>
                                 </div>
                             </a>
-                             <a onclick="window.location.href=&quot;https://sourl.cn/G8vG7M&quot;"
+                             <a onclick="window.location.href=&quot;yangmaohui/tool_unicom.html&quot;"
                             class="item" style="opacity: 1;">
                                 <div class="content-wrap">
                                     <div class="img-wrap">
@@ -200,11 +206,13 @@ return false;
 
                             <!---->
                         </div>
+
+                         <div class="app-list a3">                       
                         
                         
-                        
-                        
-                                                <div class="app-list a3">
+                             <!---->
+                        </div>                       
+                                                <div class="app-list a4">
 
                           <a onclick="window.location.href=&quot;https://qm.qq.com/q/eLlnHBdXwI&personal_qrcode_source=4&quot;"                           
                             class="item" style="opacity: 1;">
@@ -320,36 +328,45 @@ jQuery(document).ready(function($) {
       $(".a1").css("display", "flex");
     $(".a2").css("display", "none");
         $(".a3").css("display", "none");
+        $(".a4").css("display", "none");
    $(document).ready(function(){
-  $(".zh").click(function(){
+  $(".jr").click(function(){
       $(".a1").css("display", "flex");
     $(".a2").css("display", "none");
         $(".a3").css("display", "none");
+        $(".a4").css("display", "none");
   });
   });
   
   
   $(document).ready(function(){
-  $(".hf").click(function(){
+  $(".tx").click(function(){
       $(".a1").css("display", "none");
     $(".a2").css("display", "flex");
         $(".a3").css("display", "none");
-  });
+        $(".a4").css("display", "none"); 
+ });
   
   });
   
   $(document).ready(function(){
-  $(".yy").click(function(){
+  $(".dh").click(function(){
       $(".a1").css("display", "none");
     $(".a2").css("display", "none");
         $(".a3").css("display", "flex");
+        $(".a4").css("display", "none");
   });
-  
-  
-  
-  
+    
 });
-
+  $(document).ready(function(){
+  $(".gy").click(function(){
+      $(".a1").css("display", "none");
+    $(".a2").css("display", "none");
+        $(".a3").css("display", "none");
+        $(".a4").css("display", "flex");
+  });
+    
+});
 
 });
 </script>
@@ -357,6 +374,6 @@ jQuery(document).ready(function($) {
  * @Autor: Future Tech
  * @Date: 2023-12-18
  * @LastEditors: Future Tech
- * @LastEditTime: 2024-01-17
+ * @LastEditTime: 2024-01-18
 -->
 </html>
