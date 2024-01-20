@@ -1,0 +1,38 @@
+﻿<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <title>翡翠台</title>
+</head>
+<script language="JavaScript"> 
+if(top==self)top.location="http://www.baidu.com"
+document.oncontextmenu=new Function("event.returnValue=false;"); 
+document.onselectstart=new Function("event.returnValue=false;");
+function killErrors() {
+return true;
+}
+window.onerror = killErrors; 
+</script>
+<body>
+<div id="a1"></div>
+<script type="text/javascript" src="js/ckplayer.js"></script>
+<div class="video" style="width: 100%px;height: 100%px;"></div>
+<script type="text/javascript">
+if(/iPhone|iPod|Android|ios|iPad/i.test(navigator.userAgent)){
+document.getElementById('a1').innerHTML = '<video src="https://hls.watchtv.uk/ompd/jade/index.m3u8?t=1705755656&token=a3cdbb033a1d0fc89ed9a357bac11727" controls="controls" autoplay="autoplay" width="100%" height="300px"></video>';
+}else{
+	var videoObject = {
+		container: '.video',//“#”代表容器的ID，“.”或“”代表容器的class
+		variable: 'player',//该属性必需设置，值等于下面的new chplayer()的对象
+		autoplay:true,//自动播放
+		live:true,
+		video:'CK:0pLbPP76oYqf9nsMP52/chkCWtUxloTKUpXlptT8KvJBA/F+ZYOc8bh8OQjXXmas6Fq/V6g6a1vdgD+I8wNZXSpQqzT4d7A+nFvu90HuKGE='//临时视频地址,请不要盗用
+	};
+	var player=new ckplayer(videoObject);
+	}
+</script>
+	<textarea style="display:none">
+</body>
+</html>
+
+
+
