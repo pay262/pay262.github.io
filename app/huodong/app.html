@@ -1,0 +1,710 @@
+<html lang="en">
+    
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <meta name="apple-mobile-web-app-title" content="instap">
+        <link rel="icon" href="favicon.ico">
+        <title>
+            羊毛汇
+        </title>
+        <link href="index/css/m.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="index/css/style.css">
+          <!--   <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.4/jquery.min.js"></script>-->
+         <script src="index/js/jquery.min3.6.4.js"></script>
+
+    <!--onselectstart:禁止选中 oncontextmenu:右键弹出版权 event.keyCode==27:按esc键表示放弃Esc键阻止网页继续载入,也就是说你按ESC键网页还是继续加载
+<body onselectstart="return false;" oncontextmenu="alert('羊毛汇 - 因为相信 · 所以看见！');return false;" onkeydown="if(event.keyCode==27) return false;">  -->
+<script type="text/javascript">
+document.onmousedown = click;  //绑定禁用鼠标右键事件
+document.onkeydown = ctrl_key; //绑定禁用键盘事件
+function click() {
+if (event.button == 2)      //单击的鼠标键为右键
+{
+alert('羊毛汇 - 因为相信 · 所以看见！');
+return false;
+}
+}
+function ctrl_key() {
+if (event.keyCode == 17) {                          //禁用CTRL+S 保存网页代码
+window.alert("羊毛汇 - 因为相信 · 所以看见！");
+return false;
+}
+ 
+if (event.keyCode == 123) {                         //禁用F12查看源代码
+alert('羊毛汇 - 因为相信 · 所以看见！');
+return false;
+}
+}
+</script>
+    
+    </head>
+    
+    <body _c_t_j1="1" style="" onselectstart="return false;" oncontextmenu="alert('羊毛汇 - 因为相信 · 所以看见！');return false;" onkeydown="if(event.keyCode==27) return false;">
+        <div id="app">
+           
+                   
+                    <div class="header">
+                            <div class="banner">
+                                <!---->
+                                <div class="logo">
+                                    <img src="index/picture/app.png"
+                                    alt="">
+                                </div>
+                            </div>
+                            <div class="author-name">
+                              <!--  <span class="gender-icon female">
+                                </span>  -->
+                                羊毛汇
+                            </div>
+                            <p class="desc">
+                            因为相信 · 所以看见
+                            </p>
+                        </div>
+           
+                                  
+                    <div class="body">
+                    
+                
+                        <div class="tab-list">
+                            <div class="tab-item tx">
+                                <span class="text">
+                                    通信
+                                </span>
+                            </div>     
+                           <div class="tab-item jr">
+                                <span class="text">
+                                    金融
+                                </span>
+                            </div>
+
+                            <div class="tab-item dh">
+                                <span class="text">
+                                    导航
+                                </span>
+                            </div>
+
+                           <div class="tab-item gy">
+                                <span class="text">
+                                    关于
+                                </span>
+                            </div>
+                        </div>
+                        
+                        
+                                                                                                                                                                 
+                        
+                        <div class="app-list a1">
+
+
+
+                             <a onclick="window.location.href=&quot;https://douyin.rf.gd/&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="index/picture/google.png" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        羊毛论坛
+                                    </p>
+                                </div>
+                            </a> 
+                            <a onclick="window.location.href=&quot;yangmaohui/dongtai.html&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="index/picture/google.png" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        卡圈动态
+                                    </p>
+                                </div>                         
+                            </a> 
+
+                            <a onclick="window.location.href=&quot;%79%61%6e%67%6d%61%6f%68%75%69/%31%30%30%38%36%68%64%2e%68%74%6d%6c&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="index/picture/10086.png" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        移动活动
+                                    </p>
+                                </div>
+                            </a>
+                            <a onclick="window.location.href=&quot;%79%61%6e%67%6d%61%6f%68%75%69/%31%30%30%31%30%68%64%2e%68%74%6d%6c&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="index/picture/10010.png" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        联通活动
+                                    </p>
+                                </div>                         
+                            </a>
+                            <a onclick="window.location.href=&quot;%79%61%6e%67%6d%61%6f%68%75%69/%31%30%30%30%30%68%64%2e%68%74%6d%6c&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="index/picture/10000.png" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        电信活动
+                                    </p>
+                                </div>                         
+                            </a>
+                            <a onclick="window.location.href=&quot;%79%61%6e%67%6d%61%6f%68%75%69/%31%30%30%39%39%68%64%2e%68%74%6d%6c&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="index/picture/10099.png" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        广电活动
+                                    </p>
+                                </div>                         
+                            </a>
+                             <a onclick="window.location.href=&quot;yangmaohui/tool_unicom.html&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="index/picture/10010.png" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        联通业务
+                                    </p>
+                                </div>
+                            </a>                          
+                            <a onclick="window.location.href=&quot;%79%61%6e%67%6d%61%6f%68%75%69/%63%78%2e%68%74%6d%6c&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="index/picture/tool.png" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        订单查询
+                                    </p>
+                                </div>                         
+                            </a>
+
+                            <a onclick="window.location.href=&quot;https://shouji.10099.com.cn/list/&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="index/picture/10099.png" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        广电终端
+                                    </p>
+                                </div>                         
+                            </a>
+                           <a onclick="window.location.href=&quot;yangmaohui/wasted_traffic2.html&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="index/picture/tool.png" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        流量消耗
+                                    </p>
+                                </div>                         
+                            </a>
+                            <a onclick="window.location.href=&quot;yangmaohui/speedtest.html&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="index/picture/tool.png" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        测网速
+                                    </p>
+                                </div>                         
+                            </a>       
+                            <a onclick="window.location.href=&quot;%69%6e%64%65%78/%6d%79%2e%68%74%6d%6c&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="index/picture/tool.png" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        工作台
+                                    </p>
+                                </div>                         
+                            </a>  
+                            <!---->
+                        </div>
+
+                        <div class="app-list a2">
+
+
+                             <a onclick="window.location.href=&quot;yangmaohui/pay.html&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="index/picture/money.png"
+                                        alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        收款工具
+                                    </p>
+                                </div>
+                            </a>
+                            <a onclick="window.location.href=&quot;%69%6e%64%65%78/%6d%79%2e%68%74%6d%6c&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="index/picture/google.png" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        工作台
+                                    </p>
+                                </div>
+                            </a>                          
+
+
+                            <!---->
+                        </div>
+                        <!-- 音乐播放器跨站开始 -->
+
+                        <div class="app-list a3">                       
+
+
+                            <a onclick="window.location.href=&quot;https://tieba.baidu.com/&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="https://tb3.bdstatic.com/public/icon/favicon-v2.ico" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        百度贴吧
+                                    </p>
+                                </div>                         
+                            </a>    
+                            <a onclick="window.location.href=&quot;https://tv.cctv.com/live/m&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="//p1.img.cctvpic.com/photoAlbum/templet/common/DEPA1652643499621200/mapLogo.png" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        央视直播
+                                    </p>
+                                </div>                         
+                            </a>                         
+                            <a onclick="window.location.href=&quot;https://m.gdtv.cn/tvChannelDetail/43&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="https://img.gdtv.cn/sitecdn/platforms/gdtv/images/logo_white_tag0ce4cad4.png" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        广东电视
+                                    </p>
+                                </div>                         
+                            </a>                       
+                            <a onclick="window.location.href=&quot;https://m.gdtv.cn/audioChannelDetail/85&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="https://img.gdtv.cn/sitecdn/platforms/gdtv/images/logo_white_tag0ce4cad4.png" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        广东广播
+                                    </p>
+                                </div>                         
+                            </a> 
+                            <a onclick="window.location.href=&quot;https://www.xhzb.tw/tv-show-20052-1.html&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="https://www.tvb.com/favicon.ico" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        香港电视
+                                    </p>
+                                </div>                         
+                            </a>                       
+                            <a onclick="window.location.href=&quot;https://radios.hk/&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="https://cdn.webrad.io/favicon.ico" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        香港电台
+                                    </p>
+                                </div>                         
+                            </a> 
+                            <a onclick="window.location.href=&quot;https://i.y.qq.com/n2/m/&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="https://y.qq.com/favicon.ico?max_age=2592000" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        QQ音乐
+                                    </p>
+                                </div>                         
+                            </a>                         
+                             <a onclick="window.location.href=&quot;https://y.music.163.com/m/&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="https://s1.music.126.net/style/favicon.ico?v20180823" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        网易云
+                                    </p>
+                                </div>                         
+                            </a>                                                    
+                            <a onclick="window.location.href=&quot;http://m.kuwo.cn/newh5app/&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="https://www.kuwo.cn/favicon.ico?v=1" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        酷我音乐
+                                    </p>
+                                </div>                         
+                            </a>    
+                             <a onclick="window.location.href=&quot;https://tonzhon.com/&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="https://about.tonzhon.com/favicon.ico" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                       铜钟音乐
+                                    </p>
+                                </div>                         
+                            </a>                                                     
+                            <a onclick="window.location.href=&quot;https://map.baidu.com/mobile/webapp/index/index/foo=bar/vt=map/?fromhash=1&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="https://cdn.webrad.io/favicon.ico" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        百度地图
+                                    </p>
+                                </div>                         
+                            </a>
+                            
+                            <a onclick="window.location.href=&quot;https://map.baidu.com/mobile/webapp/subway/show/c=257&da_src=webapp-aladdin.subway/ref=index&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="https://cdn.webrad.io/favicon.ico" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        广州地铁图
+                                    </p>
+                                </div>                         
+                            </a>
+                            <a onclick="window.location.href=&quot;yangmaohui/sp.html&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="index/picture/hot.png" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                      随机小姐姐
+                                    </p>
+                                </div>                         
+                            </a>
+                            <a onclick="window.location.href=&quot;yangmaohui/duanju.html&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="https://duanju.one/template/mxone/mxstatic/picture/logo.png" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        热门短剧
+                                    </p>
+                                </div>                         
+                            </a>    
+                            <a onclick="window.location.href=&quot;yangmaohui/ai-stable-diffusion.html&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="index/picture/tool.png" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                      AI绘画
+                                    </p>
+                                </div>                         
+                            </a>
+                            <a onclick="window.location.href=&quot;yangmaohui/ai-chatgpt.html&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="index/picture/tool.png" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        GPT4
+                                    </p>
+                                </div>                         
+                            </a>    
+                            <a onclick="window.location.href=&quot;game/&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="https://img1.baidu.com/it/u=2924254698,3453037936&fm=253&fmt=auto&app=138&f=PNG?w=192&h=192" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                     在线游戏
+                                    </p>
+                                </div>                         
+                            </a>
+                            <a onclick="window.location.href=&quot;https://www.yikm.net/play?id=3501&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="https://img1.baidu.com/it/u=2924254698,3453037936&fm=253&fmt=auto&app=138&f=PNG?w=192&h=192" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        超级马里奥
+                                    </p>
+                                </div>                         
+                            </a>    
+                            <a onclick="window.location.href=&quot;https://wget.moe#/register?code=Fl1lUDkX&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="https://img1.baidu.com/it/u=3243694317,3030069950&fm=253&fmt=auto&app=138&f=PNG?w=150&h=174" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                      机场1号
+                                    </p>
+                                </div>                         
+                            </a>
+                            <a onclick="window.location.href=&quot;http://262291.xyz:8831/#/register?code=CLHrxCRK&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="https://img1.baidu.com/it/u=3243694317,3030069950&fm=253&fmt=auto&app=138&f=PNG?w=150&h=174" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        机场2号
+                                    </p>
+                                </div>                         
+                            </a>                                                        
+
+                              <a onclick="window.location.href=&quot;yangmaohui/yunbo.html&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="index/picture/tool.png" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        在线云1
+                                    </p>
+                                </div>                         
+                            </a>                                                     
+                              <a onclick="window.location.href=&quot;yangmaohui/pikpak.html&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="https://mypikpak.com/apple-touch-icon.png" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        在线云2
+                                    </p>
+                                </div>                         
+                            </a>   
+                              <a onclick="window.location.href=&quot;https://m.wandoujia.com/&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="https://img.ucdl.pp.uc.cn/upload_files/wdj_web/public/img/favicon.ico" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        旧版APK
+                                    </p>
+                                </div>                         
+                            </a>  
+                              <a onclick="window.location.href=&quot;yangmaohui/yaohuo.html&quot;"
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="https://yaohuo.me/blog/rose.ico" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        yaohuo
+                                    </p>
+                                </div>                         
+                            </a> 
+
+
+                             
+                        </div>                       
+
+
+
+                <!--        <div class="app-list a4">
+
+                          <a onclick="window.location.href=&quot;https://qm.qq.com/q/eLlnHBdXwI&personal_qrcode_source=4&quot;"                           
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="index/picture/qq.png" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        我的QQ
+                                    </p>
+                                </div>
+                            </a>
+                           <a onclick="window.location.href=&quot;mailto:pay268@qq.com&quot;" 
+                            class="item" style="opacity: 1;">
+                                <div class="content-wrap">
+                                    <div class="img-wrap">
+                                        <img src="index/picture/mail.png" alt="">
+                                    </div>
+                                    <p class="app-name">
+                                        我的邮箱
+                                    </p>
+                                </div>
+                           
+                            </a>
+
+
+          <div class="main">
+
+            <div class="box">
+              <div id="boxs">
+			     <div class="track-list">
+                  <p class="app-name" style="color: ; text-align: center; font-size: ">------大事记------</p><br>
+
+                      <i class="node-icon">
+                        <img src="index/picture/tb_success.svg" />
+                      </i>
+                      <span class="time"> 2023-12-18 </span>
+                      <span class="txt" style="color: #2ecc71"> 本站版面更新。 </span>
+                    </br>
+                     <i class="node-icon">
+                        <img src="index/picture/tb_success.svg" />
+                      </i>
+                      <span class="time"> 2023-11-20 </span>
+                      <span class="txt" style="color: #2ecc71"> 羊毛汇全新版本3.0上线，彻底解决卡顿等BUG </span>
+                    </br>
+                      <i class="node-icon">
+                        <img src="index/picture/tb_success.svg" />
+                      </i>
+                      <span class="time"> 2023-02-08 </span>
+                      <span class="txt" style="color: #2ecc71"> 羊毛汇2.0版本优化，特别感谢@吾！ </span>
+                    </br>
+                       <i class="node-icon">
+                        <img src="index/picture/tb_success.svg" />
+                      </i>
+                      <span class="time"> 2023-01-17 </span>
+                      <span class="txt" style="color: #2ecc71"> 羊毛汇1.0上线！ </span>
+                   </br>
+                      <i class="node-icon">
+                        <img src="index/picture/tb_warning.svg" />
+                      </i>
+                      <span class="time"> 2023-01-17 </span>
+                      <span class="txt" style="color: #f5b041"> 免流工具箱，不再维护更新。 </span>
+                    </br>
+                      <i class="node-icon">
+                        <img src="index/picture/tb_info.svg" />
+                      </i>
+                      <span class="time">2022-12-08</span>
+                      <span class="txt">本站上线。</span>
+                    </br>
+                      <i class="node-icon">
+                        <img src="index/picture/tb_info.svg" />
+                      </i>
+                      <span class="time">2022-04-27</span>
+                      <span class="txt">免流工具箱1.0，悄然上线。</span>
+
+
+
+                </div>
+
+              </div>
+            </div></br>
+
+          </div>
+
+                        </div>           -->
+          <!-- // <div style="color: #aaa; text-align: center; font-size: 12px">注: 上下滑动查看历史进程</div>-->                        
+                  
+     </div>           
+                        
+                             
+            <!-- 版权信息 
+ <div style="color: #aaa; text-align: center; font-size: 12px">      
+    <p>Copyright © <script>document.write( new Date().getFullYear() );</script> Future Tech. </a> All Rights Reserved.</p>   </div>     
+        </div>  -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
+<script>LA.init({id:"3GBQy07pYlIVc3g8",ck:"3GBQy07pYlIVc3g8"})</script>
+
+    </body>
+<script>
+jQuery(document).ready(function($) {
+      $(".a1").css("display", "flex");
+    $(".a2").css("display", "none");
+        $(".a3").css("display", "none");
+        $(".a4").css("display", "none");
+   $(document).ready(function(){
+  $(".tx").click(function(){
+      $(".a1").css("display", "flex");
+    $(".a2").css("display", "none");
+        $(".a3").css("display", "none");
+        $(".a4").css("display", "none");
+  });
+  });
+  
+  
+  $(document).ready(function(){
+  $(".jr").click(function(){
+      $(".a1").css("display", "none");
+    $(".a2").css("display", "flex");
+        $(".a3").css("display", "none");
+        $(".a4").css("display", "none"); 
+ });
+  
+  });
+  
+  $(document).ready(function(){
+  $(".dh").click(function(){
+      $(".a1").css("display", "none");
+    $(".a2").css("display", "none");
+        $(".a3").css("display", "flex");
+        $(".a4").css("display", "none");
+  });
+    
+});
+  $(document).ready(function(){
+  $(".gy").click(function(){
+      $(".a1").css("display", "none");
+    $(".a2").css("display", "none");
+        $(".a3").css("display", "none");
+        $(".a4").css("display", "flex");
+  });
+    
+});
+
+});
+</script>
+<!-- 
+ * @Autor: Future Tech
+ * @Date: 2023-12-18
+ * @LastEditors: Future Tech
+ * @LastEditTime: 2024-01-18
+-->
+</html>
