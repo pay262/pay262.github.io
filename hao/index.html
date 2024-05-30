@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#f9f9f9" />
+    <title>BT网址导航</title>
+    <meta name="keywords" content="BT网址导航,简洁导航,云链接,个人导航,个人书签,扩展,多用户" />
+    <meta name="description" content="BT网址导航 是一款使用PHP + SQLite3/MySQL 开发的简约导航/书签管理器。">
+    <link rel="shortcut icon" href="static/picture/favicon.ico">
+        <link rel="stylesheet" href="static/css/iconfont.css" type="text/css" media="all" />
+    <link rel="stylesheet" href="static/css/bootstrap.min.css" type="text/css" media="all" />
+    <link rel="stylesheet" href="static/css/style-3.03029.1.css" type="text/css" media="all" />
+    <link rel="stylesheet" href="static/css/custom-style.css" type="text/css" media="all" />
+    <link rel="stylesheet" href="static/css/font-awesome.css">
+    <script type="text/javascript" src="static/js/jquery-3.6.0.min.js"></script>
+    <style>body,html{font-size:15px!important;}</style>
+    
+    
+    
+</head>
+<body class="io-grey-mode">
+    <div style="display:none;" id="loading">
+        <div class="loader">BT网址导航</div>
+    </div>
+    <div class="page-container">
+	    <!--左侧栏-->
+        <div id="sidebar" class="sticky sidebar-nav fade mini-sidebar" style="width: 60px;" data="1">
+            <div class="modal-dialog h-100 sidebar-nav-inner">
+                <!--头部Logo-->
+                <div class="sidebar-logo border-bottom border-color">
+                    <div class="logo overflow-hidden">
+                        <a href="./?u=admin" class="logo-expanded">
+                            <img src="static/picture/bt8-expand-light.png" height="40" class="logo-light">
+                            <img src="static/picture/bt8-expand-dark.png" height="40" class="logo-dark d-none">
+                        </a>
+                        <a href="./?u=admin" class="logo-collapsed">
+                            <img src="static/picture/bt.png" height="40" class="logo-light">
+                            <img src="static/picture/bt.png" height="40" class="logo-dark d-none">
+                        </a>
+                    </div>
+                </div>
+                <!--中部分类-->
+                <div class="sidebar-menu flex-fill">
+                    <div class="sidebar-scroll">
+                        <div class="sidebar-menu-inner">
+                            <ul><li class="sidebar-item"><a href="#category-13" class="smooth"><i class="fa fa-dashboard fa-lg icon-fw icon-lg mr-2"></i><span>福利推荐</span></a>
+
+							<li class="sidebar-item"><a href="#category-6" class="smooth"><i class="fa fa-play-circle fa-lg icon-fw icon-lg mr-2"></i><span>影视资源</span></a>
+							<li class="sidebar-item"><a href="#category-7" class="smooth"><i class="fa fa-cloud-upload fa-lg icon-fw icon-lg mr-2"></i><span>云盘储存</span></a>
+							<li class="sidebar-item"><a href="#category-8" class="smooth"><i class="fa fa-cloud fa-lg icon-fw icon-lg mr-2"></i><span>云服务器</span></a>
+							<li class="sidebar-item"><a href="#category-9" class="smooth"><i class="fa fa-edit fa-lg icon-fw icon-lg mr-2"></i><span>开发相关</span><i class="iconfont icon-arrow-r-m sidebar-more text-sm"></i></a>
+							<ul><li><a href="#category-10" class="smooth"><i class="fa fa-terminal fa-lg icon-fw icon-lg mr-2"></i><span>前端框架</span></a></li><li><a href="#category-11" class="smooth"><i class="fa fa-terminal fa-lg icon-fw icon-lg mr-2"></i><span>学习资源</span></a></li><li><a href="#category-12" class="smooth"><i class="fa fa-wrench fa-lg icon-fw icon-lg mr-2"></i><span>站长工具</span></a></li></ul>
+							<li class="sidebar-item"><a href="#category-16" class="smooth"><i class="fa fa-book fa-lg icon-fw icon-lg mr-2"></i><span>精选文章</span></a></li></ul>
+                        </div>
+                    </div>
+                </div>
+                <!--底部-->
+                <div class="border-top py-2 border-color">
+                    <div class="flex-bottom">
+                        <ul><li class="sidebar-item"><a href="./?c=apply&u=admin" target="_blank"><i class="fa fa-pencil fa-lg icon-fw icon-lg mr-2"></i><span>网站提交</span></a></li><li class="sidebar-item"><a href="./?c=admin&u=admin" target="_blank"><i class="fa fa-user fa-lg icon-fw icon-lg mr-2"></i><span>系统管理</span></a></li></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!--主体内容-->
+        <div class="main-content flex-fill not">
+            <div class="big-header-banner">
+                <div id="header" class="page-header sticky">
+                    <div class="navbar navbar-expand-md">
+                        <div class="container-fluid p-0">
+                            <!--手机端顶部图标-->
+                            <a href="" class="navbar-brand d-md-none">
+                                <img src="static/picture/bt.png" class="logo-light">
+                                <img src="static/picture/bt.png" class="logo-dark d-none">
+                            </a>
+                            
+                            <div class="collapse navbar-collapse order-2 order-md-1">
+                                <!--分类收缩图标-->
+                                <div class="header-mini-btn">
+                                    <label>
+                                        <input id="mini-button" type="checkbox">
+                                        <svg viewbox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path class="line--1" d="M0 40h62c18 0 18-20-17 5L31 55"></path><path class="line--2" d="M0 50h80"></path><path class="line--3" d="M0 60h62c18 0 18 20-17-5L31 45"></path></svg>
+                                    </label>
+                                </div>
+                                <!--顶部链接-->
+                                <ul class="navbar-nav site-menu" style="margin-right: 16px;"><li ><a href="./?c=admin&u=admin"><i class="fa fa-user-circle-o icon-fw mr-2"></i><span> 管理</span></a></li><li class="menu-item-has-children"><a target="_blank" href="#" title=''><i class="fa fa-bookmark icon-fw mr-2"></i><span> 关于本站</span></a><ul><li ><a target="_blank" href="#" title='Gitee'><i class="fa fa-git-square icon-fw mr-2"></i><span> Gitee</span></a></li><li ><a target="_blank" href="#" title='GitHub'><i class="fa fa-github icon-fw mr-2"></i><span> GitHub</span></a></li></ul></li><li ><a target="_blank" href="#" title='每月送30G流量'><i class="fa fa-sitemap icon-fw mr-2"></i><span> 本站CDN赞助商</span></a></li>                                </ul>
+                            </div><!--left end-->
+                            <!--right--> 
+                            <ul class="nav navbar-menu text-xs order-1 order-md-2">
+                                <!--搜索图标-->
+                                <li class="nav-search ml-3 ml-md-4">
+                                    <a href="javascript:" data-toggle="modal" data-target="#search-modal" class="search-modal">
+                                        <i class="iconfont icon-search icon-2x"></i>
+                                    </a>
+                                </li>
+                                <!--菜单图标-->
+                                <li class="nav-item d-md-none mobile-menu ml-3 ml-md-4">
+                                    <a href="javascript:" id="sidebar-switch" data-toggle="modal" data-target="#sidebar">
+                                        <i class="iconfont icon-classification icon-2x"></i>
+                                    </a>
+                                </li>
+                            </ul><!--right end--> 
+                        </div>
+                    </div>
+                </div>
+                <div class="placeholder" style="height:74px"></div>
+            </div>
+            <!--search-bg-start-->
+            <div class="header-big  post-top css-color mb-4" id="search-bg" light_bg="" night_bg="">
+                <iframe class="canvas-bg" scrolling="no" sandbox="allow-scripts allow-same-origin" src="http://www.oct-cts.com/images/up_scenery/UploadImage/39822/largeImg/201906130910564a-039.jpg"></iframe> 
+                <div class="s-search">
+                    <div id="search" class="s-search mx-auto" data="1">
+                         
+                        <div id="search-list-menu" class="hide-type-list">
+                            <div class="s-type text-center">
+                                <div class="s-type-list big">
+                                    <div class="anchor" style="position: absolute; left: 50%; opacity: 0;"></div>
+                                    <label for="type-baidu"   data-id="group-a"><span>常用</span></label>
+                                    <label for="type-baidu1"  data-id="group-b"><span>搜索</span></label>
+                                    <label for="type-br"      data-id="group-c"><span>工具</span></label>
+                                    <label for="type-zhihu"   data-id="group-d"><span>社区</span></label>
+                                    <label for="type-taobao1" data-id="group-e"><span>生活</span></label>
+                                    <label for="type-zhaopin" data-id="group-f"><span>求职</span></label>
+                                </div>
+                            </div>
+                        </div>
+            
+                        <form action="https://www.baidu.com?s=" method="get" target="_blank" class="super-search-fm">
+                            <input type="text" id="search-text" class="form-control smart-tips search-key" 
+                                zhannei="" placeholder="输入关键字搜索" style="outline:0" autocomplete="off">
+                            <button class="submit" type="submit"><i class="iconfont icon-search"></i></button>
+                        </form>
+            
+                        <div id="search-list" class="hide-type-list">
+                            <div class="search-group group-a">
+                                <ul class="search-type">
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-zhannei" value="" data-placeholder="站内书签搜索">
+                                        <label for="type-zhannei"><span class="text-muted">站内</span></label>
+                                    </li>
+                                    <li>
+                                        <input hidden="" type="radio" name="type" checked="checked" id="type-baidu" value="https://www.baidu.com/s?wd=" data-placeholder="百度一下，你就知道">
+                                        <label for="type-baidu"><span class="text-muted">百度</span></label>
+                                    </li>
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-bing" value="https://cn.bing.com/search?q=" data-placeholder="微软 Bing 搜索">
+                                        <label for="type-bing"><span class="text-muted">必应</span></label>
+                                    </li>
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-google" value="https://www.google.com/search?q=" data-placeholder="谷歌搜索">
+                                        <label for="type-google"><span class="text-muted">谷歌</span></label>
+                                    </li>
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-anaconda" value="https://anaconda.org/search?q=" data-placeholder="Anaconda 软件搜索">
+                                        <label for="type-anaconda"><span class="text-muted">软件</span></label>
+                                    </li>
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-pubmed" value="https://pubmed.ncbi.nlm.nih.gov/?term=" data-placeholder="PubMed 搜索/文章标题/关键字">
+                                        <label for="type-pubmed"><span class="text-muted">文献</span></label>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="search-group group-b">
+                                <ul class="search-type">
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-baidu1" value="https://www.baidu.com/s?wd=" data-placeholder="百度一下，你就知道">
+                                        <label for="type-baidu1"><span class="text-muted">百度</span></label>
+                                    </li>
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-google1" value="https://www.google.com/search?q=" data-placeholder="谷歌搜索">
+                                        <label for="type-google1"><span class="text-muted">谷歌</span></label>
+                                    </li>
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-360" value="https://www.so.com/s?q=" data-placeholder="360 好搜">
+                                        <label for="type-360"><span class="text-muted">360</span></label>
+                                    </li>
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-sogo" value="https://www.sogou.com/web?query=" data-placeholder="搜狗搜索"> 
+                                        <label for="type-sogo"><span class="text-muted">搜狗</span></label>
+                                    </li>
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-bing1" value="https://cn.bing.com/search?q=" data-placeholder="微软 Bing 搜索">
+                                        <label for="type-bing1"><span class="text-muted">必应</span></label>
+                                    </li>
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-sm" value="https://yz.m.sm.cn/s?q=" data-placeholder="UC 移动端搜索">
+                                        <label for="type-sm"><span class="text-muted">神马</span></label>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="search-group group-c">
+                                <ul class="search-type">
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-br" value="https://rank.chinaz.com/all/" data-placeholder="请输入网址(不带 https://)">
+                                        <label for="type-br"><span class="text-muted">权重查询</span></label>
+                                    </li>
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-links" value="https://link.chinaz.com/" data-placeholder="请输入网址(不带 https://)">
+                                        <label for="type-links"><span class="text-muted">友链检测</span></label>
+                                    </li>
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-icp" value="https://icp.aizhan.com/" data-placeholder="请输入网址(不带 https://)">
+                                        <label for="type-icp"><span class="text-muted">备案查询</span></label>
+                                    </li>
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-ping" value="https://ping.chinaz.com/" data-placeholder="请输入网址(不带 https://)">
+                                        <label for="type-ping"><span class="text-muted">PING 检测</span></label>
+                                    </li>
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-404" value="https://tool.chinaz.com/Links/?DAddress=" data-placeholder="请输入网址(不带https://)">
+                                         <label for="type-404"><span class="text-muted">死链检测</span></label>
+                                    </li>
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-ciku" value="https://www.ciku5.com/s?wd=" data-placeholder="请输入关键词">
+                                        <label for="type-ciku"><span class="text-muted">关键词挖掘</span></label>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="search-group group-d">
+                                <ul class="search-type">
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-zhihu" value="https://www.zhihu.com/search?type=content&q=" data-placeholder="知乎">
+                                        <label for="type-zhihu"><span class="text-muted">知乎</span></label>
+                                    </li>
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-wechat" value ="https://weixin.sogou.com/weixin?type=2&query=" data-placeholder="微信">
+                                        <label for="type-wechat"><span class="text-muted">微信</span></label>
+                                    </li>
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-weibo" value="https://s.weibo.com/weibo/" data-placeholder="微博">
+                                        <label for="type-weibo"><span class="text-muted">微博</span></label>
+                                    </li>
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-douban" value="https://www.douban.com/search?q=" data-placeholder="豆瓣">
+                                        <label for="type-douban"><span class="text-muted">豆瓣</span></label>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="search-group group-e">
+                                <ul class="search-type">
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-taobao1" value="https://s.taobao.com/search?q=" data-placeholder="淘宝">
+                                        <label for="type-taobao1"><span class="text-muted">淘宝</span></label>
+                                    </li>
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-jd" value="https://search.jd.com/Search?keyword=" data-placeholder="京东">
+                                        <label for="type-jd"><span class="text-muted">京东</span></label> 
+                                    </li>
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-xiachufang" value="https://www.xiachufang.com/search/?keyword=" data-placeholder="下厨房">
+                                        <label for="type-xiachufang"><span class="text-muted">下厨房</span></label>
+                                    </li>
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-xiangha" value="https://www.xiangha.com/so/?q=caipu&s=" data-placeholder="香哈菜谱">
+                                        <label for="type-xiangha"><span class="text-muted">香哈菜谱</span></label>
+                                    </li>
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-12306" value="https://www.12306.cn/?" data-placeholder="12306">
+                                        <label for="type-12306"><span class="text-muted">12306</span></label>
+                                    </li>
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-qunar" value="https://www.qunar.com/?" data-placeholder="去哪儿">
+                                        <label for="type-qunar"><span class="text-muted">去哪儿</span></label>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="search-group group-f">
+                                <ul class="search-type">
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-zhaopin" value="https://sou.zhaopin.com/jobs/searchresult.ashx?kw=" data-placeholder="智联招聘">
+                                        <label for="zhaopin"><span class="text-muted">智联招聘</span></label>
+                                    </li>
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-51job" value="https://search.51job.com/?" data-placeholder="前程无忧">
+                                        <label for="type-51job"><span class="text-muted">前程无忧</span></label>
+                                    </li>
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-lagou" value="https://www.lagou.com/jobs/list_" data-placeholder="拉钩网">
+                                        <label for="type-lagou"><span class="text-muted">拉钩网</span></label>
+                                    </li>
+                                    <li>
+                                        <input hidden="" type="radio" name="type" id="type-liepin" value="https://www.liepin.com/zhaopin/?key=" data-placeholder="猎聘网">
+                                        <label for="type-liepin"><span class="text-muted">猎聘网</span></label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card search-smart-tips search-hot-text">
+                            <ul id="word" style="display: none"></ul>
+                        </div>
+                    </div>
+                </div>
+                            </div>
+            <!--search-bg-end-->            <div id="content" class="content-site customize-site">
+                <div class="flex-fill screen" style="display: none">
+                    <h4 class="text-gray text-lg mb-4">
+                        <i class="fa fa-search icon-fw mr-2" id="search_bookmark" data="1"></i>站内搜索  
+                    </h4>
+                    <div class="flex-fill"></div>
+                </div>
+        <!--        <div class="row screen" id="screen_result" style="display: none"></div>
+                
+                                <div class="flex-fill" style="padding-bottom: 10px;">
+                    <h4 class="text-gray text-lg mb-4" id="hot_news">
+                        <i class="fa fa-bullhorn icon-fw mr-2"></i>热点新闻
+                    </h4>
+                    <div class="flex-fill"><div id="lytoday"></div></div>
+                </div>  -->
+
+
+                 <div class="row screen" id="screen_result" style="display: none"></div>
+                
+                                <div class="flex-fill" style="padding-bottom: 10px;">
+                    <h4 class="text-gray text-lg mb-4" id="hot_news">
+
+
+                   <div align=center><b>公告</b></div>
+                    </h4>
+                    <table cellspacing=0 cellpadding=1 width="100%" border=0>
+                     <tr><th bgcolor=#E5E4E2><marquee style="font-size: 14px;" direction=up height=60 width=280 id=m onmouseout=m.start() onMouseOver=m.stop() scrollamount=2 align="center">
+
+                       <p><a href="http:" target="_blank">BT网址导航！</a> </p>
+
+                       <p>BT网址导航！！</p>
+
+                       <p>BT网址导航！</p>
+
+                       <p>BT网址导航！</p>
+
+                       <p>BT网址导航！</p>
+
+                      <p>BT网址导航！</p>
+
+                      </marquee></th>
+                       </tr>
+                    </table>
+
+
+                    <div class="flex-fill"><div id="lytoday"></div></div>
+                </div>
+
+
+               
+<div class="d-flex flex-fill" id="category-13"><h4 class="text-gray text-lg mb-4"><i class="fa fa-dashboard fa-lg icon-fw icon-lg mr-2"></i> 福利推荐 </h4><div class="flex-fill"></div></div>
+<div class="row sortable" id="13">
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="195">
+    <div class="url-body default">
+        <a href="../app/haoka/01.html" target="_blank" data-url="../app/haoka/01.html" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="全网大流量手机套餐，免费办理，全国包邮到家。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="https://img.icons8.com/?size=100&id=8chNl15hy6jY&format=png&color=000000"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>未来通信-1</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">全网大流量手机套餐，免费办理，全国包邮到家。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="../app/haoka/01.html" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="180">
+    <div class="url-body default">
+        <a href="../app/haoka/02.html" target="_blank" data-url="../app/haoka/02.html" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="全网大流量手机套餐，免费办理，全国包邮到家。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="https://img.icons8.com/?size=100&id=8chNl15hy6jY&format=png&color=000000"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>未来通信-2</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">全网大流量手机套餐，免费办理，全国包邮到家。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="../app/haoka/02.html" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="180">
+    <div class="url-body default">
+        <a href="../app/haoka/03.html" target="_blank" data-url="../app/haoka/03.html" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="全网大流量手机套餐，免费办理，全国包邮到家。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="https://img.icons8.com/?size=100&id=8chNl15hy6jY&format=png&color=000000"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>未来通信-3</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">全网大流量手机套餐，免费办理，全国包邮到家。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="../app/haoka/03.html" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+
+
+</div><br />
+
+
+<div class="d-flex flex-fill" id="category-6"><h4 class="text-gray text-lg mb-4"><i class="fa fa-play-circle fa-lg icon-fw icon-lg mr-2"></i> 影视资源 </h4><div class="flex-fill"></div></div><div class="row sortable" id="6">
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="125">
+    <div class="url-body default">
+        <a href="https://v.qq.com" target="_blank" data-url="https://v.qq.com" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="中国领先的在线视频媒体平台,海量高清视频在线观看" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/b978040ace9e2c00ec56b4822a09d448.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>腾讯视频</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">中国领先的在线视频媒体平台,海量高清视频在线观看</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://v.qq.com" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="126">
+    <div class="url-body default">
+        <a href="https://www.youku.com/" target="_blank" data-url="https://www.youku.com/" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="为好内容全力以赴 - 海量正版高清视频在线观看" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/ef59cd4145c6d1d52b0eb2ab3a27adf0.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>优酷</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">为好内容全力以赴 - 海量正版高清视频在线观看</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.youku.com/" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="127">
+    <div class="url-body default">
+        <a href="https://www.iqiyi.com" target="_blank" data-url="https://www.iqiyi.com" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="在线视频网站-海量正版高清视频在线观看" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/928c680e5465600abe009af23f77b9dd.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>爱奇艺</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">在线视频网站-海量正版高清视频在线观看</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.iqiyi.com" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="128">
+    <div class="url-body default">
+        <a href="https://www.mgtv.com" target="_blank" data-url="https://www.mgtv.com" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="大家都在看的在线视频网站- 热门综艺最新电影电视剧在线观看" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/ea9b227a1162de51c93fc5670b2323f8.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>芒果TV</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">大家都在看的在线视频网站- 热门综艺最新电影电视剧在线观看</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.mgtv.com" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="129">
+    <div class="url-body default">
+        <a href="https://www.bilibili.com" target="_blank" data-url="https://www.bilibili.com" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="bilibili是国内知名的视频弹幕网站，这里有及时的动漫新番，活跃的ACG氛围，有创意的Up主。大家可以在这里找到许多欢乐。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/9bfb9f3030b1ab56ec2ef5915750254c.png"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>哔哩哔哩</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">bilibili是国内知名的视频弹幕网站，这里有及时的动漫新番，活跃的ACG氛围，有创意的Up主。大家可以在这里找到许多欢乐。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.bilibili.com" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="135">
+    <div class="url-body default">
+        <a href="https://www.douyin.com" target="_blank" data-url="https://www.douyin.com" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="记录美好生活" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/1c233c37bedfb1edbb0a21c83a676761.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>抖音网页版</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">记录美好生活</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.douyin.com" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="136">
+    <div class="url-body default">
+        <a href="https://www.kuaishou.com/" target="_blank" data-url="https://www.kuaishou.com/" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="湖光秋月两相和，潭面无风镜未磨。——刘禹锡《望洞庭》" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/57e20aa72cda5e9c81e4d0a6c1e0dbd9.png"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>快手网页版</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">湖光秋月两相和，潭面无风镜未磨。——刘禹锡《望洞庭》</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.kuaishou.com/" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="137">
+    <div class="url-body default">
+        <a href="https://music.163.com/" target="_blank" data-url="https://music.163.com/" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="网易云音乐是一款专注于发现与分享的音乐产品，依托专业音乐人、DJ、好友推荐及社交功能，为用户打造全新的音乐生活。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/00656384de592e99f13a7a6a4d6a554e.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>网易云音乐</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">网易云音乐是一款专注于发现与分享的音乐产品，依托专业音乐人、DJ、好友推荐及社交功能，为用户打造全新的音乐生活。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://music.163.com/" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<!--
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="0">
+    <div class="url-body default">
+        <a href="./index.php?u=admin&cid=6" target="_self" data-url="./index.php?u=admin&cid=6" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="该分类共有10条数据" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/favicon.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>查看全部</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">该分类共有10条数据</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="./index.php?u=admin&cid=6" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>-->
+</div><br />
+
+<div class="d-flex flex-fill" id="category-7"><h4 class="text-gray text-lg mb-4"><i class="fa fa-cloud-upload fa-lg icon-fw icon-lg mr-2"></i> 云盘储存 </h4><div class="flex-fill"></div></div><div class="row sortable" id="7"><div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="130">
+    <div class="url-body default">
+        <a href="https://www.aliyundrive.com" target="_blank" data-url="https://www.aliyundrive.com" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="阿里云盘是一款速度快、不打扰、够安全、易于分享的个人网盘，欢迎你来体验。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/aca99d037176c6b846b4ca40ca29f3cf.png"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>阿里云盘</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">阿里云盘是一款速度快、不打扰、够安全、易于分享的个人网盘，欢迎你来体验。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.aliyundrive.com" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="131">
+    <div class="url-body default">
+        <a href="https://www.123pan.com" target="_blank" data-url="https://www.123pan.com" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="上传下载尊享极速传输" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/77c61d73913d0311e76a9c8374c2b937.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>123云盘</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">上传下载尊享极速传输</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.123pan.com" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="143">
+    <div class="url-body default">
+        <a href="https://cloud.189.cn" target="_blank" data-url="https://cloud.189.cn" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="天翼云盘是中国电信推出的云存储服务，为用户提供跨平台的文件存储、备份、同步及分享服务，是国内领先的免费网盘，安全、可靠、稳定、快速。天翼云盘为用户守护数据资产。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/f4ee6d4e0092928db319bc4a3fa18650.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>天翼云盘</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">天翼云盘是中国电信推出的云存储服务，为用户提供跨平台的文件存储、备份、同步及分享服务，是国内领先的免费网盘，安全、可靠、稳定、快速。天翼云盘为用户守护数据资产。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://cloud.189.cn" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="132">
+    <div class="url-body default">
+        <a href="https://www.jianguoyun.com/" target="_blank" data-url="https://www.jianguoyun.com/" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="坚果云是一款提供网盘|云盘|云服务的团队协助软件,可随时随地实现共享文件夹。坚果云网盘支持移动办公,协同办公,文件同步,数据备份,智能管理,在线编辑等功能。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/4f77a8827f613016dbc9158c40c64b1f.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>坚果云盘</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">坚果云是一款提供网盘|云盘|云服务的团队协助软件,可随时随地实现共享文件夹。坚果云网盘支持移动办公,协同办公,文件同步,数据备份,智能管理,在线编辑等功能。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.jianguoyun.com/" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="133">
+    <div class="url-body default">
+        <a href="https://pan.baidu.com" target="_blank" data-url="https://pan.baidu.com" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="百度网盘是一款国民级产品，已连续9年为超过7亿用户提供稳定、安全的个人云存储服务，已实现电脑、手机、电视等多种终端场景的覆盖和互联，并支持多类型文件的备份、分享、查看和处理" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/848f8f00ae6570f8cce463bedf2959d8.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>百度网盘</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">百度网盘是一款国民级产品，已连续9年为超过7亿用户提供稳定、安全的个人云存储服务，已实现电脑、手机、电视等多种终端场景的覆盖和互联，并支持多类型文件的备份、分享、查看和处理</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://pan.baidu.com" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="134">
+    <div class="url-body default">
+        <a href="https://onedrive.live.com/" target="_blank" data-url="https://onedrive.live.com/" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="个人云存储空间" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/8b61e1e92aaacf324b750f008e15a02e.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>OneDrive</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">个人云存储空间</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://onedrive.live.com/" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="141">
+    <div class="url-body default">
+        <a href="https://pan.xunlei.com" target="_blank" data-url="https://pan.xunlei.com" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="无需下载 , 文件想看就看" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/931380937541fcc5003412fdd08c3dfa.png"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>迅雷云盘</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">无需下载 , 文件想看就看</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://pan.xunlei.com" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="142">
+    <div class="url-body default">
+        <a href="https://www.yun.cn" target="_blank" data-url="https://www.yun.cn" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="UC网盘是UC浏览器推出的一款云服务产品，功能包括云存储、高清看剧、文件在线解压、PDF一键转换等。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/148012959b1c32d18d2b750c8bcff9ca.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>UC网盘</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">UC网盘是UC浏览器推出的一款云服务产品，功能包括云存储、高清看剧、文件在线解压、PDF一键转换等。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.yun.cn" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div></div><br />
+
+<div class="d-flex flex-fill" id="category-8"><h4 class="text-gray text-lg mb-4"><i class="fa fa-cloud fa-lg icon-fw icon-lg mr-2"></i> 云服务器 </h4><div class="flex-fill"></div></div>
+<div class="row sortable" id="8"><div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="144">
+    <div class="url-body default">
+        <a href="https://cn.aliyun.com/" target="_blank" data-url="https://cn.aliyun.com/" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="阿里云——阿里巴巴集团旗下公司，是全球领先的云计算及人工智能科技公司之一。提供免费试用、云服务器、云数据库、云安全、云企业应用等云计算服务，以及大数据、人工智能服务、精准定制基于场景的行业解决方案。免费备案，7x24小时售后支持，助企业无忧上云。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/dc0aaa9e7d07ff0e8040630e4a694bbc.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>阿里云</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">阿里云——阿里巴巴集团旗下公司，是全球领先的云计算及人工智能科技公司之一。提供免费试用、云服务器、云数据库、云安全、云企业应用等云计算服务，以及大数据、人工智能服务、精准定制基于场景的行业解决方案。免费备案，7x24小时售后支持，助企业无忧上云。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://cn.aliyun.com/" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="145">
+    <div class="url-body default">
+        <a href="https://cloud.tencent.com" target="_blank" data-url="https://cloud.tencent.com" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="腾讯云为数百万的企业和开发者提供安全稳定的云计算服务，涵盖云服务器、云数据库、云存储、视频与CDN、域名注册等全方位云服务和各行业解决方案。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/825109cdc37754801736251605e50592.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>腾讯云</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">腾讯云为数百万的企业和开发者提供安全稳定的云计算服务，涵盖云服务器、云数据库、云存储、视频与CDN、域名注册等全方位云服务和各行业解决方案。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://cloud.tencent.com" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="146">
+    <div class="url-body default">
+        <a href="https://www.huaweicloud.com" target="_blank" data-url="https://www.huaweicloud.com" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="华为云提供稳定可靠、安全可信、可持续发展的云服务，致力于让云无处不在，让智能无所不及，共建智能世界云底座。助力企业降本增效，全球300万客户的共同选择。7x24小时专业服务支持，5天内无理由退订，免费快速备案。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/ac2099734a519306e60419c9bbed680c.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>华为云</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">华为云提供稳定可靠、安全可信、可持续发展的云服务，致力于让云无处不在，让智能无所不及，共建智能世界云底座。助力企业降本增效，全球300万客户的共同选择。7x24小时专业服务支持，5天内无理由退订，免费快速备案。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.huaweicloud.com" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="148">
+    <div class="url-body default">
+        <a href="https://www.ctyun.cn" target="_blank" data-url="https://www.ctyun.cn" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="中国电信-天翼云,云网融合,安全可信,专享定制" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/249f707b910be9e29bc7aa9fa88efa46.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>天翼云</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">中国电信-天翼云,云网融合,安全可信,专享定制</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.ctyun.cn" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="149">
+    <div class="url-body default">
+        <a href="https://www.upyun.com" target="_blank" data-url="https://www.upyun.com" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="国内知名企业级云服务商,全球1100多个自建CDN节点,10TB保有带宽,为25万用户提供CDN加速,数据云存储,HTTPS／SSL证书,WebP,云处理,视频图片存储,短视频开发SDK,直播开发SDK,DDos高防等一站式加速解决方案!" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/6555cbf8fc01b73b6cfbd5382ed7a271.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>又拍云</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">国内知名企业级云服务商,全球1100多个自建CDN节点,10TB保有带宽,为25万用户提供CDN加速,数据云存储,HTTPS／SSL证书,WebP,云处理,视频图片存储,短视频开发SDK,直播开发SDK,DDos高防等一站式加速解决方案!</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.upyun.com" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="150">
+    <div class="url-body default">
+        <a href="https://www.qiniu.com" target="_blank" data-url="https://www.qiniu.com" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="2011 年成立以来，七牛云致力于成为全球领先的一站式场景化智能视频云服务商，围绕数字化浪潮下的在线音视频需求，基于强大的云边一体化能力和低代码能力，持续在视频点播、互动直播、实时音视频、摄像头上云等领域，进行深度技术投入，提供面向业务场景的视频云解决方案。截至目前，有超过 100 万企业客户和开发者长期使用七牛云服务，包括 OPPO 、爱奇艺、平安银行、招商银行、上汽集团、芒果 TV 等知名企业。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/37a96a285435689bdde75b8475b3f219.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>七牛云</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">2011 年成立以来，七牛云致力于成为全球领先的一站式场景化智能视频云服务商，围绕数字化浪潮下的在线音视频需求，基于强大的云边一体化能力和低代码能力，持续在视频点播、互动直播、实时音视频、摄像头上云等领域，进行深度技术投入，提供面向业务场景的视频云解决方案。截至目前，有超过 100 万企业客户和开发者长期使用七牛云服务，包括 OPPO 、爱奇艺、平安银行、招商银行、上汽集团、芒果 TV 等知名企业。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.qiniu.com" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="151">
+    <div class="url-body default">
+        <a href="https://cloud.baidu.com/" target="_blank" data-url="https://cloud.baidu.com/" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="百度智能云专注云计算、智能大数据、人工智能服务，提供稳定的云服务器、云主机、云存储、CDN、域名注册、物联网等云服务,支持API对接,快速备案等专业解决方案。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/fcd80ff350e693e27ff24823634b0712.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>百度云</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">百度智能云专注云计算、智能大数据、人工智能服务，提供稳定的云服务器、云主机、云存储、CDN、域名注册、物联网等云服务,支持API对接,快速备案等专业解决方案。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://cloud.baidu.com/" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="152">
+    <div class="url-body default">
+        <a href="https://www.qingcloud.com/" target="_blank" data-url="https://www.qingcloud.com/" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="青云QingCloud完全国产化，核心技术100%自研；无缝打通公有云和私有云，交付完全一致的功能和体验；经大规模实践验证，行业落地经验丰富；“云、网、边、端”全面布局。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/c7f283df3ebaf6a027b4e2401c07ea3c.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>青云QingCloud</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">青云QingCloud完全国产化，核心技术100%自研；无缝打通公有云和私有云，交付完全一致的功能和体验；经大规模实践验证，行业落地经验丰富；“云、网、边、端”全面布局。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.qingcloud.com/" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="153">
+    <div class="url-body default">
+        <a href="https://www.vpsor.cn" target="_blank" data-url="https://www.vpsor.cn" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="领先的出海IaaS云计算基础设施服务提供商" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/ebd82078da9ff84fc0ba368333fb1cb4.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>硅云</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">领先的出海IaaS云计算基础设施服务提供商</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.vpsor.cn" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="154">
+    <div class="url-body default">
+        <a href="https://www.jdcloud.com/" target="_blank" data-url="https://www.jdcloud.com/" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="京东云是京东科技集团旗下领先的云计算品牌" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/709a34b6e83b047a567bf8f3046621c1.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>京东云</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">京东云是京东科技集团旗下领先的云计算品牌</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.jdcloud.com/" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="155">
+    <div class="url-body default">
+        <a href="https://ecloud.10086.cn/" target="_blank" data-url="https://ecloud.10086.cn/" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="中国移动旗下云业务品牌,提供云主机、云服务器、云空间、CDN、云硬盘、云数据库等云计算服务,支持热门产品免费试用,专注于场景制定行业解决方案,提供7*24小时服务,移动云,更安全,更智慧。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/15a9ca57a5b2453a8fa771c26b4c810a.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>移动云</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">中国移动旗下云业务品牌,提供云主机、云服务器、云空间、CDN、云硬盘、云数据库等云计算服务,支持热门产品免费试用,专注于场景制定行业解决方案,提供7*24小时服务,移动云,更安全,更智慧。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://ecloud.10086.cn/" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="156">
+    <div class="url-body default">
+        <a href="https://www.ksyun.com/" target="_blank" data-url="https://www.ksyun.com/" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="全球高品质云服务专家，云计算领先平台，云产品解决方案，游戏云平台，先进医疗云平台，专业政务云、音视频解决方案" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/8f1fd5d3395444e63d67a79bc1c19dea.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>金山云</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">全球高品质云服务专家，云计算领先平台，云产品解决方案，游戏云平台，先进医疗云平台，专业政务云、音视频解决方案</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.ksyun.com/" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div></div><br />
+
+
+<div class="d-flex flex-fill" id="category-9"><h4 class="text-gray text-lg mb-4"><i class="fa fa-edit fa-lg icon-fw icon-lg mr-2"></i> 开发相关 </h4><div class="flex-fill"></div></div>
+
+<div class="d-flex flex-fill flex-tab align-items-center"><div class="overflow-x-auto slider_menu mini_tab" slidertab="sliderTab"><ul class="nav nav-pills menu" role="tablist"><li class="pagenumber nav-item" data-id="10" more='0'><a id="category-10" class="nav-link active" data-toggle="pill" href="#tab-10" >前端框架</a></li><li class="pagenumber nav-item" data-id="11" more='0'><a id="category-11" class="nav-link " data-toggle="pill" href="#tab-11" >学习资源</a></li><li class="pagenumber nav-item" data-id="12" more='0'><a id="category-12" class="nav-link " data-toggle="pill" href="#tab-12" >站长工具</a></li></div><div class='flex-fill'></div>  </div>
+
+<div class="tab-content mt-4"><div id="tab-10" class="tab-pane active"><div class="row sortable" id="10">
+ <div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="157">
+    <div class="url-body default">
+        <a href="https://layui.dev/" target="_blank" data-url="https://layui.dev/" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="一套开源免费的 Web UI 组件库。采用自身极简的轻量级模块化规范，并遵循原生 HTML/CSS/JS 的开发模式，极易上手，开箱即用。非常适合网页界面的快速构建。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/cf7928c1ee12fad6b63230df73044dc6.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>Layui</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">一套开源免费的 Web UI 组件库。采用自身极简的轻量级模块化规范，并遵循原生 HTML/CSS/JS 的开发模式，极易上手，开箱即用。非常适合网页界面的快速构建。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://layui.dev/" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="213">
+    <div class="url-body default">
+        <a href="http://www.layui-vue.com/zh-CN/index" target="_blank" data-url="http://www.layui-vue.com/zh-CN/index" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="想不被别人踩在脚下有两种途径：变更强，变成翔。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/1b485c19f44940c4be3e2aa880185b51.gif"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>Layui - Vue 前端 UI 框架</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">想不被别人踩在脚下有两种途径：变更强，变成翔。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="http://www.layui-vue.com/zh-CN/index" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="158">
+    <div class="url-body default">
+        <a href="https://cn.vuejs.org/" target="_blank" data-url="https://cn.vuejs.org/" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="Vue.js - 渐进式的 JavaScript 框架" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/2924524dff228287574decd5ad5b46fe.svg"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>Vue.js</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">Vue.js - 渐进式的 JavaScript 框架</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://cn.vuejs.org/" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="159">
+    <div class="url-body default">
+        <a href="#" target="_blank" data-url="#" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="Bootstrap是Twitter推出的一个用于前端开发的开源工具包。它由Twitter的设计师Mark Otto和Jacob Thornton合作开发，是一个CSS/HTML框架。目前，Bootstrap最新版本为5.0 。Bootstrap中文网致力于为广大国内开发者提供详尽的中文文档、代码实例等，助力开发者掌握并使用这一框架。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/lock.svg"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>Bootstrap</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">Bootstrap是Twitter推出的一个用于前端开发的开源工具包。它由Twitter的设计师Mark Otto和Jacob Thornton合作开发，是一个CSS/HTML框架。目前，Bootstrap最新版本为5.0 。Bootstrap中文网致力于为广大国内开发者提供详尽的中文文档、代码实例等，助力开发者掌握并使用这一框架。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="#" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="160">
+    <div class="url-body default">
+        <a href="https://www.naiveui.com/zh-CN/os-theme" target="_blank" data-url="https://www.naiveui.com/zh-CN/os-theme" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="满招损，谦受益。——《尚书•大禹谟》" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/3a8dec05ab2a48ad3e50d32f73fd6020.svg"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>Naive UI</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">满招损，谦受益。——《尚书•大禹谟》</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.naiveui.com/zh-CN/os-theme" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="161">
+    <div class="url-body default">
+        <a href="https://www.iviewui.com/" target="_blank" data-url="https://www.iviewui.com/" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="基于 Vue.js 的 UI 组件库，用于研发企业级中后台产品。iView 官网。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/425cb755db0fdcaaaa5ddadc0a958cd9.png"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>iView</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">基于 Vue.js 的 UI 组件库，用于研发企业级中后台产品。iView 官网。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.iviewui.com/" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="162">
+    <div class="url-body default">
+        <a href="https://www.tailwindcss.cn/" target="_blank" data-url="https://www.tailwindcss.cn/" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="Tailwind CSS 是一个功能类优先的 CSS 框架，它由 Adam Wathan 创建。本站提供 Tailwind CSS 官方文档中文翻译致力于为广大国内开发者提供准确的中文文档，助力开发者掌握并使用这一框架。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/b7ea64f089822dbe6b6867a8ee06e831.png"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>Tailwind</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">Tailwind CSS 是一个功能类优先的 CSS 框架，它由 Adam Wathan 创建。本站提供 Tailwind CSS 官方文档中文翻译致力于为广大国内开发者提供准确的中文文档，助力开发者掌握并使用这一框架。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.tailwindcss.cn/" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="163">
+    <div class="url-body default">
+        <a href="https://fontawesome.dashgame.com/" target="_blank" data-url="https://fontawesome.dashgame.com/" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="Font Awesome，一套绝佳的图标字体库和CSS框架。Font Awesome中文网。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/d0297b03ae12b7a34513a1c56ed8adbb.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>Font Awesome</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">Font Awesome，一套绝佳的图标字体库和CSS框架。Font Awesome中文网。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://fontawesome.dashgame.com/" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="166">
+    <div class="url-body default">
+        <a href="https://www.openzui.com/" target="_blank" data-url="https://www.openzui.com/" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="治于神者，众人不知其功；争于明者，众人知之。——《墨子•50章 公输》" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/afc5ac10759dfed4f1b6efe9663e942d.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>ZUI</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">治于神者，众人不知其功；争于明者，众人知之。——《墨子•50章 公输》</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.openzui.com/" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div></div></div>
+
+<div id="tab-11" class="tab-pane "><div class="row sortable" id="11">
+ <div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="164">
+    <div class="url-body default">
+        <a href="https://www.runoob.com/" target="_blank" data-url="https://www.runoob.com/" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="菜鸟教程(www.runoob.com)提供了编程的基础技术教程, 介绍了HTML、CSS、Javascript、Python，Java，Ruby，C，PHP , MySQL等各种编程语言的基础知识。 同时本站中也提供了大量的在线实例，通过实例，您可以更好的学习编程。.." >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/16fa15d096f32a70b470bac1aadad02c.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>菜鸟教程 </strong></div><p class="overflowClip_1 m-0 text-muted text-xs">菜鸟教程(www.runoob.com)提供了编程的基础技术教程, 介绍了HTML、CSS、Javascript、Python，Java，Ruby，C，PHP , MySQL等各种编程语言的基础知识。 同时本站中也提供了大量的在线实例，通过实例，您可以更好的学习编程。..</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.runoob.com/" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="165">
+    <div class="url-body default">
+        <a href="https://www.w3school.com.cn/" target="_blank" data-url="https://www.w3school.com.cn/" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="全球最大的中文 Web 技术教程。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/9584e026283a12e48055b64d8fd3136d.png"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>w3school</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">全球最大的中文 Web 技术教程。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.w3school.com.cn/" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="167">
+    <div class="url-body default">
+        <a href="https://www.oschina.net/" target="_blank" data-url="https://www.oschina.net/" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="OSCHINA.NET 是目前领先的中文开源技术社区。我们传播开源的理念，推广开源项目，为 IT 开发者提供了一个发现、使用、并交流开源技术的平台" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/52250215d90e66cb15746e8cc3aecc3f.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>开源中国</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">OSCHINA.NET 是目前领先的中文开源技术社区。我们传播开源的理念，推广开源项目，为 IT 开发者提供了一个发现、使用、并交流开源技术的平台</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.oschina.net/" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="178">
+    <div class="url-body default">
+        <a href="https://www.w3cschool.cn/" target="_blank" data-url="https://www.w3cschool.cn/" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="w3cschool启用中文品牌名--编程狮，是一个专业的W3C前端开发及编程入门学习平台，提供包括HTML,CSS,Javascript,jQuery,C,PHP,Java,Python,Sql,Mysql等编程语言和开源技术的在线教程及使用手册，是类国外w3schools的W3C学习社区及菜鸟编程平台。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/23469aecc5053c02c32493b1cd1834ca.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>w3cschool</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">w3cschool启用中文品牌名--编程狮，是一个专业的W3C前端开发及编程入门学习平台，提供包括HTML,CSS,Javascript,jQuery,C,PHP,Java,Python,Sql,Mysql等编程语言和开源技术的在线教程及使用手册，是类国外w3schools的W3C学习社区及菜鸟编程平台。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.w3cschool.cn/" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="179">
+    <div class="url-body default">
+        <a href="https://www.linuxcool.com/" target="_blank" data-url="https://www.linuxcool.com/" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="专注于Linux命令大全与详解的在线命令查询网站，包含Linux命令手册、Linux命令详解、Linux命令学习与shell脚本编程大全等优质学习资料，准确，丰富，稳定，在技术之路上为您护航！" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/6ce913cc13f693f071aacb1f44497b97.png"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>Linux命令大全</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">专注于Linux命令大全与详解的在线命令查询网站，包含Linux命令手册、Linux命令详解、Linux命令学习与shell脚本编程大全等优质学习资料，准确，丰富，稳定，在技术之路上为您护航！</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.linuxcool.com/" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div></div></div>
+
+<div id="tab-12" class="tab-pane "><div class="row sortable" id="12"><div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="168">
+    <div class="url-body default">
+        <a href="https://c.runoob.com/" target="_blank" data-url="https://c.runoob.com/" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="菜鸟工具，为开发设计人员提供在线工具，网址导航，提供在线PHP、Python、 CSS、JS 调试，中文简繁体转换，进制转换等工具。致力于打造国内专业WEB开发工具，集成开发环境，WEB开发教程。.." >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/ab77157a7a20e33cea94f7e5768b1918.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong> 菜鸟工具</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">菜鸟工具，为开发设计人员提供在线工具，网址导航，提供在线PHP、Python、 CSS、JS 调试，中文简繁体转换，进制转换等工具。致力于打造国内专业WEB开发工具，集成开发环境，WEB开发教程。..</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://c.runoob.com/" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="169">
+    <div class="url-body default">
+        <a href="https://tool.chinaz.com" target="_blank" data-url="https://tool.chinaz.com" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="站长工具是站长的必备工具。经常上站长工具可以了解SEO数据变化。还可以检测网站死链接、蜘蛛访问、HTML格式检测、网站速度测试、友情链接检查、网站域名IP查询、PR、权重查询、alexa、whois查询等等。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/8fe23aa541d5248630c17cb9f3ff762d.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>站长工具</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">站长工具是站长的必备工具。经常上站长工具可以了解SEO数据变化。还可以检测网站死链接、蜘蛛访问、HTML格式检测、网站速度测试、友情链接检查、网站域名IP查询、PR、权重查询、alexa、whois查询等等。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://tool.chinaz.com" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="170">
+    <div class="url-body default">
+        <a href="https://www.aizhan.com" target="_blank" data-url="https://www.aizhan.com" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="爱站网站长工具提供网站收录查询和站长查询以及百度权重值查询等多个站长工具，免费查询各种工具，包括有关键词排名查询，百度收录查询等。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/b9eb9ab411897187570f8e3c93cd14cd.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>爱站网</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">爱站网站长工具提供网站收录查询和站长查询以及百度权重值查询等多个站长工具，免费查询各种工具，包括有关键词排名查询，百度收录查询等。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.aizhan.com" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="171">
+    <div class="url-body default">
+        <a href="https://www.5118.com" target="_blank" data-url="https://www.5118.com" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="5118通过对排名各类大数据挖掘,提供关键词挖掘,行业词库,站群权重监控,关键词排名监控,指数词,流量词挖掘工具等排名工作人员必备百度站长工具平台" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/9443783a1826aae1fc178c3f1b4e120e.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>5118站长工具</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">5118通过对排名各类大数据挖掘,提供关键词挖掘,行业词库,站群权重监控,关键词排名监控,指数词,流量词挖掘工具等排名工作人员必备百度站长工具平台</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.5118.com" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="172">
+    <div class="url-body default">
+        <a href="https://www.51.la" target="_blank" data-url="https://www.51.la" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="领先的数据统计服务商" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/adc010d78f4e7d7ab98bc8b80993cfa1.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>51LA</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">领先的数据统计服务商</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.51.la" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="173">
+    <div class="url-body default">
+        <a href="https://tongji.baidu.com/" target="_blank" data-url="https://tongji.baidu.com/" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="一站式智能数据分析与应用平台" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/a7748a2559477dd350c4e403b3884190.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>百度统计</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">一站式智能数据分析与应用平台</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://tongji.baidu.com/" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="174">
+    <div class="url-body default">
+        <a href="https://urlsec.qq.com/complain.html" target="_blank" data-url="https://urlsec.qq.com/complain.html" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="我们三人就像流星，毫无目标地飞逝，不知将在何处燃烧殆尽。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/b86cbb15007854894e639dfb2dc34893.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>腾讯网站拦截申诉</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">我们三人就像流星，毫无目标地飞逝，不知将在何处燃烧殆尽。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://urlsec.qq.com/complain.html" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="175">
+    <div class="url-body default">
+        <a href="http://www.wetools.com/" target="_blank" data-url="http://www.wetools.com/" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="微工具致力于打造和收集各种方便、易用、便捷的在线工具，网友无需注册和下载安装即可使用各种在线工具。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/e07dfbfec397307a6aa3f5b56e27bdc7.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>微工具</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">微工具致力于打造和收集各种方便、易用、便捷的在线工具，网友无需注册和下载安装即可使用各种在线工具。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="http://www.wetools.com/" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="176">
+    <div class="url-body default">
+        <a href="https://tools.fun/index.html" target="_blank" data-url="https://tools.fun/index.html" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="开发人员工具箱，时间戳转换，json格式化，正则表达式，URLEncode，加密解密，Crontab，websocket，md5编码，base64编码，颜色转换，JSON/YAML/XML转换，AES、DES、RSA，数字进制转换，图片压缩，二维码生成，JavaScript格式化压缩，代码差异对比" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/50bd831e2aaf58fdc31038fb5db32113.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>Tools-fun</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">开发人员工具箱，时间戳转换，json格式化，正则表达式，URLEncode，加密解密，Crontab，websocket，md5编码，base64编码，颜色转换，JSON/YAML/XML转换，AES、DES、RSA，数字进制转换，图片压缩，二维码生成，JavaScript格式化压缩，代码差异对比</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://tools.fun/index.html" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="177">
+    <div class="url-body default">
+        <a href="https://www.bejson.com/" target="_blank" data-url="https://www.bejson.com/" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="在线,JSON,JSON 校验,格式化,xml转json 工具,在线工具,json视图,可视化,程序,服务器,域名注册,正则表达式,测试,在线json格式化工具,json 格式化,json格式化工具,json字符串格式化,json 在线查看器,json在线,json 在线验证,json tools online,在线文字对比工具" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/e38e491756ca57b75ab138b1f1424958.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>在线JSON</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">在线,JSON,JSON 校验,格式化,xml转json 工具,在线工具,json视图,可视化,程序,服务器,域名注册,正则表达式,测试,在线json格式化工具,json 格式化,json格式化工具,json字符串格式化,json 在线查看器,json在线,json 在线验证,json tools online,在线文字对比工具</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://www.bejson.com/" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="196">
+    <div class="url-body default">
+        <a href="https://apis.jxcxin.cn/" target="_blank" data-url="https://apis.jxcxin.cn/" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="API Store 是江西创信云网络免费提供API数据接口调用服务平台 - 我们致力于为用户提供稳定、快速的免费API数据接口服务。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/8bce6c6d7cd3cebca7434fc7f752fb13.ico"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>API Store</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">API Store 是江西创信云网络免费提供API数据接口调用服务平台 - 我们致力于为用户提供稳定、快速的免费API数据接口服务。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://apis.jxcxin.cn/" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="214">
+    <div class="url-body default">
+        <a href="https://developer.aliyun.com/mirror/" target="_blank" data-url="https://developer.aliyun.com/mirror/" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="阿里巴巴开源镜像站，免费提供Linux镜像下载服务，拥有Ubuntu、CentOS、Deepin、MongoDB、Apache、Maven、Composer等多种开源软件镜像源，此外还提供域名解析DNS、网络授时NTP等服务，致力于为互联网用户提供全面，高效和稳定的基础服务。" >
+            <div class="card-body">
+                <div class="url-content d-flex align-items-center">
+                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="static/picture/cfc0236899a5426586db147a7f977fdc.gif"></div>
+                    <div class="url-info flex-fill">
+                        <div class="text-sm overflowClip_1"><strong>阿里巴巴镜像站</strong></div><p class="overflowClip_1 m-0 text-muted text-xs">阿里巴巴开源镜像站，免费提供Linux镜像下载服务，拥有Ubuntu、CentOS、Deepin、MongoDB、Apache、Maven、Composer等多种开源软件镜像源，此外还提供域名解析DNS、网络授时NTP等服务，致力于为互联网用户提供全面，高效和稳定的基础服务。</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="https://developer.aliyun.com/mirror/" class="togo text-center" data-toggle="tooltip" data-placement="right" title="直达" rel="nofollow"><i class="iconfont icon-goto"></i></a>
+    </div>
+</div>
+</div></div></div><br />
+<!--
+<div class="d-flex flex-fill" id="category-16"><h4 class="text-gray text-lg mb-4"><i class="fa fa-book fa-lg icon-fw icon-lg mr-2"></i> 精选文章 </h4><div class="flex-fill"></div></div><div class="row " id="16">
+<div class="wz-card io-px-2 col-6 col-md-4 col-xl-3 col-xxl-6a py-2 py-md-3">
+    <div class="card-post list-item">
+        <div class="media media-4x3 p-0 rounded"><a class="media-content" href="./index.php?c=article&id=13&u=admin" style="background-image: url(static/images/ai_663483c1e0fdb.jpg);"></a></div>
+        <div class="list-content">
+            <div class="list-body"><a href="./index.php?c=article&id=13&u=admin" class="list-title text-md overflowClip_2">免费使用括彩云CDN 为TwoNav提供加速服务</a></div>
+        </div>
+    </div>
+</div>
+<div class="wz-card io-px-2 col-6 col-md-4 col-xl-3 col-xxl-6a py-2 py-md-3">
+    <div class="card-post list-item">
+        <div class="media media-4x3 p-0 rounded"><a class="media-content" href="./index.php?c=article&id=2&u=admin" style="background-image: url(static/images/ai_64c8c32406b12.jpg);"></a></div>
+        <div class="list-content">
+            <div class="list-body"><a href="./index.php?c=article&id=2&u=admin" class="list-title text-md overflowClip_2">TwoNav 第二代云导航|云书签管理系统</a></div>
+        </div>
+    </div>
+</div>
+<div class="wz-card io-px-2 col-6 col-md-4 col-xl-3 col-xxl-6a py-2 py-md-3">
+    <div class="card-post list-item">
+        <div class="media media-4x3 p-0 rounded"><a class="media-content" href="./index.php?c=article&id=3&u=admin" style="background-image: url(static/images/ai_64c8c3bfc31cb.jpg);"></a></div>
+        <div class="list-content">
+            <div class="list-body"><a href="./index.php?c=article&id=3&u=admin" class="list-title text-md overflowClip_2">图片预览和在线视频播放测试</a></div>
+        </div>
+    </div>
+</div>
+<div class="wz-card io-px-2 col-6 col-md-4 col-xl-3 col-xxl-6a py-2 py-md-3">
+    <div class="card-post list-item">
+        <div class="media media-4x3 p-0 rounded"><a class="media-content" href="./index.php?c=article&id=4&u=admin" style="background-image: url(static/images/a179.jpg);"></a></div>
+        <div class="list-content">
+            <div class="list-body"><a href="./index.php?c=article&id=4&u=admin" class="list-title text-md overflowClip_2">代码段高亮测试</a></div>
+        </div>
+    </div>
+</div>
+<div class="wz-card io-px-2 col-6 col-md-4 col-xl-3 col-xxl-6a py-2 py-md-3">
+    <div class="card-post list-item">
+        <div class="media media-4x3 p-0 rounded"><a class="media-content" href="./index.php?c=article&id=5&u=admin" style="background-image: url(static/images/ai_65f295e0cec54.jpg);"></a></div>
+        <div class="list-content">
+            <div class="list-body"><a href="./index.php?c=article&id=5&u=admin" class="list-title text-md overflowClip_2">TwoNav Vs OneNav 之链接列表篇</a></div>
+        </div>
+    </div>
+</div>
+<div class="wz-card io-px-2 col-6 col-md-4 col-xl-3 col-xxl-6a py-2 py-md-3">
+    <div class="card-post list-item">
+        <div class="media media-4x3 p-0 rounded"><a class="media-content" href="./index.php?c=article&id=6&u=admin" style="background-image: url(static/images/ai_65f295f071f1e.jpg);"></a></div>
+        <div class="list-content">
+            <div class="list-body"><a href="./index.php?c=article&id=6&u=admin" class="list-title text-md overflowClip_2">TwoNav Vs OneNav 之主题设置篇</a></div>
+        </div>
+    </div>
+</div>
+<div class="wz-card io-px-2 col-6 col-md-4 col-xl-3 col-xxl-6a py-2 py-md-3">
+    <div class="card-post list-item">
+        <div class="media media-4x3 p-0 rounded"><a class="media-content" href="./index.php?c=article&id=8&u=admin" style="background-image: url(static/images/ai_65f2961d96bc2.jpg);"></a></div>
+        <div class="list-content">
+            <div class="list-body"><a href="./index.php?c=article&id=8&u=admin" class="list-title text-md overflowClip_2">TwoNav 和 OneNav 的大体差别对比</a></div>
+        </div>
+    </div>
+</div></div><br />-->
+
+                <h4 class="text-gray text-lg mb-4"><i class="iconfont icon-book-mark-line icon-lg mr-2" id="friendlink"></i>友情链接</h4>
+                <div class="friendlink text-xs card">
+                    <div class="card-body">
+                    <a href="#" title="" target="_blank">Nav</a><a href="#" title="每月免费30G流量" target="_blank">云CDN</a><a href="#" title="" target="_blank">阿里云</a>                    </div>
+                </div>
+
+                <div class="footer-inner">
+                  <div class="footer-inner card rounded-xl m-0"> 
+                     <div class="footer-text card-body text-muted text-center text-md-left"> 
+                       <div class="row my-4"> 
+					   <div class="col-12 col-md-4 mb-4 mb-md-0"> <a class="footer-logo" href="#" title="网址导航"> <img src="static/picture/bt8-expand-light.png" class="logo-light mb-3" alt="网址导航" height="40"> <img src="static/picture/bt8-expand-dark.png" class="logo-dark d-none mb-3" alt="网址导航" height="40"> </a> <div class="text-sm">站在前方,为你导航！</div> </div> 
+					   <div class="col-12 col-md-5 mb-4 mb-md-0"> <div class="footer-nav-links d-flex justify-content-center justify-content-md-start text-sm mb-3 "> 
+					   <li id="menu-item-14876" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-14876"><h5>&nbsp;&nbsp;&nbsp;&nbsp;快速入口</h5><ul class="sub-menu"> <li id="menu-item-14885" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14885"><a href="#">  <span>站点地图</span></a></li> <li id="menu-item-14883" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14883"><a href="#">  <span>最新资讯</span></a></li> <li id="menu-item-14923" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14923"><a target="_blank" rel="noopener" href="#"> <span>广告合作</span></a></li></ul></li>
+					   <li id="menu-item-14881" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-14881"><h5>&nbsp;&nbsp;服务与支持</h5><ul class="sub-menu"> <li id="menu-item-14878" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14878"><a href="#">  <span>使用帮助</span></a></li> <li id="menu-item-14879" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14879"><a href="#"> <span>问题解惑</span></a></li> <li id="menu-item-14880" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-14880"><a href="#">  <span>免责声明</span></a></li></ul></li>
+					   <li id="menu-item-14872" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-14872"><h5>&nbsp;&nbsp;&nbsp;&nbsp;热门导航</h5><ul class="sub-menu"> <li id="menu-item-14874" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-14874"><a href="#">  <span>二次元</span></a></li> <li id="menu-item-14873" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-14873"><a href="#"><span>电影</span></a></li> <li id="menu-item-14875" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-14875"><a href="#">  <span>摸鱼</span></a></li></ul></li> </div> <div class="footer-social"> </div> </div> 
+		              <div class="col-12 col-md-3 text-md-right mb-4 mb-md-0"> <div class="footer-mini-img site-arrive" data-toggle="tooltip" title="广告合作-QQ"> <p class="bg-light rounded-lg p-1"> <img class=" " style="width:100px;height:100px" src="static/images/qq.jpg" alt="广告合作-QQ"> </p> <span class="text-muted text-ss mt-2">广告合作-QQ</span> </div> <div class="footer-mini-img site-similar" data-toggle="tooltip" title="公众号"> <p class="bg-light rounded-lg p-1"> <img class=" " style="width:100px;height:100px" src="static/images/qq.jpg" alt="BT网址导航"> </p> <span class="text-muted text-ss mt-2">公众号</span> </div> </div> </div> 
+	 
+	                 <div class="footer-copyright text-xs"> Copyright © 2024 <!--<a href="#" title="网址导航" class="" rel="home">网址导航</a>&nbsp;<a href="https://beian.miit.gov.cn/" target="_blank" class="" rel="link noopener">蜀ICP备2022003117号-2</a>&nbsp; <a href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=51012402001058" target="_blank" class="" rel="noopener"><img style="margin-bottom: 3px;" src="#"> 川公网安备51012402001058号</a>-->&nbsp;<br>注意：本站仅收录网站，不对其网站内容或交易负责。若收录的站点侵害到您的利益，请联系我们删除收录。 邮箱： pay268#qq.com </div>
+                  </div> </div>
+
+                </div>
+
+            </div>
+
+            <footer class="main-footer footer-type-1 text-xs">
+
+                <div id="footer-tools" class="d-flex flex-column">
+                    <a href="javascript:" id="to-up" class="btn rounded-circle go-up m-1" data-toggle="tooltip" data-placement="left" title="返回顶部">
+                        <i class="iconfont icon-to-up"></i>
+                    </a> 
+ 
+                    <a href="javascript:" data-toggle="modal" data-target="#search-modal" class="btn rounded-circle m-1 search-modal" rel="search" one-link-mark="yes" title="聚合搜索">
+                        <i class="iconfont icon-search"></i>
+                    </a>
+		            <a href="javascript:" id="NightMode" data="0" class="btn rounded-circle switch-dark-mode m-1" data-toggle="tooltip" data-placement="left" title="日间模式">
+                        <i class="iconfont mode-ico"></i>
+                    </a>
+                </div>
+            </footer>
+        </div>
+    </div>
+    <script>var config = {"bg_img":"","bg_img_night":""}</script>
+ 
+ 
+    <script type='text/javascript' src='static/js/popper.min.js'></script>
+ 
+    <script type='text/javascript' src='static/js/bootstrap.min.js'></script>
+ 
+    <script type='text/javascript' src='static/js/lazyload.min-12.4.0.js'></script>
+ 
+    <script type='text/javascript' src='static/js/app-mini.js'></script>
+    <script type='text/javascript' src="static/8js/ed5c676968db46908ed985188926ead2.js"></script>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
+<script>LA.init({id:"3GBQy07pYlIVc3g8",ck:"3GBQy07pYlIVc3g8"})</script>   
+</body>
+</html>
