@@ -1,0 +1,73 @@
+@charset "utf-8";
+/* CSS Document */
+.background_none{ background:none!important;}
+.appLogo {float:right;margin-top:10px;}
+.bdWarp {margin:0 auto;background:url(../images/app_bg.png) top center no-repeat}
+#page{ width:520px;margin:0 auto; overflow:hidden; font-family:"微软雅黑", Arial; font-size:12px;}
+#container{ border:1px solid #ddd;width:500px; height:auto;margin:10px auto; overflow:hidden; padding-bottom:20px;background:#eaeaea;}
+.fontStyle {color:#36C;}
+.logo {background:#fff;padding:5px;}
+.sectionO{ background:#eaeaea; overflow:hidden; padding:0 5px;}
+.sectionT{ background:#fff2cc; overflow:hidden; padding:0 6px; padding-bottom:10px;}
+.sectionS{ background:#deeff7; overflow:hidden; padding:7px 5px; padding-right:0;}
+.packageDetalShow {color:red;margin-right:10px;}
+
+.txt_sectionO{font-family:'宋体';background:url(../images/img1.png) no-repeat left top;margin-top:10px; float:left; width:119px; height:30px; font-weight:bold; color:#fff; padding:5px 8px; padding-bottom:8px;}
+.left_sectionO{ border-right:1px solid #e2e2e2; width:135px;}
+.liuliang_one{ background:url(../images/liuliang_1.png) no-repeat left 13px; width:77px; height:173px; overflow:hidden; border-right:1px solid #efefef}
+.liuliang_box{ width:30px; height:144px; background:url(../images/png.png) repeat center center; position:relative; top:18px; margin-left:3px;}
+.liuliang_box .btn{ background:url(../images/btn2.png) no-repeat left top; position:relative; top:140px;width:30px; height:10px; bottom:0; left:0; cursor:pointer;}
+.liuliang_one ul{ padding-left:10px;}
+.liuliang_one li{ padding:6px 0;}
+.sectionO div.pad{ padding:0 6px;}
+
+.right_sectionO{ width:312px; overflow:hidden; padding:6px 0; padding-bottom:0;}
+.right_sectionO h4{ font-size:12px; font-weight:bold; color:#fff; background:#e86500; width:110px; text-align:center; line-height:17px; vertical-align:middle;}
+.right_sectionO p{ width:198px; line-height:17px; height:17px;text-align:center; vertical-align:middle;}
+.right_sectionO ul{ background:#d2e0e6; padding:3px 7px; margin:5px;}
+.right_sectionO li{ float:left; width:48px; line-height:17px; }
+.right_sectionO li:hover,.right_sectionO li.on{ color:#ff3000; font-weight:bold;cursor:pointer;}
+
+.sectionT dl,.sectionT dt,.sectionT dd{ float:left;}
+.sectionT dl{ width:243px; overflow:hidden; padding-top:10px;}
+.sectionT dt{ width: 30px; height:40px; background:url(../images/sign_t.png) no-repeat center top; margin-top:8px;}
+.sectionT dd{ padding-left:9px; width:180px;}
+.sectionT dd p span{ font-weight:normal; color:#d33300;}
+.sectionT dd p span a{ color:#0382be; cursor:default; }
+.sectionT dd p span a:hover{ text-decoration:none;}
+.sectionT h5{padding:0 10px; line-height:28px;}
+
+.liuliang_two{ background:url(../images/liulang_bg.png) no-repeat left top; width:199px; height:8px; font-size:0; position:relative;}
+.liuliang_two_onL{ background:url(../images/liuliang_btnl.png) no-repeat left top; width:5px; height:8px;}
+.liuliang_two_on{ background:url(../images/liuliang_btnbg.png) repeat-x left top; width:15px; height:8px;}
+.liuliang_two .btn{ cursor:pointer; background:url(../images/btn1.png) no-repeat center center; width:37px; height:20px; position:relative; z-index:10; top:-5px; left:20px; }
+
+.sectionS li{ float:left; height:23px; line-height:23px; background:url(../images/sign_s.png) no-repeat left top; padding-left:25px; margin:3px 0;}
+
+/*tab切换*/
+.navTab {background:#d2e0e7;height:27px;width:100%;position: relative;;}
+/*.navTab .tab {background:url(../images/nav_bg.png) 0 0 no-repeat;width:306px;height:31px;float:left;position:absolute;top:-4px;}
+.navTab .tabOn {background:url(../images/nav_bg.png) 0 -34px no-repeat;width:306px;height:31px;float:left;position:absolute;top:-4px;}
+.navTab .threeG {background:url(../images/nav_bg.png) 0 -68px no-repeat;width:306px;height:31px;float:left;position:absolute;top:-4px;}
+.tabOn li.jisuan {color:#f60;font-weight:bold;}
+.tab li.package  {color:#f60;font-weight:bold;}
+.tab li.threeG   {color:#f60;font-weight:bold;}
+*/
+.navTab ul li {float:left;width:105px;line-height:27px;height:27px;text-align:center;color:#fff;cursor: pointer;background:url(../images/nav_bg.gif) 0 0 no-repeat;}
+.navTab ul li.on {width:110px;color:#f60;font-weight:bold;background:url(../images/nav_bg.gif) 0 -29px no-repeat;margin-top:-3px;height:30px;}
+.tabOn {background:#fff;}
+
+/*套餐*/
+.packageDetal {background:#eaeaea;padding-top:10px;position: relative;}
+.tabJi {padding-top:10px;background:#eaeaea;}
+.a46 ,.b46,.c46 {margin:10px 10px 0;background:#deeff8;}
+.bg {background:#fff;}
+.bold {color:#f60;font-weight:bold;}
+/*套餐分类*/
+.category_nav{width:480;margin:10px 10px 0;overflow:hidden;}
+.category_nav li{cursor:pointer;float:left;width:120px;height:32px;line-height:32px;text-align:center;background:url(../images/category_bg.gif) 0 0 no-repeat;color:#39c;font-weight:bold;}
+.category_nav li.on{background-position:0 -32px;color:#f60;}
+.category_nav li.first{background-position:0 -64px;}
+.category_nav li.last{background-position:0 -96px;}
+
+.category_list{width:480px;margin:0 10px;padding:20px 0 15px;background:#fff;}

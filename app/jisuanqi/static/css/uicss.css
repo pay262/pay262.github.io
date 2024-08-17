@@ -1,0 +1,121 @@
+@charset "utf-8";
+
+/* CSS Document */
+
+.ui-state-disabled {
+	CURSOR: default! important
+}
+.ui-widget-overlay {
+	LEFT: 0px; WIDTH: 100%; POSITION: absolute; TOP: 0px; HEIGHT: 30px
+}
+.ui-widget {
+	FONT-SIZE: 1.1em; FONT-FAMILY: Trebuchet MS, Tahoma, Verdana, Arial, sans-serif
+}
+.ui-widget .ui-widget {
+	FONT-SIZE: 1em
+}
+.ui-widget-content {HEIGHT:2px;WIDTH: 176px; 
+	BACKGROUND: url(../images/1.jpg);
+}
+.ui-widget-content A {
+	COLOR: #333333
+}
+.ui-widget-header {HEIGHT:20px;
+	BACKGROUND: url(../images/2.jpg);
+}
+.ui-widget-header A {
+	COLOR: #ffffff
+}
+.ui-state-default {
+	 BACKGROUND: url(../images/btn1.png) 
+}
+.ui-widget-content .ui-state-default {
+	 BACKGROUND: url(../images/btn1.png)
+}
+.ui-widget-header .ui-state-default {
+	 BACKGROUND: url(../images/btn1.png) 
+}
+.ui-state-hover {
+	 BACKGROUND: url(../images/btn1.png) 
+}
+.ui-widget-content .ui-state-hover {
+	 BACKGROUND: url(../images/btn1.png) 
+}
+.ui-widget-header .ui-state-hover {
+	 BACKGROUND: url(../images/btn1.png) 
+}
+.ui-state-focus {
+	 BACKGROUND: url(../images/btn1.png) 
+}
+.ui-widget-content .ui-state-focus {
+	 BACKGROUND: url(../images/btn1.png) 
+}
+.ui-widget-header .ui-state-focus {
+	 BACKGROUND: url(../images/btn1.png) 
+}
+.ui-state-hover A {
+	COLOR: #fff2cd; TEXT-DECORATION: none
+}
+.ui-state-hover A:hover {
+	COLOR: #fff2cd; TEXT-DECORATION: none
+}
+.ui-state-active {
+	 BACKGROUND: url(../images/btn1.png) 
+}
+.ui-widget-content .ui-state-active {
+	 BACKGROUND: url(../images/btn1.png) 
+}
+.ui-widget-header .ui-state-active {
+	 BACKGROUND: url(../images/btn1.png) 
+}
+.ui-state-active A {
+	COLOR: #fff2cd; TEXT-DECORATION: none
+}
+.ui-state-active A:link {
+	COLOR: #fff2cd; TEXT-DECORATION: none
+}
+.ui-state-active A:visited {
+	COLOR: #fff2cd; TEXT-DECORATION: none
+}
+.ui-widget :active {
+	outline: none
+}
+.ui-slider {
+	POSITION: relative; TEXT-ALIGN: left
+}
+.ui-slider .ui-slider-handle {
+	Z-INDEX: 2; WIDTH: 37px; CURSOR:pointer; POSITION: absolute; HEIGHT: 20px
+}
+.ui-slider .ui-slider-range {
+	BORDER-TOP-WIDTH: 0px; BACKGROUND-POSITION: 0px 0px; DISPLAY: block; BORDER-LEFT-WIDTH: 0px; FONT-SIZE: 0.7em; Z-INDEX: 1; BORDER-BOTTOM-WIDTH: 0px; POSITION: absolute; BORDER-RIGHT-WIDTH: 0px
+}
+.ui-slider-horizontal {
+	HEIGHT: 1.8em
+}
+.ui-slider-horizontal .ui-slider-handle {
+	MARGIN-LEFT: -0.6em; TOP: -0.1em
+}
+.ui-slider-horizontal .ui-slider-range {
+	TOP: 0px; HEIGHT: 100%
+}
+.ui-slider-horizontal .ui-slider-range-min {
+	LEFT: 0px
+}
+.ui-slider-horizontal .ui-slider-range-max {
+	RIGHT: 0px
+}
+.ui-slider-vertical {
+	WIDTH: 0.8em; HEIGHT: 100px
+}
+.ui-slider-vertical .ui-slider-handle {
+	LEFT: -0.3em; MARGIN-BOTTOM: -0.6em; MARGIN-LEFT: 0px
+}
+.ui-slider-vertical .ui-slider-range {
+	LEFT: 0px; WIDTH: 100%
+}
+.ui-slider-vertical .ui-slider-range-min {
+	BOTTOM: 0px
+}
+.ui-slider-vertical .ui-slider-range-max {
+	TOP: 0px
+}

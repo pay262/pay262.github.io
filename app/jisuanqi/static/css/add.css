@@ -1,0 +1,30 @@
+@charset "utf-8";
+/* CSS Document */
+.suggest_combo{padding:1px 1px 1px 1px; background:#ff872b; font-weight:bold; color:#fff;}
+.jsq1 .total_show{
+	TEXT-ALIGN: center; FONT-SIZE: 18px;font-weight:bold;color:#fff;
+}
+.ul2{clear:both; height:25px; padding-top:7px; }
+.foo2{
+	
+    height:144px;
+    background:#ccc;
+    width:30px;
+	background:url(../images/liuliang_1.png) no-repeat top left;
+	/*
+    margin:100px 0 0 100px;
+	*/
+}  
+.bar2{
+    height:10px;  width:30px;
+    overflow:hidden;
+    background:url(../images/btn2.png) no-repeat top left;
+    position:relative; top:14px; left:0px;
+    z-index:10;
+}  
+
+.over2
+{
+	 width:30px;  background:url(../images/liuliang_0_0.png) no-repeat top left;
+	 position:absolute;  height:100px;margin-left:1.3px;top:-1px;
+}
