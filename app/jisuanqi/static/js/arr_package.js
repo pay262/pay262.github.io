@@ -1,0 +1,37 @@
+//初始化套餐
+
+var packs ={ "packageList": [
+	　{"voice":"50","flow":"150MB","sms":"0","answer":"国内(含可视电话)","exceedVoice":"0.25","exceedFlow":"0.0003元/KB","exceedCall":"0.60元/分钟","other":"执行标准资费","prtM":"3","prtT":"5","prtTime":"5"},
+		{"voice":"50","flow":"300MB","sms":"240","answer":"国内(含可视电话)","exceedVoice":"0.20","exceedFlow":"0.0003元/KB","exceedCall":"0.60元/分钟","other":"执行标准资费","prtM":"6","prtT":"10","prtTime":"10"},
+		{"voice":"240","flow":"300MB","sms":"0","answer":"国内(含可视电话)","exceedVoice":"0.15","exceedFlow":"0.0003元/KB","exceedCall":"0.60元/分钟","other":"执行标准资费","prtM":"12","prtT":"20","prtTime":"10"},
+		{"voice":"320","flow":"400MB","sms":"0","answer":"国内(含可视电话)","exceedVoice":"0.15","exceedFlow":"0.0003元/KB","exceedCall":"0.60元/分钟","other":"执行标准资费","prtM":"20","prtT":"20","prtTime":"15"},
+		{"voice":"420","flow":"500MB","sms":"0","answer":"国内(含可视电话)","exceedVoice":"0.15","exceedFlow":"0.0003元/KB","exceedCall":"0.60元/分钟","other":"执行标准资费","prtM":"20","prtT":"40","prtTime":"20"},
+		{"voice":"510","flow":"650MB","sms":"0","answer":"国内(含可视电话)","exceedVoice":"0.15","exceedFlow":"0.0003元/KB","exceedCall":"0.60元/分钟","other":"执行标准资费","prtM":"20","prtT":"40","prtTime":"20"},
+		{"voice":"700","flow":"750MB","sms":"0","answer":"国内(含可视电话)","exceedVoice":"0.15","exceedFlow":"0.0003元/KB","exceedCall":"0.60元/分钟","other":"执行标准资费","prtM":"30","prtT":"40","prtTime":"25"},
+		{"voice":"900","flow":"950MB","sms":"0","answer":"国内(含可视电话)","exceedVoice":"0.15","exceedFlow":"0.0003元/KB","exceedCall":"0.60元/分钟","other":"执行标准资费","prtM":"40","prtT":"50","prtTime":"30"},
+		{"voice":"1250","flow":"1.3GB","sms":"0","answer":"国内(含可视电话)","exceedVoice":"0.15","exceedFlow":"0.0003元/KB","exceedCall":"0.60元/分钟","other":"执行标准资费","prtM":"50","prtT":"50","prtTime":"50"},
+		{"voice":"1950","flow":"2GB","sms":"0","answer":"国内(含可视电话)","exceedVoice":"0.15","exceedFlow":"0.0003元/KB","exceedCall":"0.60元/分钟","other":"执行标准资费","prtM":"60","prtT":"100","prtTime":"100"},
+		{"voice":"3000","flow":"3GB","sms":"0","answer":"国内(含可视电话)","exceedVoice":"0.15","exceedFlow":"0.0003元/KB","exceedCall":"0.60元/分钟","other":"执行标准资费","prtM":"90","prtT":"120","prtTime":"180"},
+		{"voice":"120","flow":"40MB","sms":"0","answer":"国内(含可视电话)","exceedVoice":"0.25","exceedFlow":"0.0003元/KB","exceedCall":"0.60元/分钟","other":"执行标准资费","prtM":"3","prtT":"5","prtTime":"5"},
+		{"voice":"200","flow":"60MB","sms":"0","answer":"国内(含可视电话)","exceedVoice":"0.20","exceedFlow":"0.0003元/KB","exceedCall":"0.60元/分钟","other":"执行标准资费","prtM":"6","prtT":"10","prtTime":"10"},
+		{"voice":"450","flow":"80MB","sms":"0","answer":"国内(含可视电话)","exceedVoice":"0.15","exceedFlow":"0.0003元/KB","exceedCall":"0.60元/分钟","other":"执行标准资费","prtM":"12","prtT":"20","prtTime":"10"},
+		{"voice":"680","flow":"100MB","sms":"0","answer":"国内(含可视电话)","exceedVoice":"0.15","exceedFlow":"0.0003元/KB","exceedCall":"0.60元/分钟","other":"执行标准资费","prtM":"20","prtT":"20","prtTime":"15"},
+		{"voice":"920","flow":"120MB","sms":"0","answer":"国内(含可视电话)","exceedVoice":"0.15","exceedFlow":"0.0003元/KB","exceedCall":"0.60元/分钟","other":"执行标准资费","prtM":"20","prtT":"40","prtTime":"20"},
+		{"voice":"1180","flow":"150MB","sms":"0","answer":"国内(含可视电话)","exceedVoice":"0.15","exceedFlow":"0.0003元/KB","exceedCall":"0.60元/分钟","other":"执行标准资费","prtM":"20","prtT":"40","prtTime":"20"},
+		{"voice":"260","flow":"40MB","sms":"0","answer":"国内(含可视电话)","exceedVoice":"0.20","exceedFlow":"0.0003元/KB","exceedCall":"0.60元/分钟","other":"执行标准资费","prtM":"3","prtT":"5","prtTime":"5"},
+		{"voice":"380","flow":"60MB","sms":"0","answer":"国内(含可视电话)","exceedVoice":"0.20","exceedFlow":"0.0003元/KB","exceedCall":"0.60元/分钟","other":"执行标准资费","prtM":"6","prtT":"10","prtTime":"10"},
+		{"voice":"550","flow":"80MB","sms":"0","answer":"国内(含可视电话)","exceedVoice":"0.15","exceedFlow":"0.0003元/KB","exceedCall":"0.60元/分钟","other":"执行标准资费","prtM":"12","prtT":"20","prtTime":"10"},
+		{"voice":"160","flow":"220MB","sms":"50","answer":"全国免费","exceedVoice":"0.20","exceedFlow":"0.0003元/KB","exceedCall":"无","other":"执行标准资费","prest":"来电显示；国内点对点彩信5条"},
+		{"voice":"240","flow":"340MB","sms":"80","answer":"全国免费","exceedVoice":"0.15","exceedFlow":"0.0003元/KB","exceedCall":"无","other":"执行标准资费","prest":"来电显示；国内点对点彩信10条"},
+		{"voice":"320","flow":"450MB","sms":"120","answer":"全国免费","exceedVoice":"0.15","exceedFlow":"0.0003元/KB","exceedCall":"无","other":"执行标准资费","prest":"来电显示；国内点对点彩信15条"},
+		{"voice":"420","flow":"570MB","sms":"150","answer":"全国免费","exceedVoice":"0.15","exceedFlow":"0.0003元/KB","exceedCall":"无","other":"执行标准资费","prest":"来电显示；国内点对点彩信17条"},
+		{"voice":"510","flow":"720MB","sms":"180","answer":"全国免费","exceedVoice":"0.15","exceedFlow":"0.0003元/KB","exceedCall":"无","other":"执行标准资费","prest":"来电显示；国内点对点彩信20条"},
+		{"voice":"700","flow":"850MB","sms":"220","answer":"全国免费","exceedVoice":"0.15","exceedFlow":"0.0003元/KB","exceedCall":"无","other":"执行标准资费","prest":"来电显示；国内点对点彩信25条"},
+		{"voice":"900","flow":"1.1GB","sms":"280","answer":"全国免费","exceedVoice":"0.15","exceedFlow":"0.0003元/KB","exceedCall":"无","other":"执行标准资费","prest":"来电显示；国内点对点彩信30条"},
+		{"voice":"1250","flow":"1.6GB","sms":"380","answer":"全国免费","exceedVoice":"0.15","exceedFlow":"0.0003元/KB","exceedCall":"无","other":"执行标准资费","prest":"来电显示；国内点对点彩信40条"},
+		{"voice":"1950","flow":"2.5GB","sms":"580","answer":"全国免费","exceedVoice":"0.15","exceedFlow":"0.0003元/KB","exceedCall":"无","other":"执行标准资费","prest":"来电显示；国内点对点彩信65条"},
+		{"voice":"3000","flow":"4GB","sms":"880","answer":"全国免费","exceedVoice":"0.15","exceedFlow":"0.0003元/KB","exceedCall":"无","other":"执行标准资费","prest":"来电显示；国内点对点彩信95条"},
+		{"voice":"200(最多)","flow":"100MB(最多)","sms":"200(最多)","answer":"本地免费","exceedVoice":"0.25","exceedFlow":"0.0003元/KB","exceedCall":"无","other":"已审批、备案的资费标准","prest":"无 "},
+		{"voice":"60","flow":"60MB","sms":"100","answer":"国内(含可视电话)","exceedVoice":"0.25","exceedFlow":"0.0003元/KB","exceedCall":"0.60元/分钟","other":"执行标准资费","prest":"来电显示、手机邮箱；国内定向数据流量500MB；国内主叫亲情号码共300分钟"}
+	]
+	}
