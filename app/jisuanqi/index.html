@@ -1,0 +1,239 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>手机流量计算器</title>
+<link type="text/css" rel="stylesheet" href="static/css/reset.css" >
+<link type="text/css" rel="stylesheet" href="static/css/base.css" >
+<link type="text/css" rel="stylesheet" href="static/css/add.css" >
+<link type="text/css" rel="stylesheet" href="static/css/uicss.css" >
+<link type="text/css" rel="stylesheet" href="static/css/package.css" >
+<script type="text/javascript" src="static/js/jquery.min.js"></script>
+<script type="text/javascript" src="static/js/ui.js"></script>
+<script type="text/javascript" src="static/js/arr_package.js"></script>
+</head>
+<body>
+<div class="bdWarp">
+<div id="page">
+	<div id="container">
+      <div class="logo">
+        <span class="appLogo"><img src="static/picture/app_logo.png" ></span>
+        <a href="http://www.10010.com/" target="_blank" title=""><img src="static/picture/logo.jpg" width="298" height="58"></a>
+      </div>
+      <div id="" class="navTab">
+          <ul class="tabOn">
+              <li class="on">流量计算器</li>
+              <li class="package">套餐详情</li>
+          </ul><!-- / -->
+      </div>
+      <div class="tabConetent">
+        <div class="tabDetal tabJi">
+   	  <div class="sectionO clear">
+        	<div class="left_sectionO fl clear">
+              <div class="txt_sectionO" id="totalsTitle">
+              	每月<span class="total_show"></span>[MB]
+              </div>
+
+              <div class="txt_sectionO" id="totalsTitle2">
+              	每月<span class="total_show"></span>[GB]
+              </div>
+              <div class="txt_sectionO" id="totalsTitle3">
+              	每月<span class="total_show"></span>[TB]
+              </div>
+            <!--  <div id="totals" class="liuliang_one fr">
+                  <div class="liuliang_box">
+				  <div class="over2"></div>
+				  <div class="bar2"></div>
+				  </div>  
+                   
+              </div>  -->
+           </div>
+            <div class="fl pad"><img src="static/picture/img2.png" width="30" height="173"></div>
+            <div class="right_sectionO fr" id="packageTar">
+            	<h4 class="fl">上网流量多-A计划</h4><p class="fr">推荐您选择橙色背景的套餐</p>
+                <div class="clr"></div>
+                <ul class="clear" id="type_A">
+                	<li pro_type_m="A" pro_val_m="46"><span class="combo_150">46元</span></li>
+                	<li pro_type_m="A" pro_val_m="66"><span class="combo_300">66元</span></li>
+                	<li pro_type_m="A" pro_val_m="96"><span class="combo_300">96元</span></li>
+                	<li pro_type_m="A" pro_val_m="126"><span class="combo_400">126元</span></li>
+                	<li pro_type_m="A" pro_val_m="156"><span class="combo_500" >156元</span></li>
+                	<li pro_type_m="A" pro_val_m="186"><span class="combo_650">186元</span></li>
+                	<li pro_type_m="A" pro_val_m="226"><span class="combo_750">226元</span></li>
+                	<li pro_type_m="A" pro_val_m="286"><span class="combo_950">286元</span></li>
+                	<li pro_type_m="A" pro_val_m="386"><span class="combo_1331">386元</span></li>
+                	<li pro_type_m="A" pro_val_m="586"><span class="combo_2048">586元</span></li>
+                	<li pro_type_m="A" pro_val_m="886"><span class="combo_3072">886元</span></li>
+                </ul>
+                <h4>长途漫游多-B计划</h4>
+                <ul class="clear" id="type_B">
+                	<li pro_type_m="B" pro_val_m="46"><span class="combo_40">46元</span></li>
+                	<li pro_type_m="B" pro_val_m="66"><span class="combo_60">66元</span></li>
+                	<li pro_type_m="B" pro_val_m="96"><span class="combo_80">96元</span></li>
+                	<li pro_type_m="B" pro_val_m="126"><span class="combo_100">126元</span></li>
+                	<li pro_type_m="B" pro_val_m="156"><span class="combo_120">156元</span></li>
+                	<li pro_type_m="B" pro_val_m="186"><span class="combo_150">186元</span></li>
+                </ul>
+                <h4>本地通话多-C计划</h4>
+                <ul class="clear" id="type_C">
+                	<li pro_type_m="C" pro_val_m="46"><span class="combo_40">46元</span></li>
+                	<li pro_type_m="C" pro_val_m="66"><span class="combo_60">66元</span></li>
+                	<li pro_type_m="C" pro_val_m="96"><span class="combo_80">96元</span></li>
+                </ul>
+            </div>
+        </div>
+        <div class="space-05"></div>
+        <div class="sectionT clear">
+        	<dl>
+            	<dt></dt>
+                <dd>
+                	<p class="bold clear padding-bottom-10" style="padding-left:4px;"><span class="fr"><em id="value_webPages">0</em>小时/天</span>速率(1Mbps)</p>
+                    	<div id="slider_webPages" ></div>
+                </dd>
+            </dl>
+        	<dl>
+            	<dt></dt>
+                <dd>
+                	<p class="bold clear padding-bottom-10" style="padding-left:4px;"><span class="fr"><em id="value_stocks">0</em>小时/天</span>速率(100Mbps)</p>                  
+                    	<div id="slider_stocks" ></div>
+                </dd>
+            </dl>
+			<div class="clr"></div>
+        	<dl>
+            	<dt></dt>
+                <dd>
+                	<p class="bold clear padding-bottom-10" style="padding-left:4px;"><span class="fr"><em id="value_talks">0</em>小时/天</span>速率(3Mbps)</p>
+                    	<div id="slider_talks" ></div>
+                </dd>
+            </dl>
+
+        	<dl>
+            	<dt></dt>
+                <dd>
+                	<p class="bold clear padding-bottom-10" style="padding-left:4px;"><span class="fr"><em id="value_musics">0</em>小时/天</span>速率(500Mbps)</p>
+                    	<div id="slider_musics" ></div>
+                </dd>
+            </dl>
+			<div class="clr"></div>
+        	<dl>
+            	<dt></dt>
+                <dd>
+               	  <p class="bold clear padding-bottom-10" style="padding-left:4px;"><span class="fr"><em id="value_emails">0</em>小时/天</span>速率(7.2Mbps)</p>
+                    	<div id="slider_emails" ></div>
+                </dd>
+            </dl>
+        	<dl>
+            	<dt></dt>
+                <dd>
+                	<p class="bold clear padding-bottom-10" style="padding-left:4px;"><span class="fr"><em id="value_videos">0</em>小时/天</span>速率(1000Mbps)</p>
+                    	<div id="slider_videos" ></div>
+                </dd>
+            </dl>
+			<div class="clr"></div>
+            <h5 class="fl tips marT10">拖动按钮选择对应的指标</h5><input type="image" src="images/btn3.png"  value="" class="fr vm border-0 marT10"  onclick="clearForm();">
+        </div>
+        <p style="_line-height:2.5em;background:#E2E2E2;height:25px;padding-top:5px; text-align:right"><a href="#" target="_blank" class="fontStyle">计算结果仅供参考，如果您有任何疑问请登录官网咨询>></a></p>
+            </div><!-- 流量计算器 -->
+            <div class="tabDetal packageDetal" style="display:none;">
+                     <div class="shop_give96_title">
+                      <div id="plan">
+                      <div class="shop_a_box plan">
+                       <ul>
+                        <li src="a46" pro_type_m="A" pro_val_m="46">46元套餐</li>
+                        <li src="images/tu_box66.png" class="" pro_type_m="A" pro_val_m="66">66元套餐</li>
+                        <li src="images/tu_box96.png" class="" pro_type_m="A" pro_val_m="96">96元套餐</li>
+                        <li src="images/tu_box126.png" pro_type_m="A" pro_val_m="126">126元套餐</li>
+                        <li src="images/tu_box156.png" pro_type_m="A" pro_val_m="156">156元套餐</li>
+                        <li src="images/tu_box186.png" pro_type_m="A" pro_val_m="186">186元套餐</li>
+                        <li src="images/tu_box226.png" pro_type_m="A" pro_val_m="226">226元套餐</li>
+                        <li src="images/tu_box286.png" pro_type_m="A" pro_val_m="286">286元套餐</li>
+                        <li src="images/tu_box386.png" pro_type_m="A" pro_val_m="386">386元套餐</li>
+                        <li src="images/tu_box586.png" pro_type_m="A" pro_val_m="586">586元套餐</li>
+                        <li src="images/tu_box886.png" pro_type_m="A" pro_val_m="886">886元套餐</li>
+                       </ul>
+                      </div><!-- shop_a_box-->
+                      <div class="shop_b_box plan">
+                       <ul>
+                        <li src="b46"  pro_type_m="B" pro_val_m="46">46元套餐</li>
+                        <li src="images/tu_box66.png"  pro_type_m="B" pro_val_m="66" class="">66元套餐</li>
+                        <li src="images/tu_box96.png"  pro_type_m="B" pro_val_m="96" class="">96元套餐</li>
+                        <li src="images/tu_box126.png" pro_type_m="B" pro_val_m="126" class="">126元套餐</li>
+                        <li src="images/tu_box156.png" pro_type_m="B" pro_val_m="156" class="">156元套餐</li>
+                        <li src="images/tu_box186.png" pro_type_m="B" pro_val_m="186" class="">186元套餐</li>
+                       </ul>
+                      </div><!-- shop_b_box-->
+                      <div class="shop_c_box plan">
+                       <ul>
+                        <li src="c46" pro_type_m="C" pro_val_m="46" class="">46元套餐</li>
+                        <li src="images/tu_box66.png" pro_type_m="C" pro_val_m="66" class="">66元套餐</li>
+                        <li src="images/tu_box96.png" pro_type_m="C" pro_val_m="96" class="">96元套餐</li>
+                       </ul>
+                      </div><!-- shop_c_box-->
+                      </div>
+                      <div class="clr"></div>
+                      <div class="a46 Tb ">
+                        <table width="97%" border="0" class="tabtc">
+                                    <tbody>
+                                    <tr>
+                                        <th width="50%" colspan="4"><font class="packageDetalShow"></font>套餐包含</th>
+                                        <th width="50%" colspan="4">套餐超出及其他收费业务</th>
+                                        
+                                    </tr>
+                                    <tr>
+                                        <th width="10%"><span class="call">国内</span>语音拨打分钟数</th>
+                                        <th width="10%">国内流量</th>
+                                        <th width="13%">国内短信发送条数</th>
+                                        <th width="17%">接听免费</th>
+                                        <th width="13%">国内语音拨打(元/分钟)</th>
+                                        <th width="12%">国内流量</th>
+                                        <th width="13%">国内可视电话拨打</th>
+                                        <th width="12%">其他业务</th>
+                                    </tr>
+                                    <tr class="bg">
+                                        <td><div data-type="Dnationalminutes" class="col2FC37B">550</div></td>
+                                        <td width=""><div data-type="Dnationalthroughput"><a href="javascript:void(0);" class="col0C8FFF">150MB</a></div></td>
+                                        <td width=""><div data-type="Dnationalmess" class="colff6600">0</div></td>
+                                        <td width=""><div data-type="Danswerfreedesc" class="col0C8FFF">国内(含可视电话)</div></td>
+                                        <td width=""><div data-type="Dnationalfee" class="col0C8FFF">0.15</div></td>
+                                        <td width=""><div data-type="Dnationalthfee" class="col0C8FFF">0.0003元/KB</div></td>
+                                        <td width=""><div data-type="Dnationalvideofee" class="col0C8FFF">0.60元/分钟</div></td>
+                                        <td width=""><div data-type="Dotherbus" class="col0C8FFF">执行标准资费</div></td>
+                                    </tr>
+                                </tbody></table>
+                                <p class="pad helpInfo">
+                                <span class="colff6600">赠送：<label id="Dmamount">20</label>个M、<label id="Dtamounts">20</label>个T、<label id="Dnationalvideominutes">15</label>分钟国内可视电话、来电显示，<label id="Dadditionalbusdesc">来电显示、手机邮箱</label></span>
+                                </p>
+                                <p class="pad"><a href="http://3g.10010.com/3gindex/3gfee/A_plan.html" target="_blank">更多套餐详情请参考>></a></p>
+                                <div class="helpTrip" style="display:none;">
+                                   <p>用户使用中国联通3G手机门户内的多媒体或文本内容采用统一计价，不再区分通信费和信息费，仅收取M、T或M+￥、T+￥（“￥“的中文名称为“x元”，指中国联通代合作伙伴收取的业务内容费用，简称“代收内容费”），不另收取流量费。</p>
+                                   <p>M即Media的首个字母，是多媒体内容的计价单位，多媒体内容包括图像、音频、视像及相关应用程序内容下载及流媒体播放服务等，如看一段视频或下载一首歌曲，一个多媒体内容的价格为n个M。</p>
+                                   <p>T即Text的首个字母，是文本内容的计价单位，文本内容包括以文字为主的内容浏览和下载，如浏览一条新闻，下载一段文字，一个文本内容的价格为n个T。
+                                    </p>
+                                    <em class="helpTripR"></em>
+                                </div><!-- / -->
+                      </div>
+              </div>
+                <!--选套餐 end-->
+            </div><!-- 套餐介绍 -->
+         </div> 
+    </div>
+</div>
+<script type="text/javascript" src="static/js/base.js"></script>
+<script type="text/javascript" src="static/js/calc.js"></script>
+<script src="static/js/monitor.js"></script>
+<script type="text/javascript" src="static/js/google.js"></script> 
+</div>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
+<script>LA.init({id:"3HpUziWJmj6VQUHP",ck:"3HpUziWJmj6VQUHP",autoTrack:true})</script>
+</body>
+</html>
