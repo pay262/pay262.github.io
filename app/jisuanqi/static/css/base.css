@@ -3,20 +3,14 @@
 
 
 
-@media (max-width: 600px) {
-	#app{
-		width: 100%;
-	        margin: 0 auto;
-	        height:100%;
-	        border-radius: 0px;
-	         padding:0px;
-	}
-   }
+
 
 /* CSS Document */
 .background_none{ background:none!important;}
 .appLogo {float:right;margin-top:10px;}
-/*.bdWarp {margin:0 auto;background:url(../images/app_bg.png) top center no-repeat}*/
+/*.bdWarp {margin:0 auto;background:url(../images/app_bg.png) top center no-repeat}
+#page{ width:520px;margin:0 auto; overflow:hidden; font-family:"微软雅黑", Arial; font-size:12px;} */
+
 .bdWarp {
     max-width: 600px;
     margin: 30px auto;
@@ -28,7 +22,16 @@
     border-radius: 20px;
     padding:30px;
 }
-#page{ width:520px;margin:0 auto; overflow:hidden; font-family:"微软雅黑", Arial; font-size:12px;}
+@media (max-width: 600px) {
+	#app{
+		width: 100%;
+	        margin: 0 auto;
+	        height:100%;
+	        border-radius: 0px;
+	         padding:0px;
+	}
+   }
+
 #container{ border:1px solid #ddd;width:500px; height:auto;margin:10px auto; overflow:hidden; padding-bottom:20px;background:#eaeaea;}
 .fontStyle {color:#36C;}
 .logo {background:#fff;padding:5px;}
