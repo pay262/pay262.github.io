@@ -1,8 +1,33 @@
 @charset "utf-8";
+
+
+
+
+@media (max-width: 600px) {
+	#app{
+		width: 100%;
+	        margin: 0 auto;
+	        height:100%;
+	        border-radius: 0px;
+	         padding:0px;
+	}
+   }
+
 /* CSS Document */
 .background_none{ background:none!important;}
 .appLogo {float:right;margin-top:10px;}
-.bdWarp {margin:0 auto;background:url(../images/app_bg.png) top center no-repeat}
+/*.bdWarp {margin:0 auto;background:url(../images/app_bg.png) top center no-repeat}*/
+.bdWarp {
+    max-width: 600px;
+    margin: 30px auto;
+	background-color: #f4f6f8;
+	font-size: 16px;
+	font-family: PingFangSC-Regular;
+	color: #222;
+	box-shadow: 0 10px 20px 0 rgba(236, 236, 236, 0.86);
+    border-radius: 20px;
+    padding:30px;
+}
 #page{ width:520px;margin:0 auto; overflow:hidden; font-family:"微软雅黑", Arial; font-size:12px;}
 #container{ border:1px solid #ddd;width:500px; height:auto;margin:10px auto; overflow:hidden; padding-bottom:20px;background:#eaeaea;}
 .fontStyle {color:#36C;}
