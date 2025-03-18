@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>中国移动活动汇总</title>
+  <meta name="keywords" content="中国移动">
+  <meta name="description" content="中国移动活动汇总">
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #f0f2f5;
+      color: #333;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+    }
+
+    #main {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .brand span {
+      font-size: 36px;
+      font-weight: 600;
+      color: #4c86df;
+    }
+
+    .brand span.flag {
+      background-color: #4c86df;
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 24px;
+      margin-left: 10px;
+    }
+
+    .field {
+      margin-bottom: 20px;
+      padding: 20px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+    }
+
+    .field h2 {
+      color: #4c86df;
+      margin-bottom: 15px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    table th,
+    table td {
+      padding: 12px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+
+    table th {
+      background-color: #4c86df;
+      color: #fff;
+    }
+
+    table tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    button {
+      background-color: #4c86df;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+    /* 新增按钮链接样式 */
+    button a {
+      color: #fff !important;
+      text-decoration: none !important;
+      display: block;
+    }
+
+    button:hover a {
+      color: #fff !important;
+    }
+    button:hover {
+      background-color: #3a6bb0;
+    }
+
+    .province-links {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+    }
+
+    .province-links button {
+      width: 100%;
+    }
+
+    .desc {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .desc ul {
+      padding-left: 20px;
+    }
+
+    .desc li {
+      margin-bottom: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .brand span {
+        font-size: 28px;
+      }
+
+      .brand span.flag {
+        font-size: 20px;
+      }
+
+      .province-links {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+/* 移动端按钮优化 */
+      table td button {
+        width: 100%;
+        margin: 5px 0; /* 增加按钮间距 */
+      }
+    }
+  </style>
+  <script>
+    document.onmousedown = click;
+    document.onkeydown = ctrl_key;
+
+    function click() {
+      if (event.button == 2) {
+        alert('羊毛汇 - 因为相信 · 所以看见！');
+        return false;
+      }
+    }
+
+    function ctrl_key() {
+      if (event.keyCode == 17 || event.keyCode == 123) {
+        alert('羊毛汇 - 因为相信 · 所以看见！');
+        return false;
+      }
+    }
+  </script>
+</head>
+
+<body>
+  <div id="main">
+    <div class="brand">
+      <span>中国移动</span><!--<span class="flag">活动汇总</span>-->
+    </div>
+
+    <div class="field">
+      <h5 style="color: #ff0000;">当前位置：<a style="color: ; text-decoration: none;" href="#">全国及各省份列表</a></h5>
+    </div>
+
+    <h2>套餐推荐</h2>
+    <div class="field">
+      <table>
+        <thead>
+          <tr>
+            <th>套餐名称</th>
+            <th>套餐简介</th>
+            <th>办理方式</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>号卡中心</td>
+            <td>大流量套餐免费办理</td>
+            <td>
+              <button><a href="../haoka/01.html" target="_blank">点击进入</a></button>
+              <button><a href="http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=nHuRrANKjLHwTBejDJhALVTCK5IiQtv6&authKey=xODFV67GWsUgdNisGomicEd1Szlz5TLFOwnL1bRJCwJKEV%2BkHdr5Mp%2FHDD4vXjLZ&noverify=0&group_code=368135927" target="_blank">加入Q群</a></button>
+            </td>
+          </tr>
+          <tr>
+            <td>移动宽带卡</td>
+            <td>49元50GB流量+300M宽带</td>
+            <td><button><a href="http://vip.777haoka.cn/order/index?uid=T1RwMzdMQWw4cGc9&pid=717" target="_blank">立即办理</a></button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>省份列表</h2>
+    <div class="field">
+      <details>
+        <summary style="font-size: 26px; color: #4c86df; text-align: center;">全国及各省份入口</summary>
+        <div class="province-links">
+          <button><a href="10086.all.html" target="_blank">全国移动</a></button>
+          <button><a href="10086.44.html" target="_blank">广东移动</a></button>
+          <button><a href="10086.11.html" target="_blank">北京移动</a></button>
+          <button><a href="10086.37.html" target="_blank">山东移动</a></button>
+          <button><a href="10086.41.html" target="_blank">河南移动</a></button>
+          <button><a href="10086.13.html" target="_blank">河北移动</a></button>
+          <button><a href="10086.21.html" target="_blank">辽宁移动</a></button>
+          <button><a href="10086.31.html" target="_blank">上海移动</a></button>
+          <button><a href="10086.32.html" target="_blank">江苏移动</a></button>
+          <button><a href="10086.33.html" target="_blank">浙江移动</a></button>
+          <button><a href="10086.43.html" target="_blank">湖南移动</a></button>
+          <button><a href="10086.14.html" target="_blank">山西移动</a></button>
+          <button><a href="10086.42.html" target="_blank">湖北移动</a></button>
+          <button><a href="10086.15.html" target="_blank">内蒙古移动</a></button>
+          <button><a href="10086.23.html" target="_blank">黑龙江移动</a></button>
+          <button><a href="10086.12.html" target="_blank">天津移动</a></button>
+          <button><a href="10086.51.html" target="_blank">四川移动</a></button>
+          <button><a href="10086.22.html" target="_blank">吉林移动</a></button>
+          <button><a href="10086.35.html" target="_blank">福建移动</a></button>
+          <button><a href="10086.61.html" target="_blank">陕西移动</a></button>
+          <button><a href="10086.65.html" target="_blank">新疆移动</a></button>
+          <button><a href="10086.34.html" target="_blank">安徽移动</a></button>
+          <button><a href="10086.52.html" target="_blank">贵州移动</a></button>
+          <button><a href="10086.50.html" target="_blank">重庆移动</a></button>
+          <button><a href="10086.45.html" target="_blank">广西移动</a></button>
+          <button><a href="10086.36.html" target="_blank">江西移动</a></button>
+          <button><a href="10086.53.html" target="_blank">云南移动</a></button>
+          <button><a href="10086.62.html" target="_blank">甘肃移动</a></button>
+          <button><a href="10086.46.html" target="_blank">海南移动</a></button>
+          <button><a href="10086.63.html" target="_blank">青海移动</a></button>
+          <button><a href="10086.64.html" target="_blank">宁夏移动</a></button>
+          <button><a href="10086.54.html" target="_blank">西藏移动</a></button>
+        </div>
+      </details>
+    </div>
+
+    <div class="field desc">
+      <h4 class="title">免责声明</h4>
+      <ul>
+        <li>
+          本站所收集的部分公开资料来源于互联网，转载的目的在于传递更多信息及用于网络分享，并不代表本站赞同其观点和对其真实性负责，也不构成任何建议。本站部分内容是由网友自主投稿和发布、编辑整理上传，对此类内容本站仅提供交流平台，不为其版权负责。如果您发现本站上有侵犯您的知识产权的内容，请与我们取得联系，我们会及时修改或删除。
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    var _hmt = _hmt || [];
+    (function () {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+  <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
+  <script>LA.init({ id: "3GBQy07pYlIVc3g8", ck: "3GBQy07pYlIVc3g8" })</script>
+</body>
+<textarea style="display:none"> 
+</html>
