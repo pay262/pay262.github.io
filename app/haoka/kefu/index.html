@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>客服与帮助 - 未来通信</title>
+  <link rel="stylesheet" href="./css/share.css">
+</head>
+<style>
+  .headimg {
+    margin-top: 50px;
+    width: 100%;
+    height: 200px;
+    opacity: 1;
+    text-align: center;
+  }
+
+  .headimg img {
+    width: 300px;
+  }
+
+  .content {
+    display: none;
+  }
+
+  .qrimg {
+    left: 105px;
+    top: 466px;
+    width: 160px;
+    height: 160px;
+    opacity: 1;
+    border-radius: 10.01px;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0px 0px 10.53px rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+    margin-top: 20px;
+  }
+
+  .qrimg img {
+    width: 150px;
+    height: 150px;
+    display: flex;
+    display: block;
+    margin: 0 auto;
+  }
+
+  .qrimgc {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+
+  .qrimgc .p1 {
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0px;
+    line-height: 17.38px;
+    color: rgba(140, 140, 140, 1);
+    text-align: center;
+    vertical-align: top;
+  }
+
+  .qrimgc .p2 {
+    margin: 20px;
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0px;
+    line-height: 18px;
+    color: rgba(140, 140, 140, 1);
+    text-align: justify;
+    vertical-align: top;
+  }
+
+  .question {
+    height: 100%;
+    opacity: 1;
+    border-radius: 10px;
+    background: linear-gradient(210.18deg, rgba(52, 98, 210, 1) 0%, rgba(87, 157, 255, 1) 100%);
+    box-shadow: 0px 0px 10.53px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 5px 5px 5px;
+    margin-top: 10px;
+  }
+
+  .questionp {
+    width: 100%;
+  }
+
+  .questionp p {
+    font-size: 15px;
+    /* height: 20px; */
+    font-weight: 400;
+    letter-spacing: 1px;
+    line-height: 10px;
+    color: rgba(255, 255, 255, 1);
+    text-align: left;
+    vertical-align: top;
+    white-space: nowrap;
+  }
+
+
+  .questionc {
+    width: 100%;
+    height: 100%;
+    opacity: 1;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 1);
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+
+  .questionc p {
+    margin: 10px;
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0px;
+    line-height: 18px;
+    color: rgba(69, 69, 69, 1);
+  }
+
+  .questionc span {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0px;
+    line-height: 18px;
+    color: rgba(69, 69, 69, 1);
+    text-align: justify;
+    vertical-align: top;
+  }
+</style>
+
+<body style="max-width: 400px; margin: 0 auto;">
+  <!-- 客服像 -->
+  <div style="margin: 10px">
+    <div class="headimg">
+      <img src="./picture/kefu.png" alt="">
+    </div>
+    <!-- 身体 -->
+    <div class="kefumain">
+      <div>
+        <div class="navBar">
+          <ul>
+            <li class="action">在线客服</li>
+            <li>常见问题</li>
+          </ul>
+        </div>
+      </div>
+      <div id="content1" class="content qrimgc" style="display: block;">
+                  <!-- 二维码 -->
+          <div class="qrimg">
+            <img src="./picture/cord_1697242164901.png" alt="">
+          </div>
+          <p class="p1">长按识别上方二维码联系渠道经理</p>
+                <p class="p2">注意：为了提高工作效率，如遇到订单问题，请提供订单号+问题描述并附带相关截图！</p>
+      </div>
+      <div id="content2" class="content">
+        <div class="question">
+          <div class="questionp">
+            <p>Q: <span>这些都是运营商正规卡套餐吗？</span> </p>
+          </div>
+          <div class="questionc">
+            <p> 本平台的所有产品均为四大运营商移动、联通、电信、广电的正规卡，和营业厅办理的卡没有任何区别，您可以拨打人工客服或者登录线上营业厅均可查询！</span>
+            </p>
+          </div>
+        </div>
+        <div class="question">
+          <div class="questionp">
+            <p>Q: <span>归属地和号码可选吗？是否为全国通用？</span> </p>
+          </div>
+          <div class="questionc">
+            <p> 因每个地市运营商政策不同，归属地是无法选择的，部分套餐是可以选号的，（联通K计划或广电套餐卡收货地为归属地，具体看详情）流量和语音都全国通用不限地区。</span>
+            </p>
+          </div>
+        </div>
+        <div class="question">
+          <div class="questionp">
+            <p>Q: <span>办理的卡不想用了如何注销？</span> </p>
+          </div>
+          <div class="questionc">
+            <p> 2019年1月1日起工信部已经支持号卡<span>异地销户</span>，如需要办理销户直接拨打运营商对应官方客服电话或在线上营业厅(官方APP)申请销户即可。</span>
+            </p>
+          </div>
+        </div>
+        <div class="question">
+          <div class="questionp">
+            <p>Q: <span>办理的订单为什么会审核失败？</span> </p>
+          </div>
+          <div class="questionc">
+            <p> · 失败的因素有很多，如：该卡不支持收件地区、年龄不符合要求、地区涉诈重灾区，<span>地址携带酒店、旅馆、学校、附近、旁边、代收点、电竞、网吧等；</span>
+            </p>
+            <p>
+              ·可以尝试申请其他运营商套餐，或联系在线客服寻求帮助；
+            </p>
+          </div>
+        </div>
+        <div class="question">
+          <div class="questionp">
+            <p>Q: <span>网上办卡是否安全？身份信息会泄露吗？</span> </p>
+          </div>
+          <div class="questionc">
+            <p> 信息是接口直接提交到运营商开卡，绝不会泄露您的身份信息，请放心下单。</span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+<script>
+  // Tab切换
+  const listItems = document.querySelectorAll('.navBar li');
+  const contentDivs = document.querySelectorAll('.content'); // Add click event listener to each list item
+  listItems.forEach((item, index) => {
+    item.addEventListener('click', () => {
+      // 清除原有
+      listItems.forEach((li) => {
+        li.classList.remove('action');
+      });
+      // 添加类
+      item.classList.add('action');
+      // 隐藏其他
+      contentDivs.forEach((div) => {
+        div.style.display = 'none';
+      });
+      // 展示当前点击
+      contentDivs[index].style.display = 'block';
+    });
+  });
+</script>
+
+<script>
+    var _hmt = _hmt || [];
+    (function () {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+<script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
+<script>LA.init({ id: "3GBQy07pYlIVc3g8", ck: "3GBQy07pYlIVc3g8" })</script>
+
+<textarea style="display:none"> 
+</html>
