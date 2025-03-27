@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>未来通信门户系统</title>
+    <title>未来通信-号卡中心</title>
     <style>
         :root {
             --menu-width: 200px;
@@ -39,8 +39,8 @@
         #nav-toggle {
             position: fixed;
             left: 15px;
-            top: calc(var(--logo-font-size) + 40px);
-            z-index: 1000;
+            top: 15px;
+            z-index: 1001;
             transition: all var(--transition-duration) ease;
         }
 
@@ -60,26 +60,29 @@
             transition: stroke 0.3s ease;
         }
 
-        /* 侧边栏 */
-        .sidebar {
-            position: fixed;
-            left: calc(-1 * var(--menu-width));
-            top: 0;
-            width: var(--menu-width);
-            height: 100vh;
-            background: #ffffff;
-            box-shadow: 2px 0 15px rgba(0,0,0,0.1);
-            transition: left var(--transition-duration) ease;
-            padding: 20px 15px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
+		/* 侧边栏 */
+		.sidebar {
+			position: fixed;
+			left: calc(-1 * var(--menu-width));
+			top: 0;
+			width: var(--menu-width);
+			height: 100vh;
+			background: rgba(255, 255, 255, 0.60); /* 添加透明度 */
+			backdrop-filter: blur(5px); /* 背景模糊效果 */
+			-webkit-backdrop-filter: blur(5px); /* Safari 支持 */
+			box-shadow: 2px 0 15px rgba(0,0,0,0.1);
+			transition: left var(--transition-duration) ease;
+			padding: 20px 15px;
+			overflow-y: auto;
+			display: flex;
+			flex-direction: column;
+			z-index: 1000;
+		}
 
         /* 当前选中状态 */
         .nav-item.active {
-            background: var(--accent-color);
-            color: white;
+            background: var(--accent-color) !important;
+            color: white !important;
             font-weight: 600;
             transform: translateX(10px);
             box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
@@ -148,9 +151,9 @@
 
         /* 内容区域 */
         .content-area {
-            margin-left: 0;
+            width: 100%;
             min-height: 100vh;
-            transition: margin var(--transition-duration) ease;
+            position: relative;
         }
 
         /* iframe样式 */
@@ -168,7 +171,7 @@
 
         .portal-iframe {
             width: 100%;
-            min-height: 100vh;
+            height: 100%;
             border: none;
         }
     </style>
@@ -177,7 +180,6 @@
     <div id="nav-toggle">
         <button id="toggleBtn" class="icon-btn" aria-label="导航菜单开关">
             <svg class="nav-icon" viewBox="0 0 24 24">
-                <!-- 修正后的箭头方向 -->
                 <path id="left-arrow" d="M15 19l-7-7 7-7" fill="none" 
                       stroke-width="2" stroke-linecap="round" style="display: none;"/>
                 <path id="right-arrow" d="M9 5l7 7-7 7" fill="none" 
@@ -201,7 +203,7 @@
                 <a href="https://getsimnum.caict.ac.cn/m/#/" 
                    target="_blank" 
                    class="nav-link">
-                    📱 一证通查服务
+                    📱 一证通查
                 </a>
             </li>
             <li class="nav-item">
@@ -214,7 +216,7 @@
         </ul>
 
         <div class="icp-info">
-            <a href="https://beian.miit.gov.cn" 
+            <a href="#" 
                target="_blank" 
                rel="noopener noreferrer">
                 粤ICP备2023092773号-2
@@ -252,43 +254,30 @@
     </main>
 
 <script>
-    // 系统状态管理
     const state = {
         menuOpen: false,
         currentContent: 'content1'
     };
 
-    // DOM元素缓存
     const dom = {
         toggleBtn: document.getElementById('toggleBtn'),
         leftArrow: document.getElementById('left-arrow'),
         rightArrow: document.getElementById('right-arrow'),
         sidebar: document.getElementById('sidebar'),
-        mainContent: document.getElementById('mainContent'),
         navItems: document.querySelectorAll('.nav-item')
     };
 
-    // 导航切换功能
     function toggleNavigation() {
         state.menuOpen = !state.menuOpen;
-
-        // 侧边栏动画
         dom.sidebar.style.left = state.menuOpen ? '0' : `calc(-1 * var(--menu-width))`;
-        dom.mainContent.style.marginLeft = state.menuOpen ? 'var(--menu-width)' : '0';
-
-        // 箭头方向修正
         dom.leftArrow.style.display = state.menuOpen ? 'block' : 'none';
         dom.rightArrow.style.display = state.menuOpen ? 'none' : 'block';
     }
 
-    // 内容切换功能
     function switchContent(contentId) {
-        // 隐藏所有内容
         document.querySelectorAll('.iframe-wrapper').forEach(el => el.hidden = true);
-        // 显示目标内容
         document.getElementById(contentId).parentElement.hidden = false;
         
-        // 更新菜单状态
         dom.navItems.forEach(item => {
             item.classList.remove('active');
             if(item.dataset.content === contentId) {
@@ -297,13 +286,10 @@
         });
     }
 
-    // 初始化系统
     function initSystem() {
-        // 初始箭头状态
         dom.leftArrow.style.display = 'none';
         dom.rightArrow.style.display = 'block';
         
-        // 事件监听
         dom.toggleBtn.addEventListener('click', toggleNavigation);
         dom.navItems.forEach(item => {
             item.addEventListener('click', () => {
@@ -312,11 +298,10 @@
         });
     }
 
-    // 启动
     document.addEventListener('DOMContentLoaded', initSystem);
 </script>
-</body>
-  <script>
+
+<script>
     var _hmt = _hmt || [];
     (function () {
       var hm = document.createElement("script");
@@ -324,9 +309,9 @@
       var s = document.getElementsByTagName("script")[0];
       s.parentNode.insertBefore(hm, s);
     })();
-  </script>
-  <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
-  <script>LA.init({ id: "3GBQy07pYlIVc3g8", ck: "3GBQy07pYlIVc3g8" })</script>
-
+</script>
+<script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
+<script>LA.init({ id: "3GBQy07pYlIVc3g8", ck: "3GBQy07pYlIVc3g8" })</script>
+</body>
 <textarea style="display:none"> 
 </html>
