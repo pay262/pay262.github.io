@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>四大运营商订单查询及取消服务</title>
+    <style>
+        :root {
+            --primary-color: #3A6FF8;
+            --secondary-color: #C9D6FF;
+            --text-color: #2C3E50;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #E2E2E2 0%, #C9D6FF 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .title {
+            color: var(--primary-color);
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem 0;
+            position: relative;
+        }
+
+        .title::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 3px;
+            background: var(--primary-color);
+            margin: 0.5rem auto;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .service-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 60px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            padding: 0 15px;
+            text-align: center;
+        }
+
+        .service-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(58, 111, 248, 0.3);
+            background: #2954CC;
+        }
+
+        .notice {
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        .notice p {
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .title {
+                font-size: 1.2rem;
+            }
+            
+            .service-link {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1 class="title">运营商订单查询服务</h1>
+            
+            <div class="grid">
+                <a href="https://dev.coc.10086.cn/coc/web/coc2020/cardqueryorder/" 
+                   class="service-link" 
+                   target="_blank"
+                   rel="noopener">
+                    中国移动订单服务
+                </a>
+                
+                <a href="https://pms.189.cn/cljy-web/static/xshkzzfw/xshkzzfw_index.html"
+                   class="service-link"
+                   target="_blank"
+                   rel="noopener">
+                    中国电信订单服务
+                </a>
+                
+                <a href="https://m.10010.com/myorder/"
+                   class="service-link"
+                   target="_blank"
+                   rel="noopener">
+                    中国联通订单服务
+                </a>
+                
+                <a href="https://www.10099.com.cn/personal-center-my-order.html"
+                   class="service-link"
+                   target="_blank"
+                   rel="noopener">
+                    中国广电订单服务
+                </a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="title">服务说明</h2>
+            <div class="notice">
+                <p>📢 重要提示：</p>
+                <p>1. 订单取消申请提交后不可撤回，请谨慎操作</p>
+                <p>2. 运营商将在1-3个工作日内处理您的请求</p>
+                <p>3. 取消成功后，建议间隔至少72小时再尝试新订单</p>
+                <p>4. 如遇系统繁忙，请稍后再试或联系官方客服</p>
+            </div>
+        </div>
+    </div>
+</body>
+  <script>
+    var _hmt = _hmt || [];
+    (function () {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+  <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
+  <script>LA.init({ id: "3GBQy07pYlIVc3g8", ck: "3GBQy07pYlIVc3g8" })</script>
+
+<textarea style="display:none"> 
+</html>
