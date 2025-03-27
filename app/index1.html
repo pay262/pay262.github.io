@@ -100,15 +100,49 @@
             border-radius: 2px;
         }
 
-        /* 文字Logo */
-        .logo-text {
-            font-size: var(--logo-font-size);
-            font-weight: 700;
-            color: #2c3e50;
-            margin: 25px 0 35px;
-            text-align: center;
-            letter-spacing: 2px;
-        }
+	 /* 文字logo */
+	.logo-text {
+	  font-size: var(--logo-font-size);
+	  font-weight: 700;
+	  margin: 25px 0 35px;
+	  text-align: center;
+	  letter-spacing: 2px;
+	  
+	  /* 渐变文字效果 */
+	  background: linear-gradient(
+		90deg,
+		#ff0000 0%,
+		#ff8000 15%,
+		#ffff00 30%,
+		#00ff00 45%,
+		#00ffff 60%,
+		#0000ff 75%,
+		#8000ff 90%,
+		#ff0080 100%
+	  );
+	  -webkit-background-clip: text;
+	  background-clip: text;
+	  -webkit-text-fill-color: transparent;
+	  color: transparent;
+	  
+	  /* 动画效果 */
+	  background-size: 200% auto;
+	  animation: gradientFlow 3s linear infinite;
+	}
+
+	@keyframes gradientFlow {
+	  0% {
+		background-position: 0% 50%;
+	  }
+	  50% {
+		background-position: 100% 50%;
+	  }
+	  100% {
+		background-position: 0% 50%;
+	  }
+	}
+
+
 
         /* 导航菜单 */
         .nav-list {
