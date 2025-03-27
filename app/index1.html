@@ -1,29 +1,332 @@
-
 <!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="utf-8" />
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<meta http-equiv="refresh" content="0;url=https://pay262.github.io/app/haoka/01.html">
-		<title>未来通信</title>
-		<link rel="stylesheet" href="" />
-		<script src="https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058"></script>
-	</head>
-	<body>
-	<p></p>
- <!-- Baidu tongji analytics -->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>未来通信门户系统</title>
+    <style>
+        :root {
+            --menu-width: 200px;
+            --transition-duration: 0.3s;
+            --icon-color: #2c3e50;
+            --icon-hover: #1a2b3c;
+            --logo-font-size: 1.8em;
+            --accent-color: #3498db;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        html {
+            overflow-y: auto;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        /* 导航按钮 */
+        #nav-toggle {
+            position: fixed;
+            left: 15px;
+            top: calc(var(--logo-font-size) + 40px);
+            z-index: 1000;
+            transition: all var(--transition-duration) ease;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-icon {
+            width: 32px;
+            height: 32px;
+            stroke: var(--icon-color);
+            transition: stroke 0.3s ease;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            position: fixed;
+            left: calc(-1 * var(--menu-width));
+            top: 0;
+            width: var(--menu-width);
+            height: 100vh;
+            background: #ffffff;
+            box-shadow: 2px 0 15px rgba(0,0,0,0.1);
+            transition: left var(--transition-duration) ease;
+            padding: 20px 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 当前选中状态 */
+        .nav-item.active {
+            background: var(--accent-color);
+            color: white;
+            font-weight: 600;
+            transform: translateX(10px);
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 70%;
+            background: white;
+            border-radius: 2px;
+        }
+
+        /* 文字Logo */
+        .logo-text {
+            font-size: var(--logo-font-size);
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 25px 0 35px;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        /* 导航菜单 */
+        .nav-list {
+            list-style: none;
+            margin-top: 10px;
+            flex-grow: 1;
+        }
+
+        .nav-item {
+            padding: 12px 15px;
+            margin: 8px 0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            background: #f8f9fa;
+            transform: translateX(5px);
+        }
+
+        /* 备案信息 */
+        .icp-info {
+            margin-top: auto;
+            padding: 20px 0 0;
+            text-align: center;
+            border-top: 1px solid #eee;
+        }
+
+        .icp-info a {
+            color: #666;
+            font-size: 0.85em;
+            transition: color 0.3s;
+        }
+
+        .icp-info a:hover {
+            color: var(--accent-color);
+        }
+
+        /* 内容区域 */
+        .content-area {
+            margin-left: 0;
+            min-height: 100vh;
+            transition: margin var(--transition-duration) ease;
+        }
+
+        /* iframe样式 */
+        .iframe-wrapper {
+            width: 100%;
+            height: 100vh;
+            overflow: auto;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .iframe-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+
+        .portal-iframe {
+            width: 100%;
+            min-height: 100vh;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="nav-toggle">
+        <button id="toggleBtn" class="icon-btn" aria-label="导航菜单开关">
+            <svg class="nav-icon" viewBox="0 0 24 24">
+                <!-- 修正后的箭头方向 -->
+                <path id="left-arrow" d="M15 19l-7-7 7-7" fill="none" 
+                      stroke-width="2" stroke-linecap="round" style="display: none;"/>
+                <path id="right-arrow" d="M9 5l7 7-7 7" fill="none" 
+                      stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        </button>
+    </div>
+
+    <nav class="sidebar" id="sidebar">
+        <header>
+            <div class="logo-text">未来通信</div>
+        </header>
+        
+        <ul class="nav-list">
+            <li class="nav-item active" data-content="content1">1号合作网厅</li>
+            <li class="nav-item" data-content="content2">2号合作网厅</li>
+            <li class="nav-item" data-content="content3">3号合作网厅</li>
+            <li class="nav-item" data-content="content4">4号合作网厅</li>
+            <li class="nav-item" data-content="content5">订单查询/取消</li>
+            <li class="nav-item">
+                <a href="https://getsimnum.caict.ac.cn/m/#/" 
+                   target="_blank" 
+                   class="nav-link">
+                    📱 一证通查服务
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#"
+                   target="_blank"
+                   class="nav-link">
+                    💬 在线客服
+                </a>
+            </li>
+        </ul>
+
+        <div class="icp-info">
+            <a href="https://beian.miit.gov.cn" 
+               target="_blank" 
+               rel="noopener noreferrer">
+                粤ICP备2023092773号-2
+            </a>
+        </div>
+    </nav>
+
+    <main class="content-area" id="mainContent">
+        <div class="iframe-wrapper">
+            <iframe class="portal-iframe" 
+                    id="content1"
+                    src="https://vip.777haoka.cn/index?k=T1RwMzdMQWw4cGc9"
+                    loading="lazy"></iframe>
+        </div>
+        <div class="iframe-wrapper" hidden>
+            <iframe class="portal-iframe" 
+                    id="content2"
+                    src="https://hk.yunhaoka.cn/#/pages/micro_store/index?agent_id=fd7687894ce7e304b967e505d8255dd7"></iframe>
+        </div>
+        <div class="iframe-wrapper" hidden>
+            <iframe class="portal-iframe" 
+                    id="content3"
+                    src="https://91haoka.cn/webapp/weixiaodian/index.html?shop_id=386983"></iframe>
+        </div>
+        <div class="iframe-wrapper" hidden>
+            <iframe class="portal-iframe" 
+                    id="content4"
+                    src="https://h5.lianhengkj.com/#/pages/agentMoudle/micro_store/index?store_id=b6745283aa939dac"></iframe>
+        </div>
+        <div class="iframe-wrapper" hidden>
+            <iframe class="portal-iframe" 
+                    id="content5"
+                    src="./index_cx.html"></iframe>
+        </div>
+    </main>
+
 <script>
-var _hmt = _hmt || [];
-(function() {
-  var hm = document.createElement("script");
-  hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
-  var s = document.getElementsByTagName("script")[0]; 
-  s.parentNode.insertBefore(hm, s);
-})();
+    // 系统状态管理
+    const state = {
+        menuOpen: false,
+        currentContent: 'content1'
+    };
+
+    // DOM元素缓存
+    const dom = {
+        toggleBtn: document.getElementById('toggleBtn'),
+        leftArrow: document.getElementById('left-arrow'),
+        rightArrow: document.getElementById('right-arrow'),
+        sidebar: document.getElementById('sidebar'),
+        mainContent: document.getElementById('mainContent'),
+        navItems: document.querySelectorAll('.nav-item')
+    };
+
+    // 导航切换功能
+    function toggleNavigation() {
+        state.menuOpen = !state.menuOpen;
+
+        // 侧边栏动画
+        dom.sidebar.style.left = state.menuOpen ? '0' : `calc(-1 * var(--menu-width))`;
+        dom.mainContent.style.marginLeft = state.menuOpen ? 'var(--menu-width)' : '0';
+
+        // 箭头方向修正
+        dom.leftArrow.style.display = state.menuOpen ? 'block' : 'none';
+        dom.rightArrow.style.display = state.menuOpen ? 'none' : 'block';
+    }
+
+    // 内容切换功能
+    function switchContent(contentId) {
+        // 隐藏所有内容
+        document.querySelectorAll('.iframe-wrapper').forEach(el => el.hidden = true);
+        // 显示目标内容
+        document.getElementById(contentId).parentElement.hidden = false;
+        
+        // 更新菜单状态
+        dom.navItems.forEach(item => {
+            item.classList.remove('active');
+            if(item.dataset.content === contentId) {
+                item.classList.add('active');
+            }
+        });
+    }
+
+    // 初始化系统
+    function initSystem() {
+        // 初始箭头状态
+        dom.leftArrow.style.display = 'none';
+        dom.rightArrow.style.display = 'block';
+        
+        // 事件监听
+        dom.toggleBtn.addEventListener('click', toggleNavigation);
+        dom.navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                if(item.dataset.content) switchContent(item.dataset.content);
+            });
+        });
+    }
+
+    // 启动
+    document.addEventListener('DOMContentLoaded', initSystem);
 </script>
-<script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
-<script>LA.init({id:"3GBQy07pYlIVc3g8",ck:"3GBQy07pYlIVc3g8"})</script>
- <textarea style="display:none">   
- </body>
- </html>
+</body>
+  <script>
+    var _hmt = _hmt || [];
+    (function () {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+  <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
+  <script>LA.init({ id: "3GBQy07pYlIVc3g8", ck: "3GBQy07pYlIVc3g8" })</script>
+
+<textarea style="display:none"> 
+</html>
