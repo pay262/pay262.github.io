@@ -24,8 +24,8 @@
 
     #main {
       max-width: 1200px;
-      margin: 20px auto;
-      padding: 20px;
+      margin: 15px auto;
+      padding: 18px;
       background-color: #fff;
       border-radius: 8px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -33,7 +33,7 @@
 
     .brand {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
     }
 
     .brand span {
@@ -51,29 +51,31 @@
       margin-left: 10px;
     }
 
-    .field {
-      margin-bottom: 20px;
-      padding: 20px;
-      background-color: #f9f9f9;
-      border-radius: 8px;
+    h2 {
+      margin: 12px 0;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #4c86df;
     }
 
-    .field h2 {
-      color: #4c86df;
+    .field {
       margin-bottom: 15px;
+      padding: 16px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
     }
 
     table th,
     table td {
-      padding: 12px;
+      padding: 10px;
       text-align: center;
       border-bottom: 1px solid #ddd;
+      font-size: 14px;
     }
 
     table th {
@@ -89,34 +91,42 @@
       background-color: #4c86df;
       color: #fff;
       border: none;
-      padding: 10px 20px;
+      padding: 8px 16px;
       border-radius: 4px;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 14px;
       transition: background-color 0.3s ease;
+      margin: 3px 0;
     }
-    /* 新增按钮链接样式 */
+
     button a {
       color: #fff !important;
       text-decoration: none !important;
       display: block;
     }
 
-    button:hover a {
-      color: #fff !important;
-    }
-    button:hover {
-      background-color: #3a6bb0;
-    }
-
     .province-links {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 8px;
+      margin-top: 12px;
     }
 
-    .province-links button {
-      width: 100%;
+    details {
+      margin-top: -5px;
+    }
+
+    summary {
+      font-size: 22px !important;
+      color: #4c86df;
+      text-align: center;
+      padding: 8px 0;
+      list-style: none;
+      cursor: pointer;
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
     }
 
     .desc {
@@ -129,10 +139,15 @@
     }
 
     .desc li {
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     @media (max-width: 768px) {
+      #main {
+        margin: 10px auto;
+        padding: 12px;
+      }
+
       .brand span {
         font-size: 28px;
       }
@@ -141,14 +156,33 @@
         font-size: 20px;
       }
 
+      .field {
+        padding: 12px;
+      }
+
+      table th,
+      table td {
+        padding: 8px;
+        font-size: 13px;
+      }
+
+      .province-links {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      summary {
+        font-size: 20px !important;
+      }
+    }
+
+    @media (max-width: 480px) {
       .province-links {
         grid-template-columns: repeat(2, 1fr);
       }
-    }
-/* 移动端按钮优化 */
-      table td button {
-        width: 100%;
-        margin: 5px 0; /* 增加按钮间距 */
+      
+      button {
+        padding: 6px 12px;
+        font-size: 13px;
       }
     }
   </style>
@@ -175,11 +209,11 @@
 <body>
   <div id="main">
     <div class="brand">
-      <span>中国移动</span><!--<span class="flag">活动汇总</span>-->
+      <span>中国移动</span>
     </div>
 
     <div class="field">
-      <h5 style="color: #ff0000;">当前位置：<a style="color: ; text-decoration: none;" href="#">全国及各省份列表</a></h5>
+      <h5 style="color: #ff0000; margin:8px 0;">当前位置：<a style="color: ; text-decoration: none;" href="#">全国及各省份列表</a></h5>
     </div>
 
     <h2>套餐推荐</h2>
@@ -213,8 +247,9 @@
     <h2>省份列表</h2>
     <div class="field">
       <details>
-        <summary style="font-size: 26px; color: #4c86df; text-align: center;">全国及各省份入口</summary>
+        <summary>全国及各省份入口</summary>
         <div class="province-links">
+          <!-- 省份按钮保持不变 -->
           <button><a href="10086.all.html" target="_blank">全国移动</a></button>
           <button><a href="10086.44.html" target="_blank">广东移动</a></button>
           <button><a href="10086.11.html" target="_blank">北京移动</a></button>
@@ -252,7 +287,7 @@
     </div>
 
     <div class="field desc">
-      <h4 class="title">免责声明</h4>
+      <h4>免责声明</h4>
       <ul>
         <li>
           本站所收集的部分公开资料来源于互联网，转载的目的在于传递更多信息及用于网络分享，并不代表本站赞同其观点和对其真实性负责，也不构成任何建议。本站部分内容是由网友自主投稿和发布、编辑整理上传，对此类内容本站仅提供交流平台，不为其版权负责。如果您发现本站上有侵犯您的知识产权的内容，请与我们取得联系，我们会及时修改或删除。
@@ -273,5 +308,4 @@
   <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
   <script>LA.init({ id: "3GBQy07pYlIVc3g8", ck: "3GBQy07pYlIVc3g8" })</script>
 </body>
-<textarea style="display:none"> 
 </html>
