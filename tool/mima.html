@@ -18,6 +18,7 @@
             --weak: #e74c3c;
             --medium: #f1c40f;
             --strong: #2ecc71;
+            --success: #2ecc71; /* 新增成功颜色 */
         }
 
         body {
@@ -174,12 +175,16 @@
         .copy-btn {
             background: var(--primary);
             color: white;
+            transition: 0.2s background, 0.2s transform; /* 添加过渡效果 */
         }
 
         .copy-btn:hover {
             background: var(--primary-hover);
         }
-
+		/* 添加成功状态 */
+		.copy-btn.copy-success {
+			background: var(--success) !important;
+		}
         .refresh-btn {
             background: white;
             border: 2px solid #e2e8f0;
@@ -396,16 +401,21 @@
             updateStrengthIndicator(password); // 修复强度提示
         }
 
-        function copyPassword() {
-            const password = document.getElementById('password-display').textContent;
-            navigator.clipboard.writeText(password).then(() => {
-                const btn = document.querySelector('.copy-btn');
-                btn.textContent = translations[currentLang].copied;
-                setTimeout(() => {
-                    btn.textContent = translations[currentLang].copy;
-                }, 1500);
-            });
-        }
+
+
+		function copyPassword() {
+			const password = document.getElementById('password-display').textContent;
+			navigator.clipboard.writeText(password).then(() => {
+				const btn = document.querySelector('.copy-btn');
+				// 添加成功状态
+				btn.classList.add('copy-success');
+				btn.textContent = translations[currentLang].copied;
+				setTimeout(() => {
+					btn.classList.remove('copy-success');
+					btn.textContent = translations[currentLang].copy;
+				}, 1500);
+			});
+		}
 
         function updateStrengthIndicator(password) {
             const bar = document.getElementById('strength-bar');
