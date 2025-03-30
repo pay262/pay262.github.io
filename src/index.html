@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>运营商优惠信息平台</title>
+    <style>
+        /* == 完整CSS样式 == */
+        :root {
+            --cmcc: #1890ff;
+            --cucc: #ff4d4f;
+            --ctcc: #fa8c16;
+            --cbn: #7265e6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, system-ui, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 0;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 30px;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            background: #e8e8e8;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active {
+            background: #1677ff;
+            color: white;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+        }
+
+        .operator-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+
+        .cmcc { background: var(--cmcc); color: white; }
+        .cucc { background: var(--cucc); color: white; }
+        .ctcc { background: var(--ctcc); color: white; }
+        .cbn { background: var(--cbn); color: white; }
+
+        .card h3 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .highlight {
+            color: #1677ff;
+            font-size: 1.2em;
+            margin: 8px 0;
+        }
+
+        .meta {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 12px;
+            border-top: 1px solid #eee;
+            padding-top: 12px;
+        }
+
+        .error-msg {
+            color: #ff4d4f;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #ffe7e8;
+            background: #fff2f3;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>四大运营商优惠信息</h1>
+        <div class="filter-bar">
+            <button class="filter-btn active" data-filter="all">全部</button>
+            <button class="filter-btn" data-filter="中国移动">中国移动</button>
+            <button class="filter-btn" data-filter="中国联通">中国联通</button>
+            <button class="filter-btn" data-filter="中国电信">中国电信</button>
+            <button class="filter-btn" data-filter="中国广电">中国广电</button>
+        </div>
+    </header>
+
+    <main>
+        <div class="card-grid" id="cardContainer"></div>
+        <div id="errorContainer" class="error-msg" style="display:none;"></div>
+    </main>
+
+    <script src="encrypt.js"></script>
+    <script>
+        // == 完整交互逻辑 ==
+        let allData = [];
+
+        async function init() {
+            try {
+                const encrypted = await fetch('/data.enc').then(r => r.arrayBuffer());
+                allData = await window.decryptData(encrypted);
+                renderCards();
+                initFilters();
+            } catch (e) {
+                showError('数据加载失败: ' + e.message);
+            }
+        }
+
+        function renderCards(filter = 'all') {
+            const container = document.getElementById('cardContainer');
+            const filtered = filter === 'all' 
+                ? allData 
+                : allData.filter(d => d.operator === filter);
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="error-msg">当前筛选条件下无数据</div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(item => `
+                <article class="card">
+                    <div class="operator-tag ${item.operator_class}">${item.operator}</div>
+                    <h3>${item.title}</h3>
+                    <p class="highlight">${item.highlight}</p>
+                    <div class="meta">
+                        <div>适用地区: ${item.regions.join('、')}</div>
+                        <div>有效期至: ${item.expire_date}</div>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        function initFilters() {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(b => 
+                        b.classList.remove('active'));
+                    btn.classList.add('active');
+                    renderCards(btn.dataset.filter);
+                });
+            });
+        }
+
+        function showError(msg) {
+            const container = document.getElementById('errorContainer');
+            container.style.display = 'block';
+            container.textContent = msg;
+        }
+
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
