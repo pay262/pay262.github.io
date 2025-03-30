@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>密码生成器丨Secure Password Generator</title>
+    <title>Secure Password Generator</title>
     <style>
         :root {
             --primary: #2A5C82;
@@ -233,59 +233,13 @@
             }
             
             .options {
-                grid-template-columns: 2fr;
+                grid-template-columns: 1fr;
             }
             
             .toggle-container {
                 padding: 0.8rem;
             }
         }
-
-		.lang-switcher {
-			position: absolute;
-			top: 0.5rem;  /* 减少顶部间距 */
-			right: 0.5rem;
-			display: flex;
-			gap: 0.3rem;  /* 缩小按钮间距 */
-		}
-
-		h1 {
-			margin-top: 2rem;  /* 为标题增加顶部空间 */
-		}
-
-		@media (max-width: 480px) {
-			.generator-container {
-				padding-top: 2.5rem;  /* 增加容器顶部内边距 */
-			}
-			
-			.lang-switcher {
-				top: 0.8rem;
-				right: 0.8rem;
-			}
-			
-			.lang-btn {
-				padding: 0.2rem 0.4rem;  /* 缩小按钮尺寸 */
-				font-size: 0.85rem;
-			}
-			
-			h1 {
-				font-size: 1.4rem;
-				margin-top: 1.5rem;  /* 调整标题间距 */
-				padding: 0 1rem;  /* 增加水平内边距 */
-			}
-		}
-
-		@media (max-width: 360px) {
-			.lang-switcher {
-				flex-direction: column;  /* 超小屏幕垂直排列 */
-				gap: 0.2rem;
-			}
-			
-			.lang-btn {
-				padding: 0.15rem 0.3rem;
-			}
-		}
-
     </style>
 </head>
 <body>
@@ -299,8 +253,8 @@
         
         <div class="settings-group">
             <div class="slider-container">
-                <input type="range" id="length" min="6" max="50" value="8">
-                <div class="length-display" data-key="length">长度：<span id="length-value">8</span></div>
+                <input type="range" id="length" min="8" max="50" value="12">
+                <div class="length-display" data-key="length">长度：<span id="length-value">12</span></div>
             </div>
         </div>
 
@@ -328,8 +282,8 @@
         <div class="strength-text" id="strength-text" data-key="strength">强度：中等</div>
 
         <div class="button-group">
-            <button class="copy-btn" onclick="copyPassword()" data-key="copy">📋 复制密码</button>
-            <button class="refresh-btn" onclick="generatePassword()" data-key="refresh">🔄 重新生成</button>
+            <button class="copy-btn" onclick="copyPassword()" data-key="copy">复制密码</button>
+            <button class="refresh-btn" onclick="generatePassword()" data-key="refresh">重新生成</button>
         </div>
 
         <div class="share-section">
@@ -345,7 +299,7 @@
                 numbers: "Numbers",
                 symbols: "Symbols",
                 copy: "Copy Password",
-                copied: "✔️Copied",
+                copied: "Copied!",
                 refresh: "Generate New",
                 strength: "Strength: ",
                 share: "Share Settings",
@@ -360,7 +314,7 @@
                 numbers: "数字",
                 symbols: "符号",
                 copy: "复制密码",
-                copied: "✔️已复制",
+                copied: "已复制!",
                 refresh: "重新生成",
                 strength: "强度：",
                 share: "分享配置",
@@ -481,105 +435,5 @@
         setLanguage(currentLang);
         generatePassword();
     </script>
- <!--		<script>
-		function copyPassword() {
-			const password = document.getElementById('password-display').textContent;
-			
-			// 创建临时文本域用于安卓兼容
-			const tempInput = document.createElement('textarea');
-			tempInput.value = password;
-			document.body.appendChild(tempInput);
-			
-			// 安卓兼容方案
-			const copyToClipboard = () => {
-				try {
-					// 现代浏览器方案
-					if (navigator.clipboard) {
-						navigator.clipboard.writeText(password).then(() => showFeedback());
-					} 
-					// 旧版安卓备用方案
-					else {
-						tempInput.select();
-						tempInput.setSelectionRange(0, 99999);
-						document.execCommand('copy');
-						showFeedback();
-					}
-				} catch (err) {
-					showFeedback(true);
-				} finally {
-					document.body.removeChild(tempInput);
-				}
-			};
-
-			// 显示反馈（兼容安卓Toast）
-			const showFeedback = (error = false) => {
-				const feedback = document.createElement('div');
-				feedback.style = `
-					position: fixed;
-					bottom: 20px;
-					left: 50%;
-					transform: translateX(-50%);
-					background: ${error ? '#e74c3c' : '#2ecc71'};
-					color: white;
-					padding: 12px 24px;
-					border-radius: 25px;
-					box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-					animation: slideUp 0.3s ease-out;
-					font-size: 14px;
-				`;
-				feedback.textContent = error ? 
-					'复制失败，请手动选择密码' : 
-					translations[currentLang].copied;
-				
-				document.body.appendChild(feedback);
-				
-				// 自动消失
-				setTimeout(() => {
-					feedback.style.animation = 'slideDown 0.3s ease-in';
-					setTimeout(() => feedback.remove(), 300);
-				}, 2000);
-			};
-
-			// 安卓权限处理
-			if (typeof navigator.permissions === 'object') {
-				navigator.permissions.query({name: 'clipboard-write'}).then(result => {
-					if (result.state === 'granted' || result.state === 'prompt') {
-						copyToClipboard();
-					} else {
-						showFeedback(true);
-					}
-				});
-			} else {
-				copyToClipboard();
-			}
-		}
-
-		// 添加CSS动画
-		const style = document.createElement('style');
-		style.textContent = `
-			@keyframes slideUp {
-				from { transform: translateX(-50%) translateY(100%); opacity: 0; }
-				to { transform: translateX(-50%) translateY(0); opacity: 1; }
-			}
-			@keyframes slideDown {
-				from { transform: translateX(-50%) translateY(0); opacity: 1; }
-				to { transform: translateX(-50%) translateY(100%); opacity: 0; }
-			}
-		`;
-		document.head.appendChild(style);
-		</script>-->
 </body>
- <!-- Baidu tongji analytics -->
-<script>
-var _hmt = _hmt || [];
-(function() {
-  var hm = document.createElement("script");
-  hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
-  var s = document.getElementsByTagName("script")[0]; 
-  s.parentNode.insertBefore(hm, s);
-})();
-</script>
-<script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
-<script>LA.init({id:"3GBQy07pYlIVc3g8",ck:"3GBQy07pYlIVc3g8"})</script>    
- 
 </html>
