@@ -240,6 +240,52 @@
                 padding: 0.8rem;
             }
         }
+
+		.lang-switcher {
+			position: absolute;
+			top: 0.5rem;  /* 减少顶部间距 */
+			right: 0.5rem;
+			display: flex;
+			gap: 0.3rem;  /* 缩小按钮间距 */
+		}
+
+		h1 {
+			margin-top: 2rem;  /* 为标题增加顶部空间 */
+		}
+
+		@media (max-width: 480px) {
+			.generator-container {
+				padding-top: 2.5rem;  /* 增加容器顶部内边距 */
+			}
+			
+			.lang-switcher {
+				top: 0.8rem;
+				right: 0.8rem;
+			}
+			
+			.lang-btn {
+				padding: 0.2rem 0.4rem;  /* 缩小按钮尺寸 */
+				font-size: 0.85rem;
+			}
+			
+			h1 {
+				font-size: 1.4rem;
+				margin-top: 1.5rem;  /* 调整标题间距 */
+				padding: 0 1rem;  /* 增加水平内边距 */
+			}
+		}
+
+		@media (max-width: 360px) {
+			.lang-switcher {
+				flex-direction: column;  /* 超小屏幕垂直排列 */
+				gap: 0.2rem;
+			}
+			
+			.lang-btn {
+				padding: 0.15rem 0.3rem;
+			}
+		}
+
     </style>
 </head>
 <body>
