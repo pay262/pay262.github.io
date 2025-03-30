@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title>Secure Password Generator</title>
     <style>
         :root {
@@ -299,8 +300,8 @@
         
         <div class="settings-group">
             <div class="slider-container">
-                <input type="range" id="length" min="8" max="50" value="12">
-                <div class="length-display" data-key="length">长度：<span id="length-value">12</span></div>
+                <input type="range" id="length" min="6" max="50" value="8">
+                <div class="length-display" data-key="length">长度：<span id="length-value">8</span></div>
             </div>
         </div>
 
@@ -328,8 +329,8 @@
         <div class="strength-text" id="strength-text" data-key="strength">强度：中等</div>
 
         <div class="button-group">
-            <button class="copy-btn" onclick="copyPassword()" data-key="copy">复制密码</button>
-            <button class="refresh-btn" onclick="generatePassword()" data-key="refresh">重新生成</button>
+            <button class="copy-btn" onclick="copyPassword()" data-key="copy">📋 复制密码</button>
+            <button class="refresh-btn" onclick="generatePassword()" data-key="refresh">🔄 刷新密码</button>
         </div>
 
         <div class="share-section">
@@ -345,7 +346,7 @@
                 numbers: "Numbers",
                 symbols: "Symbols",
                 copy: "Copy Password",
-                copied: "Copied!",
+                copied: "✔️Copied",
                 refresh: "Generate New",
                 strength: "Strength: ",
                 share: "Share Settings",
@@ -360,7 +361,7 @@
                 numbers: "数字",
                 symbols: "符号",
                 copy: "复制密码",
-                copied: "已复制!",
+                copied: "✔️已复制",
                 refresh: "重新生成",
                 strength: "强度：",
                 share: "分享配置",
@@ -482,4 +483,9 @@
         generatePassword();
     </script>
 </body>
+ <!-- Baidu tongji analytics -->
+    <script src="https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058"></script>  
+    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
+    <script>LA.init({id:"3GBQy07pYlIVc3g8",ck:"3GBQy07pYlIVc3g8"})</script>    
+
 </html>
