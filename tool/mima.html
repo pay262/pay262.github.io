@@ -481,6 +481,93 @@
         setLanguage(currentLang);
         generatePassword();
     </script>
+		<script>
+		function copyPassword() {
+			const password = document.getElementById('password-display').textContent;
+			
+			// 创建临时文本域用于安卓兼容
+			const tempInput = document.createElement('textarea');
+			tempInput.value = password;
+			document.body.appendChild(tempInput);
+			
+			// 安卓兼容方案
+			const copyToClipboard = () => {
+				try {
+					// 现代浏览器方案
+					if (navigator.clipboard) {
+						navigator.clipboard.writeText(password).then(() => showFeedback());
+					} 
+					// 旧版安卓备用方案
+					else {
+						tempInput.select();
+						tempInput.setSelectionRange(0, 99999);
+						document.execCommand('copy');
+						showFeedback();
+					}
+				} catch (err) {
+					showFeedback(true);
+				} finally {
+					document.body.removeChild(tempInput);
+				}
+			};
+
+			// 显示反馈（兼容安卓Toast）
+			const showFeedback = (error = false) => {
+				const feedback = document.createElement('div');
+				feedback.style = `
+					position: fixed;
+					bottom: 20px;
+					left: 50%;
+					transform: translateX(-50%);
+					background: ${error ? '#e74c3c' : '#2ecc71'};
+					color: white;
+					padding: 12px 24px;
+					border-radius: 25px;
+					box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+					animation: slideUp 0.3s ease-out;
+					font-size: 14px;
+				`;
+				feedback.textContent = error ? 
+					'复制失败，请手动选择密码' : 
+					translations[currentLang].copied;
+				
+				document.body.appendChild(feedback);
+				
+				// 自动消失
+				setTimeout(() => {
+					feedback.style.animation = 'slideDown 0.3s ease-in';
+					setTimeout(() => feedback.remove(), 300);
+				}, 2000);
+			};
+
+			// 安卓权限处理
+			if (typeof navigator.permissions === 'object') {
+				navigator.permissions.query({name: 'clipboard-write'}).then(result => {
+					if (result.state === 'granted' || result.state === 'prompt') {
+						copyToClipboard();
+					} else {
+						showFeedback(true);
+					}
+				});
+			} else {
+				copyToClipboard();
+			}
+		}
+
+		// 添加CSS动画
+		const style = document.createElement('style');
+		style.textContent = `
+			@keyframes slideUp {
+				from { transform: translateX(-50%) translateY(100%); opacity: 0; }
+				to { transform: translateX(-50%) translateY(0); opacity: 1; }
+			}
+			@keyframes slideDown {
+				from { transform: translateX(-50%) translateY(0); opacity: 1; }
+				to { transform: translateX(-50%) translateY(100%); opacity: 0; }
+			}
+		`;
+		document.head.appendChild(style);
+		</script>
 </body>
  <!-- Baidu tongji analytics -->
 <script>
