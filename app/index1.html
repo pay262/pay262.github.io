@@ -286,7 +286,7 @@
                     src="./haoka/index_cx.html"></iframe>
         </div>
     </main>
-
+</body>
 <script>
     const state = {
         menuOpen: false,
@@ -308,6 +308,14 @@
         dom.rightArrow.style.display = state.menuOpen ? 'none' : 'block';
     }
 
+    // 新增关闭侧边栏函数
+    function closeNavigation() {
+        state.menuOpen = false;
+        dom.sidebar.style.left = `calc(-1 * var(--menu-width))`;
+        dom.leftArrow.style.display = 'none';
+        dom.rightArrow.style.display = 'block';
+    }
+
     function switchContent(contentId) {
         document.querySelectorAll('.iframe-wrapper').forEach(el => el.hidden = true);
         document.getElementById(contentId).parentElement.hidden = false;
@@ -318,6 +326,9 @@
                 item.classList.add('active');
             }
         });
+
+        // 新增：切换内容后自动关闭侧边栏
+        closeNavigation();
     }
 
     function initSystem() {
@@ -346,6 +357,6 @@
 </script>
 <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
 <script>LA.init({ id: "3GBQy07pYlIVc3g8", ck: "3GBQy07pYlIVc3g8" })</script>
-</body>
+
 <textarea style="display:none"> 
 </html>
