@@ -254,3 +254,30 @@ margin-top:15px;
 	padding: 28px 32px;
 	border-radius: 17px
     }
+/* 新增过渡样式 */
+.app-list {
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease-in-out;
+  height: 0;
+  overflow: hidden;
+}
+
+.app-list.active {
+  opacity: 1;
+  visibility: visible;
+  height: auto;
+}
+
+/* 按钮激活状态 */
+.tab-item.active {
+  background: rgba(255,255,255,0.2);
+  transform: scale(0.95);
+  transition: all 0.2s ease;
+}
+
+/* 硬件加速优化 */
+.app-list {
+  will-change: opacity, transform;
+  transform: translateZ(0);
+}
