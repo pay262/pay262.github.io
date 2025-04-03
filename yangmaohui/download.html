@@ -1,255 +1,277 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-    <meta itemprop="image" content="icon.png">
-    <!--icon.png是图标名称，需放在源码根目录-->
-    <title>羊毛汇下载页</title>
-    <meta itemprop="name" content="APP下载页">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>羊毛汇 - 官方下载中心 | 通信省钱神器</title>
+    <meta name="keywords" content="羊毛汇下载,话费充值优惠,流量管理App,运营商福利">
+    <meta name="description" content="羊毛汇APP-专业提供四大运营商话费流量优惠的省钱神器，每日更新最新通信福利，助您轻松实现流量自由。">
     
-    <meta name="viewport" content="width=device-width; initial-scale=1.0; minimum-scale=1.0; maximum-scale=1.0">
-    <meta name="keywords" content="">
-    <meta name="description" content="羊毛汇APP下载页">
-    <script src="js/clipboard.min.js"></script>    
-        <style type="text/css">
-        a {
-            text-decoration: none
-        }
+    <!-- 预加载关键资源 -->
+    <link rel="preload" href="js/clipboard.min.js" as="script">
+    
+    <!-- 结构化数据 -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "羊毛汇",
+        "operatingSystem": "Android, iOS",
+        "applicationCategory": "Utilities",
+        "downloadUrl": "https://www.123pan.com/s/GYWrVv-32KHH.html"
+    }
+    </script>
 
-        body {
-            margin: 0 auto;
-            max-width: 880px;
-            box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
-            min-width: 320px;
-            padding-bottom: 0.1px
-        }
-
-        html {
-            background: #eee
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #455A64;
         }
 
         * {
-            letter-spacing: 1px;
-            font-family: 'Helvetica', 'Droidsansfallback', 'Heiti SC';
             box-sizing: border-box;
-            outline: none;
             margin: 0;
             padding: 0;
-            text-decoration: none;
-            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+            font-family: 'Helvetica', 'PingFang SC', sans-serif;
+        }
+
+        body {
+            background: #f5f5f5;
+            line-height: 1.6;
             color: #333;
         }
 
-        .icon {
-            width: 60px;
-            height: 60px;
-            margin-top: 15px;
-        }
-
-        .title {
-            font-size: 15px;
-            margin-top: 10px;
-        }
-
-        p {
-            font-size: 12pt;
-            color: #4CAF50;
-            margin-top: 5px;
-        }
-
-        .content {
-            margin-top: 10px;
-            font-size: 14px;
-            color: #757575;
-            margin-bottom: 15px;
-        }
-
-        .picture {
-            overflow-x: scroll;
-            width: 100%;
-            white-space: nowrap;
-            margin-bottom: 25px;
-        }
-
-        .child {
-            display: inline-block;
-            margin-left: 10px;
-        }
-
-        .p {
-            font-size: 12px;
-            color: #939393;
-            margin-top: 4px;
-        }
-
-        .show {
+        .container {
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 20px 15px;
             background: #fff;
-            box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.2);
-            border-radius: 2px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .app-icon {
+            width: 90px;
+            height: 90px;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .download-buttons {
+            display: grid;
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .download-btn {
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            border: none;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .download-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .qr-section {
+            text-align: center;
+            padding: 25px 0;
+        }
+
+        .qr-code {
+            width: 150px;
+            height: 150px;
+            padding: 10px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .screenshots {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            padding: 20px 0;
+        }
+
+        .screenshot {
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .changelog {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            .download-btn {
+                width: 100%;
+            }
+        }
+
+        /* Toast提示 */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.85);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
             font-size: 14px;
-            color: #616161;
-            word-wrap: break-word;
-            padding-top: 10px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
         }
 
-        .down {
-            border-top-left-radius: 0.5em;
-            border-top-right-radius: 0.5em;
-            border-bottom-left-radius: 0.5em;
-            border-bottom-right-radius: 0.5em;
-            border-top-width: 0px;
-            border-right-width: 0px;
-            border-bottom-width: 0px;
-            border-left-width: 0px;
-            margin-top: 10px;
-            color: #ffffff;
-            background: #4CAF50;
-            width: 100px;
-            height: 30px;
-            margin-bottom: 20px;
-        }
-
-        .review {
-            margin: 15px;
-            font-size: 14px;
-            color: #424242
-        }
-
-        .user {
-            margin-left: 15px;
-            margin-top: 10px;
-        }
-
-        .title2 {
-            color: #455A64;
-            margin-top: 5px;
-            margin-left: 30px;
-            font-size: 14px;
+        .toast.show {
+            opacity: 1;
         }
     </style>
-
 </head>
-    <script>
-        function toUrl(url, msg = '') {
-            if (msg) {
-                alert(msg);
-            }
-            return window.location = url;
-        }
-        
-       function copyBtn() {
-         new ClipboardJS('.btn',{text:function(trigger) { return 'https://sourl.cn/U88mdD';} });
-        alert('复制成功');
-       }
-    </script>
 
 <body>
+    <div class="container">
+        <header class="header">
+            <img src="image/icon.png" alt="羊毛汇APP图标" class="app-icon" 
+                 loading="eager" width="90" height="90">
+            <h1>羊毛汇</h1>
+            <p style="color: var(--secondary-color); margin-top: 10px;">
+                你的移动生活省钱管家，畅享流量自由！
+            </p>
+            <div style="margin-top: 15px; color: #666;">
+                <span>版本 3.0.0</span> · 
+                <span>25.04MB</span>
+            </div>
+        </header>
 
-<div class="show" align="center">
+        <main>
+            <section class="download-buttons">
+                <button class="download-btn" 
+                        onclick="window.location.href='https://www.123pan.com/s/GYWrVv-32KHH.html'">
+                    安卓版下载
+                </button>
+                <button class="download-btn" 
+                        onclick="window.location.href='https://pay262.github.io/h5/'">
+                    苹果版下载
+                </button>
+                <button class="download-btn copy-btn" 
+                        data-clipboard-text="https://sourl.cn/U88mdD">
+                    复制下载链接
+                </button>
+            </section>
 
-    <img referrerpolicy="no-referrer" class="icon" src="image/icon.png">
-    <div class="title"><b>羊毛汇</br> 你的移动生活省钱管家，畅享流量自由！</b></div>
-    <div class="p">
-    版本：3.0.0    大小：25.04MB    </div>
-  
-              <!--上面数字自己改-->
-<button class="down" onclick="window.location.href ='https://www.123pan.com/s/GYWrVv-32KHH.html'">安卓版</button>
-  <button class="down" onclick="window.location.href ='https://pay262.github.io/h5/'">苹果版</button>
-   <button class="down btn" onclick="copyBtn()" href="javascript:;">复制本页链接</button>
-</div>
+            <section class="qr-section">
+                <p style="font-weight: 500; margin-bottom: 15px;">扫码下载</p>
+                <img src="image/app.png" alt="下载二维码" 
+                     class="qr-code" loading="lazy" 
+                     width="150" height="150">
+            </section>
 
-  
-<!--二维码-->
-<div class="show" style="margin-top: 15px;padding-left: 15px;padding-right: 5px;">
-  <p style="text-align:center;font-weight:700;">扫码下载<br><img src="image/app.png" width="120px; " height="120px;"></p>
-  
-  <p>软件简介<a style="color: #FF00FF"></a></p>
-    <div class="content"> 
-    「羊毛汇」是一款专注于通信福利的实用工具App，致力于为用户挖掘四大运营商（移动、联通、电信、广电）的隐藏优惠，一站式解决话费充值、流量管理、网络优化需求，助你轻松实现“薅羊毛”自由，告别流量焦虑！
+            <section class="app-info">
+                <h2 style="margin-bottom: 15px;">软件介绍</h2>
+                <p style="color: #666; line-height: 1.8;">
+                    「羊毛汇」是一款专注于通信福利的实用工具App，致力于为用户挖掘四大运营商（移动、联通、电信、广电）的隐藏优惠，一站式解决话费充值、流量管理、网络优化需求，助你轻松实现“薅羊毛”自由，告别流量焦虑！
+                </p>
+            </section>
 
-  </div>
+            <section class="screenshots">
+                <img src="image/01.png" alt="截图1" class="screenshot">
+                <img src="image/02.png" alt="截图2" class="screenshot">
+                <img src="image/03.png" alt="截图3" class="screenshot">
+                <img src="image/04.png" alt="截图4" class="screenshot">
+            </section>
 
+            <section class="changelog">
+                <h3>更新日志</h3>
+                <ul style="margin-top: 15px; list-style: none;">
+                    <li style="padding: 8px 0; border-bottom: 1px solid #eee;">
+                        <strong>v3.0.0</strong> (2023-11-20)<br>
+                        全新底层代码，修复卡顿BUG
+                    </li>
+                    <!-- 其他版本日志... -->
+                </ul>
+            </section>
+        </main>
 
+        <footer style="text-align: center; padding: 30px 0; color: #888;">
+            <p style="font-size: 12px;">
+                © 2019-<script>document.write(new Date().getFullYear())</script> 羊毛汇 版权所有<br>
+                本软件仅限学习交流使用
+            </p>
+        </footer>
 
-
-      <p>软件截图【向左滑动查看更多】</p><br>
-    <div class="picture">
-        <a href="#">
-            <img referrerpolicy="no-referrer" src="image/01.png" width="49%" height="100%">
-        </a>
-      <a href="#">
-        <img referrerpolicy="no-referrer" src="image/02.png" width="49%" height="100% ">
-        </a>
-      
-        <a href="#">
-         <img referrerpolicy="no-referrer" src="image/03.png" width="49%" height="100%">
-        </a>
-       <a href="#">
-          <img referrerpolicy="no-referrer" src="image/04.png" width="49%" height="100%">
-        </a>
-       <a href="#">
-         <img referrerpolicy="no-referrer" src="image/05.png" width="49%" height="100%">
-        </a>
-      
-      
-       
-        <!--把软件截图上传到任意图床，把上面src=后面的网址改成你上传图床的图片链接。
-              如果要添加新截图就把上面 <a href="./"> 到离它最近的</a>复制下来，改链接然后放到下面</div>上面。-->
+        <!-- Toast提示容器 -->
+        <div id="toast" class="toast"></div>
     </div>
-    <p>更新日志:</p>
-    <div class="content"> 
-    3.0.0:全新底层代码，修复卡顿BUG——2023年11月20日</br>         
-    2.3.1:新增每日福利，AI绘画等——2023年10月24日</br>                     
-    2.2.2:修复bug——2023年9月6日</br>             
-    2.2.0:修复bug——2023年8月26日</br>     
-    2.1.0:修复bug——2023年8月10日</br>
-    2.0.34:修复bug——2023年6月10日</br>
-    2.0.2：新增卡圈动态——20230321</br>
-    2.0.20230216.1：优化体验！——2023年2月16日</br>
-      2.0.20230213：修复闪退问题！支持新版系统！优化体验！——2023年2月13日</br>
-      1.3.20230221.4：优化体验！——2023年2月21日</br>
-      1.3.20230212.3：紧急修复bug！！——2023年2月12日</br>
-      1.3.20230212.2：紧急修复bug！！——2023年2月12日</br>
-      1.3.20230211.1：紧急修复bug！！——2023年2月11日</br>
-       1.3.20230209：优化体验。特别感谢吾大指导！——2023年2月9日</br>
-       1.2.20230208：优化体验。特别感谢吾大指导！——2023年2月8日</br>
-   1.1.20230208：优化体验——2023年2月8日</br>
-      1.0.3：优化体验！——2023年2月2日</br>
-      1.0.2：优化体验！——2023年1月26日</br>       1.0.1：优化体验！——2023年1月24日</br>
-      新版本1.0更名为：羊毛汇——2023年1月17日
-      。同时原免流工具箱不再维护，敬请卸载。</br>
-      1.1.12：修复未知错误——2022年7月3日</br>
-      1.1.11：新增中国广电——2022年5月17日</br>
-      1.1.1：新增UA获取、电信app下载——2022年5月16日</br>
-      1.1.0：优化体验——2022年4月28日</br>
-      1.0：免流工具箱——首发于2022年4月27日
-      </br>主要功能有：内部套餐办理，各种羊毛福利，高清影视，运营商福利活动，测网速，ip查询等，更多福利等你来发现！
 
+    <script src="js/clipboard.min.js"></script>
+    <script>
+        // 初始化剪贴板
+        new ClipboardJS('.copy-btn').on('success', function(e) {
+            showToast('链接已复制到剪贴板');
+        });
 
-</div>
+        // 显示Toast提示
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
 
+        // 图片懒加载
+        document.addEventListener("DOMContentLoaded", function() {
+            const lazyImages = [].slice.call(document.querySelectorAll("img[loading='lazy']"));
+            
+            if ("IntersectionObserver" in window) {
+                let lazyImageObserver = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            let lazyImage = entry.target;
+                            lazyImage.src = lazyImage.dataset.src;
+                            lazyImageObserver.unobserve(lazyImage);
+                        }
+                    });
+                });
 
-<div style="width=100%;padding: 5px;" align="center">
+                lazyImages.forEach(function(lazyImage) {
+                    lazyImageObserver.observe(lazyImage);
+                });
+            }
+        });
+    </script>
 
-    <div style="text-align:center;font-size:12px;color:#adadad;margin:10px;margin-bottom: 35px;">本软件仅学习交流，禁止商业或非法用途以及恶意传播。
-    </br>Copyight ©<script>document.write( new Date().getFullYear() );</script> 羊毛汇 版权所有
-        <!--版权自己改。。-->
-    </div>
-</div>
-
-</div>
-
- <!-- Baidu tongji analytics -->
-<script>
-var _hmt = _hmt || [];
-(function() {
-  var hm = document.createElement("script");
-  hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
-  var s = document.getElementsByTagName("script")[0]; 
-  s.parentNode.insertBefore(hm, s);
-})();
-</script>
-<script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
-<script>LA.init({id:"3GBQy07pYlIVc3g8",ck:"3GBQy07pYlIVc3g8"})</script>    
- <textarea style="display:none">   
-</body></html>
+    <!-- 统计代码 -->
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
+    <script>LA.init({id:"3GBQy07pYlIVc3g8",ck:"3GBQy07pYlIVc3g8"})</script>
+</body>
+</html>
