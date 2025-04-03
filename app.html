@@ -936,49 +936,36 @@ var _hmt = _hmt || [];
     </body>
 <script>
 jQuery(document).ready(function($) {
-      $(".a1").css("display", "flex");
-    $(".a2").css("display", "none");
-        $(".a3").css("display", "none");
-        $(".a4").css("display", "none");
-   $(document).ready(function(){
-  $(".tx").click(function(){
-      $(".a1").css("display", "flex");
-    $(".a2").css("display", "none");
-        $(".a3").css("display", "none");
-        $(".a4").css("display", "none");
-  });
-  });
-  
-  
-  $(document).ready(function(){
-  $(".jr").click(function(){
-      $(".a1").css("display", "none");
-    $(".a2").css("display", "flex");
-        $(".a3").css("display", "none");
-        $(".a4").css("display", "none"); 
- });
-  
-  });
-  
-  $(document).ready(function(){
-  $(".dh").click(function(){
-      $(".a1").css("display", "none");
-    $(".a2").css("display", "none");
-        $(".a3").css("display", "flex");
-        $(".a4").css("display", "none");
-  });
-    
-});
-  $(document).ready(function(){
-  $(".gy").click(function(){
-      $(".a1").css("display", "none");
-    $(".a2").css("display", "none");
-        $(".a3").css("display", "none");
-        $(".a4").css("display", "flex");
-  });
-    
-});
+  // 初始状态
+  $(".a1").addClass('active');
+  $(".tx").addClass('active');
 
+  // 切换函数
+  function switchTab(targetTab, activeBtn) {
+    $(".app-list").removeClass('active');
+    $(targetTab).addClass('active');
+    
+    $(".tab-item").removeClass('active');
+    $(activeBtn).addClass('active');
+  }
+
+  $(document).ready(function(){
+    $(".tx").click(function(){
+      switchTab(".a1", this);
+    });
+    
+    $(".jr").click(function(){
+      switchTab(".a2", this);
+    });
+    
+    $(".dh").click(function(){
+      switchTab(".a3", this);
+    });
+    
+    $(".gy").click(function(){
+      switchTab(".a4", this);
+    });
+  });
 });
 </script>
 <!-- 
