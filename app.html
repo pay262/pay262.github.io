@@ -87,43 +87,38 @@
 
     <script>
         // 优化后的JavaScript
-        document.addEventListener('DOMContentLoaded', () => {
-            const tabs = {
-                tx: '.a1',
-                jr: '.a2',
-                dh: '.a3',
-                gy: '.a4'
-            };
+ jQuery(document).ready(function($) {
+  // 初始状态
+  $(".a1").addClass('active');
+  $(".tx").addClass('active');
 
-            let activeTab = null;
-            let isAnimating = false;
+  // 切换函数
+  function switchTab(targetTab, activeBtn) {
+    $(".app-list").removeClass('active');
+    $(targetTab).addClass('active');
+    
+    $(".tab-item").removeClass('active');
+    $(activeBtn).addClass('active');
+  }
 
-            function switchTab(target) {
-                if (isAnimating || target === activeTab) return;
-                isAnimating = true;
-
-                const currentActive = document.querySelector('.app-list.active');
-                const newActive = document.querySelector(target);
-
-                // 添加入场动画类
-                newActive.style.display = 'grid';
-                newActive.classList.add('active');
-                
-                // 移除旧tab激活状态
-                currentActive.classList.remove('active');
-                document.querySelector('.tab-item.active').classList.remove('active');
-                
-                // 更新按钮状态
-                event.target.classList.add('active');
-                
-                // 动画完成后处理
-                setTimeout(() => {
-                    currentActive.style.display = 'none';
-                    activeTab = target;
-                    isAnimating = false;
-                }, 300);
-            }
-
+  $(document).ready(function(){
+    $(".tx").click(function(){
+      switchTab(".a1", this);
+    });
+    
+    $(".jr").click(function(){
+      switchTab(".a2", this);
+    });
+    
+    $(".dh").click(function(){
+      switchTab(".a3", this);
+    });
+    
+    $(".gy").click(function(){
+      switchTab(".a4", this);
+    });
+  });
+});
             // 事件委托
             document.querySelector('.tab-list').addEventListener('click', (e) => {
                 const tab = e.target.closest('.tab-item');
