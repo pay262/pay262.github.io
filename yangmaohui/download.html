@@ -18,7 +18,7 @@
         "name": "羊毛汇",
         "operatingSystem": "Android, iOS",
         "applicationCategory": "Utilities",
-        "downloadUrl": "https://pan.quark.cn/s/d435f816a7ac"
+        "downloadUrl": "https://www.123pan.com/s/GYWrVv-32KHH.html"
     }
     </script>
 
@@ -146,6 +146,40 @@
         .toast.show {
             opacity: 1;
         }
+		/* 新增轮播图容器样式 */
+		.screenshots-container {
+			width: 100%;
+			overflow-x: auto;
+			padding-bottom: 15px; /* 留出滚动条空间 */
+			scroll-behavior: smooth;
+			-webkit-overflow-scrolling: touch; /* 优化移动端滚动 */
+		}
+
+		/* 修改原有.screenshots样式 */
+		.screenshots {
+			display: inline-flex;  /* 改为行内弹性布局 */
+			gap: 15px;
+			padding: 0 15px;      /* 添加左右内边距 */
+			min-width: 100%;      /* 确保内容撑开 */
+		}
+
+		/* 调整图片样式 */
+		.screenshot {
+			width: 280px;         /* 固定宽度 */
+			height: 500px;        /* 固定高度 */
+			object-fit: cover;     /* 保持图片比例 */
+			border-radius: 12px;
+			box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+			flex-shrink: 0;       /* 禁止图片收缩 */
+		}
+
+		/* 移动端适配 */
+		@media (max-width: 768px) {
+			.screenshot {
+				width: 240px;
+				height: 420px;
+			}
+		}
     </style>
 </head>
 
@@ -194,12 +228,16 @@
                 </p>
             </section>
 
-            <section class="screenshots">
-                <img src="image/01.png" alt="截图1" class="screenshot">
-                <img src="image/02.png" alt="截图2" class="screenshot">
-                <img src="image/03.png" alt="截图3" class="screenshot">
-                <img src="image/04.png" alt="截图4" class="screenshot">
-            </section>
+		<!-- 修改HTML结构 -->
+		<section class="screenshots-container">
+			<div class="screenshots">
+				<img src="image/01.png" alt="截图1" class="screenshot">
+				<img src="image/02.png" alt="截图2" class="screenshot">
+				<img src="image/03.png" alt="截图3" class="screenshot">
+				<img src="image/04.png" alt="截图4" class="screenshot">
+				<img src="image/05.png" alt="截图5" class="screenshot">
+			</div>
+		</section>
 
             <section class="changelog">
                 <h3>更新日志</h3>
