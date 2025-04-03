@@ -935,36 +935,64 @@ var _hmt = _hmt || [];
 
     </body>
 <script>
-jQuery(document).ready(function($) {
-  // 初始状态
-  $(".a1").addClass('active');
-  $(".tx").addClass('active');
+// 优化后的JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+  const tabs = {
+    tx: '.a1',
+    jr: '.a2',
+    dh: '.a3',
+    gy: '.a4'
+  };
 
-  // 切换函数
-  function switchTab(targetTab, activeBtn) {
-    $(".app-list").removeClass('active');
-    $(targetTab).addClass('active');
-    
-    $(".tab-item").removeClass('active');
-    $(activeBtn).addClass('active');
+  const tabKeys = Object.keys(tabs);
+  let isAnimating = false;
+
+  function switchTab(targetClass) {
+    if (isAnimating) return;
+    isAnimating = true;
+
+    // 使用requestAnimationFrame优化动画流程
+    requestAnimationFrame(() => {
+      // 批量DOM操作
+      document.querySelectorAll('.app-list').forEach(el => {
+        el.classList.remove('active');
+      });
+      
+      document.querySelector(targetClass).classList.add('active');
+      
+      // 优化类切换
+      document.querySelectorAll('.tab-item').forEach((el, index) => {
+        el.classList.toggle('active', tabKeys[index] === targetClass.slice(1));
+      });
+
+      isAnimating = false;
+    });
   }
 
-  $(document).ready(function(){
-    $(".tx").click(function(){
-      switchTab(".a1", this);
-    });
-    
-    $(".jr").click(function(){
-      switchTab(".a2", this);
-    });
-    
-    $(".dh").click(function(){
-      switchTab(".a3", this);
-    });
-    
-    $(".gy").click(function(){
-      switchTab(".a4", this);
-    });
+  // 使用事件委托
+  document.querySelector('.tab-list').addEventListener('click', function(e) {
+    const target = e.target.closest('.tab-item');
+    if (!target || isAnimating) return;
+
+    const targetTab = tabs[target.classList[1]];
+    if (targetTab) {
+      // 使用CSS自定义属性传递点击位置
+      const rect = target.getBoundingClientRect();
+      document.documentElement.style.setProperty('--click-x', `${rect.left + rect.width/2}px`);
+      document.documentElement.style.setProperty('--click-y', `${rect.top + rect.height/2}px`);
+      
+      switchTab(targetTab);
+    }
+  });
+
+  // 预加载关键资源
+  const criticalImages = [
+    'index/picture/10086.png',
+    'index/picture/10010.png',
+    'index/picture/10000.png'
+  ];
+  criticalImages.forEach(src => {
+    new Image().src = src;
   });
 });
 </script>
