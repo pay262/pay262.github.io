@@ -180,6 +180,17 @@
 				height: 420px;
 			}
 		}
+.toast {
+    /* 原有样式保持不变 */
+    transition: opacity 0.3s, transform 0.3s;
+    transform: translateY(20px);
+    opacity: 0;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
     </style>
 </head>
 
@@ -297,6 +308,54 @@
                 });
             }
         });
+
+    document.addEventListener('DOMContentLoaded', function() {
+    // 初始化剪贴板功能
+    const clipboard = new ClipboardJS('.copy-btn', {
+        text: function(trigger) {
+            return trigger.getAttribute('data-clipboard-text');
+        }
+    });
+
+    // 成功回调
+    clipboard.on('success', function(e) {
+        showToast('链接已复制到剪贴板');
+        e.clearSelection(); // 清除文本选择
+    });
+
+    // 失败处理
+    clipboard.on('error', function(e) {
+        console.error('复制失败:', e.action);
+        showToast('复制失败，请手动长按复制');
+        
+        // 降级方案：自动选中文本
+        const tempInput = document.createElement('input');
+        tempInput.value = e.text;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+    });
+});
+
+// 增强版Toast提示
+function showToast(message, duration=2000) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+
+    // 添加动画效果
+    setTimeout(() => {
+        toast.style.transition = 'opacity 0.5s';
+        toast.style.opacity = '0';
+    }, duration - 500);
+
+    setTimeout(() => {
+        toast.classList.remove('show');
+        toast.style.removeProperty('transition');
+        toast.style.removeProperty('opacity');
+    }, duration);
+}
     </script>
 
     <!-- 统计代码 -->
