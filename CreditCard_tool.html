@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>信用卡智能匹配系统｜金融中介专用</title>
+	<script src="https://hm.baidu.com/hm.js?8011763cb497f7b00f2e4d502a337c0b"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        body {
+            background: #f5f7fa;
+            padding: 20px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .container {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+        .form-item {
+            margin-bottom: 18px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #34495e;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+        }
+        select:focus {
+            border-color: #3498db;
+        }
+        .btn-match {
+            width: 100%;
+            padding: 12px;
+            background: #2d8cf0;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px 0 20px;
+        }
+        .btn-match:hover {
+            background: #2b85e4;
+        }
+        .result {
+            padding: 18px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            border-left: 4px solid #2d8cf0;
+            display: none;
+        }
+        .result.show {
+            display: block;
+        }
+        .result h3 {
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        .result .card-name {
+            font-size: 18px;
+            color: #e74c3c;
+            font-weight: bold;
+            margin: 6px 0;
+        }
+        .result .reason {
+            color: #34495e;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+        .result .alternative {
+            color: #7f8c8d;
+            margin-top: 8px;
+            font-size: 13px;
+        }
+        .tip {
+            color: #999;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>信用卡智能匹配系统</h1>
+        <p class="subtitle">金融中介专用｜输入信息 → 自动匹配最优卡种</p>
+
+        <div class="form-item">
+            <label>1. 客户职业类型</label>
+            <select id="job">
+                <option value="student">学生/刚毕业</option>
+                <option value="stable">体制内/国企/事业单位</option>
+                <option value="company">上市公司/外企</option>
+                <option value="normal">小微企业/普通职员</option>
+                <option value="free">自由职业/个体户</option>
+                <option value="wealth">高净值/私银客户</option>
+            </select>
+        </div>
+
+        <div class="form-item">
+            <label>2. 是否连续缴纳社保/公积金</label>
+            <select id="social">
+                <option value="yes">是</option>
+                <option value="no">否</option>
+            </select>
+        </div>
+
+        <div class="form-item">
+            <label>3. 客户月均收入</label>
+            <select id="income">
+                <option value="low">5000元以下</option>
+                <option value="mid">5000-10000元</option>
+                <option value="high">10000-20000元</option>
+                <option value="top">20000元以上</option>
+                <option value="wealth">50000元以上</option>
+            </select>
+        </div>
+
+        <div class="form-item">
+            <label>4. 征信情况</label>
+            <select id="credit">
+                <option value="good">无逾期、查询少</option>
+                <option value="normal">少量查询、无逾期</option>
+                <option value="bad">有逾期/征信花/负债高</option>
+            </select>
+        </div>
+
+        <div class="form-item">
+            <label>5. 当前已持信用卡行数</label>
+            <select id="cardNum">
+                <option value="few">0-3行</option>
+                <option value="mid">4-6行</option>
+                <option value="many">6行以上</option>
+            </select>
+        </div>
+
+        <div class="form-item">
+            <label>6. 核心用卡需求</label>
+            <select id="need">
+                <option value="car">加油/车主权益</option>
+                <option value="travel">商旅/机场贵宾厅/里程</option>
+                <option value="cashback">日常消费返现</option>
+                <option value="free">免年费/低门槛</option>
+                <option value="health">健康/贵宾服务</option>
+                <option value="overseas">境外消费/跨境出行</option>
+                <option value="game">游戏/娱乐权益</option>
+                <option value="family">亲子/家庭权益</option>
+            </select>
+        </div>
+
+        <div class="form-item">
+            <label>7. 可接受年费</label>
+            <select id="fee">
+                <option value="free">0年费/刷笔数免</option>
+                <option value="low">480元以内</option>
+                <option value="mid">800元以内</option>
+                <option value="high">高端卡不限制</option>
+            </select>
+        </div>
+
+        <button class="btn-match" onclick="matchCard()">立即匹配最优卡种</button>
+
+        <div class="result" id="result">
+            <h3>🎯 匹配结果</h3>
+            <div class="card-name" id="cardName"></div>
+            <div class="reason" id="reason"></div>
+            <div class="alternative" id="alternative"></div>
+        </div>
+
+        <p class="tip">本工具仅为资质匹配参考，最终以银行审批为准</p>
+    </div>
+
+    <script>
+        // 信用卡数据库 - 2026最新完整版
+        const cardDatabase = [
+            // 建设银行
+            {bank: "建设银行", name: "龙卡运通耀红卡", level: "入门", condition: {job: ["student", "normal"], social: ["yes", "no"], income: ["low", "mid"], credit: ["good", "normal"], cardNum: ["few"], need: ["free", "cashback"], fee: ["free"]}, reason: "终身免年费，瑞幸/喜茶满20减5，适合学生/新手"},
+            {bank: "建设银行", name: "正青春卡", level: "入门", condition: {job: ["student", "normal"], social: ["yes", "no"], income: ["low", "mid"], credit: ["good", "normal"], cardNum: ["few"], need: ["free", "cashback"], fee: ["free"]}, reason: "云闪付满20随机返现，新户礼丰厚，刷10笔免当年，年轻人首选"},
+            {bank: "建设银行", name: "龙卡汽车卡", level: "大众", condition: {job: ["stable", "company", "normal"], social: "yes", income: ["mid", "high"], credit: ["good", "normal"], cardNum: ["few", "mid"], need: "car", fee: ["low"]}, reason: "每周1次优惠洗车+积分换油，200元刚性年费，适合高频用车的务实车主"},
+            {bank: "建设银行", name: "家庭挚爱卡", level: "高端", condition: {job: ["stable", "company"], social: "yes", income: ["high"], credit: "good", cardNum: ["few", "mid"], need: "family", fee: ["mid"]}, reason: "6次代驾+2次接送机+亲子权益，580元年费可用20万积分抵扣，适合已婚家庭"},
+            {bank: "建设银行", name: "大山白（尊享白金）", level: "顶级", condition: {job: ["stable", "company", "wealth"], social: "yes", income: ["top", "wealth"], credit: "good", cardNum: ["few", "mid"], need: "travel", fee: ["high"]}, reason: "无限龙腾+3次接送机+2晚高端酒店，1800元年费可用40万积分抵扣，高端商旅客户首选"},
+            
+            // 农业银行
+            {bank: "农业银行", name: "金穗QQ联名卡", level: "入门", condition: {job: ["student", "normal"], social: ["yes", "no"], income: ["low", "mid"], credit: ["good", "normal"], cardNum: ["few"], need: ["game", "free"], fee: ["free"]}, reason: "腾讯会员优惠，首年免年费，刷5次免次年，适合年轻用户"},
+            {bank: "农业银行", name: "悠然悦白金", level: "大众", condition: {job: ["stable", "company"], social: "yes", income: ["mid", "high"], credit: ["good", "normal"], cardNum: ["few", "mid"], need: "health", fee: ["free"]}, reason: "三甲医院预约挂号+5倍积分，首年免年费，刷6次免次年，适合注重健康的家庭用户"},
+            {bank: "农业银行", name: "万事达超然商务卡", level: "大众", condition: {job: ["stable", "company", "normal"], social: ["yes", "no"], income: ["mid", "high"], credit: ["good", "normal"], cardNum: ["few", "mid"], need: "overseas", fee: ["free"]}, reason: "境外3%返现+机票/高铁优惠券，有效期内免年费，适合商旅出行"},
+            {bank: "农业银行", name: "尊然白金卡（精粹版）", level: "高端", condition: {job: ["stable"], social: "yes", income: ["high", "top"], credit: "good", cardNum: ["few", "mid"], need: "travel", fee: ["mid"]}, reason: "机场贵宾厅+医疗服务，体制内客户通过率高，880元年费可积分兑换"},
+            {bank: "农业银行", name: "尊然钻石卡", level: "顶级", condition: {job: ["wealth"], social: "yes", income: ["wealth"], credit: "good", cardNum: ["few"], need: "travel", fee: ["high"]}, reason: "无限次机场贵宾厅+高端酒店礼遇，3600元刚性年费，适合超高净值客户"},
+            
+            // 工商银行
+            {bank: "工商银行", name: "星座卡", level: "入门", condition: {job: ["student", "normal"], social: ["yes", "no"], income: ["low", "mid"], credit: ["good", "normal"], cardNum: ["few"], need: ["free"], fee: ["free"]}, reason: "刷5笔免当年，生日月双倍积分，年轻人/星座爱好者首选"},
+            {bank: "工商银行", name: "故宫联名卡", level: "入门", condition: {job: ["stable", "company", "normal"], social: ["yes", "no"], income: ["low", "mid", "high"], credit: ["good", "normal"], cardNum: ["few", "mid", "many"], need: ["free"], fee: ["free"]}, reason: "文化主题权益+积分兑换文创，刷5笔免当年，适合文化爱好者"},
+            {bank: "工商银行", name: "祥运卡（运通版）", level: "大众", condition: {job: ["stable", "company", "normal"], social: ["yes", "no"], income: ["mid", "high"], credit: ["good", "normal"], cardNum: ["few", "mid"], need: ["cashback"], fee: ["free"]}, reason: "餐饮/购物折扣+旅行保障，刷12次免当年，日常消费首选"},
+            {bank: "工商银行", name: "环球旅行卡", level: "高端", condition: {job: ["stable", "company", "wealth"], social: "yes", income: ["high", "top"], credit: "good", cardNum: ["few", "mid"], need: "overseas", fee: ["high"]}, reason: "全球机场贵宾厅+旅行保险，2000元年费可用40万积分抵扣，国际旅行首选"},
+            
+            // 中国银行
+            {bank: "中国银行", name: "长城优卡", level: "入门", condition: {job: ["stable", "company", "normal"], social: ["yes", "no"], income: ["low", "mid"], credit: ["good", "normal"], cardNum: ["few"], need: ["free"], fee: ["free"]}, reason: "刷12笔免年费，线上消费返现，懒人福音，低维护成本"},
+            {bank: "中国银行", name: "长城环球通金卡", level: "入门", condition: {job: ["stable", "company", "normal"], social: ["yes", "no"], income: ["mid", "high"], credit: ["good", "normal"], cardNum: ["few", "mid"], need: "overseas", fee: ["free"]}, reason: "全球交易人民币结算，免货币转换费，刷6次免当年，跨境消费首选"},
+            
+            // 招商银行
+            {bank: "招商银行", name: "YOUNG卡", level: "入门", condition: {job: ["student", "normal"], social: ["yes", "no"], income: ["low", "mid"], credit: ["good", "normal"], cardNum: ["few"], need: ["free", "cashback"], fee: ["free"]}, reason: "新户礼+取现免手续费，刷6次免当年，刚毕业年轻人首卡首选"},
+            {bank: "招商银行", name: "王者荣耀联名", level: "入门", condition: {job: ["student", "normal"], social: ["yes", "no"], income: ["low", "mid"], credit: ["good", "normal"], cardNum: ["few"], need: "game", fee: ["free"]}, reason: "游戏礼包+专属积分，刷6次免当年，游戏爱好者首选"},
+            {bank: "招商银行", name: "经典白", level: "高端", condition: {job: ["stable", "company", "wealth"], social: "yes", income: ["high", "top"], credit: "good", cardNum: ["few", "mid"], need: "travel", fee: ["high"]}, reason: "3:1换航司里程+机场贵宾厅，3600元年费可用1万积分抵扣，高端客户首选"},
+            
+            // 广发银行
+            {bank: "广发银行", name: "犀利卡", level: "入门", condition: {job: ["stable", "company", "normal", "free"], social: ["yes", "no"], income: ["low", "mid"], credit: ["good", "normal"], cardNum: ["few"], need: "cashback", fee: ["free"]}, reason: "百货/超市/餐饮返现5%，首年免年费，刷6次免次年，日常消费返现党首选"},
+            {bank: "广发银行", name: "多利白金卡", level: "大众", condition: {job: ["stable", "company", "normal", "free"], social: ["yes", "no"], income: ["low", "mid", "high"], credit: ["good", "normal"], cardNum: ["few", "mid", "many"], need: "cashback", fee: ["free", "low"]}, reason: "美团/滴滴/京东高返现，绑定支付即可免年费，日常消费性价比最高"},
+            {bank: "广发银行", name: "车主臻享白金", level: "大众", condition: {job: ["stable", "company", "normal"], social: "yes", income: ["mid", "high"], credit: ["good", "normal"], cardNum: ["few", "mid"], need: "car", fee: ["mid"]}, reason: "加油返现250元/月+免费洗车+道路救援，800元年费可刷免，车主权益全面，性价比高"},
+            {bank: "广发银行", name: "南航臻享白金卡", level: "高端", condition: {job: ["stable", "company", "normal"], social: "yes", income: ["mid", "high"], credit: ["good", "normal"], cardNum: ["few", "mid"], need: "travel", fee: ["mid"]}, reason: "10元=1南航里程+无限贵宾厅，适合南航常旅客"},
+            
+            // 中信银行
+            {bank: "中信银行", name: "颜卡系列", level: "入门", condition: {job: ["student", "normal"], social: ["yes", "no"], income: ["low", "mid"], credit: ["good", "normal"], cardNum: ["few"], need: ["free"], fee: ["free"]}, reason: "颜值设计+新户礼，刷12次免当年，颜值党/年轻人首选"},
+            {bank: "中信银行", name: "i白金", level: "入门", condition: {job: ["stable", "company", "normal"], social: ["yes", "no"], income: ["mid", "high"], credit: ["good", "normal"], cardNum: ["few", "mid"], need: "travel", fee: ["free"]}, reason: "航班延误险+咖啡兑换，首年免年费，刷12次免次年，商旅人士首选"},
+            {bank: "中信银行", name: "Safari精英白", level: "高端", condition: {job: ["stable", "company", "normal"], social: ["yes", "no"], income: ["mid", "high"], credit: ["good", "normal"], cardNum: ["mid", "many"], need: "travel", fee: ["mid"]}, reason: "6点贵宾厅+接送机，审批宽松，适合已持多行卡的商旅人士"},
+            
+            // 交通银行
+            {bank: "交通银行", name: "腾讯超V联名", level: "入门", condition: {job: ["stable", "company", "normal", "free"], social: ["yes", "no"], income: ["low", "mid", "high"], credit: ["good", "normal"], cardNum: ["few", "mid", "many"], need: ["game", "cashback"], fee: ["free"]}, reason: "超240元新户福利+腾讯生态消费优惠，首年免年费，刷6次免次年，腾讯生态高频用户首选"},
+            {bank: "交通银行", name: "东方航空白金", level: "大众", condition: {job: ["stable", "company", "normal"], social: "yes", income: ["mid", "high"], credit: ["good", "normal"], cardNum: ["few", "mid"], need: "travel", fee: ["free"]}, reason: "积分兑东航里程，刷12次免当年，东航常旅客首选"},
+            
+            // 浦发银行
+            {bank: "浦发银行", name: "梦卡经典版", level: "入门", condition: {job: ["stable", "company", "normal", "free"], social: ["yes", "no"], income: ["low", "mid", "high"], credit: ["good", "normal"], cardNum: ["few"], need: ["free"], fee: ["free"]}, reason: "自定义卡面，终身免年费，个性化需求首选"},
+            {bank: "浦发银行", name: "东航联名金卡", level: "大众", condition: {job: ["stable", "company", "normal"], social: "yes", income: ["mid", "high"], credit: ["good", "normal"], cardNum: ["few", "mid"], need: "travel", fee: ["free"]}, reason: "15元=1东航里程，免年费，东航常旅客入门首选"}
+        ];
+
+        // 获取卡片等级中文
+        function getLevelName(bank, cardName) {
+            const card = cardDatabase.find(item => item.bank === bank && item.name === cardName);
+            if (!card) return "普通卡";
+            switch(card.level) {
+                case "入门": return "入门级";
+                case "大众": return "大众级";
+                case "高端": return "高端级";
+                case "顶级": return "顶级";
+                default: return "普通卡";
+            }
+        }
+
+        function matchCard() {
+            const job = document.getElementById('job').value;
+            const social = document.getElementById('social').value;
+            const income = document.getElementById('income').value;
+            const credit = document.getElementById('credit').value;
+            const cardNum = document.getElementById('cardNum').value;
+            const need = document.getElementById('need').value;
+            const fee = document.getElementById('fee').value;
+
+            let bestMatch = null;
+            let alternatives = [];
+            let matchScore = 0;
+
+            // 征信差直接提示
+            if (credit === 'bad') {
+                showResult("建议", "先养征信3-6个月，再申请信用卡", "当前征信有逾期/查询过多/负债高，直接申卡通过率极低，优先降低负债、减少查询。", "");
+                return;
+            }
+
+            // 匹配逻辑 - 筛选符合所有条件的卡并评分
+            for (let card of cardDatabase) {
+                const cond = card.condition;
+                let match = true;
+                let score = 0;
+                
+                // 检查各项条件
+                if (cond.job && !Array.isArray(cond.job) && cond.job !== job) match = false;
+                if (cond.job && Array.isArray(cond.job) && !cond.job.includes(job)) match = false;
+                else if (cond.job) score += 2;
+                
+                if (cond.social && !Array.isArray(cond.social) && cond.social !== social) match = false;
+                if (cond.social && Array.isArray(cond.social) && !cond.social.includes(social)) match = false;
+                else if (cond.social) score += 1;
+                
+                if (cond.income && !Array.isArray(cond.income) && cond.income !== income) match = false;
+                if (cond.income && Array.isArray(cond.income) && !cond.income.includes(income)) match = false;
+                else if (cond.income) score += 2;
+                
+                if (cond.credit && !Array.isArray(cond.credit) && cond.credit !== credit) match = false;
+                if (cond.credit && Array.isArray(cond.credit) && !cond.credit.includes(credit)) match = false;
+                else if (cond.credit) score += 2;
+                
+                if (cond.cardNum && !Array.isArray(cond.cardNum) && cond.cardNum !== cardNum) match = false;
+                if (cond.cardNum && Array.isArray(cond.cardNum) && !cond.cardNum.includes(cardNum)) match = false;
+                else if (cond.cardNum) score += 1;
+                
+                if (cond.need && !Array.isArray(cond.need) && cond.need !== need) match = false;
+                if (cond.need && Array.isArray(cond.need) && !cond.need.includes(need)) match = false;
+                else if (cond.need) score += 3; // 核心需求权重最高
+                
+                if (cond.fee && !Array.isArray(cond.fee) && cond.fee !== fee) match = false;
+                if (cond.fee && Array.isArray(cond.fee) && !cond.fee.includes(fee)) match = false;
+                else if (cond.fee) score += 1;
+
+                if (match) {
+                    if (!bestMatch || score > matchScore) {
+                        matchScore = score;
+                        bestMatch = card;
+                        alternatives = [];
+                    } else if (score === matchScore) {
+                        alternatives.push(card);
+                    }
+                }
+            }
+
+            if (bestMatch) {
+                let altText = "";
+                if (alternatives.length > 0) {
+                    altText = "备选方案：";
+                    for (let i = 0; i < Math.min(2, alternatives.length); i++) {
+                        altText += `${alternatives[i].bank} ${alternatives[i].name}，`;
+                    }
+                    altText = altText.slice(0, -1);
+                }
+                showResult(bestMatch.bank, bestMatch.name, bestMatch.reason, altText);
+            } else {
+                showResult("未找到完全匹配", "建议调整筛选条件", "当前条件组合暂无最优卡种，可尝试降低年费要求或调整用卡需求", "");
+            }
+        }
+
+        function showResult(bank, card, reason, alternative) {
+            document.getElementById('cardName').innerText = `${bank} — ${card}（${getLevelName(bank, card)}）`;
+            document.getElementById('reason').innerText = reason;
+            document.getElementById('alternative').innerText = alternative;
+            document.getElementById('result').classList.add('show');
+        }
+    </script>
+</body>
+</html>
+ <textarea style="display:none">   
