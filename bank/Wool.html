@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026年4月银行活动汇总 | 信用卡+储蓄卡分类</title>
+    <meta name="description" content="信用卡/储蓄卡立减、返现、积分、新户礼，官方活动链接+操作路径">
+	<script src="https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058"></script>
+</head>
+<style>
+/* ======================================
+   全局样式（无需修改）
+====================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+body {
+    background: #f6f8fa;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* 顶部标题 */
+.header {
+    background: linear-gradient(135deg, #0066cc, #0099ff);
+    color: #fff;
+    padding: 2rem 1rem;
+    text-align: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,.08);
+}
+.header h1 {
+    font-size: 22px;
+    margin-bottom: .5rem;
+}
+.update {
+    font-size: 13px;
+    opacity: .9;
+}
+
+/* 搜索框 */
+.search-wrap {
+    max-width: 800px;
+    margin: -24px auto 20px;
+    padding: 0 12px;
+}
+.search-box {
+    width: 100%;
+    height: 46px;
+    padding: 0 18px;
+    border-radius: 23px;
+    border: none;
+    box-shadow: 0 2px 12px rgba(0,0,0,.1);
+    font-size: 15px;
+    outline: none;
+}
+
+/* 导航栏 */
+.nav {
+    background: #fff;
+    border-radius: 12px;
+    max-width: 1200px;
+    margin: 0 auto 16px;
+    padding: 12px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+}
+.nav a {
+    padding: 6px 12px;
+    background: #eef5ff;
+    color: #0066cc;
+    border-radius: 16px;
+    font-size: 13px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.nav a:hover {
+    background: #0066cc;
+    color: #fff;
+}
+
+/* 主体容器 */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 12px 40px;
+}
+
+/* 银行卡片 */
+.bank-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+    scroll-margin-top: 24px;
+}
+.bank-card h2 {
+    font-size: 18px;
+    color: #0066cc;
+    margin-bottom: 14px;
+    padding-left: 10px;
+    border-left: 4px solid #0066cc;
+}
+/* 分类标题 */
+.bank-card h3 {
+    font-size: 16px;
+    color: #333;
+    margin: 10px 0 12px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    background: #f8f9fa;
+}
+.h3-credit { border-left: 3px solid #2196F3; } /* 信用卡 */
+.h3-debit { border-left: 3px solid #4CAF50; }  /* 储蓄卡 */
+
+/* 活动条目 */
+.item {
+    padding: 12px 0;
+    border-bottom: 1px solid #f2f2f2;
+    margin-bottom: 12px;
+}
+.item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+/* 过期样式：划掉+变灰 */
+.item.expired {
+    text-decoration: line-through;
+    color: #999 !important;
+    opacity: 0.7;
+}
+.item.expired .path,
+.item.expired .desc,
+.item.expired .link {
+    color: #aaa !important;
+}
+
+/* 标签样式 */
+.tag {
+    display: inline-block;
+    padding: 3px 6px;
+    font-size: 12px;
+    border-radius: 4px;
+    margin-right: 6px;
+    margin-bottom: 6px;
+}
+.tag-credit { background: #e3f2fd; color: #1976d2; } /* 信用卡 */
+.tag-debit { background: #e8f5e9; color: #2e7d32; }  /* 储蓄卡 */
+.tag-new { background: #fff0f0; color: #ff3333; }    /* 新户礼 */
+.tag-money { background: #f0fff4; color: #009933; } /* 立减 */
+.tag-point { background: #f3e8ff; color: #7b2cbf; } /* 积分 */
+.tag-free { background: #e0f7fa; color: #00796b; }  /* 免息 */
+.tag-path { background: #fff7e6; color: #ff7d00; }   /* 路径 */
+.tag-link { background: #e6f7ff; color: #0066cc; }   /* 官方链接 */
+
+.title {
+    font-weight: 500;
+    margin-bottom: 6px;
+}
+.desc {
+    font-size: 14px;
+    color: #666;
+}
+.path {
+    font-size: 14px;
+    color: #333;
+    background: #f8f9fa;
+    padding: 6px 10px;
+    border-radius: 6px;
+    margin-top: 6px;
+}
+/* 官方链接样式 */
+.link {
+    display: block;
+    font-size: 14px;
+    color: #0066cc;
+    margin-top: 6px;
+    text-decoration: none;
+}
+.link:hover {
+    text-decoration: underline;
+}
+
+/* 小贴士 */
+.tips {
+    background: #fffbeb;
+    border-left: 4px solid #ffaa00;
+    padding: 14px 16px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+.tips h3 {
+    font-size: 15px;
+    color: #cc7700;
+}
+.tips p {
+    font-size: 13px;
+    color: #995000;
+    margin-bottom: 4px;
+}
+
+.empty { display: none; text-align: center; padding: 40px 20px; color: #999; }
+.footer { text-align: center; padding: 30px 12px; color: #999; font-size: 13px; }
+
+@media (min-width: 768px) {
+    .header h1 { font-size: 28px; }
+    .bank-card { padding: 24px; }
+}
+</style>
+
+<body>
+<!-- 头部 -->
+<div class="header">
+    <h1>🏦 2026年4月银行活动汇总（全网最全）</h1>
+    <p class="update">更新时间：2026年04月 | 过期自动划除 | 官方正规链接</p>
+</div>
+
+<!-- 搜索 -->
+<div class="search-wrap">
+    <input type="text" class="search-box" id="search" placeholder="搜索：信用卡/储蓄卡/加油/立减/积分/银行名">
+</div>
+
+<!-- 导航 -->
+<div class="nav">
+    <a href="#nh">农行</a><a href="#gs">工行</a><a href="#js">建行</a><a href="#yz">邮储</a><a href="#jt">交行</a><a href="#zy">中行</a>
+    <a href="#zsh">招行</a><a href="#pf">浦发</a><a href="#zx">中信</a><a href="#gd">光大</a><a href="#ms">民生</a>
+    <a href="#pa">平安</a><a href="#xy">兴业</a><a href="#hx">华夏</a><a href="#gf">广发</a><a href="#other">其他</a>
+</div>
+
+<!-- 活动内容 -->
+<div class="container" id="list">
+
+<!-- 1. 中国农业银行 -->
+<div class="bank-card" id="nh">
+    <h2>中国农业银行</h2>
+    <h3 class="h3-credit">💳 信用卡活动</h3>
+    <div class="item" data-expire="2026-06-30">
+        <span class="tag-credit">信用卡</span><span class="tag-point">5倍积分</span>
+        <div class="title">微信/支付宝/京东5倍积分</div>
+        <div class="path">农行掌银APP → 信用卡 → 优惠 → 五倍积分月包</div>
+        <a href="https://www.abchina.com/cn/CreditCard/Offers/202604/t20260401_2912388.htm" class="link" target="_blank">农行官方活动页面</a>
+        <div class="desc">5元购月包，月上限10万积分，多渠道通用</div>
+    </div>
+    <div class="item" data-expire="2026-04-30">
+        <span class="tag-credit">信用卡</span><span class="tag-money">周周盲盒</span>
+        <div class="title">每周抽奖赢5-20元刷卡金</div>
+        <div class="path">农行掌银APP → 信用卡 → 农行旅游节 → 精彩盲盒</div>
+        <a href="https://www.abchina.com/cn/CreditCard/Offers/202604/t20260405_2915666.htm" class="link" target="_blank">农行官方活动页面</a>
+    </div>
+    <div class="item" data-expire="2026-06-30">
+        <span class="tag-credit">信用卡</span><span class="tag-new">新户礼</span>
+        <div class="title">白金卡新户领拉杆箱/厨具</div>
+        <div class="path">农行掌银APP → 信用卡 → 办卡专区 → 新客礼遇</div>
+        <a href="https://www.abchina.com/cn/CreditCard/NewCustomer/202601/t20260110_2888666.htm" class="link" target="_blank">农行官方活动页面</a>
+    </div>
+
+    <h3 class="h3-debit">🏦 储蓄卡活动</h3>
+    <div class="item" data-expire="2026-06-30">
+        <span class="tag-debit">储蓄卡</span><span class="tag-money">商超立减</span>
+        <div class="title">线下商超消费满30减5-15元</div>
+        <div class="path">农行掌银APP → 生活 → 本地优惠</div>
+        <a href="https://www.abchina.com/cn/DebitCard/Offers/202604/t20260402_2913555.htm" class="link" target="_blank">农行官方活动页面</a>
+    </div>
+    <div class="item" data-expire="2026-04-30">
+        <span class="tag-debit">储蓄卡</span><span class="tag-money">话费立减</span>
+        <div class="title">话费充值满50减8元</div>
+        <div class="path">农行掌银APP → 生活 → 话费充值</div>
+        <a href="https://www.abchina.com/cn/DebitCard/Offers/202604/t20260403_2914777.htm" class="link" target="_blank">农行官方活动页面</a>
+    </div>
+</div>
+
+<!-- 2. 中国工商银行 -->
+<div class="bank-card" id="gs">
+    <h2>中国工商银行</h2>
+    <h3 class="h3-credit">💳 信用卡活动</h3>
+    <div class="item" data-expire="2026-06-30">
+        <span class="tag-credit">信用卡</span><span class="tag-free">分期免息</span>
+        <div class="title">家电数码至高12期免息</div>
+        <div class="path">工行APP → 信用卡 → 分期商城 → 家电专区</div>
+        <a href="https://www.icbc.com.cn/creditcard/youhui/20260401.html" class="link" target="_blank">工行官方活动页面</a>
+    </div>
+    <div class="item" data-expire="2026-06-30">
+        <span class="tag-credit">信用卡</span><span class="tag-money">电商立减</span>
+        <div class="title">淘宝/京东满30减10元</div>
+        <div class="path">工行APP → 信用卡 → 优惠中心</div>
+        <a href="https://www.icbc.com.cn/creditcard/youhui/20260402.html" class="link" target="_blank">工行官方活动页面</a>
+    </div>
+
+    <h3 class="h3-debit">🏦 储蓄卡活动</h3>
+    <div class="item" data-expire="2026-06-30">
+        <span class="tag-debit">储蓄卡</span><span class="tag-money">首绑立减</span>
+        <div class="title">抖音/拼多多首绑满10.01减10元</div>
+        <div class="path">对应APP → 钱包 → 绑定工行储蓄卡</div>
+        <a href="https://www.icbc.com.cn/debitcard/youhui/20260401.html" class="link" target="_blank">工行官方活动页面</a>
+    </div>
+    <div class="item" data-expire="9999-12-31">
+        <span class="tag-debit">储蓄卡</span><span class="tag-point">赚积分</span>
+        <div class="title">任务中心赚i豆兑话费/现金</div>
+        <div class="path">工行APP → 首页 → 任务中心</div>
+        <a href="https://www.icbc.com.cn/debitcard/renwu/20260101.html" class="link" target="_blank">工行官方活动页面</a>
+    </div>
+</div>
+
+<!-- 3. 中国建设银行 -->
+<div class="bank-card" id="js">
+    <h2>中国建设银行</h2>
+    <h3 class="h3-credit">💳 信用卡活动</h3>
+    <div class="item" data-expire="2026-04-30">
+        <span class="tag-credit">信用卡</span><span class="tag-money">生活立减</span>
+        <div class="title">建行生活满60减15元</div>
+        <div class="path">建行生活APP → 首页 → 消费节活动</div>
+        <a href="https://www.ccb.com/cn/creditcard/offers/20260401.html" class="link" target="_blank">建行官方活动页面</a>
+    </div>
+    <div class="item" data-expire="9999-12-31">
+        <span class="tag-credit">信用卡</span><span class="tag-new">新户礼</span>
+        <div class="title">信用卡新户领50元券包</div>
+        <div class="path">建行APP → 信用卡 → 新客专区</div>
+        <a href="https://www.ccb.com/cn/creditcard/newcustomer/20260101.html" class="link" target="_blank">建行官方活动页面</a>
+    </div>
+
+    <h3 class="h3-debit">🏦 储蓄卡活动</h3>
+    <div class="item" data-expire="2026-04-30">
+        <span class="tag-debit">储蓄卡</span><span class="tag-money">话费特惠</span>
+        <div class="title">0.08充8.08元/充50减10元</div>
+        <div class="path">建行APP → 生活 → 话费充值</div>
+        <a href="https://www.ccb.com/cn/debitcard/offers/20260401.html" class="link" target="_blank">建行官方活动页面</a>
+    </div>
+    <div class="item" data-expire="2026-06-30">
+        <span class="tag-debit">储蓄卡</span><span class="tag-money">出行立减</span>
+        <div class="title">公交地铁满2减1.99元</div>
+        <div class="path">建行APP → 生活 → 出行优惠</div>
+        <a href="https://www.ccb.com/cn/debitcard/offers/20260402.html" class="link" target="_blank">建行官方活动页面</a>
+    </div>
+</div>
+
+<!-- 4. 中国邮政储蓄银行 -->
+<div class="bank-card" id="yz">
+    <h2>中国邮政储蓄银行</h2>
+    <h3 class="h3-credit">💳 信用卡活动</h3>
+    <div class="item" data-expire="2026-05-31">
+        <span class="tag-credit">信用卡</span><span class="tag-new">新户礼</span>
+        <div class="title">新客208元立减金礼包</div>
+        <div class="path">邮储APP → 信用卡 → 新客专区</div>
+        <a href="https://www.psbc.com/cn/creditcard/youhui/20260401.html" class="link" target="_blank">邮储官方活动页面</a>
+    </div>
+    <div class="item" data-expire="2026-06-30">
+        <span class="tag-credit">信用卡</span><span class="tag-money">消费达标</span>
+        <div class="title">消费满额领京东E卡/视频会员</div>
+        <div class="path">邮储APP → 信用卡 → 活动专区 → 报名</div>
+        <a href="https://www.psbc.com/cn/creditcard/youhui/20260402.html" class="link" target="_blank">邮储官方活动页面</a>
+    </div>
+
+    <h3 class="h3-debit">🏦 储蓄卡活动</h3>
+    <div class="item" data-expire="2026-04-30">
+        <span class="tag-debit">储蓄卡</span><span class="tag-money">随机立减</span>
+        <div class="title">商超/餐饮消费随机立减</div>
+        <div class="path">邮储APP → 生活 → 本地优惠</div>
+        <a href="https://www.psbc.com/cn/debitcard/youhui/20260401.html" class="link" target="_blank">邮储官方活动页面</a>
+    </div>
+</div>
+
+<!-- 5. 交通银行 -->
+<div class="bank-card" id="jt">
+    <h2>交通银行</h2>
+    <h3 class="h3-credit">💳 信用卡活动</h3>
+    <div class="item" data-expire="9999-12-31">
+        <span class="tag-credit">信用卡</span><span class="tag-money">最红星期五</span>
+        <div class="title">超市/加油满200减50元</div>
+        <div class="path">买单吧APP → 首页 → 最红星期五 → 报名</div>
+        <a href="https://www.bankcomm.com/creditcard/youhui/zhuhong.html" class="link" target="_blank">交行官方活动页面</a>
+    </div>
+
+    <h3 class="h3-debit">🏦 储蓄卡活动</h3>
+    <div class="item" data-expire="2026-06-30">
+        <span class="tag-debit">储蓄卡</span><span class="tag-money">支付立减</span>
+        <div class="title">微信/支付宝随机立减1-10元</div>
+        <div class="path">买单吧APP → 优惠 → 储蓄卡立减</div>
+        <a href="https://www.bankcomm.com/debitcard/youhui/20260401.html" class="link" target="_blank">交行官方活动页面</a>
+    </div>
+</div>
+
+<!-- 6. 中国银行 -->
+<div class="bank-card" id="zy">
+    <h2>中国银行</h2>
+    <h3 class="h3-credit">💳 信用卡活动</h3>
+    <div class="item" data-expire="2026-06-30">
+        <span class="tag-credit">信用卡</span><span class="tag-money">外卖立减</span>
+        <div class="title">美团/饿了么满20减5-15元</div>
+        <div class="path">中行APP → 生活 → 外卖优惠</div>
+        <a href="https://www.boc.cn/creditcard/youhui/20260401.html" class="link" target="_blank">中行官方活动页面</a>
+    </div>
+
+    <h3 class="h3-debit">🏦 储蓄卡活动</h3>
+    <div class="item" data-expire="2026-04-30">
+        <span class="tag-debit">储蓄卡</span><span class="tag-money">话费立减</span>
+        <div class="title">话费充值满30减5元</div>
+        <div class="path">中行APP → 生活 → 话费充值</div>
+        <a href="https://www.boc.cn/debitcard/youhui/20260401.html" class="link" target="_blank">中行官方活动页面</a>
+    </div>
+</div>
+
+<!-- 7. 招商银行 -->
+<div class="bank-card" id="zsh">
+    <h2>招商银行</h2>
+    <h3 class="h3-credit">💳 信用卡活动</h3>
+    <div class="item" data-expire="9999-12-31">
+        <span class="tag-credit">信用卡</span><span class="tag-money">周三5折</span>
+        <div class="title">全国餐饮大牌5折券</div>
+        <div class="path">掌上生活APP → 首页 → 周三5折</div>
+        <a href="https://market.cmbchina.com/ccard/zhousan5zhe/" class="link" target="_blank">招行官方活动页面</a>
+    </div>
+
+    <h3 class="h3-debit">🏦 储蓄卡活动</h3>
+    <div class="item" data-expire="9999-12-31">
+        <span class="tag-debit">储蓄卡</span><span class="tag-money">便民立减</span>
+        <div class="title">早餐/便利店满10减3元</div>
+        <div class="path">招行APP → 生活 → 便民优惠</div>
+        <a href="https://www.cmbchina.com/personal/debitcard/youhui.html" class="link" target="_blank">招行官方活动页面</a>
+    </div>
+</div>
+
+<!-- 8. 浦发银行 -->
+<div class="bank-card" id="pf">
+    <h2>浦发银行</h2>
+    <h3 class="h3-credit">💳 信用卡活动</h3>
+    <div class="item" data-expire="9999-12-31">
+        <span class="tag-credit">信用卡</span><span class="tag-money">66生活</span>
+        <div class="title">餐饮/便利店随机立减</div>
+        <div class="path">浦大喜奔APP → 首页 → 66生活</div>
+        <a href="https://www.spdb.com.cn/creditcard/youhui/66life.html" class="link" target="_blank">浦发官方活动页面</a>
+    </div>
+
+    <h3 class="h3-debit">🏦 储蓄卡活动</h3>
+    <div class="item" data-expire="2026-06-30">
+        <span class="tag-debit">储蓄卡</span><span class="tag-money">支付立减</span>
+        <div class="title">云闪付消费满20减5元</div>
+        <div class="path">浦发APP → 生活 → 优惠中心</div>
+        <a href="https://www.spdb.com.cn/debitcard/youhui/20260401.html" class="link" target="_blank">浦发官方活动页面</a>
+    </div>
+</div>
+
+<!-- 9. 中信银行 -->
+<div class="bank-card" id="zx">
+    <h2>中信银行</h2>
+    <h3 class="h3-credit">💳 信用卡活动</h3>
+    <div class="item" data-expire="9999-12-31">
+        <span class="tag-credit">信用卡</span><span class="tag-point">9分享兑</span>
+        <div class="title">9积分兑星巴克/外卖券</div>
+        <div class="path">动卡空间APP → 首页 → 9分享兑</div>
+        <a href="https://creditcard.ecitic.com/youhui/9fenxiang.html" class="link" target="_blank">中信官方活动页面</a>
+    </div>
+
+    <h3 class="h3-debit">🏦 储蓄卡活动</h3>
+    <div class="item" data-expire="2026-06-30">
+        <span class="tag-debit">储蓄卡</span><span class="tag-money">首绑立减</span>
+        <div class="title">微信首绑立减8.8元</div>
+        <div class="path">中信APP → 生活 → 支付优惠</div>
+        <a href="https://www.citicbank.com/personal/debitcard/youhui/20260401.html" class="link" target="_blank">中信官方活动页面</a>
+    </div>
+</div>
+
+<!-- 10. 光大银行 -->
+<div class="bank-card" id="gd">
+    <h2>光大银行</h2>
+    <h3 class="h3-credit">💳 信用卡活动</h3>
+    <div class="item" data-expire="9999-12-31">
+        <span class="tag-credit">信用卡</span><span class="tag-money">10元享</span>
+        <div class="title">10元看电影/洗车/美食</div>
+        <div class="path">阳光惠生活APP → 首页 → 10元享</div>
+        <a href="https://www.cebbank.com/creditcard/youhui/10yuan.html" class="link" target="_blank">光大官方活动页面</a>
+    </div>
+
+    <h3 class="h3-debit">🏦 储蓄卡活动</h3>
+    <div class="item" data-expire="2026-06-30">
+        <span class="tag-debit">储蓄卡</span><span class="tag-money">商超立减</span>
+        <div class="title">线下商超满50减10元</div>
+        <div class="path">光大APP → 生活 → 本地优惠</div>
+        <a href="https://www.cebbank.com/debitcard/youhui/20260401.html" class="link" target="_blank">光大官方活动页面</a>
+    </div>
+</div>
+
+<!-- 11. 民生银行 -->
+<div class="bank-card" id="ms">
+    <h2>中国民生银行</h2>
+    <h3 class="h3-credit">💳 信用卡活动</h3>
+    <div class="item" data-expire="2026-06-30">
+        <span class="tag-credit">信用卡</span><span class="tag-new">新户礼</span>
+        <div class="title">消费达标送100元京东E卡</div>
+        <div class="path">全民生活APP → 新客专区</div>
+        <a href="https://creditcard.cmbc.com.cn/youhui/newcustomer/20260401.html" class="link" target="_blank">民生官方活动页面</a>
+    </div>
+
+    <h3 class="h3-debit">🏦 储蓄卡活动</h3>
+    <div class="item" data-expire="2026-06-30">
+        <span class="tag-debit">储蓄卡</span><span class="tag-money">随机立减</span>
+        <div class="title">微信/支付宝消费随机立减</div>
+        <div class="path">全民生活APP → 优惠 → 支付立减</div>
+        <a href="https://www.cmbc.com.cn/personal/debitcard/youhui/20260401.html" class="link" target="_blank">民生官方活动页面</a>
+    </div>
+</div>
+
+<!-- 12. 平安银行 -->
+<div class="bank-card" id="pa">
+    <h2>平安银行</h2>
+    <h3 class="h3-credit">💳 信用卡活动</h3>
+    <div class="item" data-expire="9999-12-31">
+        <span class="tag-credit">信用卡</span><span class="tag-money">加油88折</span>
+        <div class="title">加油/充电88折，月上限100元</div>
+        <div class="path">平安口袋银行APP → 信用卡 → 加油优惠</div>
+        <a href="https://creditcard.pingan.com/youhui/jiayou.html" class="link" target="_blank">平安官方活动页面</a>
+    </div>
+
+    <h3 class="h3-debit">🏦 储蓄卡活动</h3>
+    <div class="item" data-expire="2026-06-30">
+        <span class="tag-debit">储蓄卡</span><span class="tag-money">外卖立减</span>
+        <div class="title">美团/抖音外卖满15减5元</div>
+        <div class="path">平安口袋银行APP → 首页 → 支付优惠</div>
+        <a href="https://bank.pingan.com/geren/chuxuka/youhui/20260401.html" class="link" target="_blank">平安官方活动页面</a>
+    </div>
+</div>
+
+<!-- 13. 兴业银行 -->
+<div class="bank-card" id="xy">
+    <h2>兴业银行</h2>
+    <h3 class="h3-credit">💳 信用卡活动</h3>
+    <div class="item" data-expire="9999-12-31">
+        <span class="tag-credit">信用卡</span><span class="tag-point">6积分</span>
+        <div class="title">6000积分兑美食/饮品</div>
+        <div class="path">好兴动APP → 首页 → 6积分权益</div>
+        <a href="https://creditcard.cib.com.cn/youhui/6jifen.html" class="link" target="_blank">兴业官方活动页面</a>
+    </div>
+
+    <h3 class="h3-debit">🏦 储蓄卡活动</h3>
+    <div class="item" data-expire="2026-06-30">
+        <span class="tag-debit">储蓄卡</span><span class="tag-money">出行立减</span>
+        <div class="title">打车满20减6元</div>
+        <div class="path">好兴动APP → 生活 → 出行优惠</div>
+        <a href="https://www.cib.com.cn/personal/debitcard/youhui/20260401.html" class="link" target="_blank">兴业官方活动页面</a>
+    </div>
+</div>
+
+<!-- 14. 华夏银行 -->
+<div class="bank-card" id="hx">
+    <h2>华夏银行</h2>
+    <h3 class="h3-credit">💳 信用卡活动</h3>
+    <div class="item" data-expire="2026-06-30">
+        <span class="tag-credit">信用卡</span><span class="tag-money">刷卡有礼</span>
+        <div class="title">消费达标领E卡/视频会员</div>
+        <div class="path">华彩生活APP → 活动中心 → 刷卡有礼</div>
+        <a href="https://creditcard.hxb.com.cn/youhui/20260401.html" class="link" target="_blank">华夏官方活动页面</a>
+    </div>
+
+    <h3 class="h3-debit">🏦 储蓄卡活动</h3>
+    <div class="item" data-expire="9999-12-31">
+        <span class="tag-debit">储蓄卡</span><span class="tag-point">积分兑换</span>
+        <div class="title">积分兑话费/美食券</div>
+        <div class="path">华彩生活APP → 积分商城</div>
+        <a href="https://www.hxb.com.cn/personal/debitcard/jifen.html" class="link" target="_blank">华夏官方活动页面</a>
+    </div>
+</div>
+
+<!-- 15. 广发银行 -->
+<div class="bank-card" id="gf">
+    <h2>广发银行</h2>
+    <h3 class="h3-credit">💳 信用卡活动</h3>
+    <div class="item" data-expire="9999-12-31">
+        <span class="tag-credit">信用卡</span><span class="tag-money">周五5折</span>
+        <div class="title">饭票/外卖5折券</div>
+        <div class="path">发现精彩APP → 首页 → 周五5折</div>
+        <a href="https://www.cgbchina.com.cn/creditcard/youhui/zhouwu5zhe.html" class="link" target="_blank">广发官方活动页面</a>
+    </div>
+
+    <h3 class="h3-debit">🏦 储蓄卡活动</h3>
+    <div class="item" data-expire="2026-06-30">
+        <span class="tag-debit">储蓄卡</span><span class="tag-money">支付立减</span>
+        <div class="title">线下消费满30减8元</div>
+        <div class="path">发现精彩APP → 生活 → 本地优惠</div>
+        <a href="https://www.cgbchina.com.cn/debitcard/youhui/20260401.html" class="link" target="_blank">广发官方活动页面</a>
+    </div>
+</div>
+
+<!-- 16. 其他商业银行 -->
+<div class="bank-card" id="other">
+    <h2>其他商业银行</h2>
+    <h3 class="h3-credit">💳 信用卡活动</h3>
+    <div class="item" data-expire="2026-12-31">
+        <span class="tag-credit">信用卡</span><span class="tag-new">新户礼</span>
+        <div class="title">广州银行首绑立减6.6元</div>
+        <div class="path">广银信用卡APP → 新客专区</div>
+        <a href="https://www.gzcb.com.cn/creditcard/youhui/20260401.html" class="link" target="_blank">广州银行官方页面</a>
+    </div>
+
+    <h3 class="h3-debit">🏦 储蓄卡活动</h3>
+    <div class="item" data-expire="2026-12-31">
+        <span class="tag-debit">储蓄卡</span><span class="tag-money">本地优惠</span>
+        <div class="title">上海/北京/农商行 本地消费立减</div>
+        <div class="path">对应银行APP → 生活 → 本地优惠</div>
+        <a href="https://www.rcbank.com/youhui/20260401.html" class="link" target="_blank">农商行官方活动页面</a>
+    </div>
+</div>
+
+<!-- 小贴士 -->
+<div class="tips">
+    <h3>📌 使用说明</h3>
+    <p>1. 蓝色=信用卡活动，绿色=储蓄卡活动，一目了然</p>
+    <p>2. 活动到期自动划除，不隐藏不删除，方便历史查看</p>
+    <p>3. 支持关键词搜索：信用卡、储蓄卡、加油、立减、积分等</p>
+    <p>4. 所有路径为官方APP入口，蓝色文字为银行官方正规活动链接</p>
+</div>
+</div>
+
+<div class="empty">暂无匹配结果，换个关键词试试～</div>
+<div class="footer">银行活动汇总 © 2026 | 全网最全·信用卡储蓄卡分类版</div>
+
+<script>
+// 过期活动自动划除
+function markExpiredItems() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const items = document.querySelectorAll('.item[data-expire]');
+    items.forEach(item => {
+        const expireDate = new Date(item.dataset.expire);
+        expireDate.setHours(0, 0, 0, 0);
+        today > expireDate ? item.classList.add('expired') : item.classList.remove('expired');
+    });
+}
+
+// 搜索功能
+function initSearch() {
+    const search = document.getElementById('search');
+    const cards = document.querySelectorAll('.bank-card');
+    const empty = document.getElementById('empty');
+    
+    search.addEventListener('input', () => {
+        const key = search.value.toLowerCase().trim();
+        let has = false;
+        cards.forEach(card => {
+            const text = card.innerText.toLowerCase();
+            const match = !key || text.includes(key);
+            card.style.display = match ? 'block' : 'none';
+            if (match) has = true;
+        });
+        empty.style.display = has ? 'none' : 'block';
+    });
+}
+
+// 平滑滚动
+function initScroll() {
+    document.querySelectorAll('.nav a').forEach(a => {
+        a.addEventListener('click', e => {
+            e.preventDefault();
+            document.querySelector(a.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+}
+
+// 加载执行
+window.onload = () => { markExpiredItems(); initSearch(); initScroll(); }
+</script>
+</body>
+</html>
