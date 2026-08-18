@@ -1,338 +1,1465 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="instap">
-    <link rel="icon" href="favicon.ico">
-    <title>未来科技 | 因为相信 · 所以看见</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>未来通信商城</title>
+    <!-- Baidu tongji analytics -->
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?8011763cb497f7b00f2e4d502a337c0b";
+          var s = document.getElementsByTagName("script")[0]; 
+          s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
+    <script>LA.init({id:"3HpUziWJmj6VQUHP",ck:"3HpUziWJmj6VQUHP",autoTrack:true})</script>
+
     <style>
-        /* 自定义动画 */
-        .tab-panel {
-            transition: all 0.3s ease;
+        :root {
+            --primary-color: #3A6FF8;
+            --secondary-color: #C9D6FF;
+            --text-color: #2C3E50;
+            --tab-height: 49px;
+            --nav-height: 44px;
+            --safe-top: env(safe-area-inset-top);
+            --safe-bottom: env(safe-area-inset-bottom);
+            --transition-duration: 280ms;
+            --transition-ease: cubic-bezier(0.22, 1, 0.36, 1);
         }
-        .tab-panel.hide {
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: #fff;
+            line-height: 1.6;
+        }
+        /* 弹窗打开时才禁止滚动 */
+        body.popup-open{
+            overflow:hidden;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Toast轻提示 */
+        .toast{
+            position:fixed;
+            left:50%;
+            top:45%;
+            transform:translate(-50%,-50%);
+            padding:10px 18px;
+            background:rgba(0,0,0,0.65);
+            color:#fff;
+            border-radius:8px;
+            font-size:13px;
+            z-index:9999;
+            opacity:0;
+            visibility:hidden;
+            transition:0.25s;
+        }
+        .toast.show{
+            opacity:1;
+            visibility:visible;
+        }
+
+        /* 顶部导航栏 */
+        .nav-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: calc(var(--nav-height) + var(--safe-top));
+            padding-top: var(--safe-top);
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 0.5px solid rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-left: 16px;
+            padding-right: 16px;
+            z-index: 100;
+            display: none;
+        }
+
+        .nav-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+
+        .nav-btn:active {
+            transform: scale(0.96);
+        }
+
+        .nav-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: #222;
+        }
+
+        /* 二维码弹窗 */
+        .qr-mask {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
             opacity: 0;
-            transform: translateY(8px);
-            pointer-events: none;
-            position: absolute;
+            visibility: hidden;
+            transition: all var(--transition-duration) var(--transition-ease);
+            z-index: 300;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
-        .tab-panel.show {
+
+        body.qr-open .qr-mask {
             opacity: 1;
-            transform: translateY(0);
-            pointer-events: auto;
+            visibility: visible;
+        }
+
+        .qr-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px 20px;
+            width: 100%;
+            max-width: 280px;
+            text-align: center;
+            transform: scale(0.9);
+            transition: transform var(--transition-duration) var(--transition-ease);
+        }
+
+        body.qr-open .qr-card {
+            transform: scale(1);
+        }
+
+        .qr-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 16px;
+        }
+
+        .qr-code-box {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 16px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 13px;
+        }
+
+        .qr-tip {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .qr-close-btn {
+            width: 100%;
+            height: 40px;
+            border: none;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .qr-close-btn:active {
+            background: #2954CC;
+        }
+
+        /* ==========隐私政策弹窗========== */
+        .privacy-mask{
+            position:fixed;
+            left:0;top:0;right:0;bottom:0;
+            background:rgba(0,0,0,0.55);
+            opacity:0;
+            visibility:hidden;
+            transition: all var(--transition-duration) var(--transition-ease);
+            z-index:310;
+            padding:20px 12px;
+            overflow-y:auto;
+        }
+        body.privacy-open .privacy-mask{
+            opacity:1;
+            visibility:visible;
+        }
+        .privacy-box{
+            max-width:720px;
+            margin:20px auto;
+            background:#fff;
+            border-radius:12px;
+            padding:24px 20px;
+            position:relative;
+            transform:scale(0.92);
+            transition: transform var(--transition-duration) var(--transition-ease);
+        }
+        body.privacy-open .privacy-box{
+            transform:scale(1);
+        }
+        .privacy-close{
+            position:absolute;
+            right:16px;top:14px;
+            font-size:22px;
+            cursor:pointer;
+            color:#888;
+        }
+        .privacy-box h1{
+            font-size:22px;
+            text-align:center;
+            padding-bottom:12px;
+            border-bottom:1px solid #eee;
+            margin-bottom:12px;
+        }
+        .privacy-date{
+            text-align:center;
+            color:#888;
+            font-size:14px;
+            margin-bottom:20px;
+        }
+        .privacy-box h2{
+            font-size:17px;
+            margin:24px 0 10px;
+            color:#222;
+        }
+        .privacy-box p{
+            font-size:15px;
+            margin-bottom:12px;
+            text-indent:2em;
+        }
+        .privacy-box ul{
+            padding-left:2em;
+            font-size:15px;
+            margin-bottom:12px;
+        }
+        .privacy-box li{
+            margin:6px 0;
+        }
+        
+        /* 侧边抽屉遮罩 */
+        .drawer-mask {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-duration) var(--transition-ease);
+            z-index: 200;
+        }
+        
+        body.drawer-open .drawer-mask {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* 侧边抽屉 👉宽度改为60% */
+        .drawer {
+            position: fixed;
+            top: 0;
+            left: -60%;
+            width: 60%;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            box-shadow: 2px 0 20px rgba(0,0,0,0.1);
+            transition: left var(--transition-duration) var(--transition-ease);
+            padding: calc(var(--safe-top) + 20px) 20px 20px;
+            display: flex;
+            flex-direction: column;
+            z-index: 201;
+            overflow-y: auto;
+        }
+        
+        body.drawer-open .drawer {
+            left: 0;
+        }
+        
+        .drawer-logo {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(90deg, #3A6FF8, #5280FF);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        .drawer-group-title {
+            font-size: 12px;
+            color: #999;
+            margin: 18px 0 8px;
+            padding-left: 4px;
+        }
+        /* 👉压缩菜单项高度，减小上下内边距 */
+        .drawer-item {
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            font-size: 15px;
+            color: #333;
+            transition: background 0.2s;
+            cursor: pointer;
+            display:flex;
+            align-items:center;
+            gap:10px;
+        }
+        /* 👉缩小图标尺寸 */
+        .drawer-icon{
+            font-size:16px;
+            width:22px;
+            text-align:center;
+            flex-shrink:0;
+        }
+        .drawer-item a{
+            color:inherit;
+            text-decoration:none;
+            flex:1;
+        }
+        
+        .drawer-item:active {
+            background: #f0f0f0;
+        }
+        
+        .drawer-item.active {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 500;
+        }
+        
+        .drawer-footer {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+        }
+        
+        /* ==========修复主内容区布局BUG========== */
+        .content-area {
+            position:fixed;
+            top:calc(var(--nav-height) + var(--safe-top));
+            left:0;
+            right:0;
+            bottom:calc(var(--tab-height) + var(--safe-bottom));
+            display: none;
+        }
+
+        .iframe-wrapper {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+        }
+
+        .portal-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* 底部Tab栏 */
+        .tab-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: calc(var(--tab-height) + var(--safe-bottom));
+            padding-bottom: var(--safe-bottom);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 0.5px solid rgba(0,0,0,0.08);
+            display: flex;
+            z-index: 100;
+            display: none;
+        }
+
+        .tab-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            font-size: 11px;
+            color: #999;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .tab-item:active {
+            transform: scale(0.96);
+        }
+
+        .tab-item.active {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .tab-icon {
+            font-size: 22px;
+            line-height: 1;
+        }
+
+        /* ==========欢迎弹窗样式（已优化矮屏幕适配） ========== */
+        .mask-layer {
+            display: flex;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: linear-gradient(135deg, #f0f5ff 0%, #e8f0ff 100%);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .verify-card {
+            width: 100%;
+            max-width: 380px;
+            max-height: 77vh;
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 24px 20px;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(58, 111, 248, 0.15);
+            overflow-y: auto;
+        }
+
+        .welcome-icon {
+            font-size: 40px;
+            margin-bottom: 8px;
+        }
+
+        .verify-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .welcome-sub {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 16px;
+        }
+
+        .intro-block {
+            text-align: left;
+            background: #f7f9ff;
+            border-radius: 14px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .intro-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .intro-text {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.7;
+        }
+
+        .func-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        .func-item {
+            font-size: 12px;
+            color: #444;
+            background: #eff4ff;
+            padding: 8px 6px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .tip-text {
+            font-size: 11px;
+            color: #999;
+            margin: 8px 0 18px;
+            line-height: 1.6;
+        }
+
+        .enter-btn {
+            width: 100%;
+            height: 48px;
+            border: none;
+            background: linear-gradient(90deg, #3A6FF8, #5280FF);
+            color: #fff;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 12px rgba(58, 111, 248, 0.25);
+        }
+
+        .enter-btn:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 6px rgba(58, 111, 248, 0.2);
+        }
+        .ad-iframe {
+                    width: 100%;
+                    height: 160px;
+                    border: none;
+                    border-radius: 12px;
+                    margin-bottom: 16px;
+                }
+
+        /* 内置静态页面样式 */
+        .inner-container {
+            width:100%;
+            height:100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #E2E2E2 0%, #C9D6FF 100%);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+        }
+        .static-footer{
+            margin-top:auto;
+            padding:12px 8px 4px;
+            text-align:center;
+            font-size:11px;
+            color:#666;
+        }
+
+        .inner-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .inner-title {
+            color: var(--primary-color);
+            text-align: center;
+            font-size: 1.15rem;
+            margin-bottom: 12px;
             position: relative;
         }
-        /* 禁止选中文本 */
-        .no-select {
-            user-select: none;
-            -webkit-user-select: none;
+
+        .inner-title::after {
+            content: '';
+            display: block;
+            width: 50px;
+            height: 2px;
+            background: var(--primary-color);
+            margin: 6px auto 0;
+        }
+
+        .inner-title.sub-title {
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+        
+        /* ===== 话费活动页｜全局双列布局 ===== */
+        .inner-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-top: 16px;
+        }
+        .service-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 18px 8px;
+            background-color: #f0f5ff;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #2563eb;
+            transition: 0.25s ease;
+        }
+        .service-link:hover {
+            background-color: #dbeafe;
+            transform: translateY(-2px);
+        }
+        .service-link.disabled {
+            background-color: #f3f4f6;
+            color: #9ca3af;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .service-link.disabled:hover {
+            transform: none;
+        }
+        .link-main {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        .link-desc {
+            font-size: 12px;
+            color: #64748b;
+            text-align: center;
+            line-height: 1.4;
+        }
+        .notice p {
+            margin: 6px 0;
+            line-height: 1.6;
+            color: #444;
+        }
+        
+        /* FAQ样式 */
+        .faq-container {
+            width:100%;
+            height:100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #E2E2E2 0%, #C9D6FF 100%);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+        }
+
+        .faq-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            overflow-y: auto;
+        }
+
+        .faq-title {
+            color: var(--primary-color);
+            text-align: center;
+            font-size: 1.15rem;
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .faq-title::after {
+            content: '';
+            display: block;
+            width: 50px;
+            height: 2px;
+            background: var(--primary-color);
+            margin: 6px auto 0;
+        }
+
+        .faq-item {
+            margin-bottom: 10px;
+            border-radius: 10px;
+            background: rgba(58, 111, 248, 0.04);
+            border: 1px solid rgba(58, 111, 248, 0.08);
+            overflow: hidden;
+        }
+
+        .faq-question {
+            padding: 12px 14px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .faq-question:active {
+            background: rgba(58, 111, 248, 0.08);
+        }
+
+        .faq-icon {
+            font-size: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .faq-item.active .faq-icon {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.25s ease;
+        }
+
+        .faq-answer-inner {
+            padding: 0 14px 12px;
+            font-size: 13px;
+            color: var(--text-color);
+            line-height: 1.7;
+        }
+
+        .faq-answer-inner p {
+            margin-bottom: 8px;
+        }
+
+        .faq-answer-inner ul {
+            padding-left: 1.2em;
+            margin-bottom: 8px;
+        }
+
+        .faq-answer-inner li {
+            margin-bottom: 4px;
+        }
+
+        .faq-contact {
+            margin-top: 12px;
+            padding: 12px;
+            background: rgba(58, 111, 248, 0.06);
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .faq-contact-text {
+            font-size: 13px;
+            color: var(--text-color);
+            margin-bottom: 10px;
+        }
+
+        .faq-contact-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 44px;
+            padding: 0 18px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .faq-contact-btn:active {
+            background: #2954CC;
+        }
+
+        /* 矮屏幕专用适配 */
+        @media (max-height: 667px) {
+            .verify-card {
+                max-height: 82vh;
+                padding: 18px 16px;
+            }
+
+            .welcome-icon {
+                font-size: 34px;
+                margin-bottom: 6px;
+            }
+
+            .verify-title {
+                font-size: 20px;
+                margin-bottom: 6px;
+            }
+
+            .welcome-sub {
+                margin-bottom: 12px;
+            }
+
+            .intro-block {
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+
+            .intro-title {
+                font-size: 14px;
+            }
+
+            .intro-text {
+                font-size: 12px;
+            }
+
+            .func-item {
+                font-size: 11px;
+                padding: 7px 4px;
+            }
+
+            .enter-btn {
+                height: 44px;
+                font-size: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .inner-title {
+                font-size: 1rem;
+            }
+            .service-link {
+                font-size: 13px;
+            }
+            .faq-question {
+                font-size: 13px;
+            }
+            .faq-answer-inner {
+                font-size: 12px;
+            }
         }
     </style>
+
 </head>
-<body class="bg-gray-50 no-select" oncontextmenu="alert('未来科技 - 因为相信 · 所以看见！');return false;" onkeydown="if(event.keyCode==27) return false;">
-    <div id="app" class="max-w-xl mx-auto bg-white min-h-screen">
-        <!-- 头部区域 -->
-        <div class="header">
-            <div class="banner relative overflow-hidden rounded-b-xl">
-                <img src="index/picture/logo.jpg" alt="banner" class="w-full h-52 object-cover">
-                <!-- 圆形头像 -->
-                <div class="absolute left-1/2 -translate-x-1/2 -bottom-[60px] w-[120px] h-[120px] rounded-full border-4 border-white overflow-hidden bg-white shadow-lg">
-                    <img src="index/picture/logo.jpg" alt="avatar" class="w-full h-full object-cover">
-                </div>
-            </div>
-            <div class="pt-16 pb-6 text-center">
-                <h1 class="text-[2.2rem] font-bold text-gray-800">未来</h1>
-                <p class="text-gray-500 mt-2 text-lg">因为相信 · 所以看见</p>
-            </div>
-        </div>
+<body>
+    <!-- Toast提示 -->
+    <div class="toast" id="toastTip"></div>
 
-        <!-- Tab导航栏 -->
-        <div class="tab-list flex gap-3 px-4 mb-6">
-            <div data-target="a1" class="tab-item jr flex-1 bg-gray-100 rounded-full py-3 text-center active:bg-blue-500 active:text-white transition-all cursor-pointer">
-                <span class="text">号卡</span>
-            </div>
-            <div data-target="a2" class="tab-item tx flex-1 bg-gray-100 rounded-full py-3 text-center transition-all cursor-pointer">
-                <span class="text">金融</span>
-            </div>
-            <div data-target="a3" class="tab-item dh flex-1 bg-gray-100 rounded-full py-3 text-center transition-all cursor-pointer">
-                <span class="text">导航</span>
-            </div>
-            <div data-target="a4" class="tab-item gy flex-1 bg-gray-100 rounded-full py-3 text-center transition-all cursor-pointer">
-                <span class="text">关于</span>
-            </div>
-        </div>
+    <!-- 顶部导航栏（验证通过后显示） -->
+    <div class="nav-bar">
+        <button class="nav-btn" id="menuBtn">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2">
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+        </button>
+        <div class="nav-title" id="pageTitle">宽带专区</div>
+        <button class="nav-btn" id="msgBtn">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+        </button>
+    </div>
 
-        <!-- 内容容器 -->
-        <div class="px-4 relative">
-            <!-- 号卡 a1 -->
-            <div id="a1" class="tab-panel show app-list grid grid-cols-2 gap-4">
-                <a href="app/haoka/01.html" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
-                    <div class="content-wrap flex items-center gap-3">
-                        <div class="img-wrap w-10 h-10 shrink-0">
-                            <img src="https://vip.777haoka.cn/static/img/notice.png" alt="">
-                        </div>
-                        <p class="app-name text-base">1号店铺</p>
-                    </div>
-                </a>
-                <a href="http://vip.777haoka.cn/cha?k=T1RwMzdMQWw4cGc9" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
-                    <div class="content-wrap flex items-center gap-3">
-                        <div class="img-wrap w-10 h-10 shrink-0">
-                            <img src="https://vip.777haoka.cn/static/img/notice.png" alt="">
-                        </div>
-                        <p class="app-name text-base">1号订单</p>
-                    </div>
-                </a>
-                <a href="app/haoka/02.html" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
-                    <div class="content-wrap flex items-center gap-3">
-                        <div class="img-wrap w-10 h-10 shrink-0">
-                            <img src="index/picture/google.png" alt="">
-                        </div>
-                        <p class="app-name text-base">2号店铺</p>
-                    </div>
-                </a>
-                <a href="https://hk.yunhaoka.cn/#/pages/query" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
-                    <div class="content-wrap flex items-center gap-3">
-                        <div class="img-wrap w-10 h-10 shrink-0">
-                            <img src="index/picture/tool.png" alt="">
-                        </div>
-                        <p class="app-name text-base">2号订单</p>
-                    </div>
-                </a>
-                <a href="app/haoka/03.html" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
-                    <div class="content-wrap flex items-center gap-3">
-                        <div class="img-wrap w-10 h-10 shrink-0">
-                            <img src="http://card.haokale.com/favicon.ico" alt="">
-                        </div>
-                        <p class="app-name text-base">3号店铺</p>
-                    </div>
-                </a>
-                <a href="https://91haoka.cn/webapp/merchant/new_query.html?code=kIbI05zdmbP4uFoXjsfUuw%3D%3D" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
-                    <div class="content-wrap flex items-center gap-3">
-                        <div class="img-wrap w-10 h-10 shrink-0">
-                            <img src="http://card.haokale.com/favicon.ico" alt="">
-                        </div>
-                        <p class="app-name text-base">3号订单</p>
-                    </div>
-                </a>
+    <!-- 微信二维码客服弹窗 -->
+    <div class="qr-mask" id="qrMask">
+        <div class="qr-card">
+            <div class="qr-title">添加客服微信</div>
+            <div class="qr-code-box">
+                <img src="wechat-qr.png" style="width:100%;height:100%;object-fit:contain;" alt="客服微信二维码">
             </div>
-
-            <!-- 金融 a2 -->
-            <div id="a2" class="tab-panel hide app-list grid grid-cols-2 gap-4">
-                <a href="yangmaohui/pay.html" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
-                    <div class="content-wrap flex items-center gap-3">
-                        <div class="img-wrap w-10 h-10 shrink-0">
-                            <img src="index/picture/money.png" alt="">
-                        </div>
-                        <p class="app-name text-base">收款工具</p>
-                    </div>
-                </a>
-                <a href="index/my.html" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
-                    <div class="content-wrap flex items-center gap-3">
-                        <div class="img-wrap w-10 h-10 shrink-0">
-                            <img src="index/picture/google.png" alt="">
-                        </div>
-                        <p class="app-name text-base">工作台</p>
-                    </div>
-                </a>
-            </div>
-
-            <!-- 导航 a3 -->
-            <div id="a3" class="tab-panel hide app-list grid grid-cols-2 gap-4">
-                <a href="hao/" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
-                    <div class="content-wrap flex items-center gap-3">
-                        <div class="img-wrap w-10 h-10 shrink-0">
-                            <img src="index/picture/google.png" alt="">
-                        </div>
-                        <p class="app-name text-base">BT导航</p>
-                    </div>
-                </a>
-                <a href="https://tv.cctv.com/live/m" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
-                    <div class="content-wrap flex items-center gap-3">
-                        <div class="img-wrap w-10 h-10 shrink-0">
-                            <img src="https://p4.img.cctvpic.com/photoAlbum/page/performance/img/2021/11/19/1637293545457_544.jpg" alt="">
-                        </div>
-                        <p class="app-name text-base">央视网</p>
-                    </div>
-                </a>
-                <a href="https://m.gdtv.cn/tvChannelDetail/43" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
-                    <div class="content-wrap flex items-center gap-3">
-                        <div class="img-wrap w-10 h-10 shrink-0">
-                            <img src="https://img.gdtv.cn/sitecdn/platforms/gdtv/images/logo_black_tag7d8c6a4c.png" alt="">
-                        </div>
-                        <p class="app-name text-base">荔枝网</p>
-                    </div>
-                </a>
-                <a href="https://i.y.qq.com/n2/m/" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
-                    <div class="content-wrap flex items-center gap-3">
-                        <div class="img-wrap w-10 h-10 shrink-0">
-                            <img src="https://y.qq.com/mediastyle/yqq/img/logo.png?max_age=2592000" alt="">
-                        </div>
-                        <p class="app-name text-base">QQ音乐</p>
-                    </div>
-                </a>
-            </div>
-
-            <!-- 关于 a4 -->
-            <div id="a4" class="tab-panel hide">
-                <div class="app-list grid grid-cols-2 gap-4 mb-8">
-                    <a href="yangmaohui/download.html" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
-                        <div class="content-wrap flex items-center gap-3">
-                            <div class="img-wrap w-10 h-10 shrink-0">
-                                <img src="index/picture/app.png" alt="">
-                            </div>
-                            <p class="app-name text-base">羊毛汇</p>
-                        </div>
-                    </a>
-                    <a href="yangmaohui/dongtai.html" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
-                        <div class="content-wrap flex items-center gap-3">
-                            <div class="img-wrap w-10 h-10 shrink-0">
-                                <img src="index/picture/google.png" alt="">
-                            </div>
-                            <p class="app-name text-base">卡圈动态</p>
-                        </div>
-                    </a>
-                    <a href="yangmaohui/tool_unicom.html" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
-                        <div class="content-wrap flex items-center gap-3">
-                            <div class="img-wrap w-10 h-10 shrink-0">
-                                <img src="index/picture/10010.png" alt="">
-                            </div>
-                            <p class="app-name text-base">联通业务</p>
-                        </div>
-                    </a>
-                    <a href="https://shouji.10099.com.cn/list/" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
-                        <div class="content-wrap flex items-center gap-3">
-                            <div class="img-wrap w-10 h-10 shrink-0">
-                                <img src="index/picture/10099.png" alt="">
-                            </div>
-                            <p class="app-name text-base">广电终端</p>
-                        </div>
-                    </a>
-                    <a href="https://qm.qq.com/q/eLlnHBdXwI&personal_qrcode_source=4" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
-                        <div class="content-wrap flex items-center gap-3">
-                            <div class="img-wrap w-10 h-10 shrink-0">
-                                <img src="index/picture/qq.png" alt="">
-                            </div>
-                            <p class="app-name text-base">我的QQ</p>
-                        </div>
-                    </a>
-                    <a href="mailto:pay268@qq.com" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
-                        <div class="content-wrap flex items-center gap-3">
-                            <div class="img-wrap w-10 h-10 shrink-0">
-                                <img src="index/picture/mail.png" alt="">
-                            </div>
-                            <p class="app-name text-base">我的邮箱</p>
-                        </div>
-                    </a>
-                </div>
-                <!-- 大事记时间轴 -->
-                <div class="bg-gray-50 rounded-xl p-5">
-                    <p class="text-center font-medium mb-4">------大事记------</p>
-                    <div class="track-list space-y-4 border-l-2 border-gray-200 pl-4">
-                        <div class="flex gap-2 items-start">
-                            <img src="index/picture/tb_success.svg" class="w-5 h-5 mt-1 shrink-0">
-                            <div><span class="text-gray-500">2024-05-31</span> <span class="text-green-600">BT导航上线。</span></div>
-                        </div>
-                        <div class="flex gap-2 items-start">
-                            <img src="index/picture/tb_success.svg" class="w-5 h-5 mt-1 shrink-0">
-                            <div><span class="text-gray-500">2023-12-18</span> <span class="text-green-600">本站版面更新。</span></div>
-                        </div>
-                        <div class="flex gap-2 items-start">
-                            <img src="index/picture/tb_success.svg" class="w-5 h-5 mt-1 shrink-0">
-                            <div><span class="text-gray-500">2023-11-20</span> <span class="text-green-600">羊毛汇全新版本3.0上线，彻底解决卡顿等BUG</span></div>
-                        </div>
-                        <div class="flex gap-2 items-start">
-                            <img src="index/picture/tb_success.svg" class="w-5 h-5 mt-1 shrink-0">
-                            <div><span class="text-gray-500">2023-02-08</span> <span class="text-green-600">羊毛汇2.0版本优化，特别感谢@吾！</span></div>
-                        </div>
-                        <div class="flex gap-2 items-start">
-                            <img src="index/picture/tb_success.svg" class="w-5 h-5 mt-1 shrink-0">
-                            <div><span class="text-gray-500">2023-01-17</span> <span class="text-green-600">羊毛汇1.0上线！</span></div>
-                        </div>
-                        <div class="flex gap-2 items-start">
-                            <img src="index/picture/tb_warning.svg" class="w-5 h-5 mt-1 shrink-0">
-                            <div><span class="text-gray-500">2023-01-17</span> <span class="text-orange-500">免流工具箱，不再维护更新。</span></div>
-                        </div>
-                        <div class="flex gap-2 items-start">
-                            <img src="index/picture/tb_info.svg" class="w-5 h-5 mt-1 shrink-0">
-                            <div><span class="text-gray-500">2022-12-08</span> <span>本站上线。</span></div>
-                        </div>
-                        <div class="flex gap-2 items-start">
-                            <img src="index/picture/tb_info.svg" class="w-5 h-5 mt-1 shrink-0">
-                            <div><span class="text-gray-500">2022-04-27</span> <span>免流工具箱1.0，悄然上线。</span></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 底部版权 -->
-        <div class="py-8 text-center text-gray-400 text-sm mt-10">
-            <p>Copyright © <script>document.write(new Date().getFullYear())</script> Future Tech. All Rights Reserved.</p>
+            <div class="qr-tip">长按识别二维码 添加客服咨询</div>
+            <button class="qr-close-btn" id="qrCloseBtn">关闭</button>
         </div>
     </div>
 
-<script>
-// 原页面防右键/F12/Ctrl+S保护逻辑
-document.onmousedown = function (e) {
-    if (e.button === 2) {
-        alert('未来科技 - 因为相信 · 所以看见！');
-        return false;
-    }
-}
-document.onkeydown = function (e) {
-    if (e.keyCode === 17) {
-        alert("未来科技 - 因为相信 · 所以看见！");
-        return false;
-    }
-    if (e.keyCode === 123) {
-        alert('未来科技 - 因为相信 · 所以看见！');
-        return false;
-    }
-}
+    <!-- 隐私政策弹窗 -->
+    <div class="privacy-mask" id="privacyMask">
+        <div class="privacy-box">
+            <span class="privacy-close" id="privacyClose">×</span>
+            <h1>隐私政策</h1>
+            <div class="privacy-date">生效日期：2026‑08‑17</div>
 
-// Tab切换原生JS，替代jQuery
-const tabItems = document.querySelectorAll('.tab-item');
-const tabPanels = document.querySelectorAll('.tab-panel');
-tabItems.forEach(tab => {
-    tab.addEventListener('click', function () {
-        const targetId = this.dataset.target;
-        // tab激活样式
-        tabItems.forEach(el => el.classList.remove('bg-blue-500', 'text-white'));
-        this.classList.add('bg-blue-500', 'text-white');
-        // 面板切换动画
-        tabPanels.forEach(panel => {
-            panel.classList.remove('show');
-            panel.classList.add('hide');
+            <h2>一、引言</h2>
+            <p>欢迎访问未来通信商城。我们充分重视用户的个人信息与隐私安全。本隐私政策旨在向您说明：当您使用本网站选购运营商号卡、浏览商品、提交订单时，我们如何收集、使用、存储、保护您的个人信息，以及您拥有哪些管理自身个人信息的权利。</p>
+            <p>使用本网站服务即代表您同意本隐私政策全部条款；若您不同意本政策，请停止使用本站全部服务。</p>
+
+            <h2>二、我们收集哪些个人信息</h2>
+            <p>我们仅收集提供服务所必要的信息，不会强制索取与业务无关的资料，收集来源分为您主动提供与系统自动收集两类：</p>
+            <ul>
+                <li><strong>1.您主动提交的信息</strong>：在您提交号卡开卡订单时，根据国家通信实名制相关法规、运营商开卡要求，您需要提供姓名、手机号码、居民身份证信息、收货地址；如您自愿联系客服咨询，可能留存您的联系方式、聊天记录。以上信息仅用于完成号卡申领、物流配送、运营商实名核验。</li>
+                <li><strong>2.系统自动采集信息</strong>：当您浏览网站时，服务器会自动记录访问时间、IP地址、设备型号、浏览器类型、页面访问记录等日志数据；该类数据主要用于网站安全防护、故障排查、访问统计，一般无法直接定位到特定自然人。</li>
+                <li><strong>3.非必要可选信息</strong>：您可以自愿填写备注、需求说明等内容，您有权选择不予提供。</li>
+            </ul>
+
+            <h2>三、个人信息的使用方式</h2>
+            <ul>
+                <li>用于处理您的号卡订单、完成运营商实名开卡流程、安排物流发货、订单状态通知；</li>
+                <li>用于客服对接、售后问题处理、订单异常核验；</li>
+                <li>用于网站安全风险识别，防范恶意下单、欺诈访问；</li>
+                <li>在获得您明确同意前提下，向您推送商城优惠、运营商套餐资讯，您可随时拒绝接收营销消息。</li>
+            </ul>
+            <p>我们不会将您的实名身份信息用于开卡业务以外的用途。</p>
+
+            <h2>四、个人信息的共享与披露</h2>
+            <p>未经您单独授权，我们不会向第三方出售、出租您的个人信息。仅在以下有限场景进行必要共享：</p>
+            <ul>
+                <li>为完成开卡业务，将实名订单信息合规提交至对应运营商平台；</li>
+                <li>为完成配送，向物流服务商提供收货地址、联系电话；</li>
+                <li>国家机关依法提出查询、调取要求时，我们将按照法律法规配合提供对应信息。</li>
+            </ul>
+
+            <h2>五、个人信息存储与安全保护</h2>
+            <p>我们采用合理的技术手段保护您的个人数据，防止信息泄露、篡改、丢失。个人信息保存期限以实现服务目的、法定留存期限为限；当订单业务完成且不再需要留存时，我们会按照规则做脱敏或删除处理。互联网环境无法做到绝对安全，如您发现账号、订单信息存在泄露风险，请立即联系我们。</p>
+
+            <h2>六、您享有的个人信息权利</h2>
+            <ul>
+                <li>查询权：您可以向客服申请查询本站保存的与您相关的订单、个人资料；</li>
+                <li>更正权：如信息填写错误，可联系客服更正可修改项目；</li>
+                <li>删除权：在满足条件时，您可申请删除订单内个人实名资料；运营商侧实名信息需遵循运营商平台规则；</li>
+                <li>撤回授权：您可以撤回营销通知授权，撤回不影响此前基于授权开展的业务处理。</li>
+            </ul>
+
+            <h2>七、未成年人保护</h2>
+            <p>通信号卡开卡业务仅限成年人办理。若您为未满18周岁未成年人，请在监护人陪同与同意下使用本服务；请勿独立提交实名订单。如我们发现非法收集未成年人信息，将第一时间删除相关数据。</p>
+
+            <h2>八、Cookie 的使用</h2>
+            <p>本站可使用Cookie用于提升浏览体验、统计访问数据。您可以通过浏览器设置拒绝Cookie，但部分页面功能可能因此受到影响。</p>
+
+            <h2>九、隐私政策更新</h2>
+            <p>我们可能根据法律法规更新本隐私政策。更新后的版本将展示于此弹窗内，更新日期随之变更；重大变更时我们会在网站提示，建议您定期查阅。</p>
+
+            <h2>十、联系我们</h2>
+            <p>如您对于隐私政策、个人信息处理存在疑问、诉求，可以通过商城客服渠道联系我们。</p>
+        </div>
+    </div>
+
+    <!-- 侧边抽屉遮罩 -->
+    <div class="drawer-mask" id="drawerMask"></div>
+
+    <!-- 侧边抽屉菜单【优化分组+图标】 -->
+    <div class="drawer">
+        <div class="drawer-logo">未来通信</div>
+
+        <div class="drawer-group-title">业务服务</div>
+        <div class="drawer-item active" data-content="content1">
+            <span class="drawer-icon">📶</span>
+            <span>宽带专区</span>
+        </div>
+        <div class="drawer-item" data-content="content2">
+            <span class="drawer-icon">📱</span>
+            <span>号卡套餐</span>
+        </div>
+        <div class="drawer-item" data-content="content3">
+            <span class="drawer-icon">🌐</span>
+            <span>3号网厅</span>
+        </div>
+        <div class="drawer-item" data-content="content4">
+            <span class="drawer-icon">📡</span>
+            <span>随身WiFi</span>
+        </div>
+        <div class="drawer-item" data-content="content5">
+            <span class="drawer-icon">💳</span>
+            <span>话费活动</span>
+        </div>
+
+        <div class="drawer-group-title">快捷入口</div>
+
+        <div class="drawer-item" data-content="content6">
+            <span class="drawer-icon">🔍</span>
+            <span>官方查询</span>
+        </div>
+        <div class="drawer-item" data-content="content7">
+            <span class="drawer-icon">5G</span>
+            <span>5G覆盖</span>
+        </div>
+        <div class="drawer-item" data-content="content8">
+            <span class="drawer-icon">❓</span>
+            <span>常见问题</span>
+        </div>
+
+        <div class="drawer-item">
+            <span class="drawer-icon">📄</span>
+            <a href="https://getsimnum.caict.ac.cn/#/" target="_blank" rel="noopener noreferrer">一证通查</a>
+        </div>
+        <div class="drawer-item" id="openPrivacy">
+            <span class="drawer-icon">🛡️</span>
+            <span>隐私政策</span>
+        </div>
+
+        <div class="drawer-footer">粤ICP备2023092773号-2</div>
+    </div>
+
+    <!-- 主内容区域 -->
+    <main class="content-area">
+        <!-- 宽带专区 iframe -->
+        <div class="iframe-wrapper">
+            <iframe class="portal-iframe" id="content1" src="https://hk.yunhaoka.cn/#/pages/micro_store/index?agent_id=fd7687894ce7e304b967e505d8255dd7"></iframe>
+        </div>
+        <!-- 号卡套餐 iframe -->
+        <div class="iframe-wrapper" hidden>
+            <iframe class="portal-iframe" id="content2" src="https://vip.777haoka.cn/index?k=T1RwMzdMQWw4cGc9" loading="lazy"></iframe>
+        </div>
+        <!-- 3号网厅 iframe -->
+        <div class="iframe-wrapper" hidden>
+            <iframe class="portal-iframe" id="content3" src="https://172.lot-ml.com/ProductEn/index/21f179ff2eb29bd5" loading="lazy"></iframe>
+        </div>
+        <!-- 随身WiFi iframe -->
+        <div class="iframe-wrapper" hidden>
+            <iframe class="portal-iframe" id="content4" src="https://h5.lianhengkj.com/#/pages/agentMoudle/micro_store/index?store_id=b6745283aa939dac" loading="lazy"></iframe>
+        </div>
+        <!-- 官方查询（静态页面） -->
+        <div class="iframe-wrapper" hidden>
+            <div id="content6" class="inner-container">
+                <div class="inner-card">
+                    <h2 class="inner-title">运营商订单查询</h2>
+                    <div class="inner-grid">
+                        <a href="https://dev.coc.10086.cn/coc/web/coc2020/cardqueryorder/" class="service-link" target="_blank" rel="noopener noreferrer">
+                            <span class="link-main">中国移动</span>
+                            <span class="link-desc">跳转移动官方查询页</span>
+                        </a>
+                        <a href="https://pms.189.cn/cljy-web/static/xshkzzfw/xshkzzfw_index.html" class="service-link" target="_blank" rel="noopener noreferrer">
+                            <span class="link-main">中国电信</span>
+                            <span class="link-desc">跳转电信官方查询页</span>
+                        </a>
+                        <a href="https://m.10010.com/myorder/" class="service-link" target="_blank" rel="noopener noreferrer">
+                            <span class="link-main">中国联通</span>
+                            <span class="link-desc">跳转联通官方查询页</span>
+                        </a>
+                        <a href="https://www.10099.com.cn/personal-center-my-order.html" class="service-link" target="_blank" rel="noopener noreferrer">
+                            <span class="link-main">中国广电</span>
+                            <span class="link-desc">跳转广电官方查询页</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="inner-card">
+                    <h3 class="inner-title sub-title">服务说明</h3>
+                    <div class="notice">
+                        <p>📢 重要提示：</p>
+                        <p>1. 订单取消申请提交后不可撤回，请谨慎操作</p>
+                        <p>2. 运营商将在1‑3个工作日内处理您的请求</p>
+                        <p>3. 取消成功后，建议间隔至少72小时再尝试新订单</p>
+                        <p>4. 如遇系统繁忙，请稍后再试或联系运营商官方客服</p>
+                    </div>
+                </div>
+                <div class="static-footer">粤ICP备2023092773号‑2</div>
+            </div>
+        </div>
+        <!-- 话费活动 -->
+        <div class="iframe-wrapper" hidden>
+            <div id="content5" class="inner-container">
+                <div class="inner-card">
+                    <h2 class="inner-title">话费活动</h2>
+                    <div class="inner-grid">
+                        <a href="https://wx.10086.cn/hlwyxhdhub/act-wedrecharge/1024101716?token=QWHDSSOD20260817T172106369DU1024101716H5bpbbR116397#/home" class="service-link" target="_blank" rel="noopener noreferrer">
+                            <span class="link-main">中国移动｜低至8折</span>
+                            <span class="link-desc">移动用户周三限时充值优惠</span>
+                        </a>
+                        <a href="https://wx.abchina.com/webank/main-view/openTagForGD?id=UazEcnRYm0I%3D&dynamicData=7Uv%2BzJmtZCuB%2FcrsqjG4ksRb%2FXomefKW&displayParam=7Uv%2BzJmtZCuB%2FcrsqjG4ksRb%2FXomefKW" class="service-link" target="_blank" rel="noopener noreferrer">
+                            <span class="link-main">三网｜农行立减</span>
+                            <span class="link-desc">话费充值立减5‑20元福利</span>
+                        </a>
+                        <a href="#" class="service-link" >
+                            <span class="link-main">中国电信</span>
+                            <span class="link-desc">电信话费优惠（待上线）</span>
+                        </a>
+                        <a href="#" class="service-link disabled">
+                            <span class="link-main">中国广电</span>
+                            <span class="link-desc">暂未开放相关活动</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="inner-card">
+                    <h3 class="inner-title sub-title">服务说明</h3>
+                    <div class="notice">
+                        <p>📢 重要提示：</p>
+                        <p>1. 点击跳转至官方活动页面，优惠规则以活动页为准</p>
+                        <p>2. 部分活动限用户身份、指定日期参与，名额有限</p>
+                        <p>3. 本平台仅提供导航入口，不直接参与充值收款交易</p>
+                    </div>
+                </div>
+                <div class="static-footer">粤ICP备2023092773号‑2</div>
+            </div>
+        </div>
+                
+        <!-- 5G覆盖查询 -->
+        <div class="iframe-wrapper" hidden>
+            <div id="content7" class="inner-container">
+                <div class="inner-card">
+                    <h2 class="inner-title">5G信号覆盖查询</h2>
+                    <div class="inner-grid">
+                        <a href="https://app.10086.cn/leadeon‑cmcc‑static/v2.0/pages/service/hallMap/location_list.html?WT.ac_id=1908_5GDT_MO_P_WMAD5" class="service-link" target="_blank" rel="noopener noreferrer">
+                            <span class="link-main">中国移动</span>
+                            <span class="link-desc">跳转移动5G覆盖查询</span>
+                        </a>
+                        <a href="https://www.189.cn/wap/telefivemap/telefivemap_hot.html?navflag=true" class="service-link" target="_blank" rel="noopener noreferrer">
+                            <span class="link-main">中国电信</span>
+                            <span class="link-desc">跳转电信5G覆盖查询</span>
+                        </a>
+                        <a href="https://img.client.10010.com/fjyytmap/index.html" class="service-link" target="_blank" rel="noopener noreferrer">
+                            <span class="link-main">中国联通</span>
+                            <span class="link-desc">跳转联通5G覆盖查询</span>
+                        </a>
+                        <a href="#" class="service-link disabled">
+                            <span class="link-main">中国广电</span>
+                            <span class="link-desc">暂未开放</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="inner-card">
+                    <h3 class="inner-title sub-title">服务说明</h3>
+                    <div class="notice">
+                        <p>📢 重要提示：</p>
+                        <p>1. 页面绿色区域为对应运营商5G网络覆盖范围</p>
+                        <p>2. 覆盖数据仅供参考，实际信号受基站状态、环境影响</p>
+                    </div>
+                </div>
+                <div class="static-footer">粤ICP备2023092773号‑2</div>
+            </div>
+        </div>
+        <!-- 常见问题 -->
+        <div class="iframe-wrapper" hidden>
+            <div id="content8" class="faq-container">
+                <div class="faq-card">
+                    <h2 class="faq-title">常见问题</h2>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            这些都是运营商正规套餐吗？
+                            <span class="faq-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <div class="faq-answer-inner">
+                                <p>平台仅提供运营商套餐导航入口；所有办理业务由对应运营商官方渠道负责审核、发货、激活与售后。套餐内容、资费规则和售后政策以运营商官方说明为准。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            归属地和号码可选吗？是全国通用吗？
+                            <span class="faq-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <div class="faq-answer-inner">
+                                <p>归属地一般由运营商系统根据收货地址或规则自动分配，部分套餐支持选择归属地，具体以下单页为准。</p>
+                                <p>号码通常由运营商随机分配，暂不支持自定义选号。套餐办理成功后，号卡可在国内正常使用，具体流量、通话和权益规则以套餐说明为准。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            办理的卡不想用了，要如何注销？
+                            <span class="faq-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <div class="faq-answer-inner">
+                                <p>号卡不使用时，建议及时办理注销，避免继续产生月租或影响个人号码信用。</p>
+                                <p>您可以通过以下方式处理：</p>
+                                <ul>
+                                    <li>联系运营商官方客服，咨询异地销户或线上销户流程</li>
+                                    <li>携带本人身份证到对应运营商线下营业厅办理</li>
+                                    <li>确认套餐是否有合约期，避免提前注销产生违约金</li>
+                                </ul>
+                                <p>未主动注销可能导致号码欠费、停机，甚至影响后续办理其他运营商业务。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            订单为什么会审核失败？
+                            <span class="faq-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <div class="faq-answer-inner">
+                                <p>订单审核失败通常与实名信息、收货地址、运营商规则或当前办理条件有关。</p>
+                                <p>常见原因包括：</p>
+                                <ul>
+                                    <li>身份证信息填写错误或照片不清晰</li>
+                                    <li>收货地址不在运营商支持范围内</li>
+                                    <li>同一身份证办理数量达到运营商限制</li>
+                                    <li>手机号码或联系人信息不符合要求</li>
+                                    <li>运营商系统审核未通过</li>
+                                </ul>
+                                <p>如遇审核失败，建议先核对订单信息，或联系运营商官方客服确认失败原因。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            网上办卡安全吗？身份信息会泄露吗？
+                            <span class="faq-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <div class="faq-answer-inner">
+                                <p>正规运营商套餐办理需要进行实名认证，这是根据国家通信网络实名制要求进行的，并非平台额外收集信息。</p>
+                                <p>办理过程中提交的身份信息主要由运营商用于审核、号卡激活和订单核验；建议您仅在运营商官方渠道提交身份证等敏感资料。</p>
+                                <p>为保护个人信息安全，请勿在非正规网站、陌生链接或不明应用中提交身份证、银行卡、验证码等敏感信息。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="faq-contact">
+                        <div class="faq-contact-text">以上问题没有解决您的问题？</div>
+                        <button class="faq-contact-btn" id="openFaqQrBtn">联系在线客服</button>
+                    </div>
+                </div>
+                <div class="static-footer">粤ICP备2023092773号‑2</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 底部Tab栏 -->
+    <div class="tab-bar">
+        <div class="tab-item active" data-content="content1">
+            <div class="tab-icon">📶</div>
+            <span>宽带</span>
+        </div>
+        <div class="tab-item" data-content="content2">
+            <div class="tab-icon">📱</div>
+            <span>号卡</span>
+        </div>
+        <div class="tab-item" data-content="content4">
+            <div class="tab-icon">📡</div>
+            <span>随身WiFi</span>
+        </div>
+        <div class="tab-item" data-content="content5">
+            <div class="tab-icon">💳</div>
+            <span>话费活动</span>
+        </div>
+    <!-- 底部Tab栏 
+        <div class="tab-item" data-content="content8">
+            <div class="tab-icon">❓</div>
+            <span>常见问题</span>
+        </div>  -->
+    </div>
+
+    <!-- 全新欢迎介绍弹窗 -->
+    <div class="mask-layer" id="mask">
+        <div class="verify-card">
+            <div class="welcome-icon"></div>
+            <h1 class="verify-title">欢迎来到未来通信商城</h1>
+            <p class="welcome-sub">一站式通信便民导航服务平台</p>
+
+            <div class="intro-block">
+                <h3 class="intro-title">🌐 平台简介</h3>
+                <p class="intro-text">
+                    未来通信商城是一站式通信服务导航平台，整理移动、联通、电信、广电运营商各类便民服务入口，为用户提供宽带办理、优惠流量号卡、随身WiFi选购、官方订单查询、5G覆盖检测等导航服务。
+                </p>
+            </div>
+
+            <div class="intro-block">
+                <h3 class="intro-title">✨ 核心功能</h3>
+                <div class="func-list">
+                    <div class="func-item">📶 宽带办理</div>
+                    <div class="func-item">📱 号卡套餐</div>
+                    <div class="func-item">📡 随身WiFi</div>
+                    <div class="func-item">💳 话费活动</div>
+                </div>
+            </div>
+
+    <!-- 全新欢迎介绍弹窗 
+            <div class="intro-block">
+                <h3 class="intro-title">✅ 温馨提示</h3>
+                <p class="intro-text">
+                    1. 本平台仅提供导航入口，不直接办理号卡、充值业务<br>
+                    2. 所有办理业务跳转对应运营商官方页面，资费、合约以运营商为准<br>
+                    3. 警惕电信诈骗，请勿向私人账户转账付款
+                </p>
+            </div>
+
+            <p class="tip-text">💡 温馨提示：本欢迎页24小时内仅展示一次，下次访问直接进入主页</p>     -->
+            <button class="enter-btn" id="enterBtn">立即进入网站</button>
+<br><br><br><br><br><br>
+            <iframe class="ad-iframe" src="http://dzz.96cct.top/qV3Ob2722I"></iframe>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded',function(){
+            const state = {
+                currentContent: 'content1'
+            };
+            //页面标题映射表，统一管理所有页面标题
+            const pageTitleMap = {
+                content1:"宽带专区",
+                content2:"号卡套餐",
+                content3:"3号网厅",
+                content4:"随身WiFi",
+                content5:"话费活动",
+                content6:"官方查询",
+                content7:"5G覆盖",
+                content8:"常见问题"
+            };
+
+            const dom = {
+                menuBtn: document.getElementById('menuBtn'),
+                drawerMask: document.getElementById('drawerMask'),
+                pageTitle: document.getElementById('pageTitle'),
+                drawerItems: document.querySelectorAll('.drawer-item'),
+                tabItems: document.querySelectorAll('.tab-item'),
+                msgBtn: document.getElementById('msgBtn'),
+                qrMask: document.getElementById('qrMask'),
+                qrCloseBtn: document.getElementById('qrCloseBtn'),
+                openFaqQrBtn: document.getElementById('openFaqQrBtn'),
+                faqItems: document.querySelectorAll('.faq-item'),
+                mask: document.getElementById('mask'),
+                enterBtn: document.getElementById('enterBtn'),
+                mainContent: document.querySelector('.content-area'),
+                navBar: document.querySelector('.nav-bar'),
+                tabBar: document.querySelector('.tab-bar'),
+                toastTip: document.getElementById('toastTip'),
+                openPrivacy: document.getElementById('openPrivacy'),
+                privacyMask: document.getElementById('privacyMask'),
+                privacyClose: document.getElementById('privacyClose')
+            };
+
+            //Toast函数
+            function showToast(text,delay=1800){
+                dom.toastTip.innerText = text;
+                dom.toastTip.classList.add("show");
+                setTimeout(()=>{
+                    dom.toastTip.classList.remove("show");
+                },delay);
+            }
+            //外部链接提示绑定
+            document.querySelectorAll('a[target="_blank"]').forEach(a=>{
+                a.addEventListener("click",()=>{
+                    showToast("即将跳转第三方官方页面");
+                })
+            })
+
+            //页面打开弹窗，给body增加禁止滚动标记
+            document.body.classList.add("popup-open");
+
+            // 侧边抽屉逻辑
+            function toggleDrawer(open) {
+                document.body.classList.toggle('drawer-open', open);
+            }
+            dom.menuBtn.addEventListener('click', () => toggleDrawer(true));
+            dom.drawerMask.addEventListener('click', () => toggleDrawer(false));
+
+            // 客服二维码弹窗
+            function toggleQrModal(open) {
+                document.body.classList.toggle('qr-open', open);
+            }
+            dom.msgBtn.addEventListener('click', () => toggleQrModal(true));
+            dom.qrCloseBtn.addEventListener('click', () => toggleQrModal(false));
+            dom.qrMask.addEventListener('click', (e) => {
+                if (e.target === dom.qrMask) toggleQrModal(false);
+            });
+            if (dom.openFaqQrBtn) dom.openFaqQrBtn.onclick = () => toggleQrModal(true);
+
+            // =========隐私弹窗控制==========
+            function togglePrivacyModal(open){
+                document.body.classList.toggle('privacy-open',open);
+            }
+            dom.openPrivacy.addEventListener('click',()=>{
+                toggleDrawer(false);
+                togglePrivacyModal(true);
+            });
+            dom.privacyClose.addEventListener('click',()=>togglePrivacyModal(false));
+            dom.privacyMask.addEventListener('click',e=>{
+                if(e.target === dom.privacyMask) togglePrivacyModal(false);
+            });
+
+            // 修复FAQ手风琴（展开/收起）互斥模式
+            dom.faqItems.forEach(item => {
+                const q = item.querySelector('.faq-question');
+                const a = item.querySelector('.faq-answer');
+                q.onclick = () => {
+                    const isCurrentOpen = item.classList.contains('active');
+                    dom.faqItems.forEach(i => {
+                        i.classList.remove('active');
+                        i.querySelector('.faq-answer').style.maxHeight = null;
+                    });
+                    if (!isCurrentOpen) {
+                        item.classList.add('active');
+                        a.style.maxHeight = a.scrollHeight + 'px';
+                    }
+                };
+            });
+
+            // 切换页面：唯一参数 contentId，依靠ID同步侧边栏、Tab激活状态
+            function switchContent(contentId) {
+                const targetEl = document.getElementById(contentId);
+                if (!targetEl) return;
+                const title = pageTitleMap[contentId] || "未来通信商城";
+
+                document.querySelectorAll('.iframe-wrapper').forEach(w => w.hidden = true);
+                targetEl.parentElement.hidden = false;
+
+                dom.pageTitle.textContent = title;
+                //同步侧边栏active
+                dom.drawerItems.forEach(i => i.classList.toggle('active', i.dataset.content === contentId));
+                //同步底部tab active
+                dom.tabItems.forEach(i => i.classList.toggle('active', i.dataset.content === contentId));
+
+                state.currentContent = contentId;
+                toggleDrawer(false);
+            }
+
+            //绑定点击事件，只传contentId
+            dom.drawerItems.forEach(i => i.onclick = () => i.dataset.content && switchContent(i.dataset.content));
+            dom.tabItems.forEach(i => i.onclick = () => i.dataset.content && switchContent(i.dataset.content));
+
+            // 左滑手势打开侧边栏
+            let startX = 0;
+            document.addEventListener('touchstart', e => startX = e.touches[0].clientX, { passive: true });
+            document.addEventListener('touchend', e => {
+                const endX = e.changedTouches[0].clientX;
+                const diff = endX - startX;
+                if (startX < 30 && diff > 50) toggleDrawer(true);
+                if (document.body.classList.contains('drawer-open') && diff < -50) toggleDrawer(false);
+            }, { passive: true });
+
+            // 24小时仅一次弹窗逻辑
+            const VERIFY_KEY = 'last_verify_time';
+            const TWENTY_FOUR_HOUR = 24 * 60 * 60 * 1000;
+
+            function showAllMainUI() {
+                dom.mask.style.display = 'none';
+                document.body.classList.remove("popup-open");
+                dom.navBar.style.display = 'flex';
+                dom.mainContent.style.display = 'block';
+                dom.tabBar.style.display = 'flex';
+            }
+
+            // 读取缓存
+            const lastTime = localStorage.getItem(VERIFY_KEY);
+            const now = Date.now();
+
+            // 判断24小时缓存，不需要弹窗则直接进入主页
+            if (lastTime && (now - parseInt(lastTime)) < TWENTY_FOUR_HOUR) {
+                showAllMainUI();
+            } else {
+                // 需要展示欢迎弹窗，启动3秒倒计时
+                let countDownSec = 3;
+                let timer = null;
+                const originText = "立即进入网站";
+
+                // 更新按钮文字
+                function updateBtnText(){
+                    dom.enterBtn.innerText = `${originText} (${countDownSec}s)`;
+                }
+                updateBtnText();
+
+                // 进入主页统一处理函数
+                function goEnter(){
+                    clearInterval(timer);
+                    localStorage.setItem(VERIFY_KEY, now.toString());
+                    showAllMainUI();
+                }
+
+                // 点击按钮直接进入
+                dom.enterBtn.onclick = goEnter;
+
+                // 倒计时定时器
+                timer = setInterval(()=>{
+                    countDownSec --;
+                    updateBtnText();
+                    if(countDownSec <= 0){
+                        goEnter();
+                    }
+                },1000);
+            }
         })
-        document.getElementById(targetId).classList.remove('hide');
-        document.getElementById(targetId).classList.add('show');
-    })
-})
-// 默认激活第一个tab
-document.querySelector('.tab-item').classList.add('bg-blue-500', 'text-white');
+    </script>
 
-// 百度统计
-var _hmt = _hmt || [];
-(function() {
-  var hm = document.createElement("script");
-  hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
-  var s = document.getElementsByTagName("script")[0];
-  s.parentNode.insertBefore(hm, s);
-})();
-
-// 51LA统计
-!(function(c,l,a,r,i,t,y){
-    c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-    t=l.createElement(r);t.async=1;t.src="https://sdk.51.la/js-sdk-pro.min.js";
-    y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-})(window, document, "LA", "script");
-LA.init({id:"3GBQy07pYlIVc3g8",ck:"3GBQy07pYlIVc3g8"})
-</script>
 </body>
+<textarea style="display:none"> 
 </html>
