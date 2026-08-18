@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>请在浏览器打开</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        body {
+            background-color: #ffffff;
+            min-height: 100vh;
+        }
+        /* 顶部蓝色头部区域 */
+        .top-banner {
+            background: linear-gradient(135deg, #0077ee 0%, #42c0ff 100%);
+            color: #fff;
+            padding: 24px 20px;
+            position: relative;
+            overflow: hidden;
+            border-bottom-left-radius: 36px;
+            border-bottom-right-radius: 36px;
+        }
+        .top-banner::after {
+            content: "👆";
+            position: absolute;
+            right: 12px;
+            top: 4px;
+            font-size: 64px;
+            opacity: 0.9;
+        }
+        .top-banner p {
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        .icon-row {
+            margin-top:6px;
+            font-size:16px;
+        }
+        /* 主体内容区 */
+        .content-wrap {
+            padding: 60px 20px 40px;
+            text-align: center;
+        }
+        .tip-item {
+            font-size: 24px;
+            color:#0068dd;
+            font-weight:500;
+            margin:28px 0;
+            line-height:1.5;
+        }
+        .line-wrap {
+            display:flex;
+            align-items:center;
+            margin:40px 0 16px;
+        }
+        .line-wrap::before,.line-wrap::after{
+            content:"";
+            flex:1;
+            height:1px;
+            background:#88a8dd;
+        }
+        .url-text {
+            padding:0 12px;
+            font-size:22px;
+            color:#0068dd;
+        }
+        .sub-tip {
+            font-size:20px;
+            color:#0068dd;
+            margin:20px 0 48px;
+            line-height:1.5;
+        }
+        /* 复制按钮 */
+        #copyBtn {
+            border:2px solid #0068dd;
+            color:#0068dd;
+            background:#fff;
+            font-size:22px;
+            padding:14px 40px;
+            border-radius:999px;
+        }
+        #copyBtn:active {
+            background:#e8f2ff;
+        }
+        /* 复制成功提示 */
+        .toast {
+            position:fixed;
+            left:50%;
+            top:50%;
+            transform:translate(-50%,-50%);
+            background:rgba(0,0,0,0.7);
+            color:#fff;
+            padding:12px 24px;
+            border-radius:8px;
+            font-size:16px;
+            display:none;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-banner">
+        <p>点击右上角 ⋯ 在 浏览器 打开</p>
+        <div class="icon-row">
+            苹果设备 🧭 &nbsp;安卓设备 🌐 ↗↗↗
+        </div>
+    </div>
+
+    <div class="content-wrap">
+        <div class="tip-item">1.本站不支持 微信或QQ 内访问</div>
+        <div class="tip-item">2.请按提示在手机 浏览器 打开</div>
+
+        <div class="line-wrap">
+            <span class="url-text">https://pay262.github.io/</span>
+        </div>
+
+        <div class="sub-tip">— 点击右上角 ⋯ or 复制网址自行打开 —</div>
+
+        <button id="copyBtn">点此复制本站网址</button>
+    </div>
+
+    <div class="toast" id="toast">复制成功</div>
+
+    <script>
+        const targetUrl = "haoka.html";
+        const copyBtn = document.getElementById('copyBtn');
+        const toast = document.getElementById('toast');
+
+        copyBtn.addEventListener('click',async ()=>{
+            try{
+                await navigator.clipboard.writeText(targetUrl);
+                showToast();
+            }catch(err){
+                // 兼容低版本手机
+                const input = document.createElement('input');
+                input.value = targetUrl;
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('copy');
+                document.body.removeChild(input);
+                showToast();
+            }
+        })
+        function showToast(){
+            toast.style.display = "block";
+            setTimeout(()=>{
+                toast.style.display = "none";
+            },1200)
+        }
+    </script>
+</body>
+</html>
