@@ -11,15 +11,16 @@
             box-sizing: border-box;
             font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
         }
-        /* 初始透明，彻底杜绝闪现 */
+        /* 默认隐藏整个页面，根html标签控制显示，head脚本可访问 */
+        html {
+            visibility: hidden;
+        }
+        html.show-page {
+            visibility: visible;
+        }
         body {
             background-color: #ffffff;
             min-height: 100vh;
-            opacity: 0;
-            transition: opacity 0.15s ease;
-        }
-        body.show-page{
-            opacity:1;
         }
         /* 顶部蓝色头部区域 */
         .top-banner {
@@ -125,15 +126,15 @@
 
         const isInner = checkInnerEnv();
         if(!isInner){
-            // 普通浏览器直接跳转，不会渲染页面
+            // 普通浏览器直接跳转，完全不会渲染页面
             window.location.replace(outerJumpUrl);
         }else{
-            //微信QQ环境才显示页面
-            document.body.classList.add("show-page");
+            // head阶段 document.documentElement(html标签)是存在的，不会null报错
+            document.documentElement.classList.add("show-page");
         }
         //兜底：JS异常3秒强制显示页面，防止永久空白
         setTimeout(()=>{
-            document.body.classList.add("show-page");
+            document.documentElement.classList.add("show-page");
         },3000);
     </script>
 </head>
