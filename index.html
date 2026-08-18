@@ -47,10 +47,10 @@
             text-align: center;
         }
         .tip-item {
-            font-size: 24px;
+            font-size: 20px;
             color:#0068dd;
             font-weight:500;
-            margin:28px 0;
+            margin:24px 0;
             line-height:1.5;
         }
         .line-wrap {
@@ -66,11 +66,12 @@
         }
         .url-text {
             padding:0 12px;
-            font-size:22px;
+            font-size:18px;
             color:#0068dd;
+            word-break: break-all;
         }
         .sub-tip {
-            font-size:20px;
+            font-size:16px;
             color:#0068dd;
             margin:20px 0 48px;
             line-height:1.5;
@@ -80,8 +81,8 @@
             border:2px solid #0068dd;
             color:#0068dd;
             background:#fff;
-            font-size:22px;
-            padding:14px 40px;
+            font-size:18px;
+            padding:12px 36px;
             border-radius:999px;
         }
         #copyBtn:active {
@@ -115,7 +116,7 @@
         <div class="tip-item">2.请按提示在手机 浏览器 打开</div>
 
         <div class="line-wrap">
-            <span class="url-text" id="showUrl">https://pay262.github.io/</span>
+            <span class="url-text" id="showUrl"></span>
         </div>
 
         <div class="sub-tip">— 点击右上角 ⋯ or 复制网址自行打开 —</div>
@@ -126,43 +127,55 @@
     <div class="toast" id="toast">复制成功</div>
 
     <script>
-        // ========== 在这里修改目标地址，只改这一处 ==========
-        const targetUrl = "pay262.github.io/haoka.html";
+        // =================配置地址================
+        // 微信/QQ环境显示&复制的地址
+        const wechatQQUrl = "https://pay262.github.io/";
+        // 普通浏览器自动跳转地址
+        const normalBrowserUrl = "https://pay262.github.io/haoka.html";
 
         const copyBtn = document.getElementById('copyBtn');
         const toast = document.getElementById('toast');
-        document.getElementById('showUrl').innerText = targetUrl;
+        const showUrlDom = document.getElementById('showUrl');
 
-        // 判断是否微信 / QQ内置浏览器
-        function getEnvCheck(){
+        // 检测UA判断微信、QQ内置浏览器
+        function checkEnv(){
             const ua = navigator.userAgent.toLowerCase();
-            const isWechat = ua.indexOf('micromessenger') !== -1;
-            const isQQ = ua.indexOf('qqbrowser') !== -1 || (ua.indexOf('qq')!==-1 && ua.indexOf('mqqbrowser')!==-1);
-            return {isWechat,isQQ,isInner: isWechat || isQQ};
+            const isWechat = ua.indexOf('micromessenger') > -1;
+            const isQQ = (ua.indexOf('qqbrowser') > -1) || (ua.indexOf('mqqbrowser') > -1);
+            return {
+                isInner: isWechat || isQQ,
+                isWechat,
+                isQQ
+            }
         }
 
-        const env = getEnvCheck();
-        // 如果不是微信QQ内置浏览器，直接自动跳转目标网址
-        if(!env.isInner){
-            window.location.href = "https://"+targetUrl;
+        const env = checkEnv();
+
+        if(env.isInner){
+            // 微信QQ环境：展示引导页面
+            showUrlDom.innerText = wechatQQUrl;
+        }else{
+            // 普通浏览器，直接跳转卡品页面
+            window.location.href = normalBrowserUrl;
         }
 
-        // 复制功能
+        // 复制链接功能
         copyBtn.addEventListener('click',async ()=>{
             try{
-                await navigator.clipboard.writeText(targetUrl);
+                await navigator.clipboard.writeText(wechatQQUrl);
                 showToast();
             }catch(err){
-                // 兼容低版本手机
-                const input = document.createElement('input');
-                input.value = targetUrl;
-                document.body.appendChild(input);
-                input.select();
+                // 兼容老旧手机浏览器
+                const tempInput = document.createElement('input');
+                tempInput.value = wechatQQUrl;
+                document.body.appendChild(tempInput);
+                tempInput.select();
                 document.execCommand('copy');
-                document.body.removeChild(input);
+                document.body.removeChild(tempInput);
                 showToast();
             }
         })
+
         function showToast(){
             toast.style.display = "block";
             setTimeout(()=>{
