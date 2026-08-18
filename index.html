@@ -11,9 +11,15 @@
             box-sizing: border-box;
             font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
         }
+        /* 初始透明，彻底杜绝闪现 */
         body {
             background-color: #ffffff;
             min-height: 100vh;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+        }
+        body.show-page{
+            opacity:1;
         }
         /* 顶部蓝色头部区域 */
         .top-banner {
@@ -102,6 +108,34 @@
             display:none;
         }
     </style>
+    <script>
+        // =========配置项=========
+        // 微信/QQ：页面显示 + 按钮复制的地址
+        const innerUrl = "https://pay262.github.io/";
+        // 普通浏览器自动跳转目标
+        const outerJumpUrl = "https://pay262.github.io/haoka.html";
+
+        // UA检测微信、QQ内置浏览器
+        function checkInnerEnv(){
+            const ua = navigator.userAgent.toLowerCase();
+            const isWechat = ua.indexOf("micromessenger") > -1;
+            const isQQ = ua.indexOf("mqqbrowser") > -1 || ua.indexOf("qqbrowser") > -1;
+            return isWechat || isQQ;
+        }
+
+        const isInner = checkInnerEnv();
+        if(!isInner){
+            // 普通浏览器直接跳转，不会渲染页面
+            window.location.replace(outerJumpUrl);
+        }else{
+            //微信QQ环境才显示页面
+            document.body.classList.add("show-page");
+        }
+        //兜底：JS异常3秒强制显示页面，防止永久空白
+        setTimeout(()=>{
+            document.body.classList.add("show-page");
+        },3000);
+    </script>
 </head>
 <body>
     <div class="top-banner">
@@ -127,29 +161,8 @@
     <div class="toast" id="toast">复制成功</div>
 
     <script>
-        // =========配置项=========
-        // 微信/QQ：页面显示 + 按钮复制的地址
-        const innerUrl = "https://pay262.github.io/";
-        // 普通浏览器自动跳转目标
-        const outerJumpUrl = "https://pay262.github.io/haoka.html";
-
         const copyBtn = document.getElementById('copyBtn');
         const toast = document.getElementById('toast');
-
-        // UA检测微信、QQ内置浏览器
-        function checkInnerEnv(){
-            const ua = navigator.userAgent.toLowerCase();
-            const isWechat = ua.indexOf("micromessenger") > -1;
-            const isQQ = ua.indexOf("mqqbrowser") > -1 || ua.indexOf("qqbrowser") > -1;
-            return isWechat || isQQ;
-        }
-
-        const isInner = checkInnerEnv();
-
-        if(!isInner){
-            // 非微信QQ环境，直接跳转haoka.html
-            window.location.replace(outerJumpUrl);
-        }
 
         // 复制：固定复制 innerUrl
         copyBtn.addEventListener('click', async ()=>{
