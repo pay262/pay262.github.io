@@ -115,7 +115,7 @@
         <div class="tip-item">2.请按提示在手机 浏览器 打开</div>
 
         <div class="line-wrap">
-            <span class="url-text">https://pay262.github.io/</span>
+            <span class="url-text" id="showUrl">https://pay262.github.io/</span>
         </div>
 
         <div class="sub-tip">— 点击右上角 ⋯ or 复制网址自行打开 —</div>
@@ -126,10 +126,28 @@
     <div class="toast" id="toast">复制成功</div>
 
     <script>
-        const targetUrl = "haoka.html";
+        // ========== 在这里修改目标地址，只改这一处 ==========
+        const targetUrl = "pay262.github.io/haoka.html";
+
         const copyBtn = document.getElementById('copyBtn');
         const toast = document.getElementById('toast');
+        document.getElementById('showUrl').innerText = targetUrl;
 
+        // 判断是否微信 / QQ内置浏览器
+        function getEnvCheck(){
+            const ua = navigator.userAgent.toLowerCase();
+            const isWechat = ua.indexOf('micromessenger') !== -1;
+            const isQQ = ua.indexOf('qqbrowser') !== -1 || (ua.indexOf('qq')!==-1 && ua.indexOf('mqqbrowser')!==-1);
+            return {isWechat,isQQ,isInner: isWechat || isQQ};
+        }
+
+        const env = getEnvCheck();
+        // 如果不是微信QQ内置浏览器，直接自动跳转目标网址
+        if(!env.isInner){
+            window.location.href = "https://"+targetUrl;
+        }
+
+        // 复制功能
         copyBtn.addEventListener('click',async ()=>{
             try{
                 await navigator.clipboard.writeText(targetUrl);
