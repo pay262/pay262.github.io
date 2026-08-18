@@ -1,482 +1,338 @@
-<html lang="en">
-    
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-status-bar-style" content="black">
-        <meta name="apple-mobile-web-app-title" content="instap">
-        <link rel="icon" href="favicon.ico">
-        <title>
-            未来科技 | 因为相信 · 所以看见
-        </title>
-        <link href="index/css/m.css" rel="stylesheet">
-        <link rel="stylesheet" type="text/css" href="index/css/style.css">
-          <!--   <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.4/jquery.min.js"></script>-->
-         <script src="index/js/jquery.min3.6.4.js"></script>
-
-    <!--onselectstart:禁止选中 oncontextmenu:右键弹出版权 event.keyCode==27:按esc键表示放弃Esc键阻止网页继续载入,也就是说你按ESC键网页还是继续加载
-<body onselectstart="return false;" oncontextmenu="alert('未来科技 - 因为相信 · 所以看见！');return false;" onkeydown="if(event.keyCode==27) return false;">  -->
-<script type="text/javascript">
-document.onmousedown = click;  //绑定禁用鼠标右键事件
-document.onkeydown = ctrl_key; //绑定禁用键盘事件
-function click() {
-if (event.button == 2)      //单击的鼠标键为右键
-{
-alert('未来科技 - 因为相信 · 所以看见！');
-return false;
-}
-}
-function ctrl_key() {
-if (event.keyCode == 17) {                          //禁用CTRL+S 保存网页代码
-window.alert("未来科技 - 因为相信 · 所以看见！");
-return false;
-}
- 
-if (event.keyCode == 123) {                         //禁用F12查看源代码
-alert('未来科技 - 因为相信 · 所以看见！');
-return false;
-}
-}
-</script>
-    
-    </head>
-    
-    <body _c_t_j1="1" style="" onselectstart="return false;" oncontextmenu="alert('未来科技 - 因为相信 · 所以看见！');return false;" onkeydown="if(event.keyCode==27) return false;">
-        <div id="app">
-           
-                   
-                    <div class="header">
-                            <div class="banner">
-                                <!---->
-                                <div class="logo">
-                                    <img src="index/picture/logo.jpg"
-                                    alt="">
-                                </div>
-                            </div>
-                            <div class="author-name">
-                              <!--  <span class="gender-icon female">
-                                </span>  -->
-                                未来
-                            </div>
-                            <p class="desc">
-                            因为相信 · 所以看见
-                            </p>
-                        </div>
-           
-                                  
-                    <div class="body">
-                    
-                    
-                        <div class="tab-list">
-                               <div class="tab-item jr">
-                                <span class="text">
-                                    号卡
-                                </span>
-                            </div>
-                            <div class="tab-item tx">
-                                <span class="text">
-                                    金融
-                                </span>
-                            </div>
-                            <div class="tab-item dh">
-                                <span class="text">
-                                    导航
-                                </span>
-                            </div>
-
-                           <div class="tab-item gy">
-                                <span class="text">
-                                    关于
-                                </span>
-                            </div>
-                        </div>
-                        
-                        
-                        
-                        <div class="app-list a1">
-
-                             <a onclick="window.location.href=&quot;app/haoka/01.html&quot;"
-                            class="item" style="opacity: 1;">
-                                <div class="content-wrap">
-                                    <div class="img-wrap">
-                                        <img src="https://vip.777haoka.cn/static/img/notice.png" alt="">
-                                    </div>
-                                    <p class="app-name">
-                                        1号店铺
-                                    </p>
-                                </div>
-                            </a> 
-                            <a onclick="window.location.href=&quot;http://vip.777haoka.cn/cha?k=T1RwMzdMQWw4cGc9&quot;"
-                            class="item" style="opacity: 1;">
-                                <div class="content-wrap">
-                                    <div class="img-wrap">
-                                        <img src="https://vip.777haoka.cn/static/img/notice.png" alt="">
-                                    </div>
-                                    <p class="app-name">
-                                        1号订单
-                                    </p>
-                                </div>                         
-                            </a> 
-                             <a onclick="window.location.href=&quot;app/haoka/02.html&quot;"
-                            class="item" style="opacity: 1;">
-                                <div class="content-wrap">
-                                    <div class="img-wrap">
-                                        <img src="index/picture/google.png" alt="">
-                                    </div>
-                                    <p class="app-name">
-                                        2号店铺
-                                    </p>
-                                </div>
-                            </a> 
-                            <a onclick="window.location.href=&quot;https://hk.yunhaoka.cn/#/pages/query&quot;"
-                            class="item" style="opacity: 1;">
-                                <div class="content-wrap">
-                                    <div class="img-wrap">
-                                        <img src="index/picture/tool.png" alt="">
-                                    </div>
-                                    <p class="app-name">
-                                        2号订单
-                                    </p>
-                                </div>                         
-                            </a> 
-                             <a onclick="window.location.href=&quot;app/haoka/03.html&quot;"
-                            class="item" style="opacity: 1;">
-                                <div class="content-wrap">
-                                    <div class="img-wrap">
-                                        <img src="http://card.haokale.com/favicon.ico" alt="">
-                                    </div>
-                                    <p class="app-name">
-                                        3号店铺
-                                    </p>
-                                </div>
-                            </a> 
-                            <a onclick="window.location.href=&quot;https://91haoka.cn/webapp/merchant/new_query.html?code=kIbI05zdmbP4uFoXjsfUuw%3D%3D&quot;"
-                            class="item" style="opacity: 1;">
-                                <div class="content-wrap">
-                                    <div class="img-wrap">
-                                        <img src="http://card.haokale.com/favicon.ico" alt="">
-                                    </div>
-                                    <p class="app-name">
-                                        3号订单
-                                    </p>
-                                </div>                         
-                            </a> 
-
-
-
-
-                            <!---->
-                        </div>
-                        
-                        <div class="app-list a2">
-
-
-                             <a onclick="window.location.href=&quot;yangmaohui/pay.html&quot;"
-                            class="item" style="opacity: 1;">
-                                <div class="content-wrap">
-                                    <div class="img-wrap">
-                                        <img src="index/picture/money.png"
-                                        alt="">
-                                    </div>
-                                    <p class="app-name">
-                                        收款工具
-                                    </p>
-                                </div>
-                            </a>
-                            <a onclick="window.location.href=&quot;%69%6e%64%65%78/%6d%79%2e%68%74%6d%6c&quot;"
-                            class="item" style="opacity: 1;">
-                                <div class="content-wrap">
-                                    <div class="img-wrap">
-                                        <img src="index/picture/google.png" alt="">
-                                    </div>
-                                    <p class="app-name">
-                                        工作台
-                                    </p>
-                                </div>
-                            </a>                          
-
-
-                            <!---->
-                        </div>
-                        <!-- 音乐播放器跨站开始 -->
-                        
-                        
-                        
-                        
-                        
-
-                        
-
-
-                        <div class="app-list a3">                       
-
-                            <a onclick="window.location.href=&quot;hao/&quot;"
-                            class="item" style="opacity: 1;">
-                                <div class="content-wrap">
-                                    <div class="img-wrap">
-                                        <img src="index/picture/google.png" alt="">
-                                    </div>
-                                    <p class="app-name">
-                                        BT导航
-                                    </p>
-                                </div>                         
-                            </a> 
-
-                            <a onclick="window.location.href=&quot;https://tv.cctv.com/live/m&quot;"
-                            class="item" style="opacity: 1;">
-                                <div class="content-wrap">
-                                    <div class="img-wrap">
-                                        <img src="https://p4.img.cctvpic.com/photoAlbum/page/performance/img/2021/11/19/1637293545457_544.jpg" alt="">
-                                    </div>
-                                    <p class="app-name">
-                                        央视网
-                                    </p>
-                                </div>                         
-                            </a>                         
-                            <a onclick="window.location.href=&quot;https://m.gdtv.cn/tvChannelDetail/43&quot;"
-                            class="item" style="opacity: 1;">
-                                <div class="content-wrap">
-                                    <div class="img-wrap">
-                                        <img src="https://img.gdtv.cn/sitecdn/platforms/gdtv/images/logo_black_tag7d8c6a4c.png" alt="">
-                                    </div>
-                                    <p class="app-name">
-                                        荔枝网
-                                    </p>
-                                </div>                         
-                            </a>                        
-                            <a onclick="window.location.href=&quot;https://i.y.qq.com/n2/m/&quot;"
-                            class="item" style="opacity: 1;">
-                                <div class="content-wrap">
-                                    <div class="img-wrap">
-                                        <img src="https://y.qq.com/mediastyle/yqq/img/logo.png?max_age=2592000" alt="">
-                                    </div>
-                                    <p class="app-name">
-                                        QQ音乐
-                                    </p>
-                                </div>                         
-                            </a>                         
-                             <!---->
-                        </div>                       
-
-
-                        <div class="app-list a4">
-
-
-                            <a onclick="window.location.href=&quot;yangmaohui/download.html&quot;"
-                            class="item" style="opacity: 1;">
-                                <div class="content-wrap">
-                                    <div class="img-wrap">
-                                        <img src="index/picture/app.png" alt="">
-                                    </div>
-                                    <p class="app-name">
-                                        羊毛汇
-                                    </p>
-                                </div>                           
-                            </a>
-
-                            <a onclick="window.location.href=&quot;yangmaohui/dongtai.html&quot;"
-                            class="item" style="opacity: 1;">
-                                <div class="content-wrap">
-                                    <div class="img-wrap">
-                                        <img src="index/picture/google.png" alt="">
-                                    </div>
-                                    <p class="app-name">
-                                        卡圈动态
-                                    </p>
-                                </div>                         
-                            </a> 
-
-                             <a onclick="window.location.href=&quot;yangmaohui/tool_unicom.html&quot;"
-                            class="item" style="opacity: 1;">
-                                <div class="content-wrap">
-                                    <div class="img-wrap">
-                                        <img src="index/picture/10010.png" alt="">
-                                    </div>
-                                    <p class="app-name">
-                                        联通业务
-                                    </p>
-                                </div>
-                            </a>
-                            <a onclick="window.location.href=&quot;https://shouji.10099.com.cn/list/&quot;"
-                            class="item" style="opacity: 1;">
-                                <div class="content-wrap">
-                                    <div class="img-wrap">
-                                        <img src="index/picture/10099.png" alt="">
-                                    </div>
-                                    <p class="app-name">
-                                        广电终端
-                                    </p>
-                                </div>                         
-                            </a>
-
-                          <a onclick="window.location.href=&quot;https://qm.qq.com/q/eLlnHBdXwI&personal_qrcode_source=4&quot;"                           
-                            class="item" style="opacity: 1;">
-                                <div class="content-wrap">
-                                    <div class="img-wrap">
-                                        <img src="index/picture/qq.png" alt="">
-                                    </div>
-                                    <p class="app-name">
-                                        我的QQ
-                                    </p>
-                                </div>
-                            </a>
-                           <a onclick="window.location.href=&quot;mailto:pay268@qq.com&quot;" 
-                            class="item" style="opacity: 1;">
-                                <div class="content-wrap">
-                                    <div class="img-wrap">
-                                        <img src="index/picture/mail.png" alt="">
-                                    </div>
-                                    <p class="app-name">
-                                        我的邮箱
-                                    </p>
-                                </div>
-                           
-                            </a>
-          <!-- 历程开始 -->
-          <div class="main">
-            <!-- 历程内容 -->
-            <div class="box">
-              <div id="boxs">
-			     <div class="track-list">
-                  <p class="app-name" style="color: ; text-align: center; font-size: ">------大事记------</p><br>
-                  <!-- 时间轴开始 -->
-                      <i class="node-icon">
-                        <img src="index/picture/tb_success.svg" />
-                      </i>
-                      <span class="time"> 2024-05-31 </span>
-                      <span class="txt" style="color: #2ecc71"> BT导航上线。 </span>
-                    </br>
-                      <i class="node-icon">
-                        <img src="index/picture/tb_success.svg" />
-                      </i>
-                      <span class="time"> 2023-12-18 </span>
-                      <span class="txt" style="color: #2ecc71"> 本站版面更新。 </span>
-                    </br>
-                     <i class="node-icon">
-                        <img src="index/picture/tb_success.svg" />
-                      </i>
-                      <span class="time"> 2023-11-20 </span>
-                      <span class="txt" style="color: #2ecc71"> 羊毛汇全新版本3.0上线，彻底解决卡顿等BUG </span>
-                    </br>
-                      <i class="node-icon">
-                        <img src="index/picture/tb_success.svg" />
-                      </i>
-                      <span class="time"> 2023-02-08 </span>
-                      <span class="txt" style="color: #2ecc71"> 羊毛汇2.0版本优化，特别感谢@吾！ </span>
-                    </br>
-                       <i class="node-icon">
-                        <img src="index/picture/tb_success.svg" />
-                      </i>
-                      <span class="time"> 2023-01-17 </span>
-                      <span class="txt" style="color: #2ecc71"> 羊毛汇1.0上线！ </span>
-                   </br>
-                      <i class="node-icon">
-                        <img src="index/picture/tb_warning.svg" />
-                      </i>
-                      <span class="time"> 2023-01-17 </span>
-                      <span class="txt" style="color: #f5b041"> 免流工具箱，不再维护更新。 </span>
-                    </br>
-                      <i class="node-icon">
-                        <img src="index/picture/tb_info.svg" />
-                      </i>
-                      <span class="time">2022-12-08</span>
-                      <span class="txt">本站上线。</span>
-                    </br>
-                      <i class="node-icon">
-                        <img src="index/picture/tb_info.svg" />
-                      </i>
-                      <span class="time">2022-04-27</span>
-                      <span class="txt">免流工具箱1.0，悄然上线。</span>
-
-
-
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="instap">
+    <link rel="icon" href="favicon.ico">
+    <title>未来科技 | 因为相信 · 所以看见</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 自定义动画 */
+        .tab-panel {
+            transition: all 0.3s ease;
+        }
+        .tab-panel.hide {
+            opacity: 0;
+            transform: translateY(8px);
+            pointer-events: none;
+            position: absolute;
+        }
+        .tab-panel.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+            position: relative;
+        }
+        /* 禁止选中文本 */
+        .no-select {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 no-select" oncontextmenu="alert('未来科技 - 因为相信 · 所以看见！');return false;" onkeydown="if(event.keyCode==27) return false;">
+    <div id="app" class="max-w-xl mx-auto bg-white min-h-screen">
+        <!-- 头部区域 -->
+        <div class="header">
+            <div class="banner relative overflow-hidden rounded-b-xl">
+                <img src="index/picture/logo.jpg" alt="banner" class="w-full h-52 object-cover">
+                <!-- 圆形头像 -->
+                <div class="absolute left-1/2 -translate-x-1/2 -bottom-[60px] w-[120px] h-[120px] rounded-full border-4 border-white overflow-hidden bg-white shadow-lg">
+                    <img src="index/picture/logo.jpg" alt="avatar" class="w-full h-full object-cover">
                 </div>
-                <!-- 时间轴结束 -->
-              </div>
-            </div></br>
-          <!--  <div style="color: #aaa; text-align: center; font-size: 12px">注: 上下滑动查看历史进程</div>-->
-          </div>
-          <!-- 历程内容结束 -->
-
-        <!-- 历程结束 -->
-
-                            <!---->
-                        </div>
-                        
-                  
-             </div>           
-                        
-                             
-            <!-- 音乐播放器跨站结束 -->
- <div style="color: #aaa; text-align: center; font-size: 12px">      
-    <p>Copyright © <script>document.write( new Date().getFullYear() );</script> Future Tech. </a> All Rights Reserved.</p>   </div>     
+            </div>
+            <div class="pt-16 pb-6 text-center">
+                <h1 class="text-[2.2rem] font-bold text-gray-800">未来</h1>
+                <p class="text-gray-500 mt-2 text-lg">因为相信 · 所以看见</p>
+            </div>
         </div>
+
+        <!-- Tab导航栏 -->
+        <div class="tab-list flex gap-3 px-4 mb-6">
+            <div data-target="a1" class="tab-item jr flex-1 bg-gray-100 rounded-full py-3 text-center active:bg-blue-500 active:text-white transition-all cursor-pointer">
+                <span class="text">号卡</span>
+            </div>
+            <div data-target="a2" class="tab-item tx flex-1 bg-gray-100 rounded-full py-3 text-center transition-all cursor-pointer">
+                <span class="text">金融</span>
+            </div>
+            <div data-target="a3" class="tab-item dh flex-1 bg-gray-100 rounded-full py-3 text-center transition-all cursor-pointer">
+                <span class="text">导航</span>
+            </div>
+            <div data-target="a4" class="tab-item gy flex-1 bg-gray-100 rounded-full py-3 text-center transition-all cursor-pointer">
+                <span class="text">关于</span>
+            </div>
+        </div>
+
+        <!-- 内容容器 -->
+        <div class="px-4 relative">
+            <!-- 号卡 a1 -->
+            <div id="a1" class="tab-panel show app-list grid grid-cols-2 gap-4">
+                <a href="app/haoka/01.html" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
+                    <div class="content-wrap flex items-center gap-3">
+                        <div class="img-wrap w-10 h-10 shrink-0">
+                            <img src="https://vip.777haoka.cn/static/img/notice.png" alt="">
+                        </div>
+                        <p class="app-name text-base">1号店铺</p>
+                    </div>
+                </a>
+                <a href="http://vip.777haoka.cn/cha?k=T1RwMzdMQWw4cGc9" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
+                    <div class="content-wrap flex items-center gap-3">
+                        <div class="img-wrap w-10 h-10 shrink-0">
+                            <img src="https://vip.777haoka.cn/static/img/notice.png" alt="">
+                        </div>
+                        <p class="app-name text-base">1号订单</p>
+                    </div>
+                </a>
+                <a href="app/haoka/02.html" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
+                    <div class="content-wrap flex items-center gap-3">
+                        <div class="img-wrap w-10 h-10 shrink-0">
+                            <img src="index/picture/google.png" alt="">
+                        </div>
+                        <p class="app-name text-base">2号店铺</p>
+                    </div>
+                </a>
+                <a href="https://hk.yunhaoka.cn/#/pages/query" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
+                    <div class="content-wrap flex items-center gap-3">
+                        <div class="img-wrap w-10 h-10 shrink-0">
+                            <img src="index/picture/tool.png" alt="">
+                        </div>
+                        <p class="app-name text-base">2号订单</p>
+                    </div>
+                </a>
+                <a href="app/haoka/03.html" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
+                    <div class="content-wrap flex items-center gap-3">
+                        <div class="img-wrap w-10 h-10 shrink-0">
+                            <img src="http://card.haokale.com/favicon.ico" alt="">
+                        </div>
+                        <p class="app-name text-base">3号店铺</p>
+                    </div>
+                </a>
+                <a href="https://91haoka.cn/webapp/merchant/new_query.html?code=kIbI05zdmbP4uFoXjsfUuw%3D%3D" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
+                    <div class="content-wrap flex items-center gap-3">
+                        <div class="img-wrap w-10 h-10 shrink-0">
+                            <img src="http://card.haokale.com/favicon.ico" alt="">
+                        </div>
+                        <p class="app-name text-base">3号订单</p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- 金融 a2 -->
+            <div id="a2" class="tab-panel hide app-list grid grid-cols-2 gap-4">
+                <a href="yangmaohui/pay.html" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
+                    <div class="content-wrap flex items-center gap-3">
+                        <div class="img-wrap w-10 h-10 shrink-0">
+                            <img src="index/picture/money.png" alt="">
+                        </div>
+                        <p class="app-name text-base">收款工具</p>
+                    </div>
+                </a>
+                <a href="index/my.html" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
+                    <div class="content-wrap flex items-center gap-3">
+                        <div class="img-wrap w-10 h-10 shrink-0">
+                            <img src="index/picture/google.png" alt="">
+                        </div>
+                        <p class="app-name text-base">工作台</p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- 导航 a3 -->
+            <div id="a3" class="tab-panel hide app-list grid grid-cols-2 gap-4">
+                <a href="hao/" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
+                    <div class="content-wrap flex items-center gap-3">
+                        <div class="img-wrap w-10 h-10 shrink-0">
+                            <img src="index/picture/google.png" alt="">
+                        </div>
+                        <p class="app-name text-base">BT导航</p>
+                    </div>
+                </a>
+                <a href="https://tv.cctv.com/live/m" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
+                    <div class="content-wrap flex items-center gap-3">
+                        <div class="img-wrap w-10 h-10 shrink-0">
+                            <img src="https://p4.img.cctvpic.com/photoAlbum/page/performance/img/2021/11/19/1637293545457_544.jpg" alt="">
+                        </div>
+                        <p class="app-name text-base">央视网</p>
+                    </div>
+                </a>
+                <a href="https://m.gdtv.cn/tvChannelDetail/43" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
+                    <div class="content-wrap flex items-center gap-3">
+                        <div class="img-wrap w-10 h-10 shrink-0">
+                            <img src="https://img.gdtv.cn/sitecdn/platforms/gdtv/images/logo_black_tag7d8c6a4c.png" alt="">
+                        </div>
+                        <p class="app-name text-base">荔枝网</p>
+                    </div>
+                </a>
+                <a href="https://i.y.qq.com/n2/m/" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
+                    <div class="content-wrap flex items-center gap-3">
+                        <div class="img-wrap w-10 h-10 shrink-0">
+                            <img src="https://y.qq.com/mediastyle/yqq/img/logo.png?max_age=2592000" alt="">
+                        </div>
+                        <p class="app-name text-base">QQ音乐</p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- 关于 a4 -->
+            <div id="a4" class="tab-panel hide">
+                <div class="app-list grid grid-cols-2 gap-4 mb-8">
+                    <a href="yangmaohui/download.html" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
+                        <div class="content-wrap flex items-center gap-3">
+                            <div class="img-wrap w-10 h-10 shrink-0">
+                                <img src="index/picture/app.png" alt="">
+                            </div>
+                            <p class="app-name text-base">羊毛汇</p>
+                        </div>
+                    </a>
+                    <a href="yangmaohui/dongtai.html" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
+                        <div class="content-wrap flex items-center gap-3">
+                            <div class="img-wrap w-10 h-10 shrink-0">
+                                <img src="index/picture/google.png" alt="">
+                            </div>
+                            <p class="app-name text-base">卡圈动态</p>
+                        </div>
+                    </a>
+                    <a href="yangmaohui/tool_unicom.html" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
+                        <div class="content-wrap flex items-center gap-3">
+                            <div class="img-wrap w-10 h-10 shrink-0">
+                                <img src="index/picture/10010.png" alt="">
+                            </div>
+                            <p class="app-name text-base">联通业务</p>
+                        </div>
+                    </a>
+                    <a href="https://shouji.10099.com.cn/list/" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
+                        <div class="content-wrap flex items-center gap-3">
+                            <div class="img-wrap w-10 h-10 shrink-0">
+                                <img src="index/picture/10099.png" alt="">
+                            </div>
+                            <p class="app-name text-base">广电终端</p>
+                        </div>
+                    </a>
+                    <a href="https://qm.qq.com/q/eLlnHBdXwI&personal_qrcode_source=4" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
+                        <div class="content-wrap flex items-center gap-3">
+                            <div class="img-wrap w-10 h-10 shrink-0">
+                                <img src="index/picture/qq.png" alt="">
+                            </div>
+                            <p class="app-name text-base">我的QQ</p>
+                        </div>
+                    </a>
+                    <a href="mailto:pay268@qq.com" class="item block bg-gray-50 rounded-xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all">
+                        <div class="content-wrap flex items-center gap-3">
+                            <div class="img-wrap w-10 h-10 shrink-0">
+                                <img src="index/picture/mail.png" alt="">
+                            </div>
+                            <p class="app-name text-base">我的邮箱</p>
+                        </div>
+                    </a>
+                </div>
+                <!-- 大事记时间轴 -->
+                <div class="bg-gray-50 rounded-xl p-5">
+                    <p class="text-center font-medium mb-4">------大事记------</p>
+                    <div class="track-list space-y-4 border-l-2 border-gray-200 pl-4">
+                        <div class="flex gap-2 items-start">
+                            <img src="index/picture/tb_success.svg" class="w-5 h-5 mt-1 shrink-0">
+                            <div><span class="text-gray-500">2024-05-31</span> <span class="text-green-600">BT导航上线。</span></div>
+                        </div>
+                        <div class="flex gap-2 items-start">
+                            <img src="index/picture/tb_success.svg" class="w-5 h-5 mt-1 shrink-0">
+                            <div><span class="text-gray-500">2023-12-18</span> <span class="text-green-600">本站版面更新。</span></div>
+                        </div>
+                        <div class="flex gap-2 items-start">
+                            <img src="index/picture/tb_success.svg" class="w-5 h-5 mt-1 shrink-0">
+                            <div><span class="text-gray-500">2023-11-20</span> <span class="text-green-600">羊毛汇全新版本3.0上线，彻底解决卡顿等BUG</span></div>
+                        </div>
+                        <div class="flex gap-2 items-start">
+                            <img src="index/picture/tb_success.svg" class="w-5 h-5 mt-1 shrink-0">
+                            <div><span class="text-gray-500">2023-02-08</span> <span class="text-green-600">羊毛汇2.0版本优化，特别感谢@吾！</span></div>
+                        </div>
+                        <div class="flex gap-2 items-start">
+                            <img src="index/picture/tb_success.svg" class="w-5 h-5 mt-1 shrink-0">
+                            <div><span class="text-gray-500">2023-01-17</span> <span class="text-green-600">羊毛汇1.0上线！</span></div>
+                        </div>
+                        <div class="flex gap-2 items-start">
+                            <img src="index/picture/tb_warning.svg" class="w-5 h-5 mt-1 shrink-0">
+                            <div><span class="text-gray-500">2023-01-17</span> <span class="text-orange-500">免流工具箱，不再维护更新。</span></div>
+                        </div>
+                        <div class="flex gap-2 items-start">
+                            <img src="index/picture/tb_info.svg" class="w-5 h-5 mt-1 shrink-0">
+                            <div><span class="text-gray-500">2022-12-08</span> <span>本站上线。</span></div>
+                        </div>
+                        <div class="flex gap-2 items-start">
+                            <img src="index/picture/tb_info.svg" class="w-5 h-5 mt-1 shrink-0">
+                            <div><span class="text-gray-500">2022-04-27</span> <span>免流工具箱1.0，悄然上线。</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部版权 -->
+        <div class="py-8 text-center text-gray-400 text-sm mt-10">
+            <p>Copyright © <script>document.write(new Date().getFullYear())</script> Future Tech. All Rights Reserved.</p>
+        </div>
+    </div>
+
 <script>
+// 原页面防右键/F12/Ctrl+S保护逻辑
+document.onmousedown = function (e) {
+    if (e.button === 2) {
+        alert('未来科技 - 因为相信 · 所以看见！');
+        return false;
+    }
+}
+document.onkeydown = function (e) {
+    if (e.keyCode === 17) {
+        alert("未来科技 - 因为相信 · 所以看见！");
+        return false;
+    }
+    if (e.keyCode === 123) {
+        alert('未来科技 - 因为相信 · 所以看见！');
+        return false;
+    }
+}
+
+// Tab切换原生JS，替代jQuery
+const tabItems = document.querySelectorAll('.tab-item');
+const tabPanels = document.querySelectorAll('.tab-panel');
+tabItems.forEach(tab => {
+    tab.addEventListener('click', function () {
+        const targetId = this.dataset.target;
+        // tab激活样式
+        tabItems.forEach(el => el.classList.remove('bg-blue-500', 'text-white'));
+        this.classList.add('bg-blue-500', 'text-white');
+        // 面板切换动画
+        tabPanels.forEach(panel => {
+            panel.classList.remove('show');
+            panel.classList.add('hide');
+        })
+        document.getElementById(targetId).classList.remove('hide');
+        document.getElementById(targetId).classList.add('show');
+    })
+})
+// 默认激活第一个tab
+document.querySelector('.tab-item').classList.add('bg-blue-500', 'text-white');
+
+// 百度统计
 var _hmt = _hmt || [];
 (function() {
   var hm = document.createElement("script");
   hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
-  var s = document.getElementsByTagName("script")[0]; 
+  var s = document.getElementsByTagName("script")[0];
   s.parentNode.insertBefore(hm, s);
 })();
-</script>
-<script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
-<script>LA.init({id:"3GBQy07pYlIVc3g8",ck:"3GBQy07pYlIVc3g8"})</script>
 
-    </body>
-<script>
-jQuery(document).ready(function($) {
-      $(".a1").css("display", "flex");
-    $(".a2").css("display", "none");
-        $(".a3").css("display", "none");
-        $(".a4").css("display", "none");
-   $(document).ready(function(){
-  $(".jr").click(function(){
-      $(".a1").css("display", "flex");
-    $(".a2").css("display", "none");
-        $(".a3").css("display", "none");
-        $(".a4").css("display", "none");
-  });
-  });
-  
-  
-  $(document).ready(function(){
-  $(".tx").click(function(){
-      $(".a1").css("display", "none");
-    $(".a2").css("display", "flex");
-        $(".a3").css("display", "none");
-        $(".a4").css("display", "none"); 
- });
-  
-  });
-  
-  $(document).ready(function(){
-  $(".dh").click(function(){
-      $(".a1").css("display", "none");
-    $(".a2").css("display", "none");
-        $(".a3").css("display", "flex");
-        $(".a4").css("display", "none");
-  });
-    
-});
-  $(document).ready(function(){
-  $(".gy").click(function(){
-      $(".a1").css("display", "none");
-    $(".a2").css("display", "none");
-        $(".a3").css("display", "none");
-        $(".a4").css("display", "flex");
-  });
-    
-});
-
-});
+// 51LA统计
+!(function(c,l,a,r,i,t,y){
+    c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+    t=l.createElement(r);t.async=1;t.src="https://sdk.51.la/js-sdk-pro.min.js";
+    y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+})(window, document, "LA", "script");
+LA.init({id:"3GBQy07pYlIVc3g8",ck:"3GBQy07pYlIVc3g8"})
 </script>
-<!-- 
- * @Autor: Future Tech
- * @Date: 2023-12-18
- * @LastEditors: Future Tech
- * @LastEditTime: 2024-01-18
--->
+</body>
 </html>
