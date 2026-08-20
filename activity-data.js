@@ -541,12 +541,9 @@ const activityList = [
         link: "",
         remark: "将机顶盒、电视、宽带合并办理"
     },
-    // ============================================================
-    //  新增活动（基于用户提供链接）
-    // ============================================================
     
     {
-        id: 35,
+        id: 35,  // 请根据实际已有数据调整ID
         operator: "移动",
         province: "广西壮族自治区",
         city: "全省",
@@ -555,11 +552,11 @@ const activityList = [
         title: "广西移动10元300G全球通5G-A尊享合约",
         startTime: "2026-07-04",
         endTime: "2028-06-01",
-        desc: "10元/月享300GB国内通用流量+3000分钟国内通话+1500条国内短信，含5G-A网络权益（QCI6+千兆）[reference:0][reference:1]",
+        desc: "10元/月享300GB国内通用流量+3000分钟国内通话+1500条国内短信，含5G-A网络权益（QCI6+千兆）",
         link: "https://f.10086.cn/s/#nVyVPp",
-        remark: "需全球通或幸运客户身份，合约期24个月，承诺月消费不低于16-17元[reference:2][reference:3]"
+        remark: "需全球通或幸运客户身份，合约期24个月，承诺月消费不低于16-17元"
     },
-    {
+        {
         id: 36,
         operator: "移动",
         province: "全国",
@@ -569,11 +566,123 @@ const activityList = [
         title: "移动福利集市·日日签到领流量话费券",
         startTime: "2025-01-17",
         endTime: "2026-09-30",
-        desc: "每日签到可领流量日包、2元话费券等福利[reference:4]",
+        desc: "每日签到可领流量日包、2元话费券等福利",
         link: "https://wx.10086.cn/qwhdhub/diy-client/1126056401?A_C_CODE=Jvt45NUwWS",
-        remark: "需登录中国移动APP参与，领取后当日有效[reference:5]"
-    }    
-    ];
+        remark: "需登录中国移动APP参与，领取后当日有效"
+    },    
+// ============================================================
+//  基于 25xianbao.com/archives/18459 提取（广西移动）
+// ============================================================
+    
+    {
+        id: 37,
+        operator: "移动",
+        province: "广西壮族自治区",
+        city: "全省",
+        mainType: "其他活动",
+        subType: ["老用户专享"],
+        title: "广西移动网龄回馈202512焕新版（当月生效版）",
+        startTime: "2026-08-01",
+        endTime: "2026-12-31",
+        desc: "网龄回馈活动，当月生效版本，根据用户网龄赠送流量或权益",
+        link: "https://www.gx.10086.cn/gxwd/wdAdGoodsDetail/buyerIndex.html?2c94cba39b31527a019b48d5a27e023d,shop_id=2c94d2a99982b9dd01999d22faab26b3&flag=1&shareChannel=20_gridding_qd&ad_id=2c94beae9b55e5a9019b8332f0bc3659",
+        remark: "根据本月流量结余情况选择当月或次月生效"
+    },
+    {
+        id: 38,
+        operator: "移动",
+        province: "广西壮族自治区",
+        city: "全省",
+        mainType: "话费充值类",
+        subType: ["话费返还"],
+        title: "广西移动预存250元回馈100元",
+        startTime: "2026-08-01",
+        endTime: "2026-12-31",
+        desc: "预存250元话费，回馈100元，分10个月返还",
+        link: "https://www.gx.10086.cn/gxwd/wdAdGoodsDetail/buyerIndex.html?2c94cba48d405709018d68836c9d0807,shop_id=2c94d2a99982b9dd01999d22faab26b3&flag=1&shareChannel=20_gridding_qd&ad_id=2c94beae8d4091d7018d68be1e3e23db",
+        remark: "10个月合约计划（202401版），适合长期稳定使用"
+    },
+    
+    {
+        id: 39,  // 请根据实际已有数据调整ID
+        operator: "移动",
+        province: "四川省",
+        city: "全省",
+        mainType: "其他活动",
+        subType: ["老用户专享"],
+        title: "四川移动全球通5G-A加速服务0元领",
+        startTime: "2026-08-20",
+        endTime: "2026-12-31",
+        desc: "0元/月，全球通普卡/银卡/金卡客户可免费领取，享直播/游戏/视频等多款热门APP专属网络加速",
+        link: "https://wap.sc.10086.cn/scmccMiniWap/5gAccelerationService/index.html?value=isNeedLogin&channel=jtst&channelId=P00000148418&yx=1556527002&token=YZsidssolgde8237f296050eb681ef0bd6b6cb31a1",
+        remark: "限四川移动全球通普卡/银卡/金卡客户，需主动领取，不含流量资源，有效期与全球通身份一致"
+    },
+    {
+        id: 40,  // 请根据实际已有数据调整ID
+        operator: "移动",
+        province: "广西壮族自治区",
+        city: "全省",
+        mainType: "其他活动",
+        subType: ["老用户专享"],
+        title: "广西移动全球通5G-A加速服务0元领",
+        startTime: "2026-08-20",
+        endTime: "2026-12-31",
+        desc: "0元/月，全球通用户可在中国移动APP搜索'全球通'，下拉找到'全球通5G-A加速服务'自行开通",
+        link: "",
+        remark: "限广西移动全球通用户，三年一续，到期需手动续约"
+    },
+    
+    {
+        id: 41,  // 请根据实际已有数据调整ID
+        operator: "移动",
+        province: "湖南省",
+        city: "全省",
+        mainType: "其他活动",
+        subType: ["老用户专享"],
+        title: "湖南移动全球通5G-A加速服务0元领",
+        startTime: "2026-08-20",
+        endTime: "2026-12-31",
+        desc: "0元/月，全球通用户直接拨打10086人工客服，说'帮我开0元全球通5G-A加速服务'即可开通",
+        link: "",
+        remark: "限湖南移动全球通用户，10086客服人工开通"
+    },
+// ============================================================
+//  基于 25xianbao.com/archives/28458 提取（联通畅游至尊版-B套餐）
+// ============================================================
+    
+    {
+        id: 42,  // 请根据实际已有数据调整ID
+        operator: "联通",
+        province: "全国",
+        city: "全国",
+        mainType: "号卡套餐类",
+        subType: ["老用户套餐"],
+        title: "联通畅游(至尊版)-B套餐25元/月",
+        startTime: "2026-08-20",
+        endTime: "2026-08-31",
+        desc: "25元/月，权益二选一：①35元天猫超市卡+视频/音乐会员(N选1)；②奶茶券+视频/音乐会员(N选1)。限时放量，名额有限",
+        link: "",
+        remark: "仅限上海、江苏、广东、云南、新疆五地老用户办理，联通APP或网上营业厅搜索'畅游至尊版'办理"
+    },
+    // ============================================================
+    //  基于 25xianbao.com/archives/28435 提取（广州电信星卡）
+    // ============================================================
+    
+    {
+        id: 43,  // 请根据实际已有数据调整ID
+        operator: "电信",
+        province: "广东省",
+        city: "广州市",
+        mainType: "流量类",
+        subType: ["赠送流量"],
+        title: "广州电信星卡充60送50G流量",
+        startTime: "2026-08-20",
+        endTime: "2028-08-31",
+        desc: "星卡用户充值60元，每月赠送50GB流量，连续赠送24个月。新老星卡用户均可参加，无在网业务限制即可办理",
+        link: "https://yaohuo.me/bbs/download.aspx?siteid=1000&classid=177&book_id=1566954&id=934164&RndPath=UploadFiles&n=%e5%85%8560%e9%80%8150g",
+        remark: "仅限广州地区星卡用户，其他套餐暂不能参与；如已参加类似活动，两个50G可叠加为100G/月"
+    }
+        ];
     // ============================================================
 //  暴露给全局（供 HTML 中的活动工具箱读取）
 // ============================================================
