@@ -211,6 +211,8 @@
             position: relative;
             transform: scale(0.92);
             transition: transform var(--transition-duration) var(--transition-ease);
+            max-height: 90vh;
+            overflow-y: auto;
         }
         body.privacy-open .privacy-box {
             transform: scale(1);
@@ -405,9 +407,9 @@
             line-height: 1;
         }
 
-        /* 欢迎弹窗 */
+        /* ========== 欢迎弹窗 ========== */
         .mask-layer {
-            display: flex;
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
@@ -419,6 +421,10 @@
             justify-content: center;
             padding: 20px;
         }
+        .mask-layer.show {
+            display: flex;
+        }
+
         .verify-card {
             width: 100%;
             max-width: 380px;
@@ -494,13 +500,6 @@
             transform: scale(0.98);
         }
         .ad-iframe {
-            width: 100%;
-            height: 160px;
-            border: none;
-            border-radius: 12px;
-            margin-bottom: 16px;
-        }
-        .ad-iframe2 {
             width: 100%;
             height: 160px;
             border: none;
@@ -1316,38 +1315,34 @@
     <main class="content-area">
 
         <!-- content1 宽带专区 -->
-        <div class="iframe-wrapper">
-            <iframe class="portal-iframe" id="content1" src="https://hk.yunhaoka.cn/#/pages/micro_store/index?agent_id=fd7687894ce7e304b967e505d8255dd7"></iframe>
+        <div class="iframe-wrapper" data-content="content1">
+            <iframe class="portal-iframe" src="https://hk.yunhaoka.cn/#/pages/micro_store/index?agent_id=fd7687894ce7e304b967e505d8255dd7" title="宽带专区"></iframe>
         </div>
 
         <!-- content2 号卡套餐 -->
-        <div class="iframe-wrapper" hidden>
-            <iframe class="portal-iframe" id="content2" src="https://vip.777haoka.cn/index?k=T1RwMzdMQWw4cGc9" loading="lazy"></iframe>
+        <div class="iframe-wrapper" data-content="content2" hidden>
+            <iframe class="portal-iframe" src="https://vip.777haoka.cn/index?k=T1RwMzdMQWw4cGc9" loading="lazy" title="号卡套餐"></iframe>
         </div>
 
         <!-- content3 3号网厅 -->
-        <div class="iframe-wrapper" hidden>
-            <iframe class="portal-iframe" id="content3" src="https://172.lot-ml.com/ProductEn/index/21f179ff2eb29bd5" loading="lazy"></iframe>
+        <div class="iframe-wrapper" data-content="content3" hidden>
+            <iframe class="portal-iframe" src="https://172.lot-ml.com/ProductEn/index/21f179ff2eb29bd5" loading="lazy" title="3号网厅"></iframe>
         </div>
 
         <!-- content4 随身WiFi -->
-        <div class="iframe-wrapper" hidden>
-            <iframe class="portal-iframe" id="content4" src="https://h5.lianhengkj.com/#/pages/agentMoudle/micro_store/index?store_id=b6745283aa939dac" loading="lazy"></iframe>
+        <div class="iframe-wrapper" data-content="content4" hidden>
+            <iframe class="portal-iframe" src="https://h5.lianhengkj.com/#/pages/agentMoudle/micro_store/index?store_id=b6745283aa939dac" loading="lazy" title="随身WiFi"></iframe>
         </div>
 
-        <!-- ============================================================
-             content5 活动工具箱 — 搜索引擎风格（顶部集成筛选）
-             数据由 activity-data.js 提供
-             ============================================================ -->
-        <div class="iframe-wrapper" hidden>
-            <div id="content5" class="activity-toolbox">
-
-                <!-- 顶部标题 -->
+        <!-- content5 活动工具箱 -->
+        <div class="iframe-wrapper" data-content="content5" hidden>
+            <div class="activity-toolbox">
                 <div class="at-header">
                     <h1>🔍搜索 · 筛选 · 发现 <small>运营商优惠活动</small></h1>
                 </div>
-<br>
-                <!-- ===== 搜索栏（含筛选按钮 + 重置） ===== -->
+                <br>
+
+                <!-- ===== 搜索栏 ===== -->
                 <div class="at-search-bar">
                     <button class="at-filter-toggle" id="atFilterToggle">
                         <span class="at-filter-icon">☰</span>
@@ -1362,7 +1357,7 @@
                     <button class="at-reset-btn" id="atResetBtn">重置</button>
                 </div>
 
-                <!-- ===== 筛选面板（折叠） ===== -->
+                <!-- ===== 筛选面板 ===== -->
                 <div class="at-filter-panel" id="atFilterPanel">
                     <div class="at-filter-panel-inner">
                         <div class="at-filter-group">
@@ -1436,16 +1431,7 @@
 
                 <!-- ===== 空状态 ===== -->
                 <div class="at-empty-state" id="atEmptyState">
-  <!--                    <div class="at-empty-icon">🔍</div>
-                    <div class="at-empty-title">搜索运营商优惠活动</div> -->
                     <div class="at-empty-desc">输入关键词或点击「筛选」选择条件，快速找到心仪的活动</div>
-<!--                    <div class="at-empty-hint">
-                        <span>📶 流量</span>
-                        <span>💰 话费</span>
-                        <span>🎁 会员</span>
-                        <span>📱 号卡</span>
-                        <span>🌐 宽带</span>
-                    </div>-->
                 </div>
 
                 <!-- ===== 结果区域 ===== -->
@@ -1461,13 +1447,12 @@
                         <button class="at-page-btn" id="atNextPage">下一页</button>
                     </div>
                 </div>
-
             </div>
         </div>
 
         <!-- content6 官方查询 -->
-        <div class="iframe-wrapper" hidden>
-            <div id="content6" class="inner-container">
+        <div class="iframe-wrapper" data-content="content6" hidden>
+            <div class="inner-container">
                 <div class="inner-card">
                     <h2 class="inner-title">运营商订单查询</h2>
                     <div class="inner-grid">
@@ -1504,8 +1489,8 @@
         </div>
 
         <!-- content7 5G覆盖 -->
-        <div class="iframe-wrapper" hidden>
-            <div id="content7" class="inner-container">
+        <div class="iframe-wrapper" data-content="content7" hidden>
+            <div class="inner-container">
                 <div class="inner-card">
                     <h2 class="inner-title">5G信号覆盖查询</h2>
                     <div class="inner-grid">
@@ -1540,8 +1525,8 @@
         </div>
 
         <!-- content8 常见问题 -->
-        <div class="iframe-wrapper" hidden>
-            <div id="content8" class="faq-container">
+        <div class="iframe-wrapper" data-content="content8" hidden>
+            <div class="faq-container">
                 <div class="faq-card">
                     <h2 class="faq-title">常见问题</h2>
                     <div class="faq-item">
@@ -1582,7 +1567,7 @@
         <div class="tab-item" data-content="content5"><div class="tab-icon">💳</div><span>优惠活动</span></div>
     </div>
 
-    <!-- 欢迎弹窗 -->
+    <!-- ===== 欢迎弹窗 ===== -->
     <div class="mask-layer" id="mask">
         <div class="verify-card">
             <div class="welcome-icon"></div>
@@ -1603,18 +1588,16 @@
             </div>
             <button class="enter-btn" id="enterBtn">立即进入网站</button>
             <br><br><br><br><br><br>
-            <iframe class="ad-iframe" src="http://dzz.96cct.top/qV3Ob2722I"></iframe>
+            <iframe class="ad-iframe" src="http://dzz.96cct.top/qV3Ob2722I" title="广告1"></iframe>
             <br><br>
-            <iframe class="ad-iframe2" src="https://m.qhlwvcc.shop/m/Ix82mh"></iframe>
+            <iframe class="ad-iframe" src="https://m.qhlwvcc.shop/m/Ix82mh" title="广告2"></iframe>
         </div>
     </div>
 
     <!-- ============================================================
          引用独立数据文件 activity-data.js
-         请确保与 index.html 在同一目录
          ============================================================ -->
-    <script src="activity-data.js">
-    </script>
+    <script src="activity-data.js"></script>
 
     <!-- ===== 主脚本 ===== -->
     <script>
@@ -1655,6 +1638,9 @@
             };
 
             let currentContent = 'content1';
+            let activityLoadTimer = null;
+            let activityLoadTimeout = null;
+            let activityInitDone = false; // 标记是否已初始化UI
 
             function showToast(text, delay) {
                 delay = delay || 1800;
@@ -1665,13 +1651,12 @@
                 }, delay);
             }
 
+            // 处理外部链接点击提示
             document.querySelectorAll('a[target="_blank"]').forEach(function(a) {
                 a.addEventListener('click', function() {
                     showToast('即将跳转第三方官方页面');
                 });
             });
-
-            document.body.classList.add('popup-open');
 
             // 抽屉
             function toggleDrawer(open) {
@@ -1725,12 +1710,13 @@
 
             // 切换页面
             function switchContent(contentId) {
-                var targetEl = document.getElementById(contentId);
-                if (!targetEl) return;
+                var wrapper = document.querySelector('.iframe-wrapper[data-content="' + contentId + '"]');
+                if (!wrapper) return;
+
                 var title = pageTitleMap[contentId] || '未来通信商城';
 
                 document.querySelectorAll('.iframe-wrapper').forEach(function(w) { w.hidden = true; });
-                targetEl.parentElement.hidden = false;
+                wrapper.hidden = false;
 
                 dom.pageTitle.textContent = title;
                 dom.drawerItems.forEach(function(i) {
@@ -1743,8 +1729,20 @@
                 currentContent = contentId;
                 toggleDrawer(false);
 
+                // 切换到活动工具箱
                 if (contentId === 'content5') {
-                    renderActivityToolbox();
+                    clearActivityTimers();
+                    // 如果UI已初始化，直接刷新数据；否则初始化UI
+                    if (activityInitDone) {
+                        if (typeof window.__refreshActivityRender === 'function') {
+                            window.__refreshActivityRender();
+                        } else {
+                            // 降级：重新初始化
+                            initActivityToolbox();
+                        }
+                    } else {
+                        initActivityToolbox();
+                    }
                 }
             }
 
@@ -1759,23 +1757,36 @@
                 });
             });
 
-            // 左滑
+            // 左滑手势
             var startX = 0;
+            var isTouchingIframe = false;
             document.addEventListener('touchstart', function(e) {
-                startX = e.touches[0].clientX;
+                var target = e.target;
+                if (target.closest && target.closest('iframe')) {
+                    isTouchingIframe = true;
+                } else {
+                    isTouchingIframe = false;
+                    startX = e.touches[0].clientX;
+                }
             }, { passive: true });
+
             document.addEventListener('touchend', function(e) {
+                if (isTouchingIframe) {
+                    isTouchingIframe = false;
+                    return;
+                }
                 var endX = e.changedTouches[0].clientX;
                 var diff = endX - startX;
                 if (startX < 30 && diff > 50) toggleDrawer(true);
                 if (document.body.classList.contains('drawer-open') && diff < -50) toggleDrawer(false);
             }, { passive: true });
 
-            // ========== 2. 欢迎弹窗（修复后台切换导致的刷新问题） ==========
+            // ========== 2. 欢迎弹窗 ==========
             var VERIFY_KEY = 'last_verify_time';
             var TWENTY_FOUR_HOUR = 24 * 60 * 60 * 1000;
 
             function showAllMainUI() {
+                dom.mask.classList.remove('show');
                 dom.mask.style.display = 'none';
                 document.body.classList.remove('popup-open');
                 dom.navBar.style.display = 'flex';
@@ -1784,12 +1795,19 @@
                 switchContent('content1');
             }
 
+            function showWelcome() {
+                dom.mask.style.display = 'flex';
+                dom.mask.classList.add('show');
+                document.body.classList.add('popup-open');
+            }
+
             var lastTime = localStorage.getItem(VERIFY_KEY);
             var now = Date.now();
 
             if (lastTime && (now - parseInt(lastTime)) < TWENTY_FOUR_HOUR) {
                 showAllMainUI();
             } else {
+                showWelcome();
                 var countDown = 3;
                 var timerId = null;
                 var originText = '立即进入网站';
@@ -1807,10 +1825,8 @@
                     showAllMainUI();
                 }
 
-                // 点击立即进入
                 dom.enterBtn.onclick = goEnter;
 
-                // 使用 setTimeout 链，避免后台切换时计时器“追赶”导致意外刷新
                 function tick() {
                     countDown--;
                     if (countDown > 0) {
@@ -1820,46 +1836,69 @@
                         goEnter();
                     }
                 }
-
                 updateBtnText();
-                // 延迟1秒开始第一次倒计时，而不是立即触发，确保稳定性
                 timerId = setTimeout(tick, 1000);
             }
 
             // ============================================================
-            //  ★★★ 3. 活动工具箱 — 搜索引擎风格 + 分页（每页10条） ★★★
+            //  ★★★ 3. 活动工具箱 — 最终稳定版 ★★★
+            //  设计：初始化一次UI，之后只刷新数据，不再重建DOM
             // ============================================================
-            function renderActivityToolbox() {
+
+            function clearActivityTimers() {
+                if (activityLoadTimer) {
+                    clearInterval(activityLoadTimer);
+                    activityLoadTimer = null;
+                }
+                if (activityLoadTimeout) {
+                    clearTimeout(activityLoadTimeout);
+                    activityLoadTimeout = null;
+                }
+            }
+
+            // 初始化UI（只执行一次）
+            function initActivityToolbox() {
+                // 如果已经初始化过，直接刷新数据
+                if (activityInitDone) {
+                    if (typeof window.__refreshActivityRender === 'function') {
+                        window.__refreshActivityRender();
+                    }
+                    return;
+                }
+
+                // 数据未加载，启动轮询
                 if (typeof window.activityList === 'undefined') {
-                    document.getElementById('atTip').innerText = '⏳ 数据加载中...';
-                    var check = setInterval(function() {
+                    var tip = document.getElementById('atTip');
+                    if (tip) tip.innerText = '⏳ 数据加载中...';
+                    clearActivityTimers();
+                    activityLoadTimer = setInterval(function() {
                         if (typeof window.activityList !== 'undefined') {
-                            clearInterval(check);
-                            initActivityToolbox();
+                            clearActivityTimers();
+                            // 数据加载完成，执行UI初始化
+                            buildActivityUI();
                         }
                     }, 200);
-                    setTimeout(function() {
-                        clearInterval(check);
-                        if (typeof window.activityList === 'undefined') {
-                            document.getElementById('atTip').innerText = '❌ 数据加载失败，请检查数据是否正常';
-                        }
+                    activityLoadTimeout = setTimeout(function() {
+                        clearActivityTimers();
+                        var tip2 = document.getElementById('atTip');
+                        if (tip2) tip2.innerText = '❌ 数据加载失败，请检查网络或刷新重试';
                     }, 5000);
                     return;
                 }
-                initActivityToolbox();
+
+                // 数据存在，直接构建UI
+                buildActivityUI();
             }
 
-            function initActivityToolbox() {
+            // 构建UI（仅一次）
+            function buildActivityUI() {
+                if (activityInitDone) return;
+
                 var list = window.activityList || [];
                 var mainTypeEnum = window.mainTypeEnum || [];
                 var subTypeMap = window.subTypeMap || {};
 
-                var today = new Date();
-                var activeMainTab = '';
-                var currentPage = 1;
-                var pageSize = 10;
-
-                // DOM 引用
+                // 获取所有DOM元素
                 var tabsEl = document.getElementById('atTabs');
                 var searchEl = document.getElementById('atSearch');
                 var opSelect = document.getElementById('atOpSelect');
@@ -1876,36 +1915,17 @@
                 var prevPageBtn = document.getElementById('atPrevPage');
                 var nextPageBtn = document.getElementById('atNextPage');
                 var pageInfoEl = document.getElementById('atPageInfo');
-
-                // 筛选面板
                 var filterToggle = document.getElementById('atFilterToggle');
                 var filterPanel = document.getElementById('atFilterPanel');
                 var filterBadge = document.getElementById('atFilterBadge');
+
+                var today = new Date();
+                var activeMainTab = '';
+                var currentPage = 1;
+                var pageSize = 10;
                 var isFilterOpen = false;
 
-                // ----- 筛选面板切换 -----
-                filterToggle.addEventListener('click', function() {
-                    isFilterOpen = !isFilterOpen;
-                    filterToggle.classList.toggle('active', isFilterOpen);
-                    filterPanel.classList.toggle('open', isFilterOpen);
-                });
-
-                // ----- 更新筛选角标 -----
-                function updateFilterBadge() {
-                    var count = 0;
-                    if (opSelect.value) count++;
-                    if (provinceSelect.value) count++;
-                    if (mainTypeSelect.value || activeMainTab) count++;
-                    if (subTypeSelect.value) count++;
-                    if (count > 0) {
-                        filterBadge.textContent = count;
-                        filterBadge.classList.add('show');
-                    } else {
-                        filterBadge.classList.remove('show');
-                    }
-                }
-
-                // ----- 工具函数 -----
+                // --- 辅助函数 ---
                 function isExpired(endDateStr) {
                     var end = new Date(endDateStr);
                     return end < today;
@@ -1940,7 +1960,21 @@
                     return !!(kw || op || pro || main || sub);
                 }
 
-                // ----- 渲染 Tab -----
+                function updateFilterBadge() {
+                    var count = 0;
+                    if (opSelect.value) count++;
+                    if (provinceSelect.value) count++;
+                    if (mainTypeSelect.value || activeMainTab) count++;
+                    if (subTypeSelect.value) count++;
+                    if (count > 0) {
+                        filterBadge.textContent = count;
+                        filterBadge.classList.add('show');
+                    } else {
+                        filterBadge.classList.remove('show');
+                    }
+                }
+
+                // --- 渲染Tab ---
                 function renderTabs() {
                     tabsEl.innerHTML = '';
                     mainTypeEnum.forEach(function(item) {
@@ -1962,7 +1996,6 @@
                     });
                 }
 
-                // ----- 渲染主大类下拉 -----
                 function renderMainTypeSelect() {
                     mainTypeSelect.innerHTML = '';
                     var optAll = document.createElement('option');
@@ -1978,7 +2011,6 @@
                     });
                 }
 
-                // ----- 渲染细分标签下拉 -----
                 function renderSubTypeOptions() {
                     subTypeSelect.innerHTML = '<option value="">全部</option>';
                     var selMain = mainTypeSelect.value || activeMainTab;
@@ -1991,7 +2023,6 @@
                     });
                 }
 
-                // ----- 更新分页按钮状态 -----
                 function updatePagination(totalPages) {
                     if (totalPages <= 1) {
                         paginationEl.style.display = 'none';
@@ -2003,7 +2034,7 @@
                     nextPageBtn.disabled = (currentPage >= totalPages);
                 }
 
-                // ----- 核心渲染（含分页） -----
+                // --- ★★★ 核心渲染函数（可被外部调用） ★★★ ---
                 function render() {
                     updateFilterBadge();
 
@@ -2011,6 +2042,10 @@
                         emptyStateEl.style.display = 'flex';
                         resultAreaEl.classList.remove('active');
                         currentPage = 1;
+                        paginationEl.style.display = 'none';
+                        tipEl.innerText = '';
+                        gridEl.innerHTML = '';
+                        emptyResultEl.classList.remove('show');
                         return;
                     }
 
@@ -2043,7 +2078,6 @@
                     var totalPages = Math.ceil(totalItems / pageSize);
                     if (totalPages === 0) totalPages = 1;
 
-                    // 修正当前页
                     if (currentPage > totalPages) currentPage = totalPages;
                     if (currentPage < 1) currentPage = 1;
 
@@ -2051,7 +2085,8 @@
                     var end = Math.min(start + pageSize, totalItems);
                     var pageItems = filtered.slice(start, end);
 
-                    tipEl.innerText = '找到 ' + totalItems + ' 个匹配活动，第 ' + start + ' - ' + end + ' 条';
+                    var displayStart = start + 1;
+                    tipEl.innerText = '找到 ' + totalItems + ' 个匹配活动，第 ' + displayStart + ' - ' + end + ' 条';
                     gridEl.innerHTML = '';
 
                     if (pageItems.length === 0) {
@@ -2074,10 +2109,10 @@
                         });
 
                         var opBadge = '<span class="at-badge ' + getOpClass(item.operator) + '">' + item
-                        .operator + '</span>';
+                            .operator + '</span>';
                         var mainBadge = '<span class="at-badge tag-main">' + item.mainType + '</span>';
                         var regionBadge = '<span class="at-badge tag-region">' + item.province + ' ' + item
-                        .city + '</span>';
+                            .city + '</span>';
                         var soonBadge = isSoonExpire(item.endTime) ?
                             '<span class="at-badge tag-soon">即将到期</span>' : '';
 
@@ -2099,17 +2134,15 @@
                     updatePagination(totalPages);
                 }
 
-                // ----- 分页按钮事件 -----
-                prevPageBtn.addEventListener('click', function() {
+                // --- 分页事件 ---
+                function handlePrevPage() {
                     if (currentPage > 1) {
                         currentPage--;
                         render();
                     }
-                });
+                }
 
-                nextPageBtn.addEventListener('click', function() {
-                    var totalItems = 0;
-                    // 重新计算总条数（快速）
+                function handleNextPage() {
                     var validList = list.filter(function(item) { return !isExpired(item.endTime); });
                     var kw = searchEl.value.trim().toLowerCase();
                     var opVal = opSelect.value;
@@ -2134,29 +2167,51 @@
                         currentPage++;
                         render();
                     }
-                });
-
-                // ----- 事件绑定（搜索/筛选变化时重置页码） -----
-                function onFilterChange() {
-                    currentPage = 1;
-                    render();
                 }
 
-                searchEl.addEventListener('input', onFilterChange);
-                opSelect.addEventListener('change', onFilterChange);
-                provinceSelect.addEventListener('change', onFilterChange);
-                mainTypeSelect.addEventListener('change', function() {
+                // --- 事件绑定 ---
+                function bindEvents() {
+                    searchEl.removeEventListener('input', render);
+                    searchEl.addEventListener('input', function() { currentPage = 1;
+                        render(); });
+
+                    opSelect.removeEventListener('change', render);
+                    opSelect.addEventListener('change', function() { currentPage = 1;
+                        render(); });
+
+                    provinceSelect.removeEventListener('change', render);
+                    provinceSelect.addEventListener('change', function() { currentPage = 1;
+                        render(); });
+
+                    mainTypeSelect.removeEventListener('change', onMainTypeChange);
+                    mainTypeSelect.addEventListener('change', onMainTypeChange);
+
+                    subTypeSelect.removeEventListener('change', render);
+                    subTypeSelect.addEventListener('change', function() { currentPage = 1;
+                        render(); });
+
+                    resetBtn.removeEventListener('click', onReset);
+                    resetBtn.addEventListener('click', onReset);
+
+                    prevPageBtn.removeEventListener('click', handlePrevPage);
+                    prevPageBtn.addEventListener('click', handlePrevPage);
+                    nextPageBtn.removeEventListener('click', handleNextPage);
+                    nextPageBtn.addEventListener('click', handleNextPage);
+
+                    filterToggle.removeEventListener('click', onFilterToggle);
+                    filterToggle.addEventListener('click', onFilterToggle);
+                }
+
+                function onMainTypeChange() {
                     activeMainTab = mainTypeSelect.value;
                     currentPage = 1;
                     renderTabs();
                     renderSubTypeOptions();
                     updateFilterBadge();
                     render();
-                });
-                subTypeSelect.addEventListener('change', onFilterChange);
+                }
 
-                // 重置
-                resetBtn.addEventListener('click', function() {
+                function onReset() {
                     searchEl.value = '';
                     opSelect.value = '';
                     provinceSelect.value = '';
@@ -2175,32 +2230,87 @@
                     emptyResultEl.classList.remove('show');
                     paginationEl.style.display = 'none';
 
-                    // 折叠筛选面板
                     isFilterOpen = false;
                     filterToggle.classList.remove('active');
                     filterPanel.classList.remove('open');
-                });
+                }
 
-                // ----- 初始化 -----
+                function onFilterToggle() {
+                    isFilterOpen = !isFilterOpen;
+                    filterToggle.classList.toggle('active', isFilterOpen);
+                    filterPanel.classList.toggle('open', isFilterOpen);
+                }
+
+                // --- 执行UI构建 ---
                 renderMainTypeSelect();
                 renderTabs();
                 renderSubTypeOptions();
                 updateFilterBadge();
+                bindEvents();
 
-                // 初始：空状态
-                emptyStateEl.style.display = 'flex';
-                resultAreaEl.classList.remove('active');
-                tipEl.innerText = '';
-                gridEl.innerHTML = '';
-                emptyResultEl.classList.remove('show');
-                paginationEl.style.display = 'none';
+                // 同步activeMainTab与下拉框
+                if (mainTypeSelect.value) {
+                    activeMainTab = mainTypeSelect.value;
+                    renderTabs();
+                }
+
+                // 第一次渲染数据
+                render();
+
+                // 标记初始化完成
+                activityInitDone = true;
+
+                // 将render函数暴露到全局，用于页面恢复时刷新
+                window.__refreshActivityRender = render;
             }
 
+            // ===== 页面恢复时刷新数据 =====
+            function handlePageResume() {
+                if (currentContent === 'content5') {
+                    clearActivityTimers();
+                    // 如果UI已初始化，直接刷新数据；否则初始化
+                    if (activityInitDone && typeof window.__refreshActivityRender === 'function') {
+                        // 延迟执行确保DOM完全恢复
+                        setTimeout(function() {
+                            window.__refreshActivityRender();
+                        }, 100);
+                    } else {
+                        // 未初始化则执行初始化
+                        initActivityToolbox();
+                    }
+                }
+            }
+
+            // 监听页面可见性变化
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    handlePageResume();
+                }
+            });
+
+            // 监听 pageshow
+            document.addEventListener('pageshow', function(e) {
+                if (e.persisted) {
+                    handlePageResume();
+                }
+            });
+
+            // 监听窗口焦点恢复
+            window.addEventListener('focus', function() {
+                handlePageResume();
+            });
+
+            // 如果当前是活动页，初始化
             if (currentContent === 'content5') {
-                setTimeout(renderActivityToolbox, 300);
+                setTimeout(function() {
+                    initActivityToolbox();
+                }, 300);
             }
-            window.renderActivityToolbox = renderActivityToolbox;
-        });
+
+            // 暴露给外部
+            window.renderActivityToolbox = initActivityToolbox;
+
+        }); // end DOMContentLoaded
     </script>
 
 </body>
