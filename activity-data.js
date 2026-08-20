@@ -1,9 +1,7 @@
 // ============================================================
-//  activity-data.js  —  运营商活动数据配置
-//  修改此文件即可增删改活动，无需改动 HTML
+//  activity-data.js  —  运营商活动数据配置（按运营商分类整理）
 // ============================================================
 
-// 主大类定义（页面 Tab 和下拉会读取）
 const mainTypeEnum = [
     { value: "", label: "全部大类" },
     { value: "流量类", label: "流量类" },
@@ -15,7 +13,6 @@ const mainTypeEnum = [
     { value: "其他活动", label: "其他活动" }
 ];
 
-// 细分标签库（主大类 → 细分标签列表，用于下拉联动）
 const subTypeMap = {
     "流量类": ["全国通用流量", "定向流量", "闲时流量", "流量叠加包", "赠送流量"],
     "话费充值类": ["充值立减", "充送话费", "话费返还", "缴费优惠"],
@@ -27,26 +24,14 @@ const subTypeMap = {
 };
 
 // ============================================================
-//  ★★★ 活动数据列表（增删改在这里操作） ★★★
-//  字段说明：
-//    operator   : 运营商（移动/联通/电信/广电）
-//    province   : 省份（如"全国"、"广东省"）
-//    city       : 城市（如"全国"、"广州市"）
-//    mainType   : 主大类，必须与 mainTypeEnum 中的 value 一致
-//    subType    : 细分标签，可以是字符串或数组（支持多个标签）
-//    title      : 活动标题
-//    startTime  : 开始日期 (YYYY-MM-DD)
-//    endTime    : 结束日期 (YYYY-MM-DD)
-//    desc       : 活动描述
-//    link       : 活动链接（可选，留空则不显示）
-//    remark     : 备注说明（可选）
+//  ★★★ 活动数据列表（按运营商分类，id 重新编号） ★★★
 // ============================================================
 const activityList = [
     // ============================================================
-    //  一、中国移动（22个）
+    //  一、中国移动（38个）
     // ============================================================
 
-    // ----- 每日/每周固定活动 -----
+    // ----- 原 id 1~22 -----
     {
         id: 1,
         operator: "移动",
@@ -131,8 +116,6 @@ const activityList = [
         link: "https://h.app.coc.10086.cn/activity/zx/transit/transferDownload.html?targetURL=https%3A%2F%2Fwx.10086.cn%2Fqwhdhub%2Fqwhdmark%2F1021122301",
         remark: "每日8点补库存，建议准时领取"
     },
-
-    // ----- 每周固定福利 -----
     {
         id: 7,
         operator: "移动",
@@ -175,8 +158,6 @@ const activityList = [
         link: "https://caiyun.feixin.10086.cn:7071/portal/clientDL/index.html?v=mCloud_89844221919&linkUrl=https%3A%2F%2Fvv.mmarket.com%2Fvv-hcy%2Findex.html%3FtargetSourceId%3D001205%26token%3D%23ssoToken%23%26scode%3Dhecaiyun%26sourceId%3Dhcy-cmic_llrwytc",
         remark: "限双V会员，无法跳转可通过浏览器或分享至微信打开"
     },
-
-    // ----- 长期活动 -----
     {
         id: 10,
         operator: "移动",
@@ -219,8 +200,6 @@ const activityList = [
         link: "https://wx.10086.cn/qwhdhub/leadin/1026033134?A_C_CODE=Fi11gwHIcu&channelId=P00000111791#/",
         remark: "移动×闲鱼联合活动，每月可参与"
     },
-
-    // ----- 截图提取的10个活动（去重后新增） -----
     {
         id: 13,
         operator: "移动",
@@ -362,174 +341,9 @@ const activityList = [
         remark: "消耗和包豆参与"
     },
 
-    // ============================================================
-    //  二、中国联通（4个）
-    // ============================================================
+    // ----- 原 id 34,35,36,37,38,40,49（广西/四川/湖南） -----
     {
         id: 23,
-        operator: "联通",
-        province: "广东省",
-        city: "广州市",
-        mainType: "号卡套餐类",
-        subType: ["新用户号卡"],
-        title: "广州联通『拥军优属』专属套餐",
-        startTime: "2026-08-01",
-        endTime: "2026-08-31",
-        desc: "联合OPPO推出官兵专属通信优惠套餐，提供高性价比通话、流量、权益及家庭融合产品",
-        link: "",
-        remark: "拥军优属专属活动"
-    },
-    {
-        id: 24,
-        operator: "联通",
-        province: "山东省",
-        city: "全省",
-        mainType: "合约购机",
-        subType: ["合约机", "购机补贴"],
-        title: "山东联通『融合购机』中高端手机补贴",
-        startTime: "2026-08-19",
-        endTime: "2026-12-31",
-        desc: "将家庭通信支出合并为一张账单，对5000元以上中高端机型给予定向购机补贴",
-        link: "",
-        remark: "提供159元/199元档融合方案"
-    },
-    {
-        id: 25,
-        operator: "联通",
-        province: "山东省",
-        city: "青岛市",
-        mainType: "宽带业务",
-        subType: ["新装宽带", "宽带提速"],
-        title: "青岛联通『双宽带』全家通信优惠",
-        startTime: "2026-08-20",
-        endTime: "2026-12-31",
-        desc: "139元/月起，含两条千兆宽带+全屋WiFi，全家最多5人共享150GB流量+1300分钟通话",
-        link: "",
-        remark: "两条宽带可装不同地址"
-    },
-    {
-        id: 26,
-        operator: "联通",
-        province: "全国",
-        city: "全国",
-        mainType: "号卡套餐类",
-        subType: ["新用户号卡", "全国通用流量", "定向流量"],
-        title: "联通『果粉·王卡』SIM卡套餐",
-        startTime: "2026-01-23",
-        endTime: "2026-12-31",
-        desc: "首月免月租，首年优惠后49元/月。含80GB流量(30GB定向+50GB通用)，赠2年AppleCare碎屏电池保服务",
-        link: "",
-        remark: "预存50元送120元，每月返10元"
-    },
-
-    // ============================================================
-    //  三、中国电信（5个）
-    // ============================================================
-    {
-        id: 27,
-        operator: "电信",
-        province: "广东省",
-        city: "全省",
-        mainType: "号卡套餐类",
-        subType: ["新用户号卡", "赠送流量", "视频会员"],
-        title: "电信广东星卡优惠套餐",
-        startTime: "2026-07-01",
-        endTime: "2026-09-10",
-        desc: "大流量星卡套餐，办卡送流量+会员",
-        link: "",
-        remark: "新用户专享"
-    },
-    {
-        id: 28,
-        operator: "电信",
-        province: "浙江省",
-        city: "全省",
-        mainType: "宽带业务",
-        subType: ["新装宽带", "宽带提速"],
-        title: "浙江电信『万兆进万家』用户体验招募",
-        startTime: "2026-05-22",
-        endTime: "2026-12-31",
-        desc: "每月599元，享10000M云宽带、500GB国内流量、5000分钟语音及手机直连卫星通信等服务",
-        link: "",
-        remark: "关注'中国电信浙江公司'公众号回复'万兆家庭'参与"
-    },
-    {
-        id: 29,
-        operator: "电信",
-        province: "全国",
-        city: "全国",
-        mainType: "号卡套餐类",
-        subType: ["新用户号卡"],
-        title: "电信校园卡39元/月",
-        startTime: "2026-08-01",
-        endTime: "2026-09-30",
-        desc: "39元/月，含135G通用流量+30G定向流量+100分钟通话",
-        link: "",
-        remark: "优惠期长期有效，限校园用户"
-    },
-    {
-        id: 30,
-        operator: "电信",
-        province: "上海市",
-        city: "全市",
-        mainType: "流量类",
-        subType: ["赠送流量"],
-        title: "上海电信薅流量攻略合集",
-        startTime: "2026-08-15",
-        endTime: "2026-12-31",
-        desc: "通过电信云宽带APP领10GB、问客服领10GB、沪贝兑换等多种方式获取免费流量",
-        link: "",
-        remark: "限上海电信用户"
-    },
-
-    // ============================================================
-    //  四、中国广电（3个）
-    // ============================================================
-    {
-        id: 31,
-        operator: "广电",
-        province: "全国",
-        city: "全国",
-        mainType: "号卡套餐类",
-        subType: ["新用户号卡", "老用户套餐"],
-        title: "广电『随心享1.0』按量计费套餐",
-        startTime: "2026-08-04",
-        endTime: "2026-12-31",
-        desc: "月最低消费39元，流量阶梯计费最低0.8元/GB，语音0.12元/分钟，新老用户均可办理",
-        link: "",
-        remark: "无合约限制，全国可办"
-    },
-    {
-        id: 32,
-        operator: "广电",
-        province: "云南省",
-        city: "曲靖市",
-        mainType: "号卡套餐类",
-        subType: ["新用户号卡", "赠送流量"],
-        title: "曲靖广电『金榜题名』高考生5G号卡福利",
-        startTime: "2026-06-11",
-        endTime: "2026-08-31",
-        desc: "2026届高考生凭准考证+身份证免费领取5G号卡，享28元/月套餐(120G通用+200G专属流量+200分钟通话)",
-        link: "",
-        remark: "套餐优惠有效期12个月"
-    },
-    {
-        id: 33,
-        operator: "广电",
-        province: "四川省",
-        city: "全省",
-        mainType: "合约购机",
-        subType: ["购机补贴"],
-        title: "四川广电『川流一体机』电视补贴",
-        startTime: "2026-08-19",
-        endTime: "2026-12-31",
-        desc: "签约3年'一体化电视+宽带'融合套餐，立领2000元电视补贴券，可抵扣指定55寸电视购机款",
-        link: "",
-        remark: "将机顶盒、电视、宽带合并办理"
-    },
-    
-    {
-        id: 34,  // 请根据实际已有数据调整ID
         operator: "移动",
         province: "广西壮族自治区",
         city: "全省",
@@ -542,8 +356,8 @@ const activityList = [
         link: "https://f.10086.cn/s/#nVyVPp",
         remark: "需全球通或幸运客户身份，合约期24个月，承诺月消费不低于16-17元"
     },
-        {
-        id: 35,
+    {
+        id: 24,
         operator: "移动",
         province: "全国",
         city: "全国",
@@ -555,13 +369,9 @@ const activityList = [
         desc: "每日签到可领流量日包、2元话费券等福利",
         link: "https://wx.10086.cn/qwhdhub/diy-client/1126056401?A_C_CODE=Jvt45NUwWS",
         remark: "需登录中国移动APP参与，领取后当日有效"
-    },    
-// ============================================================
-//  基于 25xianbao.com/archives/18459 提取（广西移动）
-// ============================================================
-    
+    },
     {
-        id: 36,
+        id: 25,
         operator: "移动",
         province: "广西壮族自治区",
         city: "全省",
@@ -575,7 +385,7 @@ const activityList = [
         remark: "根据本月流量结余情况选择当月或次月生效"
     },
     {
-        id: 37,
+        id: 26,
         operator: "移动",
         province: "广西壮族自治区",
         city: "全省",
@@ -588,9 +398,8 @@ const activityList = [
         link: "https://www.gx.10086.cn/gxwd/wdAdGoodsDetail/buyerIndex.html?2c94cba48d405709018d68836c9d0807,shop_id=2c94d2a99982b9dd01999d22faab26b3&flag=1&shareChannel=20_gridding_qd&ad_id=2c94beae8d4091d7018d68be1e3e23db",
         remark: "10个月合约计划（202401版），适合长期稳定使用"
     },
-    
     {
-        id: 38,  // 请根据实际已有数据调整ID
+        id: 27,
         operator: "移动",
         province: "四川省",
         city: "全省",
@@ -604,22 +413,7 @@ const activityList = [
         remark: "限四川移动全球通普卡/银卡/金卡客户，需主动领取，不含流量资源，有效期与全球通身份一致"
     },
     {
-        id: 49,  // 请根据实际已有数据调整ID
-        operator: "移动",
-        province: "广西壮族自治区",
-        city: "全省",
-        mainType: "其他活动",
-        subType: ["老用户专享"],
-        title: "广西移动全球通5G-A加速服务0元领",
-        startTime: "2026-08-20",
-        endTime: "2026-12-31",
-        desc: "0元/月，全球通用户可在中国移动APP搜索'全球通'，下拉找到'全球通5G-A加速服务'自行开通",
-        link: "",
-        remark: "限广西移动全球通用户，三年一续，到期需手动续约"
-    },
-    
-    {
-        id: 40,  // 请根据实际已有数据调整ID
+        id: 28,
         operator: "移动",
         province: "湖南省",
         city: "全省",
@@ -632,12 +426,214 @@ const activityList = [
         link: "",
         remark: "限湖南移动全球通用户，10086客服人工开通"
     },
-// ============================================================
-//  基于 25xianbao.com/archives/28458 提取（联通畅游至尊版-B套餐）
-// ============================================================
-    
     {
-        id: 41,  // 请根据实际已有数据调整ID
+        id: 29,
+        operator: "移动",
+        province: "广西壮族自治区",
+        city: "全省",
+        mainType: "其他活动",
+        subType: ["老用户专享"],
+        title: "广西移动全球通5G-A加速服务0元领",
+        startTime: "2026-08-20",
+        endTime: "2026-12-31",
+        desc: "0元/月，全球通用户可在中国移动APP搜索'全球通'，下拉找到'全球通5G-A加速服务'自行开通",
+        link: "",
+        remark: "限广西移动全球通用户，三年一续，到期需手动续约"
+    },
+
+    // ----- 原 id 58~66（移动云盘/APP权益等） -----
+    {
+        id: 30,
+        operator: "移动",
+        province: "全国",
+        city: "全国",
+        mainType: "流量类",
+        subType: ["定向流量"],
+        title: "移动云盘0元30GB定向流量",
+        startTime: "2022-01-01",
+        endTime: "2026-12-31",
+        desc: "0元/月领30GB移动云盘定向流量，按月自动续订，当月清零不结转。适用于移动云盘APP、微信小程序、139邮箱APP云盘模块等场景",
+        link: "https://caiyun.feixin.10086.cn:7071/portal/caiyunOfficialAccount/index.html?path=zeroPurchase&sourceid=1345#/zeroPurchase",
+        remark: "限中国移动用户（不限量套餐、副卡、物联网卡除外）；江苏、北京用户省内默认免流不消耗此流量；河南用户需在网≥185天"
+    },
+    {
+        id: 31,
+        operator: "移动",
+        province: "全国",
+        city: "全国",
+        mainType: "会员权益类",
+        subType: ["视频会员", "赠送流量"],
+        title: "移动AI潮智包（尝鲜版）0元享",
+        startTime: "2026-08-20",
+        endTime: "2026-12-31",
+        desc: "0元/月，含AI视频彩铃权益（AI一语成歌/成片每月各1次）、移动云盘AI权益（文本AI40次/天、图片AI13次/月）、5G新通话点亮屏幕+趣味通话、30GB咪咕音乐专属流量",
+        link: "https://dev.coc.10086.cn/coc/web2/trendyAiPackage/?pageId=1821479050014994432&channelId=P00000044852",
+        remark: "订购立即生效，退订次月失效；如已订购相关单品可能导致订购失败"
+    },
+    {
+        id: 32,
+        operator: "移动",
+        province: "全国",
+        city: "全国",
+        mainType: "流量类",
+        subType: ["定向流量"],
+        title: "移动云手机0元30GB定向流量",
+        startTime: "2026-08-20",
+        endTime: "2026-12-31",
+        desc: "0元/月领30GB移动云手机定向流量，按月自动续订。适用于移动云手机、微云手机、云应用等产品",
+        link: "https://cpability.buy.139.com/freetraffic/#/apporder",
+        remark: "限中国移动用户（不限量套餐、副卡、物联网卡除外）；河南用户需在网≥185天"
+    },
+    {
+        id: 33,
+        operator: "移动",
+        province: "全国",
+        city: "全国",
+        mainType: "会员权益类",
+        subType: ["视频会员", "定向流量"],
+        title: "移动APP权益·免费流量包+会员月卡",
+        startTime: "2026-08-20",
+        endTime: "2026-12-31",
+        desc: "可领取阿里系/百度系/头条系/网易系定向流量包，以及移动云盘黄金会员月卡、咪咕视频钻石会员月卡、爱奇艺/腾讯视频VIP会员月卡等",
+        link: "https://dev.coc.10086.cn/coc3/gr/static-2c/rightsget/index.html#/CardBzk?channelId=C10000013149&sellerId=undefined",
+        remark: "需登录中国移动APP查看具体领取规则"
+    },
+    {
+        id: 34,
+        operator: "移动",
+        province: "全国",
+        city: "全国",
+        mainType: "会员权益类",
+        subType: ["视频会员", "音乐会员"],
+        title: "移动APP权益·会员月卡+优惠权益",
+        startTime: "2026-08-20",
+        endTime: "2026-12-31",
+        desc: "可领取爱奇艺/腾讯视频/优酷视频VIP会员月卡、喜马拉雅会员月卡等",
+        link: "https://dev.coc.10086.cn/coc3/gr/static-2c/fcyr4/index.html#/?cardType=2&channelId=C10000041131&sellerId=undefined",
+        remark: "需登录中国移动APP查看具体领取规则"
+    },
+    {
+        id: 35,
+        operator: "移动",
+        province: "全国",
+        city: "全国",
+        mainType: "话费充值类",
+        subType: ["话费返还"],
+        title: "移动AI豆兑换话费/流量/短信",
+        startTime: "2026-08-20",
+        endTime: "2026-12-31",
+        desc: "使用AI豆可兑换话费（5元/10元/15元/20元）、流量日包（1GB/2GB）、流量加油包（100M/500M/1G）、短信包（50条/100条/200条）、彩信包等",
+        link: "https://m.jf.10086.cn/#/modules/pages/ownBusiness/bill/bill?WT.ac_id=bill_h5_code11",
+        remark: "AI豆兑换话费规则以各省为准；话费一经兑出不予退换、不提现"
+    },
+    {
+        id: 36,
+        operator: "移动",
+        province: "全国",
+        city: "全国",
+        mainType: "其他活动",
+        subType: ["老用户专享"],
+        title: "移动话费代付服务",
+        startTime: "2026-08-20",
+        endTime: "2026-12-31",
+        desc: "付款人可设置代付，为被付款人支付月租费、流量语音等套外费用。需付款方发起申请，被付款人短信确认",
+        link: "https://dev.coc.10086.cn/coc/web2/replacePay/?pageId=1506078881488551936&channelId=P00000012966",
+        remark: "取消代付需拨打10086或前往营业厅办理"
+    },
+    {
+        id: 37,
+        operator: "移动",
+        province: "全国",
+        city: "全国",
+        mainType: "其他活动",
+        subType: ["老用户专享"],
+        title: "移动资费公示专区",
+        startTime: "2026-08-20",
+        endTime: "2026-12-31",
+        desc: "中国移动资费公示专区，可查看各类套餐资费详情",
+        link: "https://h.app.coc.10086.cn/cmcc-app/uni-pages/tariffZonePers.html?pageId=1834149966764851200&prov=100",
+        remark: "页面需在移动APP内打开"
+    },
+    {
+        id: 38,
+        operator: "移动",
+        province: "全国",
+        city: "全国",
+        mainType: "会员权益类",
+        subType: ["音乐会员"],
+        title: "移动×QQ音乐随心听",
+        startTime: "2026-08-20",
+        endTime: "2026-12-31",
+        desc: "中国移动与QQ音乐联合权益，具体内容需登录页面查看",
+        link: "https://dev.coc.10086.cn/coc/web1/QQMusicPackage/redirectPgae?statusId=1&pageId=1534720185371115520&channelId=P00000012910",
+        remark: "需登录中国移动账号查看具体权益"
+    },
+
+    // ============================================================
+    //  二、中国联通（14个）
+    // ============================================================
+
+    // ----- 原 id 23~26 -----
+    {
+        id: 39,
+        operator: "联通",
+        province: "广东省",
+        city: "广州市",
+        mainType: "号卡套餐类",
+        subType: ["新用户号卡"],
+        title: "广州联通『拥军优属』专属套餐",
+        startTime: "2026-08-01",
+        endTime: "2026-08-31",
+        desc: "联合OPPO推出官兵专属通信优惠套餐，提供高性价比通话、流量、权益及家庭融合产品",
+        link: "",
+        remark: "拥军优属专属活动"
+    },
+    {
+        id: 40,
+        operator: "联通",
+        province: "山东省",
+        city: "全省",
+        mainType: "合约购机",
+        subType: ["合约机", "购机补贴"],
+        title: "山东联通『融合购机』中高端手机补贴",
+        startTime: "2026-08-19",
+        endTime: "2026-12-31",
+        desc: "将家庭通信支出合并为一张账单，对5000元以上中高端机型给予定向购机补贴",
+        link: "",
+        remark: "提供159元/199元档融合方案"
+    },
+    {
+        id: 41,
+        operator: "联通",
+        province: "山东省",
+        city: "青岛市",
+        mainType: "宽带业务",
+        subType: ["新装宽带", "宽带提速"],
+        title: "青岛联通『双宽带』全家通信优惠",
+        startTime: "2026-08-20",
+        endTime: "2026-12-31",
+        desc: "139元/月起，含两条千兆宽带+全屋WiFi，全家最多5人共享150GB流量+1300分钟通话",
+        link: "",
+        remark: "两条宽带可装不同地址"
+    },
+    {
+        id: 42,
+        operator: "联通",
+        province: "全国",
+        city: "全国",
+        mainType: "号卡套餐类",
+        subType: ["新用户号卡", "全国通用流量", "定向流量"],
+        title: "联通『果粉·王卡』SIM卡套餐",
+        startTime: "2026-01-23",
+        endTime: "2026-12-31",
+        desc: "首月免月租，首年优惠后49元/月。含80GB流量(30GB定向+50GB通用)，赠2年AppleCare碎屏电池保服务",
+        link: "",
+        remark: "预存50元送120元，每月返10元"
+    },
+
+    // ----- 原 id 41（联通畅游至尊版） -----
+    {
+        id: 43,
         operator: "联通",
         province: "全国",
         city: "全国",
@@ -650,47 +646,8 @@ const activityList = [
         link: "",
         remark: "仅限上海、江苏、广东、云南、新疆五地老用户办理，联通APP或网上营业厅搜索'畅游至尊版'办理"
     },
-    // ============================================================
-    //  基于 25xianbao.com/archives/28435 提取（广州电信星卡）
-    // ============================================================
-    
-    {
-        id: 42,  // 请根据实际已有数据调整ID
-        operator: "电信",
-        province: "广东省",
-        city: "广州市",
-        mainType: "流量类",
-        subType: ["赠送流量"],
-        title: "广州电信星卡充60送50G流量",
-        startTime: "2026-08-20",
-        endTime: "2028-08-31",
-        desc: "星卡用户充值60元，每月赠送50GB流量，连续赠送24个月。新老星卡用户均可参加，无在网业务限制即可办理",
-        link: "https://yaohuo.me/bbs/download.aspx?siteid=1000&classid=177&book_id=1566954&id=934164&RndPath=UploadFiles&n=%e5%85%8560%e9%80%8150g",
-        remark: "仅限广州地区星卡用户，其他套餐暂不能参与；如已参加类似活动，两个50G可叠加为100G/月"
-    },
-        // ============================================================
-    //  基于链接提取（广东电信积分兑换）
-    // ============================================================
-    
-    {
-        id: 43,  // 请根据实际已有数据调整ID
-        operator: "电信",
-        province: "广东省",
-        city: "全省",
-        mainType: "话费充值类",
-        subType: ["话费返还"],
-        title: "广东电信限时积分兑话费",
-        startTime: "2024-04-25",
-        endTime: "2028-05-31",
-        desc: "每月10号至16号，用户可使用天翼积分兑换话费。兑换选项包括1年、6个月、3个月、1个月等不同周期",
-        link: "https://cdn.img.telefen.com/webstatic/fensh/GD/20240425/H5/0425gdhf/H5/H5/index.html",
-        remark: "限广东电信用户，需登录天翼积分商城兑换"
-    },
-    // ============================================================
-    //  基于用户提供链接提取（中国联通）
-    // ============================================================
-    
-    // 44. 联通套餐升级福利 - 每月免费2GB流量
+
+    // ----- 原 id 44~48 -----
     {
         id: 44,
         operator: "联通",
@@ -705,7 +662,6 @@ const activityList = [
         link: "https://img.client.10010.com/liuliangbaoxiangqing/index.html#/fuli?duanlianjieabc=qA7K3",
         remark: "限收到特邀短信的用户参与，短信转发无效。也可登录联通APP搜索'套餐升级福利'办理。取消无违约金"
     },
-    // 45. 联通星享日
     {
         id: 45,
         operator: "联通",
@@ -720,7 +676,6 @@ const activityList = [
         link: "https://img.client.10010.com/xingxiangri/#/home",
         remark: "页面需JavaScript加载，建议使用手机浏览器或联通APP打开"
     },
-    // 46. 联通盲盒福利
     {
         id: 46,
         operator: "联通",
@@ -735,7 +690,6 @@ const activityList = [
         link: "https://txwk.10010.com/wkpen/view/740785949b.html?type=phone",
         remark: "需登录联通账号参与"
     },
-    // 47. 联通PLUS会员
     {
         id: 47,
         operator: "联通",
@@ -750,7 +704,6 @@ const activityList = [
         link: "https://qy.chinaunicom.cn/mobile-h5/plus/orderPage.html?sourcephone=99EA8BA8F88A543E2EEE29B5D2A9045BD2CFE32EA9E2E5767EDB0544137070E4",
         remark: "含5G优享服务、视频彩铃、数字人助理等特权，部分权益需付费开通"
     },
-    // 48. 联通特权中心
     {
         id: 48,
         operator: "联通",
@@ -765,11 +718,8 @@ const activityList = [
         link: "https://qy.chinaunicom.cn/mobile-h5/main/userarea.html",
         remark: "部分权益限时免费开通，需登录联通账号"
     },
-        // ============================================================
-    //  基于用户提供链接提取（中国联通）
-    // ============================================================
-    
-    // 49. 5G登网送好礼
+
+    // ----- 原 id 50~53（原 49 为移动，已调整） -----
     {
         id: 49,
         operator: "联通",
@@ -784,7 +734,6 @@ const activityList = [
         link: "https://qy.chinaunicom.cn/mobile-h5/2023/5gdw.html",
         remark: "限联通特邀用户，非特邀及转发链接无效。需登录联通APP-我的权益-我的礼包卡券中兑换。关闭5G开关或接入非5G网络时流量无法使用，当月未用完不可结转"
     },
-    // 50. 联通每日签到抽奖
     {
         id: 50,
         operator: "联通",
@@ -799,7 +748,6 @@ const activityList = [
         link: "https://c.10010.com/uf/daily/draw?isAuto=true&shorturl=7c3ed7",
         remark: "页面需JavaScript加载，建议使用手机浏览器或联通APP打开"
     },
-    // 51. 安徽联通沃joy
     {
         id: 51,
         operator: "联通",
@@ -814,7 +762,6 @@ const activityList = [
         link: "https://huodong.10155.com/h5/hdact4/ahWojoy/#/index?channel=fbcce9691d378caf536b2dd7683f5ff7",
         remark: "限安徽联通用户，页面需完整加载查看详细规则"
     },
-    // 52. 联通星燃权益
     {
         id: 52,
         operator: "联通",
@@ -829,223 +776,222 @@ const activityList = [
         link: "https://qy.chinaunicom.cn/mobile-h5/2022/star.html?token=030584aa-f33b-4341-ae6f-6074cd2a9d38&usrs=2",
         remark: "需先订购星燃权益方可领取。美团外卖30元及奈雪的茶30元代金券因供货不足暂时下架，预计7个工作日内恢复"
     },
-    // ============================================================
-//  基于用户提供链接提取（编号53-66）
-// ============================================================
+    {
+        id: 53,
+        operator: "联通",
+        province: "全国",
+        city: "全国",
+        mainType: "会员权益类",
+        subType: ["视频会员", "音乐会员", "生活权益"],
+        title: "联通权益月月领·热门会员权益免费领",
+        startTime: "2026-08-20",
+        endTime: "2026-12-31",
+        desc: "每月可在多款权益中任选1个领取，含视频会员、音乐会员、生活权益等。权益领取成功后需在30天内至联通APP-我的-我的礼包-卡券兑换使用",
+        link: "https://qy.chinaunicom.cn/mobile-h5/card/temp_cardact.html?id=2000000749789982&createTime=2023-02-04%2016:05:02&couponId=1000000000116605&actId=1000000000549607&channelid=",
+        remark: "部分权益每日限量，先到先得；每个自然月仅可领取一次"
+    },
 
-// 53. 联通权益月月领
-{
-    id: 53,
-    operator: "联通",
-    province: "全国",
-    city: "全国",
-    mainType: "会员权益类",
-    subType: ["视频会员", "音乐会员", "生活权益"],
-    title: "联通权益月月领·热门会员权益免费领",
-    startTime: "2026-08-20",
-    endTime: "2026-12-31",
-    desc: "每月可在多款权益中任选1个领取，含视频会员、音乐会员、生活权益等。权益领取成功后需在30天内至联通APP-我的-我的礼包-卡券兑换使用",
-    link: "https://qy.chinaunicom.cn/mobile-h5/card/temp_cardact.html?id=2000000749789982&createTime=2023-02-04%2016:05:02&couponId=1000000000116605&actId=1000000000549607&channelid=",
-    remark: "部分权益每日限量，先到先得；每个自然月仅可领取一次"
-},
-// 54. 电信手机直连卫星业务
-{
-    id: 54,
-    operator: "电信",
-    province: "全国",
-    city: "全国",
-    mainType: "其他活动",
-    subType: ["老用户专享"],
-    title: "电信手机直连卫星业务",
-    startTime: "2026-08-20",
-    endTime: "2026-12-31",
-    desc: "用户可使用支持直连卫星功能的终端，在户外空旷无遮挡处拨打卫星电话。部分省份部分用户需至线下营业厅换卡并完成受理",
-    link: "https://wapact.189.cn:9001/mas-pub-ui/spm/newActivity/ACTCODE202308180EDH092V?activityCode=ACTCODE202308180EDH092V&ticket=%24ticket%24&cmpid=jt-wap-wxgzh-zlwx&shopid=189.WAP.yyb-9003",
-    remark: "需使用支持直连卫星功能的终端；部分省份需换卡"
-},
-// 55. 电信抖音卡权益查询
-{
-    id: 55,
-    operator: "电信",
-    province: "全国",
-    city: "全国",
-    mainType: "会员权益类",
-    subType: ["生活权益"],
-    title: "电信抖音卡权益查询",
-    startTime: "2026-08-20",
-    endTime: "2026-12-31",
-    desc: "抖音卡用户权益查询与领取页面，具体权益需登录后查看",
-    link: "https://lm.189.cn/douyincard/douyincard_logequity.html#/",
-    remark: "限电信抖音卡用户"
-},
-// 56. 广东电信超级宠粉日
-{
-    id: 56,
-    operator: "电信",
-    province: "广东省",
-    city: "全省",
-    mainType: "会员权益类",
-    subType: ["视频会员", "生活权益"],
-    title: "广东电信超级宠粉日·权益包限时抢",
-    startTime: "2026-08-20",
-    endTime: "2026-12-31",
-    desc: "办理指定权益包后，每月19.9元，可领取2个加享权益，当月仅可选1个权益领取，每个权益仅可领1次",
-    link: "https://gd.189.cn/plus/h5/2022/fansday/index.html?cmpid=qyxs-qs-hdzb-cfhd",
-    remark: "限广东电信用户；首月免单板块与9.9秒杀板块不可同时订购"
-},
-// 57. 广电话费充值·多充多赠
-{
-    id: 57,
-    operator: "广电",
-    province: "全国",
-    city: "全国",
-    mainType: "话费充值类",
-    subType: ["充送话费"],
-    title: "广电话费充值·多充多赠",
-    startTime: "2026-08-20",
-    endTime: "2026-12-31",
-    desc: "话费充值多充多赠活动，具体档位及赠费规则需登录页面查看",
-    link: "https://m.10099.com.cn/h5recharge/#/?channelId=cd_20220916_293350",
-    remark: "页面需JavaScript加载，建议使用手机浏览器打开"
-},
-// 58. 移动云盘0元30GB定向流量
-{
-    id: 58,
-    operator: "移动",
-    province: "全国",
-    city: "全国",
-    mainType: "流量类",
-    subType: ["定向流量"],
-    title: "移动云盘0元30GB定向流量",
-    startTime: "2022-01-01",
-    endTime: "2026-12-31",
-    desc: "0元/月领30GB移动云盘定向流量，按月自动续订，当月清零不结转。适用于移动云盘APP、微信小程序、139邮箱APP云盘模块等场景",
-    link: "https://caiyun.feixin.10086.cn:7071/portal/caiyunOfficialAccount/index.html?path=zeroPurchase&sourceid=1345#/zeroPurchase",
-    remark: "限中国移动用户（不限量套餐、副卡、物联网卡除外）；江苏、北京用户省内默认免流不消耗此流量；河南用户需在网≥185天"
-},
-// 59. 移动AI潮智包（尝鲜版）
-{
-    id: 59,
-    operator: "移动",
-    province: "全国",
-    city: "全国",
-    mainType: "会员权益类",
-    subType: ["视频会员", "赠送流量"],
-    title: "移动AI潮智包（尝鲜版）0元享",
-    startTime: "2026-08-20",
-    endTime: "2026-12-31",
-    desc: "0元/月，含AI视频彩铃权益（AI一语成歌/成片每月各1次）、移动云盘AI权益（文本AI40次/天、图片AI13次/月）、5G新通话点亮屏幕+趣味通话、30GB咪咕音乐专属流量",
-    link: "https://dev.coc.10086.cn/coc/web2/trendyAiPackage/?pageId=1821479050014994432&channelId=P00000044852",
-    remark: "订购立即生效，退订次月失效；如已订购相关单品可能导致订购失败"
-},
-// 60. 移动云手机0元30GB定向流量
-{
-    id: 60,
-    operator: "移动",
-    province: "全国",
-    city: "全国",
-    mainType: "流量类",
-    subType: ["定向流量"],
-    title: "移动云手机0元30GB定向流量",
-    startTime: "2026-08-20",
-    endTime: "2026-12-31",
-    desc: "0元/月领30GB移动云手机定向流量，按月自动续订。适用于移动云手机、微云手机、云应用等产品",
-    link: "https://cpability.buy.139.com/freetraffic/#/apporder",
-    remark: "限中国移动用户（不限量套餐、副卡、物联网卡除外）；河南用户需在网≥185天"
-},
-// 61. 移动APP权益·免费流量包+会员月卡
-{
-    id: 61,
-    operator: "移动",
-    province: "全国",
-    city: "全国",
-    mainType: "会员权益类",
-    subType: ["视频会员", "定向流量"],
-    title: "移动APP权益·免费流量包+会员月卡",
-    startTime: "2026-08-20",
-    endTime: "2026-12-31",
-    desc: "可领取阿里系/百度系/头条系/网易系定向流量包，以及移动云盘黄金会员月卡、咪咕视频钻石会员月卡、爱奇艺/腾讯视频VIP会员月卡等",
-    link: "https://dev.coc.10086.cn/coc3/gr/static-2c/rightsget/index.html#/CardBzk?channelId=C10000013149&sellerId=undefined",
-    remark: "需登录中国移动APP查看具体领取规则"
-},
-// 62. 移动APP权益·会员月卡+优惠权益
-{
-    id: 62,
-    operator: "移动",
-    province: "全国",
-    city: "全国",
-    mainType: "会员权益类",
-    subType: ["视频会员", "音乐会员"],
-    title: "移动APP权益·会员月卡+优惠权益",
-    startTime: "2026-08-20",
-    endTime: "2026-12-31",
-    desc: "可领取爱奇艺/腾讯视频/优酷视频VIP会员月卡、喜马拉雅会员月卡等",
-    link: "https://dev.coc.10086.cn/coc3/gr/static-2c/fcyr4/index.html#/?cardType=2&channelId=C10000041131&sellerId=undefined",
-    remark: "需登录中国移动APP查看具体领取规则"
-},
-// 63. 移动AI豆兑换话费/流量/短信
-{
-    id: 63,
-    operator: "移动",
-    province: "全国",
-    city: "全国",
-    mainType: "话费充值类",
-    subType: ["话费返还"],
-    title: "移动AI豆兑换话费/流量/短信",
-    startTime: "2026-08-20",
-    endTime: "2026-12-31",
-    desc: "使用AI豆可兑换话费（5元/10元/15元/20元）、流量日包（1GB/2GB）、流量加油包（100M/500M/1G）、短信包（50条/100条/200条）、彩信包等",
-    link: "https://m.jf.10086.cn/#/modules/pages/ownBusiness/bill/bill?WT.ac_id=bill_h5_code11",
-    remark: "AI豆兑换话费规则以各省为准；话费一经兑出不予退换、不提现"
-},
-// 64. 移动话费代付服务
-{
-    id: 64,
-    operator: "移动",
-    province: "全国",
-    city: "全国",
-    mainType: "其他活动",
-    subType: ["老用户专享"],
-    title: "移动话费代付服务",
-    startTime: "2026-08-20",
-    endTime: "2026-12-31",
-    desc: "付款人可设置代付，为被付款人支付月租费、流量语音等套外费用。需付款方发起申请，被付款人短信确认",
-    link: "https://dev.coc.10086.cn/coc/web2/replacePay/?pageId=1506078881488551936&channelId=P00000012966",
-    remark: "取消代付需拨打10086或前往营业厅办理"
-},
-// 65. 移动资费公示专区
-{
-    id: 65,
-    operator: "移动",
-    province: "全国",
-    city: "全国",
-    mainType: "其他活动",
-    subType: ["老用户专享"],
-    title: "移动资费公示专区",
-    startTime: "2026-08-20",
-    endTime: "2026-12-31",
-    desc: "中国移动资费公示专区，可查看各类套餐资费详情",
-    link: "https://h.app.coc.10086.cn/cmcc-app/uni-pages/tariffZonePers.html?pageId=1834149966764851200&prov=100",
-    remark: "页面需在移动APP内打开"
-},
-// 66. 移动×QQ音乐随心听
-{
-    id: 66,
-    operator: "移动",
-    province: "全国",
-    city: "全国",
-    mainType: "会员权益类",
-    subType: ["音乐会员"],
-    title: "移动×QQ音乐随心听",
-    startTime: "2026-08-20",
-    endTime: "2026-12-31",
-    desc: "中国移动与QQ音乐联合权益，具体内容需登录页面查看",
-    link: "https://dev.coc.10086.cn/coc/web1/QQMusicPackage/redirectPgae?statusId=1&pageId=1534720185371115520&channelId=P00000012910",
-    remark: "需登录中国移动账号查看具体权益"
-}
-        ];
     // ============================================================
-//  暴露给全局（供 HTML 中的活动工具箱读取）
+    //  三、中国电信（9个）
+    // ============================================================
+
+    // ----- 原 id 27~30 -----
+    {
+        id: 54,
+        operator: "电信",
+        province: "广东省",
+        city: "全省",
+        mainType: "号卡套餐类",
+        subType: ["新用户号卡", "赠送流量", "视频会员"],
+        title: "电信广东星卡优惠套餐",
+        startTime: "2026-07-01",
+        endTime: "2026-09-10",
+        desc: "大流量星卡套餐，办卡送流量+会员",
+        link: "",
+        remark: "新用户专享"
+    },
+    {
+        id: 55,
+        operator: "电信",
+        province: "浙江省",
+        city: "全省",
+        mainType: "宽带业务",
+        subType: ["新装宽带", "宽带提速"],
+        title: "浙江电信『万兆进万家』用户体验招募",
+        startTime: "2026-05-22",
+        endTime: "2026-12-31",
+        desc: "每月599元，享10000M云宽带、500GB国内流量、5000分钟语音及手机直连卫星通信等服务",
+        link: "",
+        remark: "关注'中国电信浙江公司'公众号回复'万兆家庭'参与"
+    },
+    {
+        id: 56,
+        operator: "电信",
+        province: "全国",
+        city: "全国",
+        mainType: "号卡套餐类",
+        subType: ["新用户号卡"],
+        title: "电信校园卡39元/月",
+        startTime: "2026-08-01",
+        endTime: "2026-09-30",
+        desc: "39元/月，含135G通用流量+30G定向流量+100分钟通话",
+        link: "",
+        remark: "优惠期长期有效，限校园用户"
+    },
+    {
+        id: 57,
+        operator: "电信",
+        province: "上海市",
+        city: "全市",
+        mainType: "流量类",
+        subType: ["赠送流量"],
+        title: "上海电信薅流量攻略合集",
+        startTime: "2026-08-15",
+        endTime: "2026-12-31",
+        desc: "通过电信云宽带APP领10GB、问客服领10GB、沪贝兑换等多种方式获取免费流量",
+        link: "",
+        remark: "限上海电信用户"
+    },
+
+    // ----- 原 id 42,43 -----
+    {
+        id: 58,
+        operator: "电信",
+        province: "广东省",
+        city: "广州市",
+        mainType: "流量类",
+        subType: ["赠送流量"],
+        title: "广州电信星卡充60送50G流量",
+        startTime: "2026-08-20",
+        endTime: "2028-08-31",
+        desc: "星卡用户充值60元，每月赠送50GB流量，连续赠送24个月。新老星卡用户均可参加，无在网业务限制即可办理",
+        link: "https://yaohuo.me/bbs/download.aspx?siteid=1000&classid=177&book_id=1566954&id=934164&RndPath=UploadFiles&n=%e5%85%8560%e9%80%8150g",
+        remark: "仅限广州地区星卡用户，其他套餐暂不能参与；如已参加类似活动，两个50G可叠加为100G/月"
+    },
+    {
+        id: 59,
+        operator: "电信",
+        province: "广东省",
+        city: "全省",
+        mainType: "话费充值类",
+        subType: ["话费返还"],
+        title: "广东电信限时积分兑话费",
+        startTime: "2024-04-25",
+        endTime: "2028-05-31",
+        desc: "每月10号至16号，用户可使用天翼积分兑换话费。兑换选项包括1年、6个月、3个月、1个月等不同周期",
+        link: "https://cdn.img.telefen.com/webstatic/fensh/GD/20240425/H5/0425gdhf/H5/H5/index.html",
+        remark: "限广东电信用户，需登录天翼积分商城兑换"
+    },
+
+    // ----- 原 id 54,55,56 -----
+    {
+        id: 60,
+        operator: "电信",
+        province: "全国",
+        city: "全国",
+        mainType: "其他活动",
+        subType: ["老用户专享"],
+        title: "电信手机直连卫星业务",
+        startTime: "2026-08-20",
+        endTime: "2026-12-31",
+        desc: "用户可使用支持直连卫星功能的终端，在户外空旷无遮挡处拨打卫星电话。部分省份部分用户需至线下营业厅换卡并完成受理",
+        link: "https://wapact.189.cn:9001/mas-pub-ui/spm/newActivity/ACTCODE202308180EDH092V?activityCode=ACTCODE202308180EDH092V&ticket=%24ticket%24&cmpid=jt-wap-wxgzh-zlwx&shopid=189.WAP.yyb-9003",
+        remark: "需使用支持直连卫星功能的终端；部分省份需换卡"
+    },
+    {
+        id: 61,
+        operator: "电信",
+        province: "全国",
+        city: "全国",
+        mainType: "会员权益类",
+        subType: ["生活权益"],
+        title: "电信抖音卡权益查询",
+        startTime: "2026-08-20",
+        endTime: "2026-12-31",
+        desc: "抖音卡用户权益查询与领取页面，具体权益需登录后查看",
+        link: "https://lm.189.cn/douyincard/douyincard_logequity.html#/",
+        remark: "限电信抖音卡用户"
+    },
+    {
+        id: 62,
+        operator: "电信",
+        province: "广东省",
+        city: "全省",
+        mainType: "会员权益类",
+        subType: ["视频会员", "生活权益"],
+        title: "广东电信超级宠粉日·权益包限时抢",
+        startTime: "2026-08-20",
+        endTime: "2026-12-31",
+        desc: "办理指定权益包后，每月19.9元，可领取2个加享权益，当月仅可选1个权益领取，每个权益仅可领1次",
+        link: "https://gd.189.cn/plus/h5/2022/fansday/index.html?cmpid=qyxs-qs-hdzb-cfhd",
+        remark: "限广东电信用户；首月免单板块与9.9秒杀板块不可同时订购"
+    },
+
+    // ============================================================
+    //  四、中国广电（4个）
+    // ============================================================
+
+    // ----- 原 id 31~33 -----
+    {
+        id: 63,
+        operator: "广电",
+        province: "全国",
+        city: "全国",
+        mainType: "号卡套餐类",
+        subType: ["新用户号卡", "老用户套餐"],
+        title: "广电『随心享1.0』按量计费套餐",
+        startTime: "2026-08-04",
+        endTime: "2026-12-31",
+        desc: "月最低消费39元，流量阶梯计费最低0.8元/GB，语音0.12元/分钟，新老用户均可办理",
+        link: "",
+        remark: "无合约限制，全国可办"
+    },
+    {
+        id: 64,
+        operator: "广电",
+        province: "云南省",
+        city: "曲靖市",
+        mainType: "号卡套餐类",
+        subType: ["新用户号卡", "赠送流量"],
+        title: "曲靖广电『金榜题名』高考生5G号卡福利",
+        startTime: "2026-06-11",
+        endTime: "2026-08-31",
+        desc: "2026届高考生凭准考证+身份证免费领取5G号卡，享28元/月套餐(120G通用+200G专属流量+200分钟通话)",
+        link: "",
+        remark: "套餐优惠有效期12个月"
+    },
+    {
+        id: 65,
+        operator: "广电",
+        province: "四川省",
+        city: "全省",
+        mainType: "合约购机",
+        subType: ["购机补贴"],
+        title: "四川广电『川流一体机』电视补贴",
+        startTime: "2026-08-19",
+        endTime: "2026-12-31",
+        desc: "签约3年'一体化电视+宽带'融合套餐，立领2000元电视补贴券，可抵扣指定55寸电视购机款",
+        link: "",
+        remark: "将机顶盒、电视、宽带合并办理"
+    },
+    {
+        id: 66,
+        operator: "广电",
+        province: "全国",
+        city: "全国",
+        mainType: "话费充值类",
+        subType: ["充送话费"],
+        title: "广电话费充值·多充多赠",
+        startTime: "2026-08-20",
+        endTime: "2026-12-31",
+        desc: "话费充值多充多赠活动，具体档位及赠费规则需登录页面查看",
+        link: "https://m.10099.com.cn/h5recharge/#/?channelId=cd_20220916_293350",
+        remark: "页面需JavaScript加载，建议使用手机浏览器打开"
+    }
+];
+
+// ============================================================
+//  暴露给全局
 // ============================================================
 window.mainTypeEnum = mainTypeEnum;
 window.subTypeMap = subTypeMap;
