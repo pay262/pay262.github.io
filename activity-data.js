@@ -1461,8 +1461,191 @@ const activityList = [
         desc: "2元享100GB国内通用流量（不含港澳台），有效期4小时。一次性订购产品，使用完毕或到期自动失效",
         link: "https://wap.gd.10086.cn/ech/h5/single-page/index.html?id=1ffdfc35273f42eb8e0472aa4c7d6e35#",
         remark: "限肇庆移动用户；2G/3G不限量套餐、万能副卡、和多号、日租卡类、随心王类等不可办理；流量不可共享、不可转赠、不享受流量不清零服务"
-    }
-    
+    },
+// ============================================================
+//  新增活动 98-109（可直接追加至 activityList 末尾）
+// ============================================================
+
+// 98. 广东移动30元100GB（4小时）流量包·3元体验价
+{
+    id: 98,
+    operator: "移动",
+    province: "广东省",
+    city: "全省",
+    mainType: "流量类",
+    subType: ["全国通用流量"],
+    title: "广东移动30元100GB（4小时）流量包·3元体验",
+    startTime: "2026-08-20",
+    endTime: "2026-09-30",
+    desc: "3元体验价享100GB国内通用流量（不含港澳台），有效期4小时。一次性扣费产品，流量用完或4小时后自动失效。加享流量使用情况语音提醒免打扰服务",
+    link: "https://wx.10086.cn/website/businessPlatform/shopDetail?productId=2180683&productCode=14002075&secondChannel=40016_cz",
+    remark: "限广东移动客户；原价30元，限时体验价3元；流量生效期内只能办理1次；2G/3G不限量、4G随心卡、日租型套餐等不可办理；品牌转换期间不能参与；流量不可转赠、不可共享、不享受不清零"
+},
+// 99. 移动绿色充值通道
+{
+    id: 99,
+    operator: "移动",
+    province: "全国",
+    city: "全国",
+    mainType: "话费充值类",
+    subType: ["充值立减"],
+    title: "移动绿色充值通道·话费充值",
+    startTime: "2026-08-21",
+    endTime: "2026-12-31",
+    desc: "中国移动绿色充值通道，可通过页面或前往APP进行话费充值",
+    link: "http://touch.10086.cn/i/mobile/greentip.html",
+    remark: "页面仅显示'立即充值 前往APP充值'，具体优惠以APP内为准"
+},
+// 100. 动感地带潮玩包·15元版
+{
+    id: 100,
+    operator: "移动",
+    province: "全国",
+    city: "全国",
+    mainType: "会员权益类",
+    subType: ["视频会员", "音乐会员", "赠送流量"],
+    title: "动感地带潮玩包·15元/月（30岁以下专享）",
+    startTime: "2026-08-21",
+    endTime: "2026-12-31",
+    desc: "15元/月含10GB全国通用流量+100分钟5G新通话，每月可参与盲盒抽奖（含15GB/30GB定向流量、移动云盘黄金会员月卡、咪咕视频会员月卡）。有效期3年，自动续展",
+    link: "https://dev.coc.10086.cn/coc/canvas/package-h5-canvas/online/dgddcwb15y?pageId=1630762785986191360&channelId=P00000058450",
+    remark: "限中国移动30岁以下用户办理；福建、江西、新疆、广西、湖南用户暂不支持；与25元版互斥"
+},
+// 101. 动感地带潮玩包·25元版
+{
+    id: 101,
+    operator: "移动",
+    province: "全国",
+    city: "全国",
+    mainType: "会员权益类",
+    subType: ["视频会员", "音乐会员", "赠送流量"],
+    title: "动感地带潮玩包·25元/月（30岁以下专享）",
+    startTime: "2026-08-21",
+    endTime: "2026-12-31",
+    desc: "25元/月含20GB全国通用流量+200分钟5G新通话，每月可参与盲盒抽奖（含15GB/30GB定向流量、移动云盘黄金会员月卡、咪咕视频会员月卡）。有效期3年，自动续展",
+    link: "https://dev.coc.10086.cn/coc/canvas/package-h5-canvas/online/dgddcwb25y?pageId=1630773920493191168&channelId=P00000058450",
+    remark: "限中国移动30岁以下用户办理；福建、江西、新疆、广西、湖南用户暂不支持；与15元版互斥"
+},
+// 102. 移动数字生活特权包（0元）
+{
+    id: 102,
+    operator: "移动",
+    province: "全国",
+    city: "全国",
+    mainType: "会员权益类",
+    subType: ["视频会员", "音乐会员", "网盘会员", "生活权益"],
+    title: "移动数字生活特权包·0元享多款会员权益",
+    startTime: "2026-08-21",
+    endTime: "2026-12-31",
+    desc: "0元/月，含视频彩铃基础功能、防诈骗来电号码提醒、移动云盘40GB存储体验、云手机专业版每月1日体验、咪咕视频钻石会员每月2日体验、咪咕阅读畅读每月2日体验、咪咕音乐白金会员每月2日体验、咪咕快游每月2小时体验。有效期3年，自动续展",
+    link: "https://dev.coc.10086.cn/coc/web2/numericalLiving/?channelId=P00000007738&pageId=1672768668882481152",
+    remark: "2G/3G不限量套餐、4G随心王等客户无法办理；部分权益需主动领取，当月有效，漏领不补"
+},
+// 103. 移动数字生活特权包（备用链接）
+{
+    id: 103,
+    operator: "移动",
+    province: "全国",
+    city: "全国",
+    mainType: "会员权益类",
+    subType: ["视频会员", "音乐会员", "网盘会员", "生活权益"],
+    title: "移动数字生活特权包·0元享多款会员权益",
+    startTime: "2026-08-21",
+    endTime: "2026-12-31",
+    desc: "0元/月，含视频彩铃基础功能、防诈骗来电号码提醒、移动云盘40GB存储体验、云手机专业版每月1日体验、咪咕视频钻石会员每月2日体验、咪咕阅读畅读每月2日体验、咪咕音乐白金会员每月2日体验、咪咕快游每月2小时体验。有效期3年，自动续展",
+    link: "https://wx.10086.cn/website/businessPlatform/shopDetail?productId=2133510&productCode=15379866&fromRecommend=3&pageSource=100&pageid=af6f61fe725d43fe9059058f739224b4&shopP=",
+    remark: "与102号为同一活动不同入口，二选一保留即可"
+},
+// 104. 广东移动流量专区·短时/夜间/语音包汇总
+{
+    id: 104,
+    operator: "移动",
+    province: "广东省",
+    city: "全省",
+    mainType: "流量类",
+    subType: ["全国通用流量", "闲时流量"],
+    title: "广东移动流量专区·短时/夜间/语音包汇总",
+    startTime: "2026-08-21",
+    endTime: "2026-12-31",
+    desc: "流量专区聚合页，含多款短时流量包：100GB/4小时（3元/12元）、1GB/24小时（3元）、2GB/24小时（5元）、5GB/7天（10元）、10GB/3天（10元）、10GB/3天（19元）、20GB/7天（19.99元）；夜间流量包：20GB/月（10元）；语音包低至0.034元/分钟",
+    link: "https://wx.10086.cn/website/businessPlatform/activity/flowIndexNew",
+    remark: "限广东移动用户；短时流量包一次性订购，到期自动失效；具体规则以办理页面为准"
+},
+// 105. 广东移动开学季大转盘
+{
+    id: 105,
+    operator: "移动",
+    province: "广东省",
+    city: "全省",
+    mainType: "其他活动",
+    subType: ["抽奖活动"],
+    title: "广东移动开学季大转盘·赢100元话费/50元京东卡",
+    startTime: "2026-08-21",
+    endTime: "2026-09-20",
+    desc: "大转盘抽奖，奖品含100元话费、50元京东卡、1GB/2GB/3GB流量券、5-15元话费券等。卡券需于2026年9月20日前前往中国移动APP领取使用",
+    link: "https://wap.gd.10086.cn/ech/h5/rotary-activity/index.html#/?actId=MjA3ODAxOTI1NTU3MjQ5MjI4OA%3D%3D&WT.ac_id=qd_zgydappsytc",
+    remark: "限广东移动用户；需登录广东移动号码参与；卡券有效期至2026年9月20日，需在APP内领取"
+},
+// 106. 江门移动10分满意大转盘
+{
+    id: 106,
+    operator: "移动",
+    province: "广东省",
+    city: "江门市",
+    mainType: "其他活动",
+    subType: ["抽奖活动"],
+    title: "江门移动10分满意大转盘·赢10元话费/10GB流量",
+    startTime: "2026-08-10",
+    endTime: "2026-08-31",
+    desc: "大转盘抽奖，奖品含5元/10元话费券、5GB（30天有效）、10GB（7天有效）国内通用流量包。话费券中奖当月APP领取后生效；流量包APP领取后激活生效。每个用户每月仅限参与1次，数量有限，先到先得",
+    link: "https://gd.10086.cn/apph5/openapi/static/luckyWheel/index.html?activityId=0807115730avSd",
+    remark: "限江门移动受邀客户；每月开展（8月10-31日、9月1-30日）；每月奖品设置：5GB/10GB流量各5000份、5元话费2000份、10元话费1000份"
+},
+// 107. 珠海移动周三大转盘
+{
+    id: 107,
+    operator: "移动",
+    province: "广东省",
+    city: "珠海市",
+    mainType: "其他活动",
+    subType: ["抽奖活动"],
+    title: "珠海移动周三大转盘·抽1GB流量",
+    startTime: "2026-08-19",
+    endTime: "2026-08-21",
+    desc: "大转盘抽奖，奖品含1GB（1天）心意流量包等。每个用户活动期间限参与1次",
+    link: "https://wap.gd.10086.cn/ech/h5/big-turntable-new/index.html?actId=0a99cb3a57294d1da27e198d1eaf6057#",
+    remark: "限珠海移动客户；2G/3G不限量套餐、4G随心王、多号通副号、一卡双号副号、万能副卡等附属号码不可参与；集团代付/对公托收客户不可参与"
+},
+// 108. 咪咕视频“冰爽移夏”打卡活动
+{
+    id: 108,
+    operator: "移动",
+    province: "全国",
+    city: "全国",
+    mainType: "其他活动",
+    subType: ["签到", "领取福利"],
+    title: "咪咕视频“冰爽移夏”·打卡领实物/随机领话费流量",
+    startTime: "2026-07-31",
+    endTime: "2026-08-31",
+    desc: "中国移动用户每日打卡可领好礼：会员用户累计打卡10天领小黄人洞洞杯；非会员累计打卡18天领定制编织手提袋。另有“夏日补给站”随机福利：100元话费、10GB/2GB流量等，每月限1次，领取后需前往中国移动APP-我的-卡券激活使用",
+    link: "https://m.miguvideo.com/mgs/promotion/provincevml/prd/index.html?pageId=e0fa9f12a77b471c9cdbb7a439b86679&needLazyimg=0&sharefrom=miguvideoapp&pwId=204fd3571d294b6b8d881d3f78ecaa59",
+    remark: "限中国移动用户（不含港澳台）；打卡活动8月1日-31日开展，单用户每月仅限领取1种奖品；定制编织手提袋共500份，先到先得"
+},
+// 109. 校园打榜·芒果TV联合活动
+{
+    id: 109,
+    operator: "移动",
+    province: "全国",
+    city: "全国",
+    mainType: "其他活动",
+    subType: ["领取福利"],
+    title: "校园打榜·芒果TV联合活动",
+    startTime: "2026-08-21",
+    endTime: "2026-09-30",
+    desc: "中国移动与芒果TV联合校园打榜活动，具体规则需登录页面查看",
+    link: "https://h5.mgtv.com/2026/h5/6a6c562aeb326915818ca11a/?sid=ydgs",
+    remark: "需登录芒果TV账号参与；具体活动内容以页面为准"
+}    
 ];
 
 // ============================================================
