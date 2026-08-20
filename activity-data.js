@@ -246,7 +246,7 @@ const activityList = [
         startTime: "2026-08-01",
         endTime: "2026-08-31",
         desc: "大转盘抽奖，奖品含2GB/500MB流量日包，5元/10元话费加赠券",
-        link: "",
+        link: "https://dev.coc.10086.cn/coc3/canvas/rightsmarket-h5-canvas/online/zyppy?activeTab140483=1&channelCode=P00000104637&extendID=wechat&extentID=wechat&pageRecorded=true",
         remark: "移动与中盐联合活动"
     },
     {
@@ -260,7 +260,7 @@ const activityList = [
         startTime: "2026-08-01",
         endTime: "2026-08-31",
         desc: "刮奖可得2GB/10GB/500MB流量日包，5元/100元话费券",
-        link: "",
+        link: "https://dev.coc.10086.cn/coc3/canvas/rightsmarket-h5-canvas/online/26hlyyltybld?channelCode=P00000112149&pageRecorded=true",
         remark: "每月可参与"
     },
     {
@@ -274,7 +274,7 @@ const activityList = [
         startTime: "2026-08-01",
         endTime: "2026-08-31",
         desc: "领2GB流量日包或30GB悦看定向流量；抽奖可得100元/5元/3元话费加赠券",
-        link: "",
+        link: "https://n.cmread.com/nap/p/yksxlhlhl.jsp?z=1&cm=D0022782",
         remark: "咪咕视频旗下活动"
     },
     {
@@ -288,7 +288,7 @@ const activityList = [
         startTime: "2026-08-01",
         endTime: "2026-08-31",
         desc: "摇奖得2GB/500MB流量日包，100元/5元话费加赠券，天猫满减券",
-        link: "",
+        link: "https://dev.coc.10086.cn/coc3/canvas/rightsmarket-h5-canvas/online/yidongaini?channelCode=P00000112150&pageRecorded=true",
         remark: ""
     },
     {
@@ -302,7 +302,7 @@ const activityList = [
         startTime: "2026-08-01",
         endTime: "2026-08-31",
         desc: "直接领1GB/2GB流量日包，1/2/4/9元话费加赠券，86折话费折扣券",
-        link: "",
+        link: "https://wx.10086.cn/website/bind/bindAccount/new?redirectSource=SSO_YQS&redirectUrl=https%3A%2F%2Fwx.10086.cn%2Fqwhdsso%2Fredirect%3Fsid%3DQWHDSSOD20260803T141853073DU1026050700Hnw95cR721909&activityId=1026050700&activityName=%E6%98%A5%E5%A4%8F%E7%84%95%E6%96%B0+%E7%A7%BB%E5%8A%A8%E6%9C%89%E7%A4%BC#/",
         remark: "可直接领取"
     },
     {
@@ -316,7 +316,7 @@ const activityList = [
         startTime: "2026-08-01",
         endTime: "2026-08-31",
         desc: "随机展示2张卡券选1张，含2GB/10GB/30GB流量日包，0.5元/8元话费加赠券",
-        link: "",
+        link: "https://wx.10086.cn/wxpullapp/hzapp/activityalias/zx/transit/transferDownload.html?targetURL=https%3A%2F%2Fwx.10086.cn%2Fqwhdhub%2Fdiy-client%2F1126021706",
         remark: ""
     },
     {
@@ -330,7 +330,7 @@ const activityList = [
         startTime: "2026-08-01",
         endTime: "2026-08-31",
         desc: "领2元/5元话费优惠券，满20元可用",
-        link: "",
+        link: "https://ump.cmpay.com/front-msa/maktcfgh5/externalChannels?by=xz&jrnNo=ACT0690HFKH2025&ruleId=TQJN8921",
         remark: "和包支付平台活动"
     },
     {
@@ -344,7 +344,7 @@ const activityList = [
         startTime: "2026-08-01",
         endTime: "2026-08-31",
         desc: "每日签到/做任务领话费豆，可兑换1元/2元/3元话费满减券",
-        link: "",
+        link: "https://p.10086.cn/waph5/single/callHebao?TAGPAG=5360&MERCSIGN=xxQ6JfBE8fMB2ug9bXFIwN6opm83e2o4",
         remark: "长期活动"
     },
     {
@@ -358,7 +358,7 @@ const activityList = [
         startTime: "2026-08-01",
         endTime: "2026-08-31",
         desc: "抽奖得1元/2元/10元/88元话费兑换券，100MB/200MB/1GB流量日包",
-        link: "",
+        link: "https://dev.coc.10086.cn/coc3/canvas/rightsmarket-h5-canvas/online/ydyhl?channelCode=P00000145029&pageRecorded=true",
         remark: "消耗和包豆参与"
     },
 
