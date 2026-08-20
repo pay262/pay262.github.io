@@ -1645,7 +1645,177 @@ const activityList = [
     desc: "中国移动与芒果TV联合校园打榜活动，具体规则需登录页面查看",
     link: "https://h5.mgtv.com/2026/h5/6a6c562aeb326915818ca11a/?sid=ydgs",
     remark: "需登录芒果TV账号参与；具体活动内容以页面为准"
-}    
+},
+// ============================================================
+//  活动 110-120（可直接追加至 activityList 末尾）
+// ============================================================
+
+    // 110. 广东移动“流量月月领”·上传/备份领流量
+    {
+        id: 110,
+        operator: "移动",
+        province: "广东省",
+        city: "全省",
+        mainType: "流量类",
+        subType: ["赠送流量"],
+        title: "广东移动“流量月月领”·上传备份领10GB流量",
+        startTime: "2026-05-01",
+        endTime: "2026-09-30",
+        desc: "广东移动用户登录移动云盘APP参与活动：①上传任务：点击“去上传”上传任意文件，可领10GB一天通用流量包，当年首次参与加享10GB云空间年卡；②备份任务：开启手机自动备份且产生备份行为，每天可领一份奖品（顺序：2GB→5GB），当月最多领两次，最快2天完成7GB领取。流量为国内通用流量（不含港澳台），有效期1天，不可共享、不可转赠、不享受不清零",
+        link: "https://m.mcloud.139.com/portal/cyActive/index.html?path=GD_MobileData&targetSourceId=null&sourceid=1003&enableShare=1&token=%23ssoToken%23#/GD_MobileData?targetSourceId=null&enableShare=1",
+        remark: "限广东移动用户（部分鸿蒙用户暂无法参与）；每个自然月同一号码全渠道限领1次；与“广东转存有礼”互斥；需在移动网络环境下（不含WiFi）操作；奖品数量有限先到先得"
+    },
+    // 111. 移动爱家·每月流量领取活动
+    {
+        id: 111,
+        operator: "移动",
+        province: "全国",
+        city: "全国",
+        mainType: "流量类",
+        subType: ["赠送流量"],
+        title: "移动爱家·每月流量领取活动",
+        startTime: "2026-08-21",
+        endTime: "2026-12-31",
+        desc: "移动爱家品牌每月流量领取活动，具体流量额度及规则需登录页面查看",
+        link: "https://cloud.hjq.komect.com/h5/actOutLanding/?pageId=monthlyDataClaim&channelId=009999115-gzh",
+        remark: "页面需在移动网络环境下打开，具体活动规则以页面实际展示为准"
+    },
+    // 112. 和包评价有礼·赢3元话费券
+    {
+        id: 112,
+        operator: "移动",
+        province: "全国",
+        city: "全国",
+        mainType: "话费充值类",
+        subType: ["充值立减"],
+        title: "和包评价有礼·赢3元话费券",
+        startTime: "2026-08-21",
+        endTime: "2026-12-31",
+        desc: "下载和包APP，在应用商店发表评价（含星级打分及使用感受），上传包含手机品牌、和包APP、昵称及'我的'页面的完整截图，审核通过后可领3元话费券（满100元可用）",
+        link: "https://p.10086.cn/waph5/single/callHebao?TAGPAG=6001&MERCSIGN=H9bHgDxkORF0IKlKwzGKUUcrsruIBkDY",
+        remark: "需下载和包APP并完成评价；截图需包含4要素：手机品牌、和包APP界面、昵称及'我的'页面、星级打分；话费券满100元可用"
+    },
+    // 113. 安徽移动和包电费会员·20元月费享电费券+流量
+    {
+        id: 113,
+        operator: "移动",
+        province: "安徽省",
+        city: "全省",
+        mainType: "会员权益类",
+        subType: ["生活权益", "赠送流量"],
+        title: "安徽移动和包电费会员·20元/月享电费券+10GB流量",
+        startTime: "2026-08-21",
+        endTime: "2026-12-31",
+        desc: "20元/月（话费支付），每月享20元和包电费券（满20.01元可用）+10GB国内通用流量。订购立即生效，次月自动续订，退订月底失效。电费券每月自动派发至和包账户，有效期31天；流量需每月主动领取，限当月使用",
+        link: "https://api.ahmobile.cn/ah_web/electricMember/index.html?kfSubAgent=sjdxchb#/index",
+        remark: "限安徽移动用户办理；欠费销户、话费余额不足用户无法办理；电费券仅限安徽省内电表缴费使用；流量不可共享、不结转、不可转赠"
+    },
+    // 114. 中国移动新人百元礼包·话费/流量/抽奖
+    {
+        id: 114,
+        operator: "移动",
+        province: "全国",
+        city: "全国",
+        mainType: "其他活动",
+        subType: ["新用户专享", "抽奖活动"],
+        title: "中国移动新人百元礼包·领话费券/流量券/每日抽奖",
+        startTime: "2026-08-21",
+        endTime: "2026-11-30",
+        desc: "新用户/回归用户可享：①话费加赠券（满10赠5）；②10GB流量日包券；③每日抽奖赢好礼。另有新人加享礼：查网龄月月领好礼、影音会员N选1抽100GB、领购机补贴200元（部分机型可再领至高300元话费）",
+        link: "https://wx.10086.cn/wxpullapp/hzapp/activityalias/zj/transit/transferDownload.html?targetURL=https%3A%2F%2Fwx.10086.cn%2Fqwhdhub%2Fdiy-client%2F1126072224%3FA_C_CODE%3D3C43AjX2Cz%26channelId%3DP00000003569&pageId=57126080509225895&sellerId=1557132HD1702700659",
+        remark: "限中国移动在网新用户及回归用户；活动时间截至2026年11月30日"
+    },
+    // 115. 移动“流量越用越多”·最高100GB/10元话费
+    {
+        id: 115,
+        operator: "移动",
+        province: "全国",
+        city: "全国",
+        mainType: "流量类",
+        subType: ["赠送流量"],
+        title: "移动“流量越用越多”·最高100GB/10元话费",
+        startTime: "2026-08-21",
+        endTime: "2026-09-30",
+        desc: "流量及话费红包共2000万份，用户登录领取任务后参与，邀请好友可获额外抽奖机会",
+        link: "https://wap.js.10086.cn/nact/resource/2645/html/index.html?im=bc42ca9fb2c0812000629abcecf14767&se=1&st=1",
+        remark: "需登录中国移动账号参与；红包数量有限，先到先得"
+    },
+    // 116. 移动刮卡领券活动（活动一）
+    {
+        id: 116,
+        operator: "移动",
+        province: "全国",
+        city: "全国",
+        mainType: "其他活动",
+        subType: ["领取福利"],
+        title: "移动刮卡领券活动·抽话费流量券",
+        startTime: "2026-08-21",
+        endTime: "2026-09-30",
+        desc: "活动加载中，具体奖品需登录后查看",
+        link: "https://wx.10086.cn/qwhdhub/leadin/1025020810?A_C_CODE=1DJicGPBGv&channelId=P00000111791#/",
+        remark: "需登录中国移动账号参与"
+    },
+    // 117. 移动刮卡领券活动（活动二）
+    {
+        id: 117,
+        operator: "移动",
+        province: "全国",
+        city: "全国",
+        mainType: "其他活动",
+        subType: ["领取福利"],
+        title: "移动刮卡领券活动·签到送好礼",
+        startTime: "2026-08-21",
+        endTime: "2026-09-30",
+        desc: "签到送好礼活动，具体奖品需登录后查看",
+        link: "https://wx.10086.cn/qwhdhub/giveprize/1024121626?A_C_CODE=CQEx3Mp384&token=QWHDSSO1220192129593415265026A_C_CODECQEx3Mp384#/",
+        remark: "需登录中国移动账号参与"
+    },
+    // 118. 移动刮卡领券活动（活动五）
+    {
+        id: 118,
+        operator: "移动",
+        province: "全国",
+        city: "全国",
+        mainType: "其他活动",
+        subType: ["签到"],
+        title: "移动刮卡领券活动·签到送好礼",
+        startTime: "2026-08-21",
+        endTime: "2026-09-30",
+        desc: "签到送好礼活动，具体奖品需登录后查看",
+        link: "https://wx.10086.cn/qwhdhub/diy-client/1126050488?A_C_CODE=hVXu8J1Ai5",
+        remark: "需登录中国移动账号参与"
+    },
+    // 119. 移动刮卡领券活动（活动七）
+    {
+        id: 119,
+        operator: "移动",
+        province: "全国",
+        city: "全国",
+        mainType: "其他活动",
+        subType: ["签到"],
+        title: "移动刮卡领券活动·签到送好礼",
+        startTime: "2026-08-21",
+        endTime: "2026-09-30",
+        desc: "签到送好礼活动，具体奖品需登录后查看",
+        link: "https://wx.10086.cn/qwhdhub/giveprize/1026050700?A_C_CODE=znHPwOdq7g&channelId=P00000112149&token=QWHDSSOD20260801T094442388DU1026050700H9wh8gR664422#/",
+        remark: "需登录中国移动账号参与"
+    },
+    // 120. 移动新人百元礼包
+    {
+        id: 120,
+        operator: "移动",
+        province: "全国",
+        city: "全国",
+        mainType: "其他活动",
+        subType: ["新用户专享", "抽奖活动"],
+        title: "中国移动新人百元礼包·领话费券/流量券/每日抽奖",
+        startTime: "2026-08-21",
+        endTime: "2026-11-30",
+        desc: "新用户/回归用户可享：①话费加赠券（满10赠5）；②10GB流量日包券；③每日抽奖赢好礼。另有新人加享礼：查网龄月月领好礼、影音会员N选1抽100GB、领购机补贴200元（部分机型可再领至高300元话费）",
+        link: "https://wx.10086.cn/wxpullapp/hzapp/activityalias/zj/transit/transferDownload.html?targetURL=https%3A%2F%2Fwx.10086.cn%2Fqwhdhub%2Fdiy-client%2F1126072224%3FA_C_CODE%3D3C43AjX2Cz%26channelId%3DP00000003569&pageId=57126080509225895&sellerId=1557132HD1702700659",
+        remark: "限中国移动在网新用户及回归用户"
+    }
+    
 ];
 
 // ============================================================
