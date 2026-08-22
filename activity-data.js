@@ -1992,6 +1992,132 @@ const activityList = [
     desc: "1元/月享100条国内短信，合约期12个月，到期自动续约，可随时免费退订。每月需手动领取",
     link: "https://u.10010.cn/qAXTr",
     remark: "限北京联通用户办理；打开中国联通APP联系人工客服办理；每月3号后需手动领取"
+},
+// ============================================================
+//  新增活动 132-139（广东/广州电信预存送流量）
+//  来源：用户提供链接
+//  注意：部分页面需登录查看，具体规则以实际页面为准
+// ============================================================
+
+// 132. 广东电信流量升级50G福利包
+{
+    id: 132,
+    operator: "电信",
+    province: "广东省",
+    city: "全省",
+    mainType: "流量类",
+    subType: ["赠送流量"],
+    title: "广东电信流量升级50G福利包",
+    startTime: "2026-08-22",
+    endTime: "2026-12-31",
+    desc: "广东电信用户可参与流量升级活动，领取50GB流量福利包，具体规则需登录页面查看",
+    link: "https://gd.189.cn/TS/tysj/handle/llsj/index.html#/llsjcpcp?cmpid=zqsy",
+    remark: "限广东电信用户；页面提示'活动已下线'或仅面向指定用户开放，需登录验证"
+},
+// 133. 广州电信预存60得50GB流量包
+{
+    id: 133,
+    operator: "电信",
+    province: "广东省",
+    city: "广州市",
+    mainType: "流量类",
+    subType: ["赠送流量"],
+    title: "广州电信预存60得50GB流量包",
+    startTime: "2026-08-22",
+    endTime: "2026-12-31",
+    desc: "预存60元话费，赠送50GB流量，具体规则需登录页面查看",
+    link: "https://vip.mini189.cn/wx/xk2jladecrcj",
+    remark: "限广州电信用户；需登录广州电信官方微信号查看"
+},
+// 134. 广州电信预存30元得30GB流量
+{
+    id: 134,
+    operator: "电信",
+    province: "广东省",
+    city: "广州市",
+    mainType: "流量类",
+    subType: ["赠送流量"],
+    title: "广州电信预存30元得30GB流量",
+    startTime: "2026-08-22",
+    endTime: "2026-12-31",
+    desc: "预存30元话费，赠送30GB流量，具体规则需登录页面查看",
+    link: "https://vip.mini189.cn/wx/czyby6go30",
+    remark: "限广州电信用户；需登录后查看具体规则"
+},
+// 135. 广州电信预存60元得30GB流量
+{
+    id: 135,
+    operator: "电信",
+    province: "广东省",
+    city: "广州市",
+    mainType: "流量类",
+    subType: ["赠送流量"],
+    title: "广州电信预存60元得30GB流量",
+    startTime: "2026-08-22",
+    endTime: "2026-12-31",
+    desc: "预存60元话费，赠送30GB流量，具体规则需登录页面查看",
+    link: "https://vip.mini189.cn/wx/czyjynfp60",
+    remark: "限广州电信用户；需登录后查看具体规则"
+},
+// 136. 广州电信预存100元得100GB流量
+{
+    id: 136,
+    operator: "电信",
+    province: "广东省",
+    city: "广州市",
+    mainType: "流量类",
+    subType: ["赠送流量"],
+    title: "广州电信预存100元得100GB流量",
+    startTime: "2026-08-22",
+    endTime: "2026-12-31",
+    desc: "预存100元话费，赠送100GB流量，具体规则需登录页面查看",
+    link: "https://vip.mini189.cn/wx/czprk6ras1bg",
+    remark: "限广州电信用户；需登录广州电信官方微信号查看"
+},
+// 137. 广州电信预存30元送105GB+100分钟
+{
+    id: 137,
+    operator: "电信",
+    province: "广东省",
+    city: "广州市",
+    mainType: "流量类",
+    subType: ["赠送流量"],
+    title: "广州电信预存30元送105GB+100分钟",
+    startTime: "2026-08-22",
+    endTime: "2026-12-31",
+    desc: "预存30元话费，赠送105GB流量+100分钟通话，具体规则需登录页面查看",
+    link: "https://vip.mini189.cn/wx/cz50bpku105g",
+    remark: "限广州电信用户；需登录广州电信官方微信号查看"
+},
+// 138. 广州电信预存30元送50GB
+{
+    id: 138,
+    operator: "电信",
+    province: "广东省",
+    city: "广州市",
+    mainType: "流量类",
+    subType: ["赠送流量"],
+    title: "广州电信预存30元送50GB",
+    startTime: "2026-08-22",
+    endTime: "2026-12-31",
+    desc: "预存30元话费，赠送50GB流量，具体规则需登录页面查看",
+    link: "https://vip.mini189.cn/wx/cz30c7kij50g",
+    remark: "限广州电信用户；需登录后查看具体规则"
+},
+// 139. 广东电信预存100送50GB（3个月可续）
+{
+    id: 139,
+    operator: "电信",
+    province: "广东省",
+    city: "全省",
+    mainType: "流量类",
+    subType: ["赠送流量"],
+    title: "广东电信预存100送50GB（3个月可续）",
+    startTime: "2026-08-22",
+    endTime: "2026-12-31",
+    desc: "预存100元话费，赠送50GB流量，有效期3个月，到期可续订，具体规则需登录页面查看",
+    link: "https://gd.189.cn/TS/tysj/handle/yc/index.html#/?cmpid=hlwkzq",
+    remark: "限广东电信用户；需登录查看具体活动内容和参与对象"
 }
 ];
 
