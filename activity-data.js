@@ -1848,7 +1848,151 @@ const activityList = [
     desc: "每日12点/17点/20点准点开抢，奖品含6元话费、2GB流量等福利，需登录中国移动APP参与秒杀",
     link: "https://wx.10086.cn/qwhdhub/diy-client/index.html?activityId=1126075875&pageState=channelNonsupport#/page/Yg7pjX0-kc0Bn6j24VzA",
     remark: "每日12点/17点/20点三场准点秒杀；需登录中国移动APP参与；具体奖品及规则以页面实际展示为准"
-}    
+},
+// 123. 广西电信网龄回馈尊享版10-20元提速权益包
+{
+    id: 123,
+    operator: "电信",
+    province: "广西壮族自治区",
+    city: "全区",
+    mainType: "宽带业务",
+    subType: ["宽带提速", "老用户专享"],
+    title: "广西电信网龄回馈尊享版10-20元提速权益包",
+    startTime: "2026-08-22",
+    endTime: "2026-12-31",
+    desc: "广西电信网龄回馈活动，用户可通过承诺消费方式办理10-20元档位的宽带提速权益包，具体提速幅度及规则需登录页面查看",
+    link: "http://gx.189.cn/accept/ptindex/?mktCamCataId=109292&tgr=tsl207734-yrym-zzxd",
+    remark: "限广西电信用户；需登录查看具体提速档位及承诺消费条件；页面需JavaScript加载"
+},
+// 124. 湖南电信校园特惠5G-A权益包·0元享网络加速
+{
+    id: 124,
+    operator: "电信",
+    province: "湖南省",
+    city: "全省",
+    mainType: "其他活动",
+    subType: ["老用户专享"],
+    title: "湖南电信校园特惠5G-A权益包·0元享网络加速",
+    startTime: "2026-08-22",
+    endTime: "2026-12-31",
+    desc: "0元/月享5G-A网络权益（网络速率下行最高2Gbps，上行最高300Mbps）。订购立即生效，有效期四年，到期双方无异议自动续约。变更或退订次月生效，速率权益同步失效",
+    link: "https://flow.hn.189.cn/hnfx/jlb/newllzqSinger?clientid=HNWTXCX34&tk=&tcid=9314247",
+    remark: "限湖南省内在读高校学生办理；适用于'5G畅享59元'校园套餐且办理'校园宽带可选包'用户；办理后不可办理其他非校园优惠；主副卡不可共享；需使用支持5G-A网络的终端"
+},
+// 125. 全国电信叠加卫星通话10分+10条短信，长期20年
+{
+    id: 125,
+    operator: "电信",
+    province: "全国",
+    city: "全国",
+    mainType: "其他活动",
+    subType: ["老用户专享"],
+    title: "电信叠加卫星通话10分钟+10条短信·长期20年",
+    startTime: "2026-08-22",
+    endTime: "2046-12-31",
+    desc: "全国电信用户可叠加开通卫星通话权益包，含10分钟卫星通话+10条卫星短信，有效期20年",
+    link: "https://www.189.cn/wapportalweb/vue/pages/clientjump/index.html#/?linkType=5&link=https%3A%2F%2Fwww.189.cn%2Fwapportalweb%2Fflowcard%2Fflowcard_detail.html%3Fticket%3D%24ticket%24%26salesid%3D000000003FABB0D26DF78060E0631788870A31B0",
+    remark: "限电信用户办理；具体办理资格及规则以页面实际展示为准"
+},
+// 126. 新疆移动全球通5G-A加速服务0元领
+{
+    id: 126,
+    operator: "移动",
+    province: "新疆维吾尔自治区",
+    city: "全区",
+    mainType: "其他活动",
+    subType: ["老用户专享"],
+    title: "新疆移动全球通5G-A加速服务0元领",
+    startTime: "2026-08-22",
+    endTime: "2026-12-31",
+    desc: "0元/月，中国移动全球通客户可享直播/游戏/视频等重点业务加速。有效期3年，到期自动续展",
+    link: "https://wx.10086.cn/website/businessPlatform/shopDetail?productId=2184200&productCode=9200828",
+    remark: "限新疆移动全球通客户办理；需使用支持5G-A网络的终端；0元/月，立即生效"
+},
+// ============================================================
+//  新增活动 127-129（湖北移动 + 新疆移动）
+// ============================================================
+
+// 127. 湖北移动合家欢回馈合约·免费一年
+{
+    id: 127,
+    operator: "移动",
+    province: "湖北省",
+    city: "全省",
+    mainType: "会员权益类",
+    subType: ["赠送流量", "网盘会员"],
+    title: "湖北移动合家欢回馈合约·免费一年（5G流量+1T云盘）",
+    startTime: "2026-08-22",
+    endTime: "2027-08-22",
+    desc: "湖北移动合家欢用户可免费领取回馈合约，含合家欢5G流量+合家欢1T云盘，有效期一年",
+    link: "https://wap.hb.10086.cn/wapres/wap-h5/reservation/f58395b12d8c4272b0d96551a9255ae0.html?qq_aio_chat_type=3&sourceType=share",
+    remark: "限湖北移动合家欢用户办理；需登录湖北移动账号参与；具体规则以页面实际展示为准"
+},
+// 128. 湖北移动1元保底流量包·三年合约
+{
+    id: 128,
+    operator: "移动",
+    province: "湖北省",
+    city: "全省",
+    mainType: "流量类",
+    subType: ["全国通用流量"],
+    title: "湖北移动1元保底流量包·三年合约（10GB/月）",
+    startTime: "2026-08-22",
+    endTime: "2029-08-22",
+    desc: "1元/月保底享10GB国内通用流量，合约期36个月（3年）",
+    link: "https://wap.hb.10086.cn/wapres/wap-h5/reservation/5c38f3f5e1ad41cda102af5ee1b538e0.html?qq_aio_chat_type=3&sourceType=share",
+    remark: "限湖北移动用户办理；合约期36个月；需登录湖北移动账号参与"
+},
+// ============================================================
+//  新增活动 129-131（北京联通1元羊毛包）
+//  来源：用户提供链接 + 25xianbao.com
+// ============================================================
+
+// 129. 北京联通1元100分钟语音包
+{
+    id: 129,
+    operator: "联通",
+    province: "北京市",
+    city: "全市",
+    mainType: "话费充值类",
+    subType: ["缴费优惠"],
+    title: "北京联通1元100分钟语音包",
+    startTime: "2026-08-22",
+    endTime: "2027-08-22",
+    desc: "1元/月享100分钟国内语音，合约期12个月，到期自动续约，可随时免费退订。每月需手动领取",
+    link: "https://u.10010.cn/qAXTQ",
+    remark: "限北京联通用户办理；打开中国联通APP联系人工客服办理；每月3号后需手动领取"
+},
+// 130. 北京联通1元1GB流量包
+{
+    id: 130,
+    operator: "联通",
+    province: "北京市",
+    city: "全市",
+    mainType: "流量类",
+    subType: ["全国通用流量"],
+    title: "北京联通1元1GB流量包",
+    startTime: "2026-08-22",
+    endTime: "2027-08-22",
+    desc: "1元/月享1GB国内流量，合约期12个月，到期自动续约，可随时免费退订。每月需手动领取",
+    link: "https://u.10010.cn/qAXTq",
+    remark: "限北京联通用户办理；打开中国联通APP联系人工客服办理；每月3号后需手动领取"
+},
+// 131. 北京联通1元100条短信包
+{
+    id: 131,
+    operator: "联通",
+    province: "北京市",
+    city: "全市",
+    mainType: "话费充值类",
+    subType: ["缴费优惠"],
+    title: "北京联通1元100条短信包",
+    startTime: "2026-08-22",
+    endTime: "2027-08-22",
+    desc: "1元/月享100条国内短信，合约期12个月，到期自动续约，可随时免费退订。每月需手动领取",
+    link: "https://u.10010.cn/qAXTr",
+    remark: "限北京联通用户办理；打开中国联通APP联系人工客服办理；每月3号后需手动领取"
+}
 ];
 
 // ============================================================
