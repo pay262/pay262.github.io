@@ -1,0 +1,9 @@
+你的网站根目录/
+├── index.html          # 主页面（包含布局、样式、搜索等全部静态结构）
+├── data.js             # 独立数据文件（所有卡片数据 + 渲染逻辑 + 站内搜索功能）
+└── static/             # 静态资源文件夹（从原项目完整复制）
+    ├── css/            # 所有样式文件（bootstrap.min.css, iconfont.css, style-3.03029.1.css 等）
+    ├── js/             # 所有脚本文件（jquery, popper, bootstrap, lazyload, app-mini.js 等）
+    ├── picture/        # 网站图标、logo、卡片图标等图片资源
+    ├── images/         # 其他图片（如 qq.jpg 等）
+    └── 8js/            # 某些额外脚本文件（如 ed5c676968db46908ed985188926ead2.js）
