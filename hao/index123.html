@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#f9f9f9" />
+    <title>BT网址导航</title>
+    <meta name="keywords" content="导航,工具,AI,开发,设计" />
+    <meta name="description" content="BT网址导航 - 精选AI工具、开发运维、设计创意等实用网址">
+    <link rel="shortcut icon" href="static/picture/favicon.ico">
+    <link rel="stylesheet" href="static/css/iconfont.css" type="text/css" media="all" />
+    <link rel="stylesheet" href="static/css/bootstrap.min.css" type="text/css" media="all" />
+    <link rel="stylesheet" href="static/css/style-3.03029.1.css" type="text/css" media="all" />
+    <link rel="stylesheet" href="static/css/custom-style.css" type="text/css" media="all" />
+    <link rel="stylesheet" href="static/css/font-awesome.css">
+    <script type="text/javascript" src="static/js/jquery-3.6.0.min.js"></script>
+    <style>
+        body,html{font-size:15px!important;}
+        .notice-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 10px 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border-left: 4px solid #ff6b6b;
+            max-height: 120px;
+            overflow: hidden;
+        }
+        .notice-card marquee { font-size: 14px; color: #333; line-height: 1.8; }
+        .notice-card marquee a { color: #007bff; text-decoration: none; }
+        .notice-card marquee a:hover { text-decoration: underline; }
+        @media (max-width: 576px) {
+            .notice-card { max-height: 100px; padding: 8px 12px; }
+            .notice-card marquee { font-size: 13px; }
+        }
+        .footer-inner .footer-text { background-color: #f8f9fa; border-radius: 12px; }
+        .footer-inner ul { padding-left: 0; }
+        .footer-inner ul li { list-style: none; margin-bottom: 4px; }
+        .footer-inner ul li a { color: #6c757d; text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+        .footer-inner ul li a:hover { color: #007bff; }
+        .footer-mini-img { display: inline-block; text-align: center; }
+        .footer-mini-img img { border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+        @media (max-width: 767.98px) {
+            .footer-inner .row > div { text-align: center !important; }
+            .footer-inner .col-4 { flex: 0 0 33.333%; max-width: 33.333%; }
+            .footer-mini-img { margin: 0 8px; }
+        }
+    </style>
+</head>
+<body class="io-grey-mode">
+    <div style="display:none;" id="loading"><div class="loader">BT网址导航</div></div>
+    <div class="page-container">
+        <!-- 左侧栏（菜单由 JS 动态生成） -->
+        <div id="sidebar" class="sticky sidebar-nav fade mini-sidebar" style="width: 60px;" data="1">
+            <div class="modal-dialog h-100 sidebar-nav-inner">
+                <div class="sidebar-logo border-bottom border-color">
+                    <div class="logo overflow-hidden">
+                        <a href="./?u=admin" class="logo-expanded">
+                            <img src="static/picture/bt8-expand-light.png" height="40" class="logo-light">
+                            <img src="static/picture/bt8-expand-dark.png" height="40" class="logo-dark d-none">
+                        </a>
+                        <a href="./?u=admin" class="logo-collapsed">
+                            <img src="static/picture/bt.png" height="40" class="logo-light">
+                            <img src="static/picture/bt.png" height="40" class="logo-dark d-none">
+                        </a>
+                    </div>
+                </div>
+                <div class="sidebar-menu flex-fill">
+                    <div class="sidebar-scroll">
+                        <div class="sidebar-menu-inner">
+                            <ul id="dynamic-menu">
+                                <!-- 由 JS 生成菜单项 -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="border-top py-2 border-color">
+                    <div class="flex-bottom">
+                        <ul>
+                            <li class="sidebar-item"><a href="https://support.qq.com/embed/phone/654198" target="_blank"><i class="fa fa-pencil fa-lg icon-fw icon-lg mr-2"></i><span>网站提交</span></a></li>
+                            <li class="sidebar-item"><a href="#" target="_blank"><i class="fa fa-user fa-lg icon-fw icon-lg mr-2"></i><span>系统管理</span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 主体内容 -->
+        <div class="main-content flex-fill not">
+            <div class="big-header-banner">
+                <!-- 头部（保持不变） -->
+                <div id="header" class="page-header sticky">
+                    <div class="navbar navbar-expand-md">
+                        <div class="container-fluid p-0">
+                            <a href="" class="navbar-brand d-md-none">
+                                <img src="static/picture/bt.png" class="logo-light">
+                                <img src="static/picture/bt.png" class="logo-dark d-none">
+                            </a>
+                            <div class="collapse navbar-collapse order-2 order-md-1">
+                                <div class="header-mini-btn">
+                                    <label>
+                                        <input id="mini-button" type="checkbox">
+                                        <svg viewbox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path class="line--1" d="M0 40h62c18 0 18-20-17 5L31 55"></path><path class="line--2" d="M0 50h80"></path><path class="line--3" d="M0 60h62c18 0 18 20-17-5L31 45"></path></svg>
+                                    </label>
+                                </div>
+                                <ul class="navbar-nav site-menu" style="margin-right: 16px;">
+                                    <li><a href="./?c=admin&u=admin"><i class="fa fa-user-circle-o icon-fw mr-2"></i><span> 管理</span></a></li>
+                                    <li class="menu-item-has-children"><a target="_blank" href="#" title=''><i class="fa fa-bookmark icon-fw mr-2"></i><span> 关于本站</span></a>
+                                        <ul><li><a target="_blank" href="#" title='Gitee'><i class="fa fa-git-square icon-fw mr-2"></i><span> Gitee</span></a></li>
+                                            <li><a target="_blank" href="#" title='GitHub'><i class="fa fa-github icon-fw mr-2"></i><span> GitHub</span></a></li></ul>
+                                    </li>
+                                    <li><a target="_blank" href="#" title='每月送30G流量'><i class="fa fa-sitemap icon-fw mr-2"></i><span> 本站CDN赞助商</span></a></li>
+                                </ul>
+                            </div>
+                            <ul class="nav navbar-menu text-xs order-1 order-md-2">
+                                <li class="nav-search ml-3 ml-md-4">
+                                    <a href="javascript:" data-toggle="modal" data-target="#search-modal" class="search-modal">
+                                        <i class="iconfont icon-search icon-2x"></i>
+                                    </a>
+                                </li>
+                                <li class="nav-item d-md-none mobile-menu ml-3 ml-md-4">
+                                    <a href="javascript:" id="sidebar-switch" data-toggle="modal" data-target="#sidebar">
+                                        <i class="iconfont icon-classification icon-2x"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="placeholder" style="height:74px"></div>
+            </div>
+            <!-- 搜索背景 -->
+            <div class="header-big  post-top css-color mb-4" id="search-bg" light_bg="" night_bg="">
+                <iframe class="canvas-bg" scrolling="no" sandbox="allow-scripts allow-same-origin" src="http://www.oct-cts.com/images/up_scenery/UploadImage/39822/largeImg/201906130910564a-039.jpg"></iframe> 
+                <div class="s-search">
+                    <div id="search" class="s-search mx-auto" data="1">
+                        <div id="search-list-menu" class="hide-type-list">
+                            <div class="s-type text-center">
+                                <div class="s-type-list big">
+                                    <div class="anchor" style="position: absolute; left: 50%; opacity: 0;"></div>
+                                    <label for="type-baidu"   data-id="group-a"><span>常用</span></label>
+                                    <label for="type-baidu1"  data-id="group-b"><span>搜索</span></label>
+                                    <label for="type-br"      data-id="group-c"><span>工具</span></label>
+                                    <label for="type-zhihu"   data-id="group-d"><span>社区</span></label>
+                                    <label for="type-taobao1" data-id="group-e"><span>生活</span></label>
+                                    <label for="type-zhaopin" data-id="group-f"><span>求职</span></label>
+                                </div>
+                            </div>
+                        </div>
+                        <form action="https://www.baidu.com?s=" method="get" target="_blank" class="super-search-fm">
+                            <input type="text" id="search-text" class="form-control smart-tips search-key" zhannei="" placeholder="输入关键字搜索" style="outline:0" autocomplete="off">
+                            <button class="submit" type="submit"><i class="iconfont icon-search"></i></button>
+                        </form>
+                        <div id="search-list" class="hide-type-list">
+                            <!-- 完整搜索选项（同上，省略但保留全部） -->
+                            <div class="search-group group-a">
+                                <ul class="search-type">
+                                    <li><input hidden="" type="radio" name="type" id="type-zhannei" value="" data-placeholder="站内书签搜索"><label for="type-zhannei"><span class="text-muted">站内</span></label></li>
+                                    <li><input hidden="" type="radio" name="type" checked="checked" id="type-baidu" value="https://www.baidu.com/s?wd=" data-placeholder="百度一下，你就知道"><label for="type-baidu"><span class="text-muted">百度</span></label></li>
+                                    <li><input hidden="" type="radio" name="type" id="type-bing" value="https://cn.bing.com/search?q=" data-placeholder="微软 Bing 搜索"><label for="type-bing"><span class="text-muted">必应</span></label></li>
+                                    <li><input hidden="" type="radio" name="type" id="type-google" value="https://www.google.com/search?q=" data-placeholder="谷歌搜索"><label for="type-google"><span class="text-muted">谷歌</span></label></li>
+                                    <li><input hidden="" type="radio" name="type" id="type-anaconda" value="https://anaconda.org/search?q=" data-placeholder="Anaconda 软件搜索"><label for="type-anaconda"><span class="text-muted">软件</span></label></li>
+                                    <li><input hidden="" type="radio" name="type" id="type-pubmed" value="https://pubmed.ncbi.nlm.nih.gov/?term=" data-placeholder="PubMed 搜索/文章标题/关键字"><label for="type-pubmed"><span class="text-muted">文献</span></label></li>
+                                </ul>
+                            </div>
+                            <div class="search-group group-b">
+                                <ul class="search-type">
+                                    <li><input hidden="" type="radio" name="type" id="type-baidu1" value="https://www.baidu.com/s?wd=" data-placeholder="百度一下，你就知道"><label for="type-baidu1"><span class="text-muted">百度</span></label></li>
+                                    <li><input hidden="" type="radio" name="type" id="type-google1" value="https://www.google.com/search?q=" data-placeholder="谷歌搜索"><label for="type-google1"><span class="text-muted">谷歌</span></label></li>
+                                    <li><input hidden="" type="radio" name="type" id="type-360" value="https://www.so.com/s?q=" data-placeholder="360 好搜"><label for="type-360"><span class="text-muted">360</span></label></li>
+                                    <li><input hidden="" type="radio" name="type" id="type-sogo" value="https://www.sogou.com/web?query=" data-placeholder="搜狗搜索"><label for="type-sogo"><span class="text-muted">搜狗</span></label></li>
+                                    <li><input hidden="" type="radio" name="type" id="type-bing1" value="https://cn.bing.com/search?q=" data-placeholder="微软 Bing 搜索"><label for="type-bing1"><span class="text-muted">必应</span></label></li>
+                                    <li><input hidden="" type="radio" name="type" id="type-sm" value="https://yz.m.sm.cn/s?q=" data-placeholder="UC 移动端搜索"><label for="type-sm"><span class="text-muted">神马</span></label></li>
+                                </ul>
+                            </div>
+                            <div class="search-group group-c">
+                                <ul class="search-type">
+                                    <li><input hidden="" type="radio" name="type" id="type-br" value="https://rank.chinaz.com/all/" data-placeholder="请输入网址(不带 https://)"><label for="type-br"><span class="text-muted">权重查询</span></label></li>
+                                    <li><input hidden="" type="radio" name="type" id="type-links" value="https://link.chinaz.com/" data-placeholder="请输入网址(不带 https://)"><label for="type-links"><span class="text-muted">友链检测</span></label></li>
+                                    <li><input hidden="" type="radio" name="type" id="type-icp" value="https://icp.aizhan.com/" data-placeholder="请输入网址(不带 https://)"><label for="type-icp"><span class="text-muted">备案查询</span></label></li>
+                                    <li><input hidden="" type="radio" name="type" id="type-ping" value="https://ping.chinaz.com/" data-placeholder="请输入网址(不带 https://)"><label for="type-ping"><span class="text-muted">PING 检测</span></label></li>
+                                    <li><input hidden="" type="radio" name="type" id="type-404" value="https://ntool.chinaz.com/linksTesting/list?url=0" data-placeholder="请输入网址(不带https://)"><label for="type-404"><span class="text-muted">死链检测</span></label></li>
+                                    <li><input hidden="" type="radio" name="type" id="type-ciku" value="https://www.ciku5.com/s?wd=" data-placeholder="请输入关键词"><label for="type-ciku"><span class="text-muted">关键词挖掘</span></label></li>
+                                </ul>
+                            </div>
+                            <div class="search-group group-d">
+                                <ul class="search-type">
+                                    <li><input hidden="" type="radio" name="type" id="type-zhihu" value="https://www.zhihu.com/search?type=content&q=" data-placeholder="知乎"><label for="type-zhihu"><span class="text-muted">知乎</span></label></li>
+                                    <li><input hidden="" type="radio" name="type" id="type-wechat" value="https://weixin.sogou.com/weixin?type=2&query=" data-placeholder="微信"><label for="type-wechat"><span class="text-muted">微信</span></label></li>
+                                    <li><input hidden="" type="radio" name="type" id="type-weibo" value="https://s.weibo.com/weibo/" data-placeholder="微博"><label for="type-weibo"><span class="text-muted">微博</span></label></li>
+                                    <li><input hidden="" type="radio" name="type" id="type-douban" value="https://www.douban.com/search?q=" data-placeholder="豆瓣"><label for="type-douban"><span class="text-muted">豆瓣</span></label></li>
+                                </ul>
+                            </div>
+                            <div class="search-group group-e">
+                                <ul class="search-type">
+                                    <li><input hidden="" type="radio" name="type" id="type-taobao1" value="https://s.taobao.com/search?q=" data-placeholder="淘宝"><label for="type-taobao1"><span class="text-muted">淘宝</span></label></li>
+                                    <li><input hidden="" type="radio" name="type" id="type-jd" value="https://search.jd.com/Search?keyword=" data-placeholder="京东"><label for="type-jd"><span class="text-muted">京东</span></label></li>
+                                    <li><input hidden="" type="radio" name="type" id="type-xiachufang" value="https://www.xiachufang.com/search/?keyword=" data-placeholder="下厨房"><label for="type-xiachufang"><span class="text-muted">下厨房</span></label></li>
+                                    <li><input hidden="" type="radio" name="type" id="type-xiangha" value="https://www.xiangha.com/so/?q=caipu&s=" data-placeholder="香哈菜谱"><label for="type-xiangha"><span class="text-muted">香哈菜谱</span></label></li>
+                                    <li><input hidden="" type="radio" name="type" id="type-12306" value="https://www.12306.cn/?" data-placeholder="12306"><label for="type-12306"><span class="text-muted">12306</span></label></li>
+                                    <li><input hidden="" type="radio" name="type" id="type-qunar" value="https://www.qunar.com/?" data-placeholder="去哪儿"><label for="type-qunar"><span class="text-muted">去哪儿</span></label></li>
+                                </ul>
+                            </div>
+                            <div class="search-group group-f">
+                                <ul class="search-type">
+                                    <li><input hidden="" type="radio" name="type" id="type-zhaopin" value="https://sou.zhaopin.com/jobs/searchresult.ashx?kw=" data-placeholder="智联招聘"><label for="zhaopin"><span class="text-muted">智联招聘</span></label></li>
+                                    <li><input hidden="" type="radio" name="type" id="type-51job" value="https://search.51job.com/?" data-placeholder="前程无忧"><label for="type-51job"><span class="text-muted">前程无忧</span></label></li>
+                                    <li><input hidden="" type="radio" name="type" id="type-lagou" value="https://www.lagou.com/jobs/list_" data-placeholder="拉钩网"><label for="type-lagou"><span class="text-muted">拉钩网</span></label></li>
+                                    <li><input hidden="" type="radio" name="type" id="type-liepin" value="https://www.liepin.com/zhaopin/?key=" data-placeholder="猎聘网"><label for="type-liepin"><span class="text-muted">猎聘网</span></label></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card search-smart-tips search-hot-text"><ul id="word" style="display: none"></ul></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="content" class="content-site customize-site">
+                <!-- 公告栏 -->
+                <div class="flex-fill" style="padding-bottom: 10px;">
+                    <h4 class="text-gray text-lg mb-4" id="hot_news"><div align=center><b>📢 公告</b></div></h4>
+                    <div class="notice-card">
+                        <marquee style="font-size: 14px;" direction="up" height="60" width="100%" id="m" onmouseout="m.start()" onMouseOver="m.stop()" scrollamount="2" align="center">
+                            <p><a href="http:" target="_blank">🎉 BT网址导航全新改版！</a></p>
+                            <p>🚀 收录更多AI工具、开发资源</p>
+                            <p>🌟 欢迎提交优质网站</p>
+                        </marquee>
+                    </div>
+                    <div class="flex-fill"><div id="lytoday"></div></div>
+                </div>
+
+                <!-- 动态内容占位 -->
+                <div id="dynamic-content"></div>
+
+                <!-- 友情链接 -->
+                <h4 class="text-gray text-lg mb-4"><i class="iconfont icon-book-mark-line icon-lg mr-2" id="friendlink"></i>友情链接</h4>
+                <div class="friendlink text-xs card">
+                    <div class="card-body" id="friendlink-list"></div>
+                </div>
+
+                <!-- 底部（优化版） -->
+                <div class="footer-inner card rounded-xl m-0"> 
+                    <div class="footer-text card-body text-muted"> 
+                        <div class="row align-items-start my-3">
+                            <div class="col-12 col-md-3 mb-4 mb-md-0 text-center text-md-left">
+                                <a class="footer-logo" href="#" title="网址导航">
+                                    <img src="static/picture/bt8-expand-light.png" class="logo-light mb-2" alt="网址导航" height="40">
+                                    <img src="static/picture/bt8-expand-dark.png" class="logo-dark d-none mb-2" alt="网址导航" height="40">
+                                </a>
+                                <div class="text-sm" style="color: #6c757d;">站在前方，为你导航！</div>
+                            </div>
+                            <div class="col-12 col-md-6 mb-4 mb-md-0">
+                                <div class="row text-center text-md-left">
+                                    <div class="col-4">
+                                        <h5 class="font-weight-bold" style="font-size: 0.95rem;">快速入口</h5>
+                                        <ul class="list-unstyled text-sm">
+                                            <li><a href="#">站点地图</a></li>
+                                            <li><a href="#">最新资讯</a></li>
+                                            <li><a href="#">广告合作</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-4">
+                                        <h5 class="font-weight-bold" style="font-size: 0.95rem;">服务与支持</h5>
+                                        <ul class="list-unstyled text-sm">
+                                            <li><a href="#">使用帮助</a></li>
+                                            <li><a href="#">问题解惑</a></li>
+                                            <li><a href="#">免责声明</a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-4">
+                                        <h5 class="font-weight-bold" style="font-size: 0.95rem;">热门导航</h5>
+                                        <ul class="list-unstyled text-sm">
+                                            <li><a href="#">二次元</a></li>
+                                            <li><a href="#">电影</a></li>
+                                            <li><a href="#">摸鱼</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-3 text-center text-md-right">
+                                <div class="d-flex justify-content-center justify-content-md-end">
+                                    <div class="footer-mini-img site-arrive mr-3" data-toggle="tooltip" title="广告合作-QQ">
+                                        <p class="bg-light rounded-lg p-1 mb-1" style="display: inline-block;">
+                                            <img style="width:80px; height:80px;" src="static/images/qq.jpg" alt="广告合作-QQ">
+                                        </p>
+                                        <span class="text-muted text-ss d-block">广告合作-QQ</span>
+                                    </div>
+                                    <div class="footer-mini-img site-similar" data-toggle="tooltip" title="公众号">
+                                        <p class="bg-light rounded-lg p-1 mb-1" style="display: inline-block;">
+                                            <img style="width:80px; height:80px;" src="static/images/qq.jpg" alt="公众号">
+                                        </p>
+                                        <span class="text-muted text-ss d-block">公众号</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="footer-copyright text-xs text-center border-top pt-3 mt-2">
+                            Copyright © 2024-现在<br>
+                            注意：本站仅收录网站，不对其网站内容或交易负责。若收录的站点侵害到您的利益，请联系我们删除收录。邮箱：pay268@qq.com
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部工具栏 -->
+            <footer class="main-footer footer-type-1 text-xs">
+                <div id="footer-tools" class="d-flex flex-column">
+                    <a href="javascript:" id="to-up" class="btn rounded-circle go-up m-1" data-toggle="tooltip" data-placement="left" title="返回顶部">
+                        <i class="iconfont icon-to-up"></i>
+                    </a> 
+                    <a href="javascript:" data-toggle="modal" data-target="#search-modal" class="btn rounded-circle m-1 search-modal" rel="search" one-link-mark="yes" title="聚合搜索">
+                        <i class="iconfont icon-search"></i>
+                    </a>
+                    <a href="javascript:" id="NightMode" data="0" class="btn rounded-circle switch-dark-mode m-1" data-toggle="tooltip" data-placement="left" title="日间模式">
+                        <i class="iconfont mode-ico"></i>
+                    </a>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script>var config = {"bg_img":"","bg_img_night":""}</script>
+    <script type='text/javascript' src='static/js/popper.min.js'></script>
+    <script type='text/javascript' src='static/js/bootstrap.min.js'></script>
+    <script type='text/javascript' src='static/js/lazyload.min-12.4.0.js'></script>
+    <script type='text/javascript' src='static/js/app-mini.js'></script>
+    <script type='text/javascript' src="static/8js/ed5c676968db46908ed985188926ead2.js"></script>
+
+    <!-- 引入数据文件 -->
+    <script src="data123.js"></script>
+
+    <!-- 统计代码 -->
+    <script>
+    var _hmt = _hmt || [];
+    (function() {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
+        var s = document.getElementsByTagName("script")[0]; 
+        s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
+    <script>LA.init({id:"3GBQy07pYlIVc3g8",ck:"3GBQy07pYlIVc3g8"})</script>
+</body>
+</html>
