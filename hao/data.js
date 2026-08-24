@@ -5,7 +5,7 @@
 
 var cardData = {
     '1': [
-        { id: 195, url: "../app/haoka/01.html", title: "未来通信-1", desc: "全网大流量手机套餐，免费办理，全国包邮到家。" },
+        { id: 195, url: "https://pay262.github.io/", title: "未来通信商城", desc: "正规大流量套餐，免费办理，全国包邮到家。" },
         { id: 180, url: "../app/haoka/02.html", title: "未来通信-2", desc: "全网大流量手机套餐，免费办理，全国包邮到家。" },
         { id: 180, url: "../app/haoka/03.html", title: "未来通信-3", desc: "全网大流量手机套餐，免费办理，全国包邮到家。" }
     ],
