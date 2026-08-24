@@ -1,10 +1,11 @@
 // ============================================================
 //  数据区：所有卡片按分类分组
+//  可选择性添加 icon 字段（自定义图标），不填则自动生成首字母
 // ============================================================
 
 var cardData = {
     '1': [
-        { id: 195, url: "https://pay262.github.io/", title: "未来通信商城", desc: "正规大流量套餐，免费办理，全国包邮到家。" },
+        { id: 195, url: "../app/haoka/01.html", title: "未来通信-1", desc: "全网大流量手机套餐，免费办理，全国包邮到家。" },
         { id: 180, url: "../app/haoka/02.html", title: "未来通信-2", desc: "全网大流量手机套餐，免费办理，全国包邮到家。" },
         { id: 180, url: "../app/haoka/03.html", title: "未来通信-3", desc: "全网大流量手机套餐，免费办理，全国包邮到家。" }
     ],
@@ -91,78 +92,43 @@ var friendLinks = [
 ];
 
 // ============================================================
-//  工具函数：提取域名 + 生成首字母 SVG
+//  工具函数：生成首字母 SVG（data:image 格式，即显即用）
 // ============================================================
 
-function extractDomain(url) {
-    if (!url) return '';
-    if (url.startsWith('#') || url.startsWith('../') || url.startsWith('./') || !url.includes('://')) return '';
-    try {
-        var domain = new URL(url).hostname;
-        if (domain.startsWith('www.')) domain = domain.slice(4);
-        return domain;
-    } catch (e) {
-        var match = url.match(/^(?:https?:\/\/)?([^\/?#]+)/i);
-        if (match) {
-            var host = match[1];
-            if (host.startsWith('www.')) host = host.slice(4);
-            return host;
-        }
-        return '';
-    }
-}
-
-/**
- * 生成一个基于首字母的漂亮 SVG 图标（直接返回 HTML 字符串，用于嵌入）
- */
-function getInitialSvg(initial) {
-    if (!initial) initial = '?';
-    initial = initial.toUpperCase();
-    var colors = ['#FF6B6B','#4ECDC4','#45B7D1','#96CEB4','#FFEAA7','#DDA0DD','#FF8A5C','#A29BFE','#FD79A8','#00CEC9','#FDCB6E','#6C5CE7'];
+function getInitialSvgDataUri(title) {
+    if (!title) title = '?';
+    var initial = title.charAt(0).toUpperCase();
+    // 一组鲜艳的颜色
+    var colors = ['#FF6B6B','#4ECDC4','#45B7D1','#96CEB4','#FFEAA7','#DDA0DD','#FF8A5C','#A29BFE','#FD79A8','#00CEC9','#FDCB6E','#6C5CE7','#E17055','#00B894','#0984E3','#6C5CE7','#FDCB6E','#E17055'];
     var idx = initial.charCodeAt(0) % colors.length;
     var bg = colors[idx];
-    return '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="20" fill="'+bg+'"/><text x="20" y="27" font-size="20" text-anchor="middle" fill="#fff" font-weight="bold" font-family="Arial, sans-serif">'+initial+'</text></svg>';
-}
-
-/**
- * 获取图标地址（优先自定义，否则使用 favicon 服务，最后 fallback 首字母）
- * 返回一个对象 { src, fallbackSvg }
- */
-function getIconData(item) {
-    var customIcon = item.icon || '';
-    if (customIcon.trim() !== '') {
-        return { src: customIcon, fallback: null };
-    }
-    var domain = extractDomain(item.url);
-    if (domain) {
-        var faviconUrl = 'https://api.iowen.cn/favicon/' + domain + '.ico';
-        return { src: faviconUrl, fallback: getInitialSvg(item.title.charAt(0)) };
-    } else {
-        // 相对路径，直接使用首字母 SVG
-        return { src: null, fallback: getInitialSvg(item.title.charAt(0)) };
-    }
+    // 生成 SVG 字符串并转为 data:image
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">' +
+              '<circle cx="20" cy="20" r="20" fill="' + bg + '"/>' +
+              '<text x="20" y="27" font-size="20" text-anchor="middle" fill="#fff" font-weight="bold" font-family="Arial, sans-serif">' + initial + '</text>' +
+              '</svg>';
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
 }
 
 // ============================================================
-//  渲染函数（直接使用 src，无懒加载）
+//  渲染函数（直接渲染首字母图标，无需外部网络）
 // ============================================================
 
 function createCardHTML(item) {
-    var iconData = getIconData(item);
-    // 如果有 src 则用 img，否则直接嵌入 fallback SVG
-    var imgHtml = '';
-    if (iconData.src) {
-        imgHtml = '<img src="' + iconData.src + '" style="width:40px;height:40px;object-fit:contain;" onerror="this.style.display=\'none\';this.parentNode.innerHTML=decodeURIComponent(\'' + encodeURIComponent(iconData.fallback || '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><rect width="40" height="40" fill="#ccc"/><text x="20" y="28" font-size="20" text-anchor="middle" fill="#fff">?</text></svg>') + '\')">';
-    } else {
-        imgHtml = iconData.fallback;
-    }
+    // 如果定义了自定义图标，优先使用；否则使用首字母 data:image
+    var iconSrc = item.icon ? item.icon : getInitialSvgDataUri(item.title);
+    
+    // 如果自定义图标，加上 onerror 回退到首字母
+    var onerrorAttr = item.icon ? ' onerror="this.src=\'' + getInitialSvgDataUri(item.title) + '\'"' : '';
     
     return '<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="' + item.id + '">' +
         '    <div class="url-body default">' +
         '        <a href="' + item.url + '" target="_blank" data-url="' + item.url + '" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="' + item.desc + '">' +
         '            <div class="card-body">' +
         '                <div class="url-content d-flex align-items-center">' +
-        '                    <div class="url-img mr-2 d-flex align-items-center justify-content-center" style="width:44px;height:44px;flex-shrink:0;">' + imgHtml + '</div>' +
+        '                    <div class="url-img mr-2 d-flex align-items-center justify-content-center" style="width:44px;height:44px;flex-shrink:0;">' +
+        '                        <img src="' + iconSrc + '" style="width:40px;height:40px;object-fit:contain;border-radius:4px;"' + onerrorAttr + '>' +
+        '                    </div>' +
         '                    <div class="url-info flex-fill">' +
         '                        <div class="text-sm overflowClip_1"><strong>' + item.title + '</strong></div>' +
         '                        <p class="overflowClip_1 m-0 text-muted text-xs">' + item.desc + '</p>' +
@@ -200,7 +166,7 @@ function renderFriends() {
 }
 
 // ============================================================
-//  站内搜索
+//  站内搜索（保持不变）
 // ============================================================
 
 function initSearch() {
@@ -256,7 +222,7 @@ function showAllCards() {
 }
 
 // ============================================================
-//  执行
+//  执行渲染
 // ============================================================
 
 if (document.readyState === 'loading') {
@@ -264,7 +230,6 @@ if (document.readyState === 'loading') {
         renderAllCards();
         renderFriends();
         initSearch();
-        // 不再依赖 lazy，直接显示所有图片
     });
 } else {
     renderAllCards();
