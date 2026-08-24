@@ -1,6 +1,6 @@
 // ============================================================
 //  数据区：所有卡片按分类分组
-//  注意：icon 字段现在为可选，不填则自动从 url 获取 favicon
+//  可选择性保留 icon 字段，不填则自动获取
 // ============================================================
 
 var cardData = {
@@ -10,7 +10,6 @@ var cardData = {
             url: "https://pay262.github.io/",
             title: "未来通信商城",
             desc: "正规大流量套餐，免费办理，全国包邮到家。"
-            // 无 icon 字段 → 自动获取
         },
         {
             id: 180,
@@ -418,29 +417,22 @@ var friendLinks = [
 ];
 
 // ============================================================
-//  工具函数：自动获取 Favicon
+//  工具函数：自动获取 Favicon（国内稳定版）
 // ============================================================
 
 /**
- * 从URL中提取域名（用于获取favicon）
- * @param {string} url - 完整的URL地址
- * @returns {string} 域名（如 'example.com'）
+ * 从URL中提取域名
  */
 function extractDomain(url) {
     if (!url) return '';
-    // 如果是相对路径或 #，则无法提取
     if (url.startsWith('#') || url.startsWith('../') || url.startsWith('./') || !url.includes('://')) {
         return '';
     }
     try {
         var domain = new URL(url).hostname;
-        // 去掉 www. 前缀
-        if (domain.startsWith('www.')) {
-            domain = domain.slice(4);
-        }
+        if (domain.startsWith('www.')) domain = domain.slice(4);
         return domain;
     } catch (e) {
-        // 如果解析失败，尝试简单匹配
         var match = url.match(/^(?:https?:\/\/)?([^\/?#]+)/i);
         if (match) {
             var host = match[1];
@@ -452,37 +444,52 @@ function extractDomain(url) {
 }
 
 /**
- * 生成 favicon 图片地址
- * @param {string} url - 卡片链接
- * @param {string} customIcon - 自定义图标地址（可选）
- * @returns {string} 图标URL
+ * 获取图标地址
+ * 优先使用自定义 icon，否则使用国内 favicon 服务，失败时返回首字母占位符（通过 data:image）
  */
-function getFaviconUrl(url, customIcon) {
-    // 如果提供了自定义图标，优先使用
+function getFaviconUrl(url, customIcon, title) {
+    // 1. 如果提供了自定义图标，直接使用
     if (customIcon && customIcon.trim() !== '') {
         return customIcon;
     }
+    
     var domain = extractDomain(url);
-    if (!domain) {
-        // 无法获取域名，使用默认占位图标（可替换为你的默认图片）
-        return 'static/picture/default-icon.png';
+    if (domain) {
+        // 使用国内稳定的 favicon 服务（IOWEN）
+        return 'https://api.iowen.cn/favicon/' + domain + '.ico';
     }
-    // 使用 Google 的 favicon 服务（国内可访问）
-    return 'https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://' + domain;
+    
+    // 2. 对于无法提取域名的（如相对路径），返回一个由首字母生成的 SVG 占位图
+    if (title) {
+        var initial = title.charAt(0).toUpperCase();
+        // 生成一个漂亮的圆形背景+首字母的 SVG 图片（base64）
+        // 颜色根据字母动态生成
+        var colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#FF8A5C', '#A29BFE', '#FD79A8', '#00CEC9'];
+        var colorIndex = initial.charCodeAt(0) % colors.length;
+        var bgColor = colors[colorIndex];
+        var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">' +
+                  '<circle cx="20" cy="20" r="20" fill="' + bgColor + '"/>' +
+                  '<text x="20" y="26" font-size="20" text-anchor="middle" fill="#fff" font-weight="bold" font-family="Arial">' + initial + '</text>' +
+                  '</svg>';
+        return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    }
+    
+    // 3. 最终兜底：一个通用的灰色占位图标（纯色方块）
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><rect width="40" height="40" fill="#ddd"/></svg>');
 }
 
 // ============================================================
-//  渲染函数
+//  渲染函数（调整：传递 title 给 getFaviconUrl）
 // ============================================================
 
 function createCardHTML(item) {
-    var iconUrl = getFaviconUrl(item.url, item.icon);
+    var iconUrl = getFaviconUrl(item.url, item.icon, item.title);
     return '<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="' + item.id + '">' +
         '    <div class="url-body default">' +
         '        <a href="' + item.url + '" target="_blank" data-url="' + item.url + '" class="card no-c mb-4" data-placement="bottom" data-toggle="tooltip" data-original-title="' + item.desc + '">' +
         '            <div class="card-body">' +
         '                <div class="url-content d-flex align-items-center">' +
-        '                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="' + iconUrl + '"></div>' +
+        '                    <div class="url-img mr-2 d-flex align-items-center justify-content-center"><img class="lazy" data-src="' + iconUrl + '" onerror="this.style.display=\'none\'"></div>' +
         '                    <div class="url-info flex-fill">' +
         '                        <div class="text-sm overflowClip_1"><strong>' + item.title + '</strong></div>' +
         '                        <p class="overflowClip_1 m-0 text-muted text-xs">' + item.desc + '</p>' +
