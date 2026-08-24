@@ -1,10 +1,9 @@
 // ============================================================
-//  数据区：所有卡片按分类分组（分类ID对应容器ID后缀）
+//  数据区：所有卡片按分类分组
 //  容器ID映射：card-group-1, card-group-3, card-group-4 ... 
 // ============================================================
 
 var cardData = {
-    // 福利推荐 (card-group-1)
     '1': [
         {
             id: 195,
@@ -28,8 +27,6 @@ var cardData = {
             icon: "https://img.icons8.com/?size=100&id=8Na1VyvcBemC&format=png&color=000000"
         }
     ],
-
-    // 在线观看 (card-group-3)
     '3': [
         {
             id: 125,
@@ -137,19 +134,11 @@ var cardData = {
             icon: "https://www.myd02.com/mxtheme/images/favicon.png"
         }
     ],
-
-    // 下载 (card-group-4) 为空
     '4': [],
-    // 网盘 (card-group-5) 为空
     '5': [],
-    // 字幕 (card-group-6) 为空
     '6': [],
-    // APP (card-group-7) 为空
     '7': [],
-    // 台词 (card-group-8) 为空
     '8': [],
-
-    // 云盘储存 (card-group-9)
     '9': [
         {
             id: 130,
@@ -208,8 +197,6 @@ var cardData = {
             icon: "static/picture/148012959b1c32d18d2b750c8bcff9ca.ico"
         }
     ],
-
-    // 云服务器 (card-group-10)
     '10': [
         {
             id: 144,
@@ -296,8 +283,6 @@ var cardData = {
             icon: "static/picture/8f1fd5d3395444e63d67a79bc1c19dea.ico"
         }
     ],
-
-    // 前端框架 (card-group-12)
     '12': [
         {
             id: 157,
@@ -363,8 +348,6 @@ var cardData = {
             icon: "static/picture/afc5ac10759dfed4f1b6efe9663e942d.ico"
         }
     ],
-
-    // 学习资源 (card-group-13)
     '13': [
         {
             id: 164,
@@ -402,8 +385,6 @@ var cardData = {
             icon: "static/picture/6ce913cc13f693f071aacb1f44497b97.png"
         }
     ],
-
-    // 站长工具 (card-group-14)
     '14': [
         {
             id: 168,
@@ -492,9 +473,7 @@ var cardData = {
     ]
 };
 
-// ============================================================
-//  友情链接数据
-// ============================================================
+// 友情链接数据
 var friendLinks = [
     { title: "Nav", url: "#", target: "_blank" },
     { title: "云CDN", url: "#", target: "_blank", tooltip: "每月免费30G流量" },
@@ -505,9 +484,6 @@ var friendLinks = [
 //  渲染函数
 // ============================================================
 
-/**
- * 生成单个卡片的HTML
- */
 function createCardHTML(item) {
     return '<div class="url-card col-6 col-sm-6 col-md-4 col-xl-5a col-xxl-6a" id="' + item.id + '">' +
         '    <div class="url-body default">' +
@@ -527,9 +503,6 @@ function createCardHTML(item) {
         '</div>';
 }
 
-/**
- * 渲染所有卡片组
- */
 function renderAllCards() {
     for (var groupId in cardData) {
         var container = document.getElementById('card-group-' + groupId);
@@ -543,9 +516,6 @@ function renderAllCards() {
     }
 }
 
-/**
- * 渲染友情链接
- */
 function renderFriends() {
     var container = document.getElementById('friendlink-list');
     if (!container) return;
@@ -558,23 +528,89 @@ function renderFriends() {
 }
 
 // ============================================================
-//  执行渲染
+//  站内搜索功能（新增）
 // ============================================================
+
+function initSearch() {
+    var form = document.querySelector('.super-search-fm');
+    var input = document.getElementById('search-text');
+    var radioZhannei = document.getElementById('type-zhannei');
+    if (!form || !input) return;
+
+    // 拦截表单提交，站内模式时阻止跳转
+    form.addEventListener('submit', function(e) {
+        if (radioZhannei && radioZhannei.checked) {
+            e.preventDefault();
+            filterCards(input.value);
+        }
+        // 其他引擎正常提交
+    });
+
+    // 输入实时过滤（仅站内模式）
+    input.addEventListener('input', function() {
+        if (radioZhannei && radioZhannei.checked) {
+            filterCards(this.value);
+        } else {
+            // 非站内模式，显示所有卡片（清除过滤）
+            showAllCards();
+        }
+    });
+
+    // 监听搜索引擎切换，取消站内时恢复所有卡片
+    var radios = document.querySelectorAll('input[name="type"]');
+    radios.forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            if (radioZhannei && !radioZhannei.checked) {
+                showAllCards();
+                // 可选：清空搜索框
+                // input.value = '';
+            } else if (radioZhannei && radioZhannei.checked) {
+                // 切换到站内时，立即应用当前输入过滤
+                filterCards(input.value);
+            }
+        });
+    });
+}
+
+function filterCards(keyword) {
+    keyword = keyword.trim().toLowerCase();
+    var cards = document.querySelectorAll('.url-card');
+    cards.forEach(function(card) {
+        var title = card.querySelector('.text-sm strong') ? card.querySelector('.text-sm strong').innerText.toLowerCase() : '';
+        var desc = card.querySelector('.text-muted.text-xs') ? card.querySelector('.text-muted.text-xs').innerText.toLowerCase() : '';
+        var match = (title.indexOf(keyword) !== -1) || (desc.indexOf(keyword) !== -1);
+        if (keyword === '') match = true; // 空关键词显示所有
+        card.style.display = match ? '' : 'none';
+    });
+}
+
+function showAllCards() {
+    var cards = document.querySelectorAll('.url-card');
+    cards.forEach(function(card) {
+        card.style.display = '';
+    });
+}
+
+// ============================================================
+//  执行渲染和搜索初始化
+// ============================================================
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
         renderAllCards();
         renderFriends();
-        // 重新触发懒加载（如果页面有lazyload插件）
+        initSearch(); // 绑定搜索事件
+        // 重新触发懒加载
         if (typeof lazyLoadInstance !== 'undefined') {
             lazyLoadInstance.update();
         } else if (typeof LazyLoad !== 'undefined') {
-            // 有些页面使用全局LazyLoad
             var lazy = new LazyLoad({ elements_selector: ".lazy" });
         }
     });
 } else {
     renderAllCards();
     renderFriends();
+    initSearch();
     if (typeof lazyLoadInstance !== 'undefined') {
         lazyLoadInstance.update();
     } else if (typeof LazyLoad !== 'undefined') {
