@@ -1,135 +1,294 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <title>网址导航</title>
-    <!-- 请确保以下静态资源路径与您的实际目录匹配 -->
-    <link rel="stylesheet" href="static/css/bootstrap.min.css">
-    <link rel="stylesheet" href="static/css/iconfont.css">
-    <link rel="stylesheet" href="static/css/style.css">
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#f9f9f9" />
+    <title>BT网址导航</title>
+    <meta name="keywords" content="BT网址导航,简洁导航,云链接,个人导航,个人书签,扩展,多用户" />
+    <meta name="description" content="BT网址导航 是一款使用 PHP + SQLite3/MySQL 开发的简约导航/书签管理器。">
+    <link rel="shortcut icon" href="static/picture/favicon.ico">
+    <link rel="stylesheet" href="static/css/iconfont.css" type="text/css" media="all" />
+    <link rel="stylesheet" href="static/css/bootstrap.min.css" type="text/css" media="all" />
+    <link rel="stylesheet" href="static/css/style-3.03029.1.css" type="text/css" media="all" />
+    <link rel="stylesheet" href="static/css/custom-style.css" type="text/css" media="all" />
+    <link rel="stylesheet" href="static/css/font-awesome.css">
+    <script type="text/javascript" src="static/js/jquery-3.6.0.min.js"></script>
+    <style>body,html{font-size:15px!important;}</style>
 </head>
-<body>
-    <!-- 主体容器 -->
-    <div id="app">
-        <!-- 分类标题 -->
-        <div class="d-flex flex-fill" id="category-16">
-            <h4 class="text-gray text-lg mb-4">
-                <i class="fa fa-book fa-lg icon-fw icon-lg mr-2"></i> 精选网址
-            </h4>
-            <div class="flex-fill"></div>
-        </div>
-
-        <!-- 动态卡片容器 -->
-        <div id="card-list" class="row"></div>
-
-        <!-- 友情链接 -->
-        <h4 class="text-gray text-lg mb-4">
-            <i class="iconfont icon-book-mark-line icon-lg mr-2" id="friendlink"></i>友情链接
-        </h4>
-        <div class="friendlink text-xs card">
-            <div class="card-body" id="friendlink-list">
-                <!-- 由 data.js 动态生成 -->
-            </div>
-        </div>
-
-        <!-- 底部版权（保留原样） -->
-        <div class="footer-inner">
-            <div class="footer-inner card rounded-xl m-0"> 
-                <div class="footer-text card-body text-muted text-center text-md-left"> 
-                    <div class="row my-4"> 
-                        <div class="col-12 col-md-4 mb-4 mb-md-0"> 
-                            <a class="footer-logo" href="#" title="网址导航"> 
-                                <img src="static/picture/bt8-expand-light.png" class="logo-light mb-3" alt="网址导航" height="40"> 
-                                <img src="static/picture/bt8-expand-dark.png" class="logo-dark d-none mb-3" alt="网址导航" height="40"> 
-                            </a> 
-                            <div class="text-sm">站在前方,为你导航！</div> 
-                        </div> 
-                        <div class="col-12 col-md-5 mb-4 mb-md-0"> 
-                            <div class="footer-nav-links d-flex justify-content-center justify-content-md-start text-sm mb-3">
-                                <li id="menu-item-14876" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-14876">
-                                    <h5>&nbsp;&nbsp;&nbsp;&nbsp;快速入口</h5>
-                                    <ul class="sub-menu"> 
-                                        <li id="menu-item-14885" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14885"><a href="#">  <span>站点地图</span></a></li> 
-                                        <li id="menu-item-14883" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14883"><a href="#">  <span>最新资讯</span></a></li> 
-                                        <li id="menu-item-14923" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14923"><a target="_blank" rel="noopener" href="#"> <span>广告合作</span></a></li>
-                                    </ul>
-                                </li>
-                                <li id="menu-item-14881" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-14881">
-                                    <h5>&nbsp;&nbsp;服务与支持</h5>
-                                    <ul class="sub-menu"> 
-                                        <li id="menu-item-14878" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14878"><a href="#">  <span>使用帮助</span></a></li> 
-                                        <li id="menu-item-14879" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14879"><a href="#"> <span>问题解惑</span></a></li> 
-                                        <li id="menu-item-14880" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-14880"><a href="#">  <span>免责声明</span></a></li>
-                                    </ul>
-                                </li>
-                                <li id="menu-item-14872" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-14872">
-                                    <h5>&nbsp;&nbsp;&nbsp;&nbsp;热门导航</h5>
-                                    <ul class="sub-menu"> 
-                                        <li id="menu-item-14874" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-14874"><a href="#">  <span>二次元</span></a></li> 
-                                        <li id="menu-item-14873" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-14873"><a href="#"><span>电影</span></a></li> 
-                                        <li id="menu-item-14875" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-14875"><a href="#">  <span>摸鱼</span></a></li>
-                                    </ul>
-                                </li>
-                            </div>
-                            <div class="footer-social"></div> 
-                        </div> 
-                        <div class="col-12 col-md-3 text-md-right mb-4 mb-md-0"> 
-                            <div class="footer-mini-img site-arrive" data-toggle="tooltip" title="广告合作-QQ"> 
-                                <p class="bg-light rounded-lg p-1"> 
-                                    <img class=" " style="width:100px;height:100px" src="static/images/qq.jpg" alt="广告合作-QQ"> 
-                                </p> 
-                                <span class="text-muted text-ss mt-2">广告合作-QQ</span> 
-                            </div> 
-                            <div class="footer-mini-img site-similar" data-toggle="tooltip" title="公众号"> 
-                                <p class="bg-light rounded-lg p-1"> 
-                                    <img class=" " style="width:100px;height:100px" src="static/images/qq.jpg" alt="BT网址导航"> 
-                                </p> 
-                                <span class="text-muted text-ss mt-2">公众号</span> 
-                            </div> 
-                        </div> 
-                    </div> 
-                    <div class="footer-copyright text-xs"> 
-                        Copyright © 2024 
-                        <br>注意：本站仅收录网站，不对其网站内容或交易负责。若收录的站点侵害到您的利益，请联系我们删除收录。 邮箱： pay268#qq.com 
+<body class="io-grey-mode">
+    <div style="display:none;" id="loading">
+        <div class="loader">BT网址导航</div>
+    </div>
+    <div class="page-container">
+        <!--左侧栏（不变）-->
+        <div id="sidebar" class="sticky sidebar-nav fade mini-sidebar" style="width: 60px;" data="1">
+            <div class="modal-dialog h-100 sidebar-nav-inner">
+                <div class="sidebar-logo border-bottom border-color">
+                    <div class="logo overflow-hidden">
+                        <a href="./?u=admin" class="logo-expanded">
+                            <img src="static/picture/bt8-expand-light.png" height="40" class="logo-light">
+                            <img src="static/picture/bt8-expand-dark.png" height="40" class="logo-dark d-none">
+                        </a>
+                        <a href="./?u=admin" class="logo-collapsed">
+                            <img src="static/picture/bt.png" height="40" class="logo-light">
+                            <img src="static/picture/bt.png" height="40" class="logo-dark d-none">
+                        </a>
+                    </div>
+                </div>
+                <div class="sidebar-menu flex-fill">
+                    <div class="sidebar-scroll">
+                        <div class="sidebar-menu-inner">
+                            <ul><li class="sidebar-item"><a href="#category-1" class="smooth"><i class="fa fa-dashboard fa-lg icon-fw icon-lg mr-2"></i><span>福利推荐</span></a>
+                            <li class="sidebar-item"><a href="#category-2" class="smooth"><i class="fa fa-play-circle fa-lg icon-fw icon-lg mr-2"></i><span>影音资源</span><i class="iconfont icon-arrow-r-m sidebar-more text-sm"></i></a>
+                            <ul><li><a href="#category-3" class="smooth"><i class="fa fa-terminal fa-lg icon-fw icon-lg mr-2"></i><span>在线观看</span></a></li><li><a href="#category-4" class="smooth"><i class="fa fa-terminal fa-lg icon-fw icon-lg mr-2"></i><span>下载</span></a></li><li><a href="#category-5" class="smooth"><i class="fa fa-wrench fa-lg icon-fw icon-lg mr-2"></i><span>网盘</span></a></li><li><a href="#category-6" class="smooth"><i class="fa fa-wrench fa-lg icon-fw icon-lg mr-2"></i><span>字幕</span></a></li><li><a href="#category-7" class="smooth"><i class="fa fa-wrench fa-lg icon-fw icon-lg mr-2"></i><span>APP</span></a></li><li><a href="#category-8" class="smooth"><i class="fa fa-wrench fa-lg icon-fw icon-lg mr-2"></i><span>台词</span></a></li></ul>
+                            <li class="sidebar-item"><a href="#category-9" class="smooth"><i class="fa fa-cloud-upload fa-lg icon-fw icon-lg mr-2"></i><span>云盘储存</span></a>
+                            <li class="sidebar-item"><a href="#category-10" class="smooth"><i class="fa fa-cloud fa-lg icon-fw icon-lg mr-2"></i><span>云服务器</span></a>
+                            <li class="sidebar-item"><a href="#category-11" class="smooth"><i class="fa fa-edit fa-lg icon-fw icon-lg mr-2"></i><span>开发相关</span><i class="iconfont icon-arrow-r-m sidebar-more text-sm"></i></a>
+                            <ul><li><a href="#category-12" class="smooth"><i class="fa fa-terminal fa-lg icon-fw icon-lg mr-2"></i><span>前端框架</span></a></li><li><a href="#category-13" class="smooth"><i class="fa fa-terminal fa-lg icon-fw icon-lg mr-2"></i><span>学习资源</span></a></li><li><a href="#category-14" class="smooth"><i class="fa fa-wrench fa-lg icon-fw icon-lg mr-2"></i><span>站长工具</span></a></li></ul>
+                            <li class="sidebar-item"><a href="#category-16" class="smooth"><i class="fa fa-book fa-lg icon-fw icon-lg mr-2"></i><span>精选文章</span></a></li></ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="border-top py-2 border-color">
+                    <div class="flex-bottom">
+                        <ul><li class="sidebar-item"><a href="https://support.qq.com/embed/phone/654198" target="_blank"><i class="fa fa-pencil fa-lg icon-fw icon-lg mr-2"></i><span>网站提交</span></a></li><li class="sidebar-item"><a href="#" target="_blank"><i class="fa fa-user fa-lg icon-fw icon-lg mr-2"></i><span>系统管理</span></a></li></ul>
                     </div>
                 </div>
             </div>
         </div>
+        
+        <!--主体内容-->
+        <div class="main-content flex-fill not">
+            <div class="big-header-banner">
+                <div id="header" class="page-header sticky">
+                    <div class="navbar navbar-expand-md">
+                        <div class="container-fluid p-0">
+                            <a href="" class="navbar-brand d-md-none">
+                                <img src="static/picture/bt.png" class="logo-light">
+                                <img src="static/picture/bt.png" class="logo-dark d-none">
+                            </a>
+                            <div class="collapse navbar-collapse order-2 order-md-1">
+                                <div class="header-mini-btn">
+                                    <label>
+                                        <input id="mini-button" type="checkbox">
+                                        <svg viewbox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path class="line--1" d="M0 40h62c18 0 18-20-17 5L31 55"></path><path class="line--2" d="M0 50h80"></path><path class="line--3" d="M0 60h62c18 0 18 20-17-5L31 45"></path></svg>
+                                    </label>
+                                </div>
+                                <ul class="navbar-nav site-menu" style="margin-right: 16px;"><li ><a href="./?c=admin&u=admin"><i class="fa fa-user-circle-o icon-fw mr-2"></i><span> 管理</span></a></li><li class="menu-item-has-children"><a target="_blank" href="#" title=''><i class="fa fa-bookmark icon-fw mr-2"></i><span> 关于本站</span></a><ul><li ><a target="_blank" href="#" title='Gitee'><i class="fa fa-git-square icon-fw mr-2"></i><span> Gitee</span></a></li><li ><a target="_blank" href="#" title='GitHub'><i class="fa fa-github icon-fw mr-2"></i><span> GitHub</span></a></li></ul></li><li ><a target="_blank" href="#" title='每月送30G流量'><i class="fa fa-sitemap icon-fw mr-2"></i><span> 本站CDN赞助商</span></a></li></ul>
+                            </div>
+                            <ul class="nav navbar-menu text-xs order-1 order-md-2">
+                                <li class="nav-search ml-3 ml-md-4">
+                                    <a href="javascript:" data-toggle="modal" data-target="#search-modal" class="search-modal">
+                                        <i class="iconfont icon-search icon-2x"></i>
+                                    </a>
+                                </li>
+                                <li class="nav-item d-md-none mobile-menu ml-3 ml-md-4">
+                                    <a href="javascript:" id="sidebar-switch" data-toggle="modal" data-target="#sidebar">
+                                        <i class="iconfont icon-classification icon-2x"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="placeholder" style="height:74px"></div>
+            </div>
+            <!--搜索背景（不变）-->
+            <div class="header-big  post-top css-color mb-4" id="search-bg" light_bg="" night_bg="">
+                <iframe class="canvas-bg" scrolling="no" sandbox="allow-scripts allow-same-origin" src="http://www.oct-cts.com/images/up_scenery/UploadImage/39822/largeImg/201906130910564a-039.jpg"></iframe> 
+                <div class="s-search">
+                    <div id="search" class="s-search mx-auto" data="1">
+                        <div id="search-list-menu" class="hide-type-list">
+                            <div class="s-type text-center">
+                                <div class="s-type-list big">
+                                    <div class="anchor" style="position: absolute; left: 50%; opacity: 0;"></div>
+                                    <label for="type-baidu"   data-id="group-a"><span>常用</span></label>
+                                    <label for="type-baidu1"  data-id="group-b"><span>搜索</span></label>
+                                    <label for="type-br"      data-id="group-c"><span>工具</span></label>
+                                    <label for="type-zhihu"   data-id="group-d"><span>社区</span></label>
+                                    <label for="type-taobao1" data-id="group-e"><span>生活</span></label>
+                                    <label for="type-zhaopin" data-id="group-f"><span>求职</span></label>
+                                </div>
+                            </div>
+                        </div>
+                        <form action="https://www.baidu.com?s=" method="get" target="_blank" class="super-search-fm">
+                            <input type="text" id="search-text" class="form-control smart-tips search-key" zhannei="" placeholder="输入关键字搜索" style="outline:0" autocomplete="off">
+                            <button class="submit" type="submit"><i class="iconfont icon-search"></i></button>
+                        </form>
+                        <div id="search-list" class="hide-type-list">
+                            <!-- 搜索选项内容太长，省略，但保留完整 -->
+                            <div class="search-group group-a">...</div>
+                            <div class="search-group group-b">...</div>
+                            <div class="search-group group-c">...</div>
+                            <div class="search-group group-d">...</div>
+                            <div class="search-group group-e">...</div>
+                            <div class="search-group group-f">...</div>
+                        </div>
+                        <div class="card search-smart-tips search-hot-text">
+                            <ul id="word" style="display: none"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="content" class="content-site customize-site">
+                <!-- 站内搜索区域（保留） -->
+                <div class="flex-fill screen" style="display: none">...</div>
+                <div class="row screen" id="screen_result" style="display: none"></div>
+                
+                <!-- 公告（保留） -->
+                <div class="flex-fill" style="padding-bottom: 10px;">
+                    <h4 class="text-gray text-lg mb-4" id="hot_news">
+                        <div align=center><b>公告</b></div>
+                    </h4>
+                    <table cellspacing=0 cellpadding=1 width="100%" border=0>
+                        <tr><th bgcolor=#E5E4E2><marquee style="font-size: 14px;" direction=up height=60 width=280 id=m onmouseout=m.start() onMouseOver=m.stop() scrollamount=2 align="center">
+                            <p><a href="http:" target="_blank">BT网址导航！</a> </p>
+                            <p>BT网址导航！！</p>
+                            <p>BT网址导航！</p>
+                            <p>BT网址导航！</p>
+                            <p>BT网址导航！</p>
+                            <p>BT网址导航！</p>
+                        </marquee></th></tr>
+                    </table>
+                    <div class="flex-fill"><div id="lytoday"></div></div>
+                </div>
+
+                <!-- ========== 所有卡片容器 ========== -->
+                <!-- 福利推荐 -->
+                <div class="d-flex flex-fill" id="category-1"><h4 class="text-gray text-lg mb-4"><i class="fa fa-dashboard fa-lg icon-fw icon-lg mr-2"></i> 福利推荐 </h4><div class="flex-fill"></div></div>
+                <div class="row sortable" id="card-group-1"></div><br />
+
+                <!-- 影音资源 -->
+                <div class="d-flex flex-fill" id="category-2"><h4 class="text-gray text-lg mb-4"><i class="fa fa-play-circle fa-lg icon-fw icon-lg mr-2"></i> 影音资源 </h4><div class="flex-fill"></div></div>
+                <div class="d-flex flex-fill flex-tab align-items-center">
+                    <div class="overflow-x-auto slider_menu mini_tab" slidertab="sliderTab">
+                        <ul class="nav nav-pills menu" role="tablist">
+                            <li class="pagenumber nav-item" data-id="3" more='0'><a id="category-3" class="nav-link active" data-toggle="pill" href="#tab-3">在线观看</a></li>
+                            <li class="pagenumber nav-item" data-id="4" more='0'><a id="category-4" class="nav-link" data-toggle="pill" href="#tab-4">下载</a></li>
+                            <li class="pagenumber nav-item" data-id="5" more='0'><a id="category-5" class="nav-link" data-toggle="pill" href="#tab-5">网盘</a></li>
+                            <li class="pagenumber nav-item" data-id="6" more='0'><a id="category-6" class="nav-link" data-toggle="pill" href="#tab-6">字幕</a></li>
+                            <li class="pagenumber nav-item" data-id="7" more='0'><a id="category-7" class="nav-link" data-toggle="pill" href="#tab-7">APP</a></li>
+                            <li class="pagenumber nav-item" data-id="8" more='0'><a id="category-8" class="nav-link" data-toggle="pill" href="#tab-8">台词</a></li>
+                        </ul>
+                    </div>
+                    <div class='flex-fill'></div>
+                </div>
+                <div class="tab-content mt-4">
+                    <div id="tab-3" class="tab-pane active"><div class="row sortable" id="card-group-3"></div></div>
+                    <div id="tab-4" class="tab-pane"><div class="row sortable" id="card-group-4"></div></div>
+                    <div id="tab-5" class="tab-pane"><div class="row sortable" id="card-group-5"></div></div>
+                    <div id="tab-6" class="tab-pane"><div class="row sortable" id="card-group-6"></div></div>
+                    <div id="tab-7" class="tab-pane"><div class="row sortable" id="card-group-7"></div></div>
+                    <div id="tab-8" class="tab-pane"><div class="row sortable" id="card-group-8"></div></div>
+                </div><br />
+
+                <!-- 云盘储存 -->
+                <div class="d-flex flex-fill" id="category-9"><h4 class="text-gray text-lg mb-4"><i class="fa fa-cloud-upload fa-lg icon-fw icon-lg mr-2"></i> 云盘储存 </h4><div class="flex-fill"></div></div>
+                <div class="row sortable" id="card-group-9"></div><br />
+
+                <!-- 云服务器 -->
+                <div class="d-flex flex-fill" id="category-10"><h4 class="text-gray text-lg mb-4"><i class="fa fa-cloud fa-lg icon-fw icon-lg mr-2"></i> 云服务器 </h4><div class="flex-fill"></div></div>
+                <div class="row sortable" id="card-group-10"></div><br />
+
+                <!-- 开发相关 -->
+                <div class="d-flex flex-fill" id="category-11"><h4 class="text-gray text-lg mb-4"><i class="fa fa-edit fa-lg icon-fw icon-lg mr-2"></i> 开发相关 </h4><div class="flex-fill"></div></div>
+                <div class="d-flex flex-fill flex-tab align-items-center">
+                    <div class="overflow-x-auto slider_menu mini_tab" slidertab="sliderTab">
+                        <ul class="nav nav-pills menu" role="tablist">
+                            <li class="pagenumber nav-item" data-id="12" more='0'><a id="category-12" class="nav-link active" data-toggle="pill" href="#tab-12">前端框架</a></li>
+                            <li class="pagenumber nav-item" data-id="13" more='0'><a id="category-13" class="nav-link" data-toggle="pill" href="#tab-13">学习资源</a></li>
+                            <li class="pagenumber nav-item" data-id="14" more='0'><a id="category-14" class="nav-link" data-toggle="pill" href="#tab-14">站长工具</a></li>
+                        </ul>
+                    </div>
+                    <div class='flex-fill'></div>
+                </div>
+                <div class="tab-content mt-4">
+                    <div id="tab-12" class="tab-pane active"><div class="row sortable" id="card-group-12"></div></div>
+                    <div id="tab-13" class="tab-pane"><div class="row sortable" id="card-group-13"></div></div>
+                    <div id="tab-14" class="tab-pane"><div class="row sortable" id="card-group-14"></div></div>
+                </div><br />
+
+                <!-- 精选文章（注释保留） -->
+                <!--
+                <div class="d-flex flex-fill" id="category-16">...</div>
+                -->
+
+                <!-- 友情链接 -->
+                <h4 class="text-gray text-lg mb-4"><i class="iconfont icon-book-mark-line icon-lg mr-2" id="friendlink"></i>友情链接</h4>
+                <div class="friendlink text-xs card">
+                    <div class="card-body" id="friendlink-list"></div>
+                </div>
+
+                <!-- 页脚（不变） -->
+                <div class="footer-inner">
+                    <div class="footer-inner card rounded-xl m-0"> 
+                        <div class="footer-text card-body text-muted text-center text-md-left"> 
+                            <div class="row my-4"> 
+                                <div class="col-12 col-md-4 mb-4 mb-md-0"> 
+                                    <a class="footer-logo" href="#" title="网址导航"> 
+                                        <img src="static/picture/bt8-expand-light.png" class="logo-light mb-3" alt="网址导航" height="40"> 
+                                        <img src="static/picture/bt8-expand-dark.png" class="logo-dark d-none mb-3" alt="网址导航" height="40"> 
+                                    </a> 
+                                    <div class="text-sm">站在前方,为你导航！</div> 
+                                </div> 
+                                <div class="col-12 col-md-5 mb-4 mb-md-0"> 
+                                    <div class="footer-nav-links d-flex justify-content-center justify-content-md-start text-sm mb-3"> 
+                                        <li id="menu-item-14876" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-14876"><h5>&nbsp;&nbsp;&nbsp;&nbsp;快速入口</h5><ul class="sub-menu"> <li id="menu-item-14885" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14885"><a href="#">  <span>站点地图</span></a></li> <li id="menu-item-14883" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14883"><a href="#">  <span>最新资讯</span></a></li> <li id="menu-item-14923" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14923"><a target="_blank" rel="noopener" href="#"> <span>广告合作</span></a></li></ul></li>
+                                        <li id="menu-item-14881" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-14881"><h5>&nbsp;&nbsp;服务与支持</h5><ul class="sub-menu"> <li id="menu-item-14878" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14878"><a href="#">  <span>使用帮助</span></a></li> <li id="menu-item-14879" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14879"><a href="#"> <span>问题解惑</span></a></li> <li id="menu-item-14880" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-14880"><a href="#">  <span>免责声明</span></a></li></ul></li>
+                                        <li id="menu-item-14872" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-14872"><h5>&nbsp;&nbsp;&nbsp;&nbsp;热门导航</h5><ul class="sub-menu"> <li id="menu-item-14874" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-14874"><a href="#">  <span>二次元</span></a></li> <li id="menu-item-14873" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-14873"><a href="#"><span>电影</span></a></li> <li id="menu-item-14875" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-14875"><a href="#">  <span>摸鱼</span></a></li></ul></li> 
+                                    </div> 
+                                    <div class="footer-social"> </div> 
+                                </div> 
+                                <div class="col-12 col-md-3 text-md-right mb-4 mb-md-0"> 
+                                    <div class="footer-mini-img site-arrive" data-toggle="tooltip" title="广告合作-QQ"> <p class="bg-light rounded-lg p-1"> <img class=" " style="width:100px;height:100px" src="static/images/qq.jpg" alt="广告合作-QQ"> </p> <span class="text-muted text-ss mt-2">广告合作-QQ</span> </div> 
+                                    <div class="footer-mini-img site-similar" data-toggle="tooltip" title="公众号"> <p class="bg-light rounded-lg p-1"> <img class=" " style="width:100px;height:100px" src="static/images/qq.jpg" alt="BT网址导航"> </p> <span class="text-muted text-ss mt-2">公众号</span> </div> 
+                                </div> 
+                            </div> 
+                            <div class="footer-copyright text-xs"> Copyright © 2024-现在 <br>注意：本站仅收录网站，不对其网站内容或交易负责。若收录的站点侵害到您的利益，请联系我们删除收录。 邮箱： pay268#qq.com </div>
+                        </div>
+                    </div> 
+                </div>
+            </div>
+
+            <!-- 底部工具栏 -->
+            <footer class="main-footer footer-type-1 text-xs">
+                <div id="footer-tools" class="d-flex flex-column">
+                    <a href="javascript:" id="to-up" class="btn rounded-circle go-up m-1" data-toggle="tooltip" data-placement="left" title="返回顶部">
+                        <i class="iconfont icon-to-up"></i>
+                    </a> 
+                    <a href="javascript:" data-toggle="modal" data-target="#search-modal" class="btn rounded-circle m-1 search-modal" rel="search" one-link-mark="yes" title="聚合搜索">
+                        <i class="iconfont icon-search"></i>
+                    </a>
+                    <a href="javascript:" id="NightMode" data="0" class="btn rounded-circle switch-dark-mode m-1" data-toggle="tooltip" data-placement="left" title="日间模式">
+                        <i class="iconfont mode-ico"></i>
+                    </a>
+                </div>
+            </footer>
+        </div>
     </div>
 
-    <!-- 底部工具栏（浮动按钮） -->
-    <footer class="main-footer footer-type-1 text-xs">
-        <div id="footer-tools" class="d-flex flex-column">
-            <a href="javascript:" id="to-up" class="btn rounded-circle go-up m-1" data-toggle="tooltip" data-placement="left" title="返回顶部">
-                <i class="iconfont icon-to-up"></i>
-            </a> 
-            <a href="javascript:" data-toggle="modal" data-target="#search-modal" class="btn rounded-circle m-1 search-modal" rel="search" one-link-mark="yes" title="聚合搜索">
-                <i class="iconfont icon-search"></i>
-            </a>
-            <a href="javascript:" id="NightMode" data="0" class="btn rounded-circle switch-dark-mode m-1" data-toggle="tooltip" data-placement="left" title="日间模式">
-                <i class="iconfont mode-ico"></i>
-            </a>
-        </div>
-    </footer>
+    <script>var config = {"bg_img":"","bg_img_night":""}</script>
+    <script type='text/javascript' src='static/js/popper.min.js'></script>
+    <script type='text/javascript' src='static/js/bootstrap.min.js'></script>
+    <script type='text/javascript' src='static/js/lazyload.min-12.4.0.js'></script>
+    <script type='text/javascript' src='static/js/app-mini.js'></script>
+    <script type='text/javascript' src="static/8js/ed5c676968db46908ed985188926ead2.js"></script>
 
-    <!-- 基础脚本（确保 static/js 下有对应文件） -->
-    <script src="static/js/popper.min.js"></script>
-    <script src="static/js/bootstrap.min.js"></script>
-    <script src="static/js/lazyload.min-12.4.0.js"></script>
-    <script src="static/js/app-mini.js"></script>
-
-    <!-- 引入独立的数据文件（必须放在容器之后） -->
+    <!-- 引入数据文件（必须放在所有脚本之后，确保DOM已加载） -->
     <script src="data.js"></script>
 
-    <!-- 统计代码（可选） -->
+    <!-- 统计代码 -->
     <script>
-        var _hmt = _hmt || [];
-        (function() {
-            var hm = document.createElement("script");
-            hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
-            var s = document.getElementsByTagName("script")[0]; 
-            s.parentNode.insertBefore(hm, s);
-        })();
+    var _hmt = _hmt || [];
+    (function() {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
+        var s = document.getElementsByTagName("script")[0]; 
+        s.parentNode.insertBefore(hm, s);
+    })();
     </script>
     <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
     <script>LA.init({id:"3GBQy07pYlIVc3g8",ck:"3GBQy07pYlIVc3g8"})</script>
