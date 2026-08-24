@@ -2138,7 +2138,102 @@ const activityList = [
     desc: "百度网盘官方活动，新用户可获得3天SVIP会员+500G空间；老用户可获得500G空间（有效期30天）。每个账号每个自然月仅能参与1次，每隔30天可重复领取",
     link: "https://pan.baidu.com/comps/view/MV84NTZfMTAzMF8yODU2X29ubGluZQ==",
     remark: "需下载百度网盘APP参与；新用户：注册登录后获3天VIP+500G空间；老用户：点击免费领前往APP获500G空间（30天）；每月可领1次；数量有限先到先得"
-}
+},
+// ============================================================
+//  合并活动 141-146（福建移动流量包合集）
+//  可直接追加至 activityList 末尾
+// ============================================================
+
+    // 141. 福建移动10元10GB月末流量包
+    {
+        id: 141,
+        operator: "移动",
+        province: "福建省",
+        city: "全省",
+        mainType: "流量类",
+        subType: ["全国通用流量"],
+        title: "福建移动10元10GB月末流量包",
+        startTime: "2026-08-24",
+        endTime: "2026-12-31",
+        desc: "10元/次享10GB国内通用流量（不含港澳台），仅限当月23日零点至月底最后一天24点期间使用，不转存至次月。套餐生效时一次性收取费用，次月自动失效，流量不可共享",
+        link: "https://app.fmcc.com.cn/businessModuleH5/upgradeIndex?id=1624299928&ch=qywx_01&frame=2023_NON_PACKAGE_TEMPLATE&sjch=28&shareId=KD33TOMWX44FMNOVWX466Y3",
+        remark: "限福建移动用户办理；办理4G流量提速包或限速客户不能办理；资费方案编号：25FJ206230；无违约金"
+    },
+    // 142. 福建移动2元5GB日包
+    {
+        id: 142,
+        operator: "移动",
+        province: "福建省",
+        city: "全省",
+        mainType: "流量类",
+        subType: ["全国通用流量"],
+        title: "福建移动2元5GB日包",
+        startTime: "2026-08-24",
+        endTime: "2026-12-31",
+        desc: "2元/次享5GB国内通用流量（不含港澳台），有效期24小时，到期自动失效。原价10元/次，优惠至2元/次。活动数量有限先到先得，户均每月最多办理30次，活动周期内每户最多办理99次",
+        link: "https://app.fmcc.com.cn/businessModuleH5/upgradeIndex?id=1517789659&frame=2023_NON_PACKAGE_TEMPLATE&sjch=28&shareId=KD33TOMWX44FMNOVWX466Y3",
+        remark: "限福建移动用户办理；办理4G流量提速包或限速客户不能办理；旧版WAP包月套餐需取消原套餐后方可参与；客户状态异常无法订购；退订无违约金"
+    },
+    // 143. 福建移动1元1GB流量直充日包
+    {
+        id: 143,
+        operator: "移动",
+        province: "福建省",
+        city: "全省",
+        mainType: "流量类",
+        subType: ["全国通用流量"],
+        title: "福建移动1元1GB流量直充日包",
+        startTime: "2026-08-24",
+        endTime: "2026-12-31",
+        desc: "1元/次享1GB国内通用流量（不含港澳台），有效期24小时，到期自动失效。原价3元/次，优惠至1元/次。活动数量有限先到先得，户均每月最多办理15次，活动周期内每户最多办理99次",
+        link: "https://app.fmcc.com.cn/businessModuleH5/upgradeIndex?id=269295767&ch=qywx_01&frame=2023_NON_PACKAGE_TEMPLATE&sjch=28&shareId=KD33TOMWX44FMNOVWX466Y3",
+        remark: "限福建移动用户办理；办理4G流量提速包或限速客户不能办理；旧版WAP包月套餐需取消原套餐后方可参与；客户状态异常无法订购；退订无违约金"
+    },
+    // 144. 福建移动15元5GB流量月包
+    {
+        id: 144,
+        operator: "移动",
+        province: "福建省",
+        city: "全省",
+        mainType: "流量类",
+        subType: ["全国通用流量"],
+        title: "福建移动15元5GB流量月包",
+        startTime: "2026-08-24",
+        endTime: "2026-12-31",
+        desc: "15元/月享5GB国内通用流量（不含港澳台），原价30元/月，限生效月当月使用。订购后额外赠送1张5GB月包券，立即生效，有效期5天，需前往中国移动APP-我的-卡券兑换。活动库存4万份，户均每月最多办理15次，活动周期内每户最多办理99次",
+        link: "https://app.fmcc.com.cn/businessModuleH5/upgradeIndex?id=1171988996&ch=qywx_01&frame=2023_NON_PACKAGE_TEMPLATE&sjch=28&shareId=KD33TOMWX44FMNOVWX466Y3",
+        remark: "限福建移动用户办理；旧版WAP包月套餐需取消原套餐后方可参与；流量不可结转、不可共享；合约到期产品自动失效；变更或退订需到当地营业厅办理；无违约金"
+    },
+    // 145. 福建移动5元5GB流量包（12个月）
+    {
+        id: 145,
+        operator: "移动",
+        province: "福建省",
+        city: "全省",
+        mainType: "流量类",
+        subType: ["全国通用流量"],
+        title: "福建移动5元5GB流量包（12个月）",
+        startTime: "2026-08-24",
+        endTime: "2027-08-24",
+        desc: "5元/月享5GB国内通用流量（不含港澳台），原价15元/月，有效期12个月。可结转，不可共享。享流量多用多送权益（有效期至2027年1月31日，月流量较生效前6个月提升1GB，次月10号后可在中国移动APP领取）。到期前短信提醒，不回复则自动取消",
+        link: "https://app.fmcc.com.cn/businessModuleH5/upgradeIndex?id=1628427440&ch=qywx_01&frame=2023_NON_PACKAGE_TEMPLATE&sjch=28&shareId=KD33TOMWX44FMNOVWX466Y3",
+        remark: "限福建移动网龄7个月以上客户办理；旧版WAP包月套餐需取消原套餐后方可参与；变更或退订需到当地营业厅；活动期内所有消费AI豆均不累计；无违约金"
+    },
+    // 146. 福建移动3元5GB流量日包
+    {
+        id: 146,
+        operator: "移动",
+        province: "福建省",
+        city: "全省",
+        mainType: "流量类",
+        subType: ["全国通用流量"],
+        title: "福建移动3元5GB流量日包",
+        startTime: "2026-08-24",
+        endTime: "2026-09-24",
+        desc: "3元/次享5GB国内通用流量（不含港澳台），有效期24小时，到期自动失效。原价10元/次，优惠至3元/次。活动库存20万份，户均每月最多办理15次，活动周期内每户最多办理99次。当月内办理2次可领1GB流量日包奖励，需搜索'流量越购越快乐'活动领取；办理即送5张1GB日包券（立即生效，有效期5天，兑换路径：中国移动APP-我的-卡券）",
+        link: "https://app.fmcc.com.cn/businessModuleH5/upgradeIndex?id=171942324&ch=qywx_01&frame=2023_NON_PACKAGE_TEMPLATE&sjch=28&shareId=KD33TOMWX44FMNOVWX466Y3",
+        remark: "限福建移动用户办理；办理4G流量提速包或限速客户不能办理；旧版WAP包月套餐需取消原套餐后方可参与；流量不结转、不可共享；变更或退订需到当地营业厅办理；退订无违约金"
+    }
 ];
 
 // ============================================================
