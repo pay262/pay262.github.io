@@ -3,7 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>未来通信商城</title>
+
+    <!-- ===== SEO 核心元数据 ===== -->
+    <title>未来通信商城 - 移动联通电信广电官方套餐｜宽带办理｜号卡申请｜优惠活动</title>
+    <meta name="description" content="未来通信商城一站式通信服务导航平台，聚合中国移动、联通、电信、广电官方套餐入口，提供宽带办理、优惠流量号卡、随身WiFi、5G覆盖查询等便民服务。">
+    <meta name="keywords" content="宽带办理,流量卡,手机号卡,5G套餐,随身WiFi,中国移动,中国联通,中国电信,中国广电,通信商城">
+    <link rel="canonical" href="https://pay262.github.io/web.html">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="未来通信商城 - 一站式通信服务导航">
+    <meta property="og:description" content="聚合四大运营商官方套餐，宽带、号卡、随身WiFi一站导航。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://pay262.github.io/web.html">
+
+    <meta name="theme-color" content="#3A6FF8">
+
     <!-- Baidu tongji -->
     <script>
         var _hmt = _hmt || [];
@@ -1469,17 +1483,17 @@
                  <div class="ad-placeholder">📢 广告位招租 · 联系客服</div> 
             </a>
         </div>  -->
-
-<!-- ===== ★ 滚动活动标题（带固定标签） ★ ===== -->
-<div class="at-marquee" id="atMarquee">
-    <span class="marquee-label">🔥 热门活动</span>
-    <div class="marquee-wrapper">
-        <div class="marquee-track" id="marqueeTrack">
-            <!-- JS 动态填充 -->
-            <span class="marquee-item">⏳ 加载中...</span>
+        
+        <!-- ===== ★ 滚动活动标题（带固定标签） ★ ===== -->
+        <div class="at-marquee" id="atMarquee">
+            <span class="marquee-label">🔥 热门活动</span>
+            <div class="marquee-wrapper">
+                <div class="marquee-track" id="marqueeTrack">
+                    <!-- JS 动态填充 -->
+                    <span class="marquee-item">⏳ 加载中...</span>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
                 <!-- ===== 搜索栏 ===== -->
                 <div class="at-search-bar">
                     <button class="at-filter-toggle" id="atFilterToggle">
@@ -1733,7 +1747,6 @@
     </div>
 
     <!-- ============================================================
-         引用独立数据文件 activity-data.js
          ============================================================ -->
     <script src="activity-data.js"></script>
 
@@ -1917,84 +1930,84 @@
                 if (startX < 30 && diff > 50) toggleDrawer(true);
                 if (document.body.classList.contains('drawer-open') && diff < -50) toggleDrawer(false);
             }, { passive: true });
-
-// ========== 欢迎弹窗 ==========
-var VERIFY_KEY = 'last_verify_time';
-var TWENTY_FOUR_HOUR = 24 * 60 * 60 * 1000;
-
-function showAllMainUI() {
-    dom.mask.classList.remove('show');
-    dom.mask.style.display = 'none';
-    document.body.classList.remove('popup-open');
-    dom.navBar.style.display = 'flex';
-    dom.mainContent.style.display = 'block';
-    dom.tabBar.style.display = 'flex';
-    switchContent('content1');
-}
-
-function showWelcome() {
-    dom.mask.style.display = 'flex';
-    dom.mask.classList.add('show');
-    document.body.classList.add('popup-open');
-}
-
-var lastTime = localStorage.getItem(VERIFY_KEY);
-var now = Date.now();
-
-if (lastTime && (now - parseInt(lastTime)) < TWENTY_FOUR_HOUR) {
-    showAllMainUI();
-} else {
-    showWelcome();
-    var countDown = 3;
-    var timerId = null;
-    var originText = '立即进入网站';
-    var canEnter = false;  // ★ 新增：控制是否允许点击
-
-    function updateBtnText() {
-        dom.enterBtn.textContent = originText + ' (' + countDown + 's)';
-        if (countDown > 0) {
-            dom.enterBtn.disabled = true;      // ★ 禁用按钮
-            dom.enterBtn.style.opacity = '0.6';
+        
+        // ========== 欢迎弹窗 ==========
+        var VERIFY_KEY = 'last_verify_time';
+        var TWENTY_FOUR_HOUR = 24 * 60 * 60 * 1000;
+        
+        function showAllMainUI() {
+            dom.mask.classList.remove('show');
+            dom.mask.style.display = 'none';
+            document.body.classList.remove('popup-open');
+            dom.navBar.style.display = 'flex';
+            dom.mainContent.style.display = 'block';
+            dom.tabBar.style.display = 'flex';
+            switchContent('content1');
+        }
+        
+        function showWelcome() {
+            dom.mask.style.display = 'flex';
+            dom.mask.classList.add('show');
+            document.body.classList.add('popup-open');
+        }
+        
+        var lastTime = localStorage.getItem(VERIFY_KEY);
+        var now = Date.now();
+        
+        if (lastTime && (now - parseInt(lastTime)) < TWENTY_FOUR_HOUR) {
+            showAllMainUI();
         } else {
-            dom.enterBtn.disabled = false;     // ★ 启用按钮
-            dom.enterBtn.style.opacity = '1';
-            canEnter = true;
-        }
-    }
-
-    function goEnter() {
-        if (!canEnter) {
-            showToast('请等待 ' + countDown + ' 秒倒计时结束');
-            return;
-        }
-        if (timerId) {
-            clearTimeout(timerId);
-            timerId = null;
-        }
-        localStorage.setItem(VERIFY_KEY, now.toString());
-        showAllMainUI();
-    }
-
-    dom.enterBtn.onclick = goEnter;
-
-    function tick() {
-        countDown--;
-        if (countDown >= 0) {
-            updateBtnText();
-            if (countDown > 0) {
-                timerId = setTimeout(tick, 1000);
-            } else {
-                // 倒计时结束，确保按钮完全可用
-                canEnter = true;
-                dom.enterBtn.disabled = false;
-                dom.enterBtn.style.opacity = '1';
-                dom.enterBtn.textContent = originText;
+            showWelcome();
+            var countDown = 3;
+            var timerId = null;
+            var originText = '立即进入网站';
+            var canEnter = false;  // ★ 新增：控制是否允许点击
+        
+            function updateBtnText() {
+                dom.enterBtn.textContent = originText + ' (' + countDown + 's)';
+                if (countDown > 0) {
+                    dom.enterBtn.disabled = true;      // ★ 禁用按钮
+                    dom.enterBtn.style.opacity = '0.6';
+                } else {
+                    dom.enterBtn.disabled = false;     // ★ 启用按钮
+                    dom.enterBtn.style.opacity = '1';
+                    canEnter = true;
+                }
             }
+        
+            function goEnter() {
+                if (!canEnter) {
+                    showToast('请等待 ' + countDown + ' 秒倒计时结束');
+                    return;
+                }
+                if (timerId) {
+                    clearTimeout(timerId);
+                    timerId = null;
+                }
+                localStorage.setItem(VERIFY_KEY, now.toString());
+                showAllMainUI();
+            }
+        
+            dom.enterBtn.onclick = goEnter;
+        
+            function tick() {
+                countDown--;
+                if (countDown >= 0) {
+                    updateBtnText();
+                    if (countDown > 0) {
+                        timerId = setTimeout(tick, 1000);
+                    } else {
+                        // 倒计时结束，确保按钮完全可用
+                        canEnter = true;
+                        dom.enterBtn.disabled = false;
+                        dom.enterBtn.style.opacity = '1';
+                        dom.enterBtn.textContent = originText;
+                    }
+                }
+            }
+            updateBtnText();
+            timerId = setTimeout(tick, 1000);
         }
-    }
-    updateBtnText();
-    timerId = setTimeout(tick, 1000);
-}
             // ============================================================
             //  ★★★ 3. 活动工具箱 — 最终稳定版 ★★★
             //  设计：初始化一次UI，之后只刷新数据，不再重建DOM
@@ -2408,66 +2421,66 @@ if (lastTime && (now - parseInt(lastTime)) < TWENTY_FOUR_HOUR) {
                     activeMainTab = mainTypeSelect.value;
                     renderTabs();
                 }
+                
+        // ===== ★ 滚动标题：方案A：随机取 5~10 条显示 ★ =====
+        function shuffleArray(arr) {
+            for (var i = arr.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var temp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = temp;
+            }
+            return arr;
+        }
         
-// ===== ★ 滚动标题：方案A：随机取 5~10 条显示 ★ =====
-function shuffleArray(arr) {
-    for (var i = arr.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var temp = arr[i];
-        arr[i] = arr[j];
-        arr[j] = temp;
-    }
-    return arr;
-}
-
-function buildMarquee() {
-    var track = document.getElementById('marqueeTrack');
-    if (!track) return;
-
-    // 1. 获取未过期的活动
-    var items = list.filter(function(item) { return !isExpired(item.endTime); });
-
-    // 2. 如果没有任何活动，显示占位提示
-    if (items.length === 0) {
-        track.innerHTML = '<span class="marquee-item">📢 暂无活动，敬请期待</span>';
-        return;
-    }
-
-    // 3. 随机打乱
-    shuffleArray(items);
-
-    // 4. ★ 随机取 5~10 条（如果总数少于5条，则全部显示）
-    var maxCount = Math.min(items.length, 10);
-    var minCount = Math.min(items.length, 5);
-    var count = Math.floor(Math.random() * (maxCount - minCount + 1)) + minCount;
-    var selected = items.slice(0, count);
-
-    // 5. 生成HTML
-    var titles = selected.map(function(item) {
-        var tag = item.operator || '通用';
-        return '<span class="marquee-item"><span class="tag">' + tag + '</span>' + item.title + '</span>';
-    });
-
-    // 6. 如果少于3条，补充占位提示（避免滚动太空）
-    if (titles.length < 3) {
-        titles.push('<span class="marquee-item">📢 更多活动即将上线</span>');
-    }
-
-    // 7. 双倍内容实现无缝滚动
-    var html = titles.concat(titles).join('');
-    track.style.animation = 'none';
-    track.innerHTML = html;
-    // 强制回流后重新启动动画
-    void track.offsetWidth;
-    track.style.animation = 'marquee-scroll 35s linear infinite';
-}
-
-// 首次构建
-buildMarquee();
-
-// 暴露刷新函数供切换页面时调用
-window.refreshMarquee = buildMarquee;
-
+        function buildMarquee() {
+            var track = document.getElementById('marqueeTrack');
+            if (!track) return;
+        
+            // 1. 获取未过期的活动
+            var items = list.filter(function(item) { return !isExpired(item.endTime); });
+        
+            // 2. 如果没有任何活动，显示占位提示
+            if (items.length === 0) {
+                track.innerHTML = '<span class="marquee-item">📢 暂无活动，敬请期待</span>';
+                return;
+            }
+        
+            // 3. 随机打乱
+            shuffleArray(items);
+        
+            // 4. ★ 随机取 5~10 条（如果总数少于5条，则全部显示）
+            var maxCount = Math.min(items.length, 10);
+            var minCount = Math.min(items.length, 5);
+            var count = Math.floor(Math.random() * (maxCount - minCount + 1)) + minCount;
+            var selected = items.slice(0, count);
+        
+            // 5. 生成HTML
+            var titles = selected.map(function(item) {
+                var tag = item.operator || '通用';
+                return '<span class="marquee-item"><span class="tag">' + tag + '</span>' + item.title + '</span>';
+            });
+        
+            // 6. 如果少于3条，补充占位提示（避免滚动太空）
+            if (titles.length < 3) {
+                titles.push('<span class="marquee-item">📢 更多活动即将上线</span>');
+            }
+        
+            // 7. 双倍内容实现无缝滚动
+            var html = titles.concat(titles).join('');
+            track.style.animation = 'none';
+            track.innerHTML = html;
+            // 强制回流后重新启动动画
+            void track.offsetWidth;
+            track.style.animation = 'marquee-scroll 35s linear infinite';
+        }
+        
+        // 首次构建
+        buildMarquee();
+        
+        // 暴露刷新函数供切换页面时调用
+        window.refreshMarquee = buildMarquee;
+        
                 // 第一次渲染数据
                 render();
 
