@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🍽️ 今天吃什么 · 健康评分版</title>
+    <script src="foods.js"></script>
+    <!-- Baidu tongji -->
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js">
+    </script>
+    <script>
+        LA.init({ id: "3HpUziWJmj6VQUHP", ck: "3HpUziWJmj6VQUHP", autoTrack: true })
+    </script>
+    <style>
+        /* ===== 样式 (与健康指数版一致) ===== */
+        :root {
+            --primary: #FF6B35;
+            --primary-dark: #E55A2B;
+            --primary-light: #FF8A5C;
+            --gold: #F7931E;
+            --bg: #FFF8F0;
+            --card-bg: #FFFFFF;
+            --text: #2D2D2D;
+            --text-light: #6B6B6B;
+            --shadow: 0 8px 30px rgba(255, 107, 53, 0.15);
+            --radius: 20px;
+            --radius-sm: 12px;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        .app { max-width:820px; width:100%; margin:0 auto; padding-bottom:40px; }
+        .header { text-align:center; padding:30px 0 20px; position:relative; }
+        .header::after { content:''; position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:60px; height:4px; background:linear-gradient(90deg,var(--primary),var(--gold)); border-radius:4px; }
+        .header h1 { font-size:2.4rem; font-weight:800; letter-spacing:2px; background:linear-gradient(135deg,var(--primary),var(--gold)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .header p { color:var(--text-light); font-size:1rem; margin-top:6px; letter-spacing:4px; }
+        .header .badge { display:inline-block; background:var(--primary); color:#fff; font-size:0.7rem; padding:2px 14px; border-radius:20px; margin-top:6px; letter-spacing:1px; }
+        .recommend-section { margin:28px 0 24px; }
+        .recommend-card { background:var(--card-bg); border-radius:var(--radius); box-shadow:var(--shadow); padding:40px 24px 32px; text-align:center; position:relative; overflow:hidden; transition:transform var(--transition); }
+        .recommend-card:hover { transform:translateY(-2px); }
+        .recommend-card::before { content:''; position:absolute; top:-60%; right:-30%; width:300px; height:300px; background:radial-gradient(circle,rgba(255,107,53,0.06) 0%,transparent 70%); border-radius:50%; pointer-events:none; }
+        .recommend-emoji { font-size:4.8rem; line-height:1.2; margin-bottom:8px; display:block; animation:float 3s ease-in-out infinite; }
+        @keyframes float { 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-10px); } }
+        .recommend-name { font-size:2.6rem; font-weight:700; color:var(--text); min-height:4rem; display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; }
+        .recommend-name .category-tag { font-size:0.8rem; font-weight:500; background:var(--bg); color:var(--text-light); padding:2px 14px; border-radius:20px; display:inline-block; }
+        .recommend-info { margin-top:12px; display:flex; gap:16px; justify-content:center; flex-wrap:wrap; font-size:0.85rem; color:var(--text-light); }
+        .recommend-info .tag { background:var(--bg); padding:2px 12px; border-radius:20px; display:inline-flex; align-items:center; gap:4px; }
+        .recommend-actions { margin-top:24px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+        .btn { border:none; padding:12px 32px; border-radius:50px; font-size:1rem; font-weight:600; cursor:pointer; transition:all var(--transition); display:inline-flex; align-items:center; gap:8px; background:var(--bg); color:var(--text); box-shadow:0 2px 8px rgba(0,0,0,0.04); }
+        .btn:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,0.08); }
+        .btn:active { transform:scale(0.96); }
+        .btn-primary { background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:#fff; box-shadow:0 4px 16px rgba(255,107,53,0.35); }
+        .btn-primary:hover { box-shadow:0 6px 24px rgba(255,107,53,0.45); transform:translateY(-2px); }
+        .btn-primary:active { transform:scale(0.96); }
+        .btn-outline { background:transparent; border:2px solid var(--primary); color:var(--primary); }
+        .btn-outline:hover { background:var(--primary); color:#fff; }
+        .btn-sm { padding:8px 18px; font-size:0.85rem; }
+        .btn-success { background:#2ecc71; color:#fff; }
+        .btn-success:hover { background:#27ae60; }
+        .category-section { margin:20px 0 16px; }
+        .category-tabs { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+        .category-tab { padding:8px 18px; border-radius:50px; border:2px solid transparent; background:var(--card-bg); color:var(--text-light); font-size:0.85rem; font-weight:500; cursor:pointer; transition:all var(--transition); box-shadow:0 2px 8px rgba(0,0,0,0.04); user-select:none; }
+        .category-tab:hover { transform:translateY(-1px); box-shadow:0 4px 14px rgba(0,0,0,0.06); }
+        .category-tab.active { background:var(--primary); color:#fff; border-color:var(--primary); box-shadow:0 4px 16px rgba(255,107,53,0.3); }
+        .category-tab .count { font-size:0.7rem; opacity:0.7; margin-left:4px; }
+        .food-list-section { margin:16px 0 20px; }
+        .food-list-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+        .food-list-header h3 { font-size:1rem; font-weight:600; color:var(--text-light); }
+        .food-list-header .count-badge { background:var(--bg); padding:2px 12px; border-radius:20px; font-size:0.8rem; color:var(--text-light); }
+        .food-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:10px; }
+        .food-item { background:var(--card-bg); border-radius:var(--radius-sm); padding:12px 8px; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.04); transition:all var(--transition); cursor:default; position:relative; border:2px solid transparent; }
+        .food-item:hover { transform:translateY(-3px); box-shadow:0 6px 20px rgba(0,0,0,0.06); border-color:var(--primary-light); }
+        .food-item .emoji { font-size:1.8rem; display:block; line-height:1.2; }
+        .food-item .name { font-size:0.75rem; font-weight:500; margin-top:4px; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .food-item .delete-btn { position:absolute; top:-6px; right:-6px; width:22px; height:22px; border-radius:50%; border:none; background:#ff4757; color:#fff; font-size:12px; line-height:22px; text-align:center; cursor:pointer; opacity:0; transition:opacity var(--transition); box-shadow:0 2px 8px rgba(255,71,87,0.3); }
+        .food-item:hover .delete-btn { opacity:1; }
+        .food-item .delete-btn:hover { transform:scale(1.1); }
+        .empty-state { text-align:center; padding:30px 20px; color:var(--text-light); background:var(--card-bg); border-radius:var(--radius-sm); border:2px dashed #e0d6cc; }
+        .empty-state .big-emoji { font-size:3rem; display:block; margin-bottom:8px; }
+        .add-section { margin:20px 0 16px; background:var(--card-bg); border-radius:var(--radius-sm); padding:18px 20px; box-shadow:0 2px 8px rgba(0,0,0,0.04); }
+        .add-section .title { font-size:0.9rem; font-weight:600; color:var(--text-light); margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+        .add-form { display:flex; gap:10px; flex-wrap:wrap; }
+        .add-form input, .add-form select { flex:1; min-width:100px; padding:10px 16px; border:2px solid #e8e0d8; border-radius:50px; font-size:0.9rem; outline:none; transition:border var(--transition); background:var(--bg); color:var(--text); }
+        .add-form input:focus, .add-form select:focus { border-color:var(--primary); }
+        .add-form .btn { flex-shrink:0; }
+        .history-section { margin-top:24px; }
+        .history-section h3 { font-size:0.95rem; font-weight:600; color:var(--text-light); margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+        .history-list { display:flex; gap:8px; flex-wrap:wrap; }
+        .history-item { background:var(--card-bg); padding:6px 16px; border-radius:50px; font-size:0.85rem; box-shadow:0 2px 8px rgba(0,0,0,0.04); display:flex; align-items:center; gap:6px; border:1px solid #f0ebe5; }
+        .history-item .time { font-size:0.7rem; color:var(--text-light); opacity:0.7; }
+        .history-empty { color:var(--text-light); font-size:0.85rem; opacity:0.6; }
+        .toast { position:fixed; top:30px; left:50%; transform:translateX(-50%) translateY(-80px); background:#2D2D2D; color:#fff; padding:12px 28px; border-radius:50px; font-size:0.9rem; box-shadow:0 8px 30px rgba(0,0,0,0.2); opacity:0; transition:all 0.4s cubic-bezier(0.4,0,0.2,1); z-index:999; pointer-events:none; }
+        .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+        .shortcut-hint { text-align:center; font-size:0.75rem; color:var(--text-light); opacity:0.6; margin-top:8px; }
+        .health-badge { display:inline-flex; align-items:center; gap:4px; font-size:0.7rem; padding:2px 10px; border-radius:12px; font-weight:600; margin-top:4px; }
+        .health-badge.excellent { background:#e8f5e9; color:#2e7d32; }
+        .health-badge.good { background:#e3f2fd; color:#0d47a1; }
+        .health-badge.medium { background:#fff3e0; color:#e65100; }
+        .health-badge.poor { background:#fce4ec; color:#c62828; }
+        .health-detail { font-size:0.7rem; color:var(--text-light); margin-top:2px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+        .health-detail span { background:var(--bg); padding:0 8px; border-radius:10px; }
+        .food-item .health-badge { font-size:0.55rem; padding:1px 6px; margin-top:2px; }
+        @media (max-width:600px){
+            body { padding:12px; }
+            .header h1 { font-size:1.8rem; }
+            .recommend-card { padding:28px 16px 24px; }
+            .recommend-emoji { font-size:3.6rem; }
+            .recommend-name { font-size:2rem; min-height:3.2rem; }
+            .food-grid { grid-template-columns:repeat(auto-fill,minmax(100px,1fr)); gap:8px; }
+            .food-item .emoji { font-size:1.4rem; }
+            .food-item .name { font-size:0.65rem; }
+            .add-form { flex-direction:column; }
+            .add-form input, .add-form select { min-width:unset; }
+            .btn { padding:10px 22px; font-size:0.9rem; }
+            .category-tab { padding:6px 12px; font-size:0.75rem; }
+            .history-item { font-size:0.78rem; padding:4px 12px; }
+            .recommend-info { font-size:0.75rem; gap:8px; }
+            .health-detail { font-size:0.6rem; }
+        }
+        @media (max-width:400px){
+            .recommend-name { font-size:1.6rem; }
+            .food-grid { grid-template-columns:repeat(auto-fill,minmax(85px,1fr)); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="toast" class="toast"></div>
+
+    <div class="app">
+
+        <header class="header">
+            <h1>🍽️ 今天吃什么</h1>
+            <p>每道菜都有健康评分 · 1000+ 真实美食</p>
+            <span class="badge" id="totalBadge">🥘 加载中...</span>
+        </header>
+
+        <section class="recommend-section">
+            <div class="recommend-card" id="recommendCard">
+                <span class="recommend-emoji" id="recommendEmoji">🍕</span>
+                <div class="recommend-name" id="recommendName">
+                    披萨
+                    <span class="category-tag">西餐</span>
+                </div>
+                <div class="recommend-info">
+                    <span class="tag" id="healthBadge">🟢 健康 · 优秀</span>
+                    <span class="tag" id="nutritionTag">🥩 高蛋白</span>
+                </div>
+                <div class="health-detail" id="healthDetail">
+                    <span>🔥 热量适中</span>
+                    <span>🧂 低盐</span>
+                </div>
+                <div class="recommend-actions">
+                    <button class="btn btn-primary" id="pickBtn">🎲 选一个</button>
+                    <button class="btn btn-success" id="pickHealthyBtn">🥗 最健康推荐</button>
+                    <button class="btn btn-outline btn-sm" id="resetBtn">⟳ 重置</button>
+                </div>
+                <div class="shortcut-hint">💡 空格键抽选 · R键重置 · H键健康推荐</div>
+            </div>
+        </section>
+
+        <section class="category-section">
+            <div class="category-tabs" id="categoryTabs"></div>
+        </section>
+
+        <section class="food-list-section">
+            <div class="food-list-header">
+                <h3>📋 全部食物</h3>
+                <span class="count-badge" id="foodCount">0 个</span>
+            </div>
+            <div class="food-grid" id="foodGrid"></div>
+        </section>
+
+        <section class="add-section">
+            <div class="title">✏️ 添加新食物</div>
+            <div class="add-form">
+                <input type="text" id="foodNameInput" placeholder="食物名称" maxlength="20" />
+                <select id="foodCategorySelect"></select>
+                <input type="text" id="foodEmojiInput" placeholder="表情符号" maxlength="2" style="max-width:80px;" />
+                <button class="btn btn-primary" id="addBtn">➕ 添加</button>
+            </div>
+        </section>
+
+        <section class="history-section">
+            <h3>🕐 最近记录</h3>
+            <div class="history-list" id="historyList">
+                <span class="history-empty">还没有记录，选一个试试吧</span>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // ============================================================
+        //  主脚本（健康评分 + 均衡推荐）
+        // ============================================================
+        (function() {
+            const CATEGORIES = [
+                { key: '全部', emoji: '📌' },
+                { key: '中餐', emoji: '🥢' },
+                { key: '家常小炒', emoji: '🍳' },
+                { key: '西餐', emoji: '🍴' },
+                { key: '日料', emoji: '🍣' },
+                { key: '韩式料理', emoji: '🇰🇷' },
+                { key: '东南亚菜', emoji: '🌴' },
+                { key: '快餐小吃', emoji: '🍔' },
+                { key: '甜品饮品', emoji: '🍰' },
+                { key: '火锅烧烤', emoji: '🔥' },
+            ];
+
+            // ---------- 健康评分函数 ----------
+            function calcHealthScore(name, category, type) {
+                let score = 70, tags = [], details = [];
+                // 烹饪方式
+                if (/蒸|煮|炖|清蒸|白灼|上汤|凉拌/.test(name)) { score += 15; tags.push('🟢 健康'); details.push('🔥 低脂'); details.push('🧂 低盐'); } 
+                else if (/炒|熘|爆|煎|烧|焖/.test(name)) { score += 5; tags.push('🟡 适中'); details.push('🔥 热量中等'); } 
+                else if (/炸|烤|焗|干煸|油炸|香煎/.test(name)) { score -= 10; tags.push('🟠 注意'); details.push('🔥 热量偏高'); if (/炸/.test(name)) { score -= 5; details.push('🧂 含油较多'); } } 
+                else if (/火锅|烧烤|烤肉/.test(name)) { score -= 5; tags.push('🟡 适中'); details.push('🔥 注意搭配蔬菜'); }
+                // 食材
+                if (/豆腐|蔬菜|西兰花|菠菜|白菜|生菜|油麦菜|番茄|黄瓜|茄子|土豆|莲藕|菌菇|木耳/.test(name)) { score += 10; tags.push('🥬 富含纤维'); if (!details.includes('🧂 低盐')) details.push('🧂 低盐'); }
+                if (/鱼|虾|蟹|海鲜|鳕鱼|三文鱼|鲈鱼/.test(name)) { score += 8; tags.push('🐟 优质蛋白'); details.push('🧂 富含Omega-3'); }
+                if (/鸡|鸭|鹅/.test(name) && !/炸|烤|腊/.test(name)) { score += 5; tags.push('🍗 低脂禽肉'); }
+                if (/猪肉|牛肉|羊肉|五花肉|排骨/.test(name)) { if (/五花肉|肥|炸/.test(name)) { score -= 5; details.push('🥩 脂肪较高'); } else { tags.push('🥩 优质蛋白'); } }
+                if (/甜品|蛋糕|冰淇淋|奶茶|布丁|提拉米苏|慕斯|巧克力/.test(name)) { score -= 15; tags.push('🍰 甜品·适量'); details.push('🍬 含糖较高'); }
+                if (/麻辣|酸辣|剁椒|泡椒|辣椒/.test(name)) { score -= 5; details.push('🌶️ 辛辣刺激'); }
+                if (/糖醋|红烧|可乐|啤酒/.test(name) && !/蒸|清蒸/.test(name)) { score -= 5; details.push('🍬 含糖/酱汁多'); }
+                if (/清汤|白灼|凉拌|上汤/.test(name)) { score += 5; if (!details.includes('🧂 低盐')) details.push('🧂 低盐'); }
+                if (category === '快餐小吃' || category === '甜品饮品') score -= 5;
+                if (category === '火锅烧烤') details.push('🥘 建议搭配蔬菜');
+                score = Math.max(20, Math.min(100, score));
+                let level, badgeClass;
+                if (score >= 80) { level = '优秀'; badgeClass = 'excellent'; }
+                else if (score >= 65) { level = '良好'; badgeClass = 'good'; }
+                else if (score >= 50) { level = '一般'; badgeClass = 'medium'; }
+                else { level = '注意'; badgeClass = 'poor'; }
+                details = [...new Set(details)].slice(0, 3);
+                tags = tags.slice(0, 2);
+                return { score, level, badgeClass, tags, details };
+            }
+
+            // ---------- 数据加载 ----------
+            let foods = [];
+            let currentCategory = '全部';
+            let history = [];
+            let isSpinning = false;
+
+            const $ = s => document.querySelector(s);
+            const recommendEmoji = $('#recommendEmoji');
+            const recommendName = $('#recommendName');
+            const healthBadge = $('#healthBadge');
+            const nutritionTag = $('#nutritionTag');
+            const healthDetail = $('#healthDetail');
+            const pickBtn = $('#pickBtn');
+            const pickHealthyBtn = $('#pickHealthyBtn');
+            const resetBtn = $('#resetBtn');
+            const categoryTabs = $('#categoryTabs');
+            const foodGrid = $('#foodGrid');
+            const foodCount = $('#foodCount');
+            const foodNameInput = $('#foodNameInput');
+            const foodCategorySelect = $('#foodCategorySelect');
+            const foodEmojiInput = $('#foodEmojiInput');
+            const addBtn = $('#addBtn');
+            const historyList = $('#historyList');
+            const toast = $('#toast');
+            const totalBadge = $('#totalBadge');
+
+            function generateId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+            function getCategoryEmoji(key) { const f = CATEGORIES.find(c => c.key === key); return f ? f.emoji : '📌'; }
+            let toastTimer = null;
+            function showToast(msg, dur=2200) { toast.textContent = msg; toast.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove('show'), dur); }
+
+            function loadData() {
+                const stored = localStorage.getItem('eat_what_foods_health');
+                if (stored) { try { foods = JSON.parse(stored); } catch(e){ foods = null; } }
+                if (!foods || foods.length === 0) {
+                    if (typeof DEFAULT_FOODS !== 'undefined' && DEFAULT_FOODS.length > 0) {
+                        foods = JSON.parse(JSON.stringify(DEFAULT_FOODS));
+                    } else {
+                        foods = [];
+                    }
+                    // 补全健康信息
+                    foods = foods.map(f => {
+                        if (!f.health) {
+                            const type = f.type || 'other';
+                            f.health = calcHealthScore(f.name, f.category, type);
+                        }
+                        if (!f.id) f.id = generateId();
+                        return f;
+                    });
+                    localStorage.setItem('eat_what_foods_health', JSON.stringify(foods));
+                }
+                const hist = localStorage.getItem('eat_what_history_health');
+                if (hist) { try { history = JSON.parse(hist); } catch(e){ history = []; } } else { history = []; }
+                totalBadge.textContent = `🥘 ${foods.length} 种美食`;
+            }
+
+            function saveFoods() { localStorage.setItem('eat_what_foods_health', JSON.stringify(foods)); }
+            function saveHistory() { localStorage.setItem('eat_what_history_health', JSON.stringify(history)); }
+
+            // ---------- 渲染 ----------
+            function renderCategories() {
+                const counts = {};
+                CATEGORIES.forEach(c => counts[c.key]=0);
+                foods.forEach(f => { if (counts[f.category] !== undefined) counts[f.category]++; counts['全部']++; });
+                categoryTabs.innerHTML = CATEGORIES.map(c => {
+                    const active = c.key === currentCategory ? 'active' : '';
+                    const count = counts[c.key] || 0;
+                    return `<button class="category-tab ${active}" data-category="${c.key}">${c.emoji} ${c.key} <span class="count">(${count})</span></button>`;
+                }).join('');
+                categoryTabs.querySelectorAll('.category-tab').forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        const cat = tab.dataset.category;
+                        if (cat !== currentCategory) { currentCategory = cat; renderCategories(); renderFoodGrid(); }
+                    });
+                });
+            }
+
+            function renderFoodGrid() {
+                const filtered = currentCategory === '全部' ? foods : foods.filter(f => f.category === currentCategory);
+                foodCount.textContent = `${filtered.length} 个`;
+                if (filtered.length === 0) {
+                    foodGrid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><span class="big-emoji">😅</span><p>这个分类还没有食物</p><p style="font-size:0.8rem;opacity:0.7;">添加一些吧！</p></div>`;
+                    return;
+                }
+                foodGrid.innerHTML = filtered.map(f => {
+                    const h = f.health || { level: '一般', badgeClass: 'medium', tags: [], details: [] };
+                    const dot = { '优秀':'🟢','良好':'🟡','一般':'🟠','注意':'🔴' }[h.level] || '🟡';
+                    return `<div class="food-item" data-id="${f.id}">
+                                <span class="emoji">${f.emoji || '🍽️'}</span>
+                                <span class="name">${f.name}</span>
+                                <span class="health-badge ${h.badgeClass || 'medium'}">${dot} ${h.level || '一般'}</span>
+                                <button class="delete-btn" data-id="${f.id}" title="删除">✕</button>
+                            </div>`;
+                }).join('');
+                foodGrid.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => { e.stopPropagation(); const id = btn.dataset.id; deleteFood(id); });
+                });
+            }
+
+            function renderHistory() {
+                if (history.length === 0) { historyList.innerHTML = `<span class="history-empty">还没有记录，选一个试试吧</span>`; return; }
+                const recent = history.slice(0,12);
+                historyList.innerHTML = recent.map(h => `<span class="history-item">${h.emoji || '🍽️'} ${h.name} <span class="time">${h.time || ''}</span> <span style="font-size:0.6rem;opacity:0.7;">${h.healthLevel || ''}</span></span>`).join('');
+            }
+
+            function updateRecommend(food) {
+                if (!food) {
+                    recommendEmoji.textContent = '🤔'; recommendName.innerHTML = '还没有食物，添加一些吧！'; healthBadge.textContent = ''; nutritionTag.textContent = ''; healthDetail.innerHTML = '';
+                    return;
+                }
+                recommendEmoji.textContent = food.emoji || '🍽️';
+                const catEmoji = getCategoryEmoji(food.category);
+                recommendName.innerHTML = `${food.name} <span class="category-tag">${catEmoji} ${food.category}</span>`;
+                const h = food.health || { score:65, level:'一般', badgeClass:'medium', tags:[], details:[] };
+                const dot = { '优秀':'🟢','良好':'🟡','一般':'🟠','注意':'🔴' }[h.level] || '🟡';
+                healthBadge.textContent = `${dot} 健康 · ${h.level} (${h.score}分)`;
+                healthBadge.className = `tag health-badge ${h.badgeClass || 'medium'}`;
+                nutritionTag.textContent = h.tags.length > 0 ? h.tags.join(' · ') : '🍽️ 均衡搭配';
+                healthDetail.innerHTML = h.details.length > 0 ? h.details.map(d => `<span>${d}</span>`).join('') : `<span>🥗 建议搭配蔬菜</span>`;
+            }
+
+            function renderAll() { renderCategories(); renderFoodGrid(); renderHistory(); const cur = getCurrentRecommend(); if (cur) updateRecommend(cur); else if (foods.length>0) updateRecommend(foods[0]); else updateRecommend(null); }
+
+            // ---------- 核心逻辑 ----------
+            function getFilteredFoods() { return currentCategory === '全部' ? foods : foods.filter(f => f.category === currentCategory); }
+            function pickRandomFood() { const filtered = getFilteredFoods(); if (filtered.length === 0) return null; return filtered[Math.floor(Math.random() * filtered.length)]; }
+            function pickHealthiestFood() {
+                const filtered = getFilteredFoods();
+                if (filtered.length === 0) return null;
+                const sorted = [...filtered].sort((a,b) => (b.health?.score||0) - (a.health?.score||0));
+                const recentNames = history.slice(0,3).map(h => h.name);
+                const candidates = sorted.filter(f => !recentNames.includes(f.name));
+                return candidates.length > 0 ? candidates[0] : sorted[0];
+            }
+            function getCurrentRecommend() {
+                const name = recommendName.textContent.trim();
+                if (!name || name === '还没有食物，添加一些吧！') return null;
+                const found = foods.find(f => f.name === name);
+                return found || (foods.length > 0 ? foods[0] : null);
+            }
+
+            function spinPick(useHealthiest=false) {
+                if (isSpinning) return;
+                let food = useHealthiest ? pickHealthiestFood() : pickRandomFood();
+                if (!food) { showToast('当前分类没有食物', 2500); return; }
+                const filtered = getFilteredFoods();
+                if (filtered.length === 1) { updateRecommend(food); addHistory(food); showToast(`✨ 今天吃 ${food.name}！`,2000); return; }
+                isSpinning = true;
+                pickBtn.disabled = true;
+                pickBtn.textContent = '🎰 抽选中...';
+                let count = 0, totalSteps = 20 + Math.floor(Math.random()*15), idx = 0;
+                const shuffled = [...filtered];
+                for (let i = shuffled.length - 1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]; }
+                function step() {
+                    const f = shuffled[idx % shuffled.length];
+                    recommendEmoji.textContent = f.emoji || '🍽️';
+                    const catEmoji = getCategoryEmoji(f.category);
+                    recommendName.innerHTML = `${f.name} <span class="category-tag">${catEmoji} ${f.category}</span>`;
+                    const h = f.health || { level:'一般', badgeClass:'medium', score:65 };
+                    const dot = { '优秀':'🟢','良好':'🟡','一般':'🟠','注意':'🔴' }[h.level] || '🟡';
+                    healthBadge.textContent = `${dot} 健康 · ${h.level} (${h.score}分)`;
+                    healthBadge.className = `tag health-badge ${h.badgeClass || 'medium'}`;
+                    nutritionTag.textContent = h.tags?.length > 0 ? h.tags.join(' · ') : '🍽️ 均衡搭配';
+                    healthDetail.innerHTML = h.details?.length > 0 ? h.details.map(d => `<span>${d}</span>`).join('') : `<span>🥗 建议搭配蔬菜</span>`;
+                    idx++; count++;
+                    if (count < totalSteps) {
+                        const delay = 50 + (count/totalSteps)*(count/totalSteps)*350;
+                        setTimeout(step, delay);
+                    } else {
+                        const finalFood = shuffled[(idx-1) % shuffled.length];
+                        updateRecommend(finalFood);
+                        addHistory(finalFood);
+                        isSpinning = false;
+                        pickBtn.disabled = false;
+                        pickBtn.textContent = '🎲 选一个';
+                        showToast(useHealthiest ? `🥗 最健康推荐：${finalFood.name}` : `🎉 今天吃 ${finalFood.name}！`, 2400);
+                    }
+                }
+                step();
+            }
+
+            function addHistory(food) {
+                if (!food) return;
+                const now = new Date();
+                const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+                const entry = {
+                    name: food.name, emoji: food.emoji || '🍽️', category: food.category,
+                    type: food.type || 'other', healthLevel: food.health?.level || '一般',
+                    time: timeStr, timestamp: now.getTime()
+                };
+                if (history.length>0 && history[0].name === food.name && history[0].category === food.category) {
+                    history[0].time = timeStr; history[0].timestamp = now.getTime();
+                } else {
+                    history.unshift(entry);
+                    if (history.length > 50) history = history.slice(0,50);
+                }
+                saveHistory(); renderHistory();
+            }
+
+            function resetRecommend() { if (isSpinning) return; const food = pickRandomFood(); if (food) { updateRecommend(food); showToast(`🔄 换成了 ${food.name}`,1500); } else updateRecommend(null); }
+
+            function addFood() {
+                const name = foodNameInput.value.trim();
+                const category = foodCategorySelect.value;
+                let emoji = foodEmojiInput.value.trim();
+                if (!name) { showToast('请输入食物名称',1800); foodNameInput.focus(); return; }
+                if (foods.some(f => f.name === name && f.category === category)) { showToast(`"${name}" 已存在`,2000); return; }
+                if (!emoji) emoji = '🍽️'; if (emoji.length>2) emoji = emoji.slice(0,2);
+                const type = 'other';
+                const health = calcHealthScore(name, category, type);
+                const newFood = { id: generateId(), name, category, emoji, type, health };
+                foods.push(newFood); saveFoods(); renderAll();
+                foodNameInput.value = ''; foodEmojiInput.value = ''; foodNameInput.focus();
+                showToast(`✅ 已添加 "${name}" (健康${health.score}分)`,1600);
+            }
+
+            function deleteFood(id) {
+                if (isSpinning) return;
+                const food = foods.find(f => f.id === id);
+                if (!food) return;
+                if (!confirm(`确定要删除 "${food.name}" 吗？`)) return;
+                foods = foods.filter(f => f.id !== id);
+                saveFoods();
+                const currentName = recommendName.textContent.trim();
+                if (currentName === food.name) { const next = pickRandomFood(); if (next) updateRecommend(next); else updateRecommend(null); }
+                renderAll();
+                showToast(`🗑️ 已删除 "${food.name}"`,1500);
+            }
+
+            function resetAllData() {
+                if (isSpinning) return;
+                if (!confirm('重置将恢复默认食物列表并清空历史记录，确认吗？')) return;
+                if (typeof DEFAULT_FOODS !== 'undefined' && DEFAULT_FOODS.length>0) {
+                    foods = JSON.parse(JSON.stringify(DEFAULT_FOODS));
+                    foods = foods.map(f => { if (!f.health) f.health = calcHealthScore(f.name, f.category, f.type||'other'); if (!f.id) f.id = generateId(); return f; });
+                } else { foods = []; }
+                history = []; saveFoods(); saveHistory(); currentCategory = '全部'; totalBadge.textContent = `🥘 ${foods.length} 种美食`; renderAll(); showToast(`🔄 已重置为 ${foods.length} 种美食`,1800);
+            }
+
+            function initCategorySelect() {
+                const cats = CATEGORIES.filter(c => c.key !== '全部');
+                foodCategorySelect.innerHTML = cats.map(c => `<option value="${c.key}">${c.emoji} ${c.key}</option>`).join('');
+            }
+
+            document.addEventListener('keydown', (e) => {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+                if (e.key === ' ' || e.key === 'Space') { e.preventDefault(); if (!isSpinning) pickBtn.click(); }
+                if (e.key === 'r' || e.key === 'R') { if (!isSpinning) resetBtn.click(); }
+                if (e.key === 'h' || e.key === 'H') { e.preventDefault(); if (!isSpinning) pickHealthyBtn.click(); }
+            });
+
+            function init() {
+                if (typeof DEFAULT_FOODS === 'undefined' || DEFAULT_FOODS.length === 0) {
+                    console.warn('⚠️ foods.js 未加载或为空');
+                }
+                loadData();
+                initCategorySelect();
+                renderAll();
+                pickBtn.addEventListener('click', () => spinPick(false));
+                pickHealthyBtn.addEventListener('click', () => spinPick(true));
+                resetBtn.addEventListener('click', resetRecommend);
+                addBtn.addEventListener('click', addFood);
+                foodNameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addBtn.click(); } });
+                foodEmojiInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addBtn.click(); } });
+                resetBtn.addEventListener('dblclick', resetAllData);
+                window.addEventListener('beforeunload', () => { saveFoods(); saveHistory(); });
+                const first = pickRandomFood(); if (first) updateRecommend(first); else updateRecommend(null);
+                console.log(`🍽️ 今天吃什么 · 已加载 ${foods.length} 种美食（含健康评分）`);
+                console.log('💡 空格键抽选 · R键重置 · H键最健康推荐');
+            }
+
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+            else init();
+        })();
+    </script>
+
+</body>
+ <textarea style="display:none">   
+</html>
