@@ -1930,8 +1930,8 @@
                 if (startX < 30 && diff > 50) toggleDrawer(true);
                 if (document.body.classList.contains('drawer-open') && diff < -50) toggleDrawer(false);
             }, { passive: true });
-        
-        // ========== 欢迎弹窗 ==========
+                
+        // ========== 欢迎弹窗（3秒倒计时 + 可提前点击 + 自动跳转） ==========
         var VERIFY_KEY = 'last_verify_time';
         var TWENTY_FOUR_HOUR = 24 * 60 * 60 * 1000;
         
@@ -1960,26 +1960,13 @@
             showWelcome();
             var countDown = 3;
             var timerId = null;
+            var isEntered = false;      // ★ 防止重复进入
             var originText = '立即进入网站';
-            var canEnter = false;  // ★ 新增：控制是否允许点击
         
-            function updateBtnText() {
-                dom.enterBtn.textContent = originText + ' (' + countDown + 's)';
-                if (countDown > 0) {
-                    dom.enterBtn.disabled = true;      // ★ 禁用按钮
-                    dom.enterBtn.style.opacity = '0.6';
-                } else {
-                    dom.enterBtn.disabled = false;     // ★ 启用按钮
-                    dom.enterBtn.style.opacity = '1';
-                    canEnter = true;
-                }
-            }
-        
-            function goEnter() {
-                if (!canEnter) {
-                    showToast('请等待 ' + countDown + ' 秒倒计时结束');
-                    return;
-                }
+            // ★ 进入主界面（统一入口）
+            function enterMain() {
+                if (isEntered) return;
+                isEntered = true;
                 if (timerId) {
                     clearTimeout(timerId);
                     timerId = null;
@@ -1988,23 +1975,38 @@
                 showAllMainUI();
             }
         
-            dom.enterBtn.onclick = goEnter;
-        
-            function tick() {
-                countDown--;
-                if (countDown >= 0) {
-                    updateBtnText();
-                    if (countDown > 0) {
-                        timerId = setTimeout(tick, 1000);
-                    } else {
-                        // 倒计时结束，确保按钮完全可用
-                        canEnter = true;
-                        dom.enterBtn.disabled = false;
-                        dom.enterBtn.style.opacity = '1';
-                        dom.enterBtn.textContent = originText;
-                    }
+            // ★ 更新按钮文字
+            function updateBtnText() {
+                if (countDown > 0) {
+                    dom.enterBtn.textContent = originText + ' (' + countDown + 's)';
+                    dom.enterBtn.disabled = false;
+                    dom.enterBtn.style.opacity = '1';
+                } else {
+                    dom.enterBtn.textContent = originText;
+                    dom.enterBtn.disabled = false;
+                    dom.enterBtn.style.opacity = '1';
                 }
             }
+        
+            // ★ 按钮点击事件（可提前点击）
+            dom.enterBtn.onclick = function() {
+                enterMain();
+            };
+        
+            // ★ 倒计时逻辑
+            function tick() {
+                countDown--;
+                updateBtnText();
+                if (countDown > 0) {
+                    timerId = setTimeout(tick, 1000);
+                } else {
+                    // ★ 倒计时结束，自动进入
+                    timerId = null;
+                    enterMain();
+                }
+            }
+        
+            // 初始状态
             updateBtnText();
             timerId = setTimeout(tick, 1000);
         }
