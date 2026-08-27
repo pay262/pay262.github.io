@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>八戒传媒 · 团队招募</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f5f7fa;
+            color: #1e2a3a;
+            padding-bottom: 30px;
+        }
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            background: #ffffff;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+        }
+        .header {
+            background: linear-gradient(135deg, #ff7b2c, #ff4d1e);
+            color: #fff;
+            padding: 24px 20px 30px;
+            text-align: center;
+            border-radius: 0 0 30px 30px;
+        }
+        .header h1 {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .header .sub {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-top: 8px;
+        }
+        .header .slogan {
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 12px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 40px;
+            padding: 8px 16px;
+            display: inline-block;
+        }
+        .header .bonus-badge {
+            margin-top: 12px;
+            font-size: 15px;
+            opacity: 0.9;
+        }
+        .section {
+            padding: 20px 18px;
+            border-bottom: 1px solid #f0f2f5;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+        .section-title span {
+            background: #ff4d1e;
+            color: #fff;
+            font-size: 14px;
+            border-radius: 20px;
+            padding: 0 12px;
+            margin-left: 10px;
+        }
+        .section-title .tag {
+            background: #ffb088;
+            color: #fff;
+            font-size: 12px;
+            border-radius: 20px;
+            padding: 0 10px;
+            margin-left: 10px;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .feature-item {
+            background: #f8faff;
+            border-radius: 12px;
+            padding: 14px 10px;
+            text-align: center;
+            border: 1px solid #eef2f7;
+        }
+        .feature-item .num {
+            font-size: 22px;
+            font-weight: 700;
+            color: #ff4d1e;
+        }
+        .feature-item .label {
+            font-size: 13px;
+            color: #6b7a8f;
+            margin-top: 4px;
+        }
+        .embed-area {
+            background: #fafbfc;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #e4e9f0;
+            margin-top: 10px;
+        }
+        .embed-area iframe {
+            width: 100%;
+            height: 400px;
+            border: none;
+            display: block;
+        }
+        .screenshot-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-top: 10px;
+        }
+        .screenshot-item {
+            background: #fafbfc;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #e4e9f0;
+        }
+        .screenshot-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .screenshot-item .caption {
+            padding: 10px 14px;
+            font-size: 14px;
+            color: #6b7a8f;
+            background: #f8faff;
+            text-align: center;
+            border-top: 1px solid #eef2f7;
+        }
+        .join-box {
+            background: #fff7f0;
+            border-radius: 16px;
+            padding: 18px 16px;
+            border-left: 4px solid #ff7b2c;
+        }
+        .join-box .link {
+            background: #fff;
+            padding: 12px 14px;
+            border-radius: 10px;
+            word-break: break-all;
+            font-size: 14px;
+            color: #1e2a3a;
+            border: 1px dashed #ffb088;
+            margin: 12px 0;
+        }
+        .btn {
+            display: block;
+            background: #ff4d1e;
+            color: #fff;
+            text-align: center;
+            padding: 14px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 18px;
+            text-decoration: none;
+            margin-top: 10px;
+        }
+        .btn:active { opacity: 0.8; }
+        .warning {
+            font-size: 13px;
+            color: #b0bccd;
+            padding: 10px 18px;
+            text-align: center;
+            line-height: 1.6;
+        }
+        .tutorial-step {
+            display: flex;
+            align-items: flex-start;
+            background: #f8faff;
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            border-left: 4px solid #ff7b2c;
+        }
+        .tutorial-step .step-num {
+            background: #ff4d1e;
+            color: #fff;
+            font-weight: 700;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-right: 12px;
+            font-size: 14px;
+        }
+        .tutorial-step .step-content {
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        .tutorial-step .step-content strong {
+            color: #ff4d1e;
+        }
+        .footer {
+            text-align: center;
+            padding: 16px;
+            color: #9aa9ba;
+            font-size: 12px;
+        }
+        .text-muted {
+            color: #6b7a8f;
+            font-size: 14px;
+        }
+        .mb-1 { margin-bottom: 6px; }
+        .text-center { text-align: center; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- 头部 -->
+    <div class="header">
+        <h1>📺 八戒传媒 · 合伙人招募</h1>
+        <div class="sub">分享影视 · 日结收益 · 团队裂变</div>
+        <div class="slogan">😎 发发电影数数钱，点击注册就成代理</div>
+        <div class="bonus-badge">💰 单价 0.069 元/次 · 5级分红</div>
+    </div>
+
+    <!-- 核心数据（项目固定规则，非截图数据） -->
+    <div class="section">
+        <div class="feature-grid">
+            <div class="feature-item">
+                <div class="num">0.069</div>
+                <div class="label">单次点击收益</div>
+            </div>
+            <div class="feature-item">
+                <div class="num">10%+5%</div>
+                <div class="label">一二代提成</div>
+            </div>
+            <div class="feature-item">
+                <div class="num">5元</div>
+                <div class="label">最低提现</div>
+            </div>
+            <div class="feature-item">
+                <div class="num">24h</div>
+                <div class="label">到账时间</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 项目演示区 -->
+    <div class="section">
+        <div class="section-title">
+            🎬 项目演示
+            <span>点击即看</span>
+        </div>
+        <p class="text-muted mb-1">下方为官方平台界面，可自由体验</p>
+        <div class="embed-area">
+            <iframe src="http://di.muzm.top/qV3Ob2722I" loading="lazy"></iframe>
+        </div>
+    </div>
+
+    <!-- ===== 真实截图展示（只放图，不写数据） ===== -->
+    <div class="section">
+        <div class="section-title">
+            📸 真实后台截图
+            <span class="tag">本人实拍</span>
+        </div>
+        <p class="text-muted mb-1">👇 以下为真实收益与团队数据</p>
+        <div class="screenshot-grid">
+            <!-- 截图1：收益记录 -->
+            <div class="screenshot-item">
+                <img src="img1.jpg" alt="收益记录截图" onerror="this.style.display='none'">
+                <div class="caption">📊 收益记录</div>
+            </div>
+            <!-- 截图2：提现记录 -->
+            <div class="screenshot-item">
+                <img src="img2.jpg" alt="提现记录截图" onerror="this.style.display='none'">
+                <div class="caption">💰 提现记录</div>
+            </div>
+            <!-- 截图3：团队后台 -->
+            <div class="screenshot-item">
+                <img src="img3.jpg" alt="团队后台截图" onerror="this.style.display='none'">
+                <div class="caption">👥 团队后台</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加入方式 -->
+    <div class="section">
+        <div class="section-title">
+            🚀 立即加入 · 锁定团队位
+            <span>限时</span>
+        </div>
+        <div class="join-box">
+            <div style="font-weight:600; font-size:16px;">你的专属邀请链接</div>
+            <div class="link" id="inviteLink">http://di.muzm.top/qV3Ob2722</div>
+            <div style="font-size:13px; color:#6b7a8f; margin-top:6px;">
+                👆 复制链接到浏览器打开，或长按识别下方二维码
+            </div>
+            <div style="text-align:center; margin:12px 0;">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://di.muzm.top/qV3Ob2722" 
+                     alt="邀请二维码" style="width:120px; height:120px; border-radius:12px; border:1px solid #ddd;">
+            </div>
+            <a class="btn" href="http://di.muzm.top/qV3Ob2722" target="_blank">👉 点击直接注册</a>
+        </div>
+    </div>
+
+    <!-- 团队奖励 -->
+    <div class="section">
+        <div class="section-title">👥 团队奖励机制</div>
+        <ul style="list-style:none; font-size:15px; line-height:2.2;">
+            <li>✅ 一级邀请提成 <strong>10%</strong></li>
+            <li>✅ 二级邀请提成 <strong>5%</strong></li>
+            <li>✅ 升到 LV1 即享 <strong>5级团队分红</strong></li>
+            <li>✅ 每天多群转发，收益滚雪球</li>
+        </ul>
+    </div>
+
+    <!-- 推广教程 -->
+    <div class="section">
+        <div class="section-title">
+            📈 推广教程 · 手把手教你赚
+            <span>干货</span>
+        </div>
+        <p class="text-muted mb-1">照着做，轻松提高点击量，躺着也能拿分红</p>
+
+        <div class="tutorial-step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+                <strong>多账号 · 多加群</strong><br>
+                准备几个微信号，每天坚持加满几十个<strong>千人大群</strong>（影视、娱乐类更佳）。早晚各分享一次资源，隔几小时再发一次，形成规律曝光。
+            </div>
+        </div>
+
+        <div class="tutorial-step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+                <strong>找合作 · 借力放大</strong><br>
+                主动联系<strong>影视群主、公众号博主、站长</strong>等，他们有现成观影人群。谈合作让他们帮你推，哪怕每天分你几十块，长期累积非常可观。
+            </div>
+        </div>
+
+        <div class="tutorial-step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+                <strong>团队裂变 · 躺赚分红</strong><br>
+                积极发展一级、二级成员，享受 <strong>10%+5%</strong> 提成。团队达到 LV1 后，还能参与整个平台的 <strong>5级分红</strong>，别人点击你也有钱。
+            </div>
+        </div>
+
+        <div class="tutorial-step">
+            <div class="step-num">4</div>
+            <div class="step-content">
+                <strong>避坑提醒 · 禁止刷量</strong><br>
+                平台有严密检测系统，<strong>千万别用脚本或换IP刷</strong>，否则封号拉黑。踏实用真实用户积累，才能长久稳定赚钱。
+            </div>
+        </div>
+    </div>
+
+    <!-- 项目优势（运营年限由JavaScript动态计算） -->
+    <div class="section">
+        <div class="section-title">
+            🛡️ 项目优势 · 长久稳定
+            <span>信心</span>
+        </div>
+        <ul style="list-style:none; font-size:15px; line-height:2.2;">
+            <li>✅ 平台已稳定运营 <strong id="yearsCount"></strong>（2022年上线至今）</li>
+            <li>✅ <strong>提现门槛低</strong>（5元起），24小时内到账</li>
+            <li>✅ <strong>提现记录真实可查</strong>，后台截图可见</li>
+            <li>✅ 影视资源每日更新，用户粘性高</li>
+        </ul>
+    </div>
+
+    <!-- 警告 -->
+    <div class="warning">
+        ⚠️ 禁止任何刷量行为，平台检测严格，违者封号。<br>
+        请通过真实分享获取收益，长期稳定。
+    </div>
+
+    <div class="footer">
+        本页仅用于团队招募演示 · 截图来源于真实后台<br>
+        😎 苹果浏览器登录地址：http://di.muzm.top/qV3Ob2722
+    </div>
+
+</div>
+
+<script>
+    // 动态计算运营年限（项目2022年上线）
+    (function() {
+        const startYear = 2022;
+        const currentYear = new Date().getFullYear();
+        const years = currentYear - startYear;
+        document.getElementById('yearsCount').textContent = years + '年';
+    })();
+</script>
+    <!-- Baidu tongji -->
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js">
+    </script>
+    <script>
+        LA.init({ id: "3HpUziWJmj6VQUHP", ck: "3HpUziWJmj6VQUHP", autoTrack: true })
+    </script>
+
+</body>
+</html>
