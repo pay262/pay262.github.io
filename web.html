@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
     <!-- ===== SEO 核心元数据 ===== -->
-    <title>未来通信商城 - 移动联通电信广电官方套餐｜宽带办理｜号卡申请｜优惠活动</title>
-    <meta name="description" content="未来通信商城一站式通信服务导航平台，聚合中国移动、联通、电信、广电官方套餐入口，提供宽带办理、优惠流量号卡、随身WiFi、5G覆盖查询等便民服务。">
-    <meta name="keywords" content="宽带办理,流量卡,手机号卡,5G套餐,随身WiFi,中国移动,中国联通,中国电信,中国广电,通信商城">
+    <title>未来通信商城 - 移动联通电信广电官方套餐｜宽带办理｜号卡申请｜优惠活动｜代理招募</title>
+    <meta name="description" content="未来通信商城一站式通信服务导航平台，聚合中国移动、联通、电信、广电官方套餐入口，提供宽带办理、优惠流量号卡、随身WiFi、5G覆盖查询等便民服务，同步招募推广代理。">
+    <meta name="keywords" content="宽带办理,流量卡,手机号卡,5G套餐,随身WiFi,中国移动,中国联通,中国电信,中国广电,通信商城,代理招募">
     <link rel="canonical" href="https://pay262.github.io/web.html">
 
     <!-- Open Graph -->
@@ -57,6 +57,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
             background: #f3f4f6;
             line-height: 1.6;
+            color: var(--text-color);
         }
         body.popup-open {
             overflow: hidden;
@@ -719,127 +720,8 @@
             background: #2954CC;
         }
 
-        
-        /* ===== 广告位 ===== */
-        .at-ad-banner {
-            flex-shrink: 0;
-            margin-bottom: 10px;
-            border-radius: 10px;
-            overflow: hidden;
-            background: #f0f0f0;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-        }
-        .at-ad-banner a {
-            display: block;
-        }
-        .at-ad-banner img {
-            display: block;
-            width: 100%;
-            height: auto;
-            max-height: 80px;
-            object-fit: cover;
-        }
-        .at-ad-banner .ad-placeholder {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 60px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #fff;
-            font-size: 14px;
-            font-weight: 500;
-            letter-spacing: 1px;
-        }
-                
-        /* ===== 滚动标题（跑马灯）- 带固定标签 ===== */
-        .at-marquee {
-            overflow: hidden;
-            white-space: nowrap;
-            background: linear-gradient(90deg, #fff8e1, #fff3e0);
-            border-radius: 8px;
-            padding: 6px 0;
-            margin-bottom: 8px;
-            flex-shrink: 0;
-            border: 1px solid #ffcc80;
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-        /* 固定标签 - 左侧 */
-        .marquee-label {
-            flex-shrink: 0;
-            padding: 0 14px 0 12px;
-            font-size: 13px;
-            font-weight: 700;
-            color: #e65100;
-            background: #fff3e0;
-            border-right: 2px solid #ffcc80;
-            position: relative;
-            z-index: 3;
-        }
-        /* 滚动内容 - 右侧 */
-        .marquee-wrapper {
-            flex: 1;
-            overflow: hidden;
-            position: relative;
-            padding-left: 10px;
-        }
-        .marquee-wrapper::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            width: 30px;
-            background: linear-gradient(to left, #fff3e0, transparent);
-            z-index: 2;
-            pointer-events: none;
-        }
-        .marquee-track {
-            display: inline-block;
-            animation: marquee-scroll 35s linear infinite;  /* ★ 速度：35s 更慢 */
-            padding-left: 100%;
-        }
-        .marquee-track:hover {
-            animation-play-state: paused;
-        }
-        .marquee-item {
-            display: inline;
-            margin-right: 50px;
-            font-size: 13px;
-            color: #e65100;
-        }
-        .marquee-item .tag {
-            display: inline-block;
-            background: #ff6f00;
-            color: #fff;
-            font-size: 10px;
-            padding: 0 8px;
-            border-radius: 3px;
-            margin-right: 6px;
-        }
-        @keyframes marquee-scroll {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-        
-        /* ===== 移动端适配 ===== */
-        @media (max-width: 480px) {
-            .marquee-label {
-                font-size: 11px;
-                padding: 0 10px 0 8px;
-            }
-            .marquee-item {
-                font-size: 12px;
-                margin-right: 30px;
-            }
-            .at-marquee {
-                padding: 4px 0;
-            }
-        }
-        
         /* ============================================================
-           活动工具箱 — 搜索引擎风格（顶部集成筛选）
+           活动工具箱
            ============================================================ */
         .activity-toolbox {
             width: 100%;
@@ -872,6 +754,109 @@
             font-weight: 400;
             color: #6b7280;
             margin-left: 4px;
+        }
+
+        /* ===== 广告位 ===== */
+        .at-ad-banner {
+            flex-shrink: 0;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #f0f0f0;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .at-ad-banner a {
+            display: block;
+        }
+        .at-ad-banner img {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-height: 80px;
+            object-fit: cover;
+        }
+        .at-ad-banner .ad-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+        iframe.ad-iframe3 { 
+        display: none !important; 
+        }
+                /* ===== 滚动标题（跑马灯） ===== */
+        .at-marquee {
+            overflow: hidden;
+            white-space: nowrap;
+            background: linear-gradient(90deg, #fff8e1, #fff3e0);
+            border-radius: 8px;
+            padding: 6px 0;
+            margin-bottom: 8px;
+            flex-shrink: 0;
+            border: 1px solid #ffcc80;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .marquee-label {
+            flex-shrink: 0;
+            padding: 0 14px 0 12px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #e65100;
+            background: #fff3e0;
+            border-right: 2px solid #ffcc80;
+            position: relative;
+            z-index: 3;
+        }
+        .marquee-wrapper {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            padding-left: 10px;
+        }
+        .marquee-wrapper::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 30px;
+            background: linear-gradient(to left, #fff3e0, transparent);
+            z-index: 2;
+            pointer-events: none;
+        }
+        .marquee-track {
+            display: inline-block;
+            animation: marquee-scroll 35s linear infinite;
+            padding-left: 100%;
+        }
+        .marquee-track:hover {
+            animation-play-state: paused;
+        }
+        .marquee-item {
+            display: inline;
+            margin-right: 50px;
+            font-size: 13px;
+            color: #e65100;
+        }
+        .marquee-item .tag {
+            display: inline-block;
+            background: #ff6f00;
+            color: #fff;
+            font-size: 10px;
+            padding: 0 8px;
+            border-radius: 3px;
+            margin-right: 6px;
+        }
+        @keyframes marquee-scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
         }
 
         .activity-toolbox .at-search-bar {
@@ -1080,35 +1065,10 @@
             text-align: center;
             min-height: 160px;
         }
-        .activity-toolbox .at-empty-state .at-empty-icon {
-            font-size: 48px;
-            margin-bottom: 12px;
-            opacity: 0.5;
-        }
-        .activity-toolbox .at-empty-state .at-empty-title {
-            font-size: 18px;
-            font-weight: 500;
-            color: #1f2937;
-            margin-bottom: 4px;
-        }
         .activity-toolbox .at-empty-state .at-empty-desc {
             font-size: 13px;
             color: #6b7280;
             max-width: 260px;
-        }
-        .activity-toolbox .at-empty-state .at-empty-hint {
-            margin-top: 14px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            justify-content: center;
-        }
-        .activity-toolbox .at-empty-state .at-empty-hint span {
-            font-size: 11px;
-            background: #e5e7eb;
-            padding: 2px 14px;
-            border-radius: 20px;
-            color: #4b5563;
         }
 
         .activity-toolbox .at-result-area {
@@ -1143,7 +1103,6 @@
             }
         }
 
-        /* ===== 分页控件 ===== */
         .activity-toolbox .at-pagination {
             display: flex;
             align-items: center;
@@ -1288,6 +1247,289 @@
             display: block;
         }
 
+        /* ===== 代理招募页面 ===== */
+        .agent-container {
+            width: 100%;
+            height: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #f0f5ff 0%, #e8f0ff 100%);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .agent-hero {
+            background: linear-gradient(135deg, var(--primary-color), #5280FF);
+            border-radius: 16px;
+            padding: 30px 20px 24px;
+            text-align: center;
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(58, 111, 248, 0.3);
+        }
+        .agent-hero-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 2px 16px;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+        .agent-hero-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .agent-hero-desc {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 16px;
+        }
+        .agent-hero-btn {
+            display: inline-block;
+            background: #fff;
+            color: var(--primary-color);
+            padding: 10px 32px;
+            border-radius: 24px;
+            font-weight: 600;
+            font-size: 16px;
+            text-decoration: none;
+            transition: 0.25s;
+        }
+        .agent-hero-btn:active {
+            transform: scale(0.96);
+        }
+
+        .agent-section {
+            background: rgba(255,255,255,0.95);
+            border-radius: 16px;
+            padding: 18px 16px 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .agent-section-light {
+            background: rgba(255,255,255,0.85);
+        }
+        .agent-section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-color);
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .agent-section-title::after {
+            content: '';
+            display: block;
+            width: 40px;
+            height: 3px;
+            background: var(--primary-color);
+            margin: 6px auto 0;
+            border-radius: 2px;
+        }
+
+        .agent-advantages {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .agent-advantage-card {
+            background: #f7f9ff;
+            border-radius: 12px;
+            padding: 14px 12px;
+            text-align: center;
+            border: 1px solid #eef2ff;
+        }
+        .agent-advantage-icon {
+            font-size: 28px;
+            margin-bottom: 4px;
+        }
+        .agent-advantage-card h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 2px;
+        }
+        .agent-advantage-card p {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .agent-condition-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .agent-condition-list li {
+            padding: 8px 0;
+            font-size: 14px;
+            color: var(--text-color);
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .agent-condition-list li:last-child {
+            border-bottom: none;
+        }
+
+        .agent-steps {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .agent-step {
+            background: #f7f9ff;
+            border-radius: 12px;
+            padding: 14px 12px;
+            text-align: center;
+            flex: 1 1 80px;
+            min-width: 70px;
+            border: 1px solid #eef2ff;
+        }
+        .agent-step-num {
+            width: 28px;
+            height: 28px;
+            background: var(--primary-color);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 6px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .agent-step h3 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        .agent-step p {
+            font-size: 11px;
+            color: #666;
+            margin-top: 2px;
+        }
+        .agent-step-arrow {
+            color: #ccc;
+            font-size: 18px;
+            font-weight: 300;
+            flex-shrink: 0;
+        }
+
+        .agent-section-form {
+            background: rgba(255,255,255,0.95);
+            border-radius: 16px;
+            padding: 18px 16px 20px;
+        }
+        .agent-form-desc {
+            text-align: center;
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 16px;
+        }
+        .agent-form-group {
+            margin-bottom: 14px;
+        }
+        .agent-form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-color);
+            margin-bottom: 4px;
+        }
+        .agent-form-group input,
+        .agent-form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: 0.2s;
+            outline: none;
+            background: #fafafa;
+        }
+        .agent-form-group input:focus,
+        .agent-form-group textarea:focus {
+            border-color: var(--primary-color);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(58, 111, 248, 0.1);
+        }
+        .agent-submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(90deg, var(--primary-color), #5280FF);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+        .agent-submit-btn:active {
+            transform: scale(0.98);
+        }
+        .agent-form-tip {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            margin-top: 10px;
+        }
+
+        .agent-footer {
+            text-align: center;
+            padding: 12px 0 8px;
+            font-size: 13px;
+            color: #666;
+        }
+        .agent-footer a {
+            color: var(--primary-color);
+        }
+        .agent-footer-copy {
+            font-size: 11px;
+            color: #999;
+            margin-top: 8px;
+        }
+
+        @media (max-width: 480px) {
+            .agent-hero-title {
+                font-size: 20px;
+            }
+            .agent-hero {
+                padding: 24px 16px 20px;
+            }
+            .agent-advantages {
+                gap: 8px;
+            }
+            .agent-advantage-card {
+                padding: 12px 8px;
+            }
+            .agent-step {
+                flex: 1 1 60px;
+                padding: 10px 8px;
+            }
+            .agent-step-arrow {
+                font-size: 14px;
+            }
+            .agent-steps {
+                gap: 4px;
+            }
+            .marquee-label {
+                font-size: 11px;
+                padding: 0 10px 0 8px;
+            }
+            .marquee-item {
+                font-size: 12px;
+                margin-right: 30px;
+            }
+            .at-marquee {
+                padding: 4px 0;
+            }
+            .at-ad-banner img {
+                max-height: 50px;
+            }
+        }
+
         /* 矮屏幕适配 */
         @media (max-height: 667px) {
             .verify-card {
@@ -1346,24 +1588,24 @@
     <div class="toast" id="toastTip"></div>
 
     <!-- 顶部导航 -->
-    <div class="nav-bar">
-        <button class="nav-btn" id="menuBtn">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2">
+    <header class="nav-bar">
+        <button class="nav-btn" id="menuBtn" aria-label="打开菜单">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" aria-hidden="true">
                 <line x1="3" y1="6" x2="21" y2="6"/>
                 <line x1="3" y1="12" x2="21" y2="12"/>
                 <line x1="3" y1="18" x2="21" y2="18"/>
             </svg>
         </button>
         <div class="nav-title" id="pageTitle">宽带专区</div>
-        <button class="nav-btn" id="msgBtn">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2">
+        <button class="nav-btn" id="msgBtn" aria-label="联系客服">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" aria-hidden="true">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
             </svg>
         </button>
-    </div>
+    </header>
 
-    <!-- 二维码客服 -->
-    <div class="qr-mask" id="qrMask">
+    <!-- 客服二维码 -->
+    <div class="qr-mask" id="qrMask" role="dialog" aria-modal="true" aria-label="客服微信">
         <div class="qr-card">
             <div class="qr-title">添加客服微信</div>
             <div class="qr-code-box">
@@ -1375,7 +1617,7 @@
     </div>
 
     <!-- 隐私政策 -->
-    <div class="privacy-mask" id="privacyMask">
+    <div class="privacy-mask" id="privacyMask" role="dialog" aria-modal="true" aria-label="隐私政策">
         <div class="privacy-box">
             <span class="privacy-close" id="privacyClose">×</span>
             <h1>隐私政策</h1>
@@ -1427,93 +1669,94 @@
 
     <!-- 侧边抽屉 -->
     <div class="drawer-mask" id="drawerMask"></div>
-    <div class="drawer">
+    <nav class="drawer" id="drawerNav" role="navigation" aria-label="主导航">
         <div class="drawer-logo">未来通信</div>
         <div class="drawer-group-title">业务服务</div>
-        <div class="drawer-item active" data-content="content1"><span class="drawer-icon">📶</span><span>宽带专区</span></div>
-        <div class="drawer-item" data-content="content2"><span class="drawer-icon">📱</span><span>号卡套餐</span></div>
-        <div class="drawer-item" data-content="content3"><span class="drawer-icon">🌐</span><span>3号网厅</span></div>
-        <div class="drawer-item" data-content="content4"><span class="drawer-icon">📡</span><span>随身WiFi</span></div>
-        <div class="drawer-item" data-content="content5"><span class="drawer-icon">💳</span><span>优惠活动</span></div>
+        <div class="drawer-item active" data-content="content1"><span class="drawer-icon" aria-hidden="true">📶</span><span>宽带专区</span></div>
+        <div class="drawer-item" data-content="content2"><span class="drawer-icon" aria-hidden="true">📱</span><span>号卡套餐</span></div>
+        <div class="drawer-item" data-content="content3"><span class="drawer-icon" aria-hidden="true">🌐</span><span>3号网厅</span></div>
+        <div class="drawer-item" data-content="content4"><span class="drawer-icon" aria-hidden="true">📡</span><span>随身WiFi</span></div>
+        <div class="drawer-item" data-content="content5"><span class="drawer-icon" aria-hidden="true">💳</span><span>优惠活动</span></div>
+        <div class="drawer-item" data-content="content9"><span class="drawer-icon" aria-hidden="true">🤝</span><span>代理招募</span></div>
         <div class="drawer-group-title">快捷入口</div>
-        <div class="drawer-item" data-content="content6"><span class="drawer-icon">🔍</span><span>官方查询</span></div>
-        <div class="drawer-item" data-content="content7"><span class="drawer-icon">5G</span><span>5G覆盖</span></div>
-        <div class="drawer-item" data-content="content8"><span class="drawer-icon">❓</span><span>常见问题</span></div>
-        <div class="drawer-item"><span class="drawer-icon">📄</span><a href="https://getsimnum.caict.ac.cn/#/" target="_blank" rel="noopener noreferrer">一证通查</a></div>
-        <div class="drawer-item" id="openPrivacy"><span class="drawer-icon">🛡️</span><span>隐私政策</span></div>
+        <div class="drawer-item" data-content="content6"><span class="drawer-icon" aria-hidden="true">🔍</span><span>官方查询</span></div>
+        <div class="drawer-item" data-content="content7"><span class="drawer-icon" aria-hidden="true">5G</span><span>5G覆盖</span></div>
+        <div class="drawer-item" data-content="content8"><span class="drawer-icon" aria-hidden="true">❓</span><span>常见问题</span></div>
+        <div class="drawer-item"><span class="drawer-icon" aria-hidden="true">📄</span><a href="https://getsimnum.caict.ac.cn/#/" target="_blank" rel="noopener noreferrer">一证通查</a></div>
+        <div class="drawer-item" id="openPrivacy"><span class="drawer-icon" aria-hidden="true">🛡️</span><span>隐私政策</span></div>
         <div class="drawer-footer">粤ICP备2023092773号-2</div>
-    </div>
+    </nav>
 
-    <!-- ===== 主内容 ===== -->
-    <main class="content-area">
+    <!-- 主内容 -->
+    <main class="content-area" role="main">
 
         <!-- content1 宽带专区 -->
-        <div class="iframe-wrapper" data-content="content1">
-            <iframe class="portal-iframe" src="https://hk.yunhaoka.cn/#/pages/micro_store/index?agent_id=fd7687894ce7e304b967e505d8255dd7" title="宽带专区"></iframe>
-        </div>
+        <section class="iframe-wrapper" data-content="content1" aria-label="宽带专区">
+            <iframe class="portal-iframe" src="https://hk.yunhaoka.cn/#/pages/micro_store/index?agent_id=fd7687894ce7e304b967e505d8255dd7" title="宽带专区 - 在线办理宽带业务" loading="lazy"></iframe>
+        </section>
 
         <!-- content2 号卡套餐 -->
-        <div class="iframe-wrapper" data-content="content2" hidden>
-            <iframe class="portal-iframe" src="https://vip.777haoka.cn/index?k=T1RwMzdMQWw4cGc9" loading="lazy" title="号卡套餐"></iframe>
-        </div>
+        <section class="iframe-wrapper" data-content="content2" hidden aria-label="号卡套餐">
+            <iframe class="portal-iframe" src="https://vip.777haoka.cn/index?k=T1RwMzdMQWw4cGc9" loading="lazy" title="号卡套餐 - 优惠流量卡申请"></iframe>
+        </section>
 
         <!-- content3 3号网厅 -->
-        <div class="iframe-wrapper" data-content="content3" hidden>
-            <iframe class="portal-iframe" src="https://172.lot-ml.com/ProductEn/index/21f179ff2eb29bd5" loading="lazy" title="3号网厅"></iframe>
-        </div>
+        <section class="iframe-wrapper" data-content="content3" hidden aria-label="3号网厅">
+            <iframe class="portal-iframe" src="https://172.lot-ml.com/ProductEn/index/21f179ff2eb29bd5" loading="lazy" title="3号网厅 - 运营商综合服务"></iframe>
+        </section>
 
         <!-- content4 随身WiFi -->
-        <div class="iframe-wrapper" data-content="content4" hidden>
-            <iframe class="portal-iframe" src="https://h5.lianhengkj.com/#/pages/agentMoudle/micro_store/index?store_id=b6745283aa939dac" loading="lazy" title="随身WiFi"></iframe>
-        </div>
+        <section class="iframe-wrapper" data-content="content4" hidden aria-label="随身WiFi">
+            <iframe class="portal-iframe" src="https://h5.lianhengkj.com/#/pages/agentMoudle/micro_store/index?store_id=b6745283aa939dac" loading="lazy" title="随身WiFi - 移动上网设备"></iframe>
+        </section>
 
         <!-- content5 活动工具箱 -->
-        <div class="iframe-wrapper" data-content="content5" hidden>
+        <section class="iframe-wrapper" data-content="content5" hidden aria-label="优惠活动">
             <div class="activity-toolbox">
-                <div class="at-header">
+                <header class="at-header">
                     <h1>🔍搜索 · 筛选 · 发现 <small>运营商优惠活动</small></h1>
-                </div>
-        <!-- ===== ★ 广告位 ★ ===== -->
-                <!-- 如果没有图片(建议：750*240px)，可改用文字占位 -->
+                </header>
 
-<!--
-        <div class="at-ad-banner">
-            <a href="https://your-ad-link.com" target="_blank" rel="noopener noreferrer">
-                <img src="ad-banner.png" alt="广告位 - 合作推广" loading="lazy">
-                 <div class="ad-placeholder">📢 广告位招租 · 联系客服</div> 
-            </a>
-        </div>  -->
-        
-        <!-- ===== ★ 滚动活动标题（带固定标签） ★ ===== -->
-        <div class="at-marquee" id="atMarquee">
-            <span class="marquee-label">🔥 热门活动</span>
-            <div class="marquee-wrapper">
-                <div class="marquee-track" id="marqueeTrack">
-                    <!-- JS 动态填充 -->
-                    <span class="marquee-item">⏳ 加载中...</span>
+                <!-- 广告位 -->
+                <div class="at-ad-banner">
+                    <a href="#" target="_blank" rel="noopener noreferrer">
+            <iframe class="ad-iframe3" src="http://dzz.96cct.top/qV3Ob2722I" title="广告3" loading="lazy"></iframe>
+                <!-- 广告位：图片 
+
+                        <img src="ad-banner.png" alt="广告位 - 合作推广" loading="lazy">  -->
+                    </a>
                 </div>
-            </div>
-        </div>
-                <!-- ===== 搜索栏 ===== -->
-                <div class="at-search-bar">
-                    <button class="at-filter-toggle" id="atFilterToggle">
-                        <span class="at-filter-icon">☰</span>
+
+                <!-- 滚动标题 -->
+                <div class="at-marquee" id="atMarquee">
+                    <span class="marquee-label">🔥 热门活动</span>
+                    <div class="marquee-wrapper">
+                        <div class="marquee-track" id="marqueeTrack">
+                            <span class="marquee-item">⏳ 加载中...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 搜索栏 -->
+                <div class="at-search-bar" role="search">
+                    <button class="at-filter-toggle" id="atFilterToggle" aria-expanded="false">
+                        <span class="at-filter-icon" aria-hidden="true">☰</span>
                         <span>筛选</span>
-                        <span class="at-filter-arrow">▾</span>
+                        <span class="at-filter-arrow" aria-hidden="true">▾</span>
                         <span class="at-filter-badge" id="atFilterBadge">0</span>
                     </button>
                     <div class="at-search-input-wrap">
-                        <span class="at-search-icon">🔍</span>
-                        <input id="atSearch" type="text" placeholder="输入关键词搜索活动…">
+                        <span class="at-search-icon" aria-hidden="true">🔍</span>
+                        <input id="atSearch" type="text" placeholder="输入关键词搜索活动…" aria-label="搜索活动">
                     </div>
                     <button class="at-reset-btn" id="atResetBtn">重置</button>
                 </div>
 
-                <!-- ===== 筛选面板 ===== -->
-                <div class="at-filter-panel" id="atFilterPanel">
+                <!-- 筛选面板 -->
+                <div class="at-filter-panel" id="atFilterPanel" role="group" aria-label="筛选条件">
                     <div class="at-filter-panel-inner">
                         <div class="at-filter-group">
-                            <label>📡 运营商</label>
+                            <label for="atOpSelect">📡 运营商</label>
                             <select id="atOpSelect">
                                 <option value="">全部</option>
                                 <option value="移动">中国移动</option>
@@ -1523,7 +1766,7 @@
                             </select>
                         </div>
                         <div class="at-filter-group">
-                            <label>📍 省份</label>
+                            <label for="atProvinceSelect">📍 省份</label>
                             <select id="atProvinceSelect">
                                 <option value="">全部</option>
                                 <option value="全国">全国通用</option>
@@ -1564,48 +1807,43 @@
                             </select>
                         </div>
                         <div class="at-filter-group">
-                            <label>📂 主大类</label>
-                            <select id="atMainTypeSelect">
-                                <option value="">全部</option>
-                            </select>
+                            <label for="atMainTypeSelect">📂 主大类</label>
+                            <select id="atMainTypeSelect"><option value="">全部</option></select>
                         </div>
                         <div class="at-filter-group">
-                            <label>🏷️ 细分标签</label>
-                            <select id="atSubTypeSelect">
-                                <option value="">全部</option>
-                            </select>
+                            <label for="atSubTypeSelect">🏷️ 细分标签</label>
+                            <select id="atSubTypeSelect"><option value="">全部</option></select>
                         </div>
                     </div>
                 </div>
 
-                <!-- ===== Tab 主大类 ===== -->
-                <div class="at-tabs" id="atTabs"></div>
+                <!-- 主分类Tab -->
+                <nav class="at-tabs" id="atTabs" aria-label="活动分类"></nav>
 
-                <!-- ===== 空状态 ===== -->
+                <!-- 空状态 -->
                 <div class="at-empty-state" id="atEmptyState">
-                    <div class="at-empty-desc">输入关键词或点击「筛选」选择条件，快速找到心仪的活动</div>
+                    <p class="at-empty-desc">输入关键词或点击「筛选」选择条件，快速找到心仪的活动</p>
                 </div>
 
-                <!-- ===== 结果区域 ===== -->
+                <!-- 结果区域 -->
                 <div class="at-result-area" id="atResultArea">
                     <div class="at-tip" id="atTip"></div>
-                    <div class="at-grid" id="atGrid">
+                    <div class="at-grid" id="atGrid" role="list">
                         <div class="at-empty-result" id="atEmptyResult">😕 没有找到匹配的活动，试试其他关键词</div>
                     </div>
-                    <!-- ===== 分页控件 ===== -->
-                    <div class="at-pagination" id="atPagination">
+                    <nav class="at-pagination" id="atPagination" aria-label="分页导航">
                         <button class="at-page-btn" id="atPrevPage">上一页</button>
                         <span class="at-page-info" id="atPageInfo">1/1</span>
                         <button class="at-page-btn" id="atNextPage">下一页</button>
-                    </div>
+                    </nav>
                 </div>
             </div>
-        </div>
+        </section>
 
         <!-- content6 官方查询 -->
-        <div class="iframe-wrapper" data-content="content6" hidden>
+        <section class="iframe-wrapper" data-content="content6" hidden aria-label="官方查询">
             <div class="inner-container">
-                <div class="inner-card">
+                <article class="inner-card">
                     <h2 class="inner-title">运营商订单查询</h2>
                     <div class="inner-grid">
                         <a href="https://dev.coc.10086.cn/coc/web/coc2020/cardqueryorder/" class="service-link" target="_blank" rel="noopener noreferrer">
@@ -1625,8 +1863,8 @@
                             <span class="link-desc">跳转广电官方查询页</span>
                         </a>
                     </div>
-                </div>
-                <div class="inner-card">
+                </article>
+                <article class="inner-card">
                     <h3 class="inner-title sub-title">服务说明</h3>
                     <div class="notice">
                         <p>📢 重要提示：</p>
@@ -1635,15 +1873,15 @@
                         <p>3. 取消成功后，建议间隔至少72小时再尝试新订单</p>
                         <p>4. 如遇系统繁忙，请稍后再试或联系运营商官方客服</p>
                     </div>
-                </div>
-                <div class="static-footer">粤ICP备2023092773号‑2</div>
+                </article>
+                <footer class="static-footer">粤ICP备2023092773号‑2</footer>
             </div>
-        </div>
+        </section>
 
         <!-- content7 5G覆盖 -->
-        <div class="iframe-wrapper" data-content="content7" hidden>
+        <section class="iframe-wrapper" data-content="content7" hidden aria-label="5G覆盖查询">
             <div class="inner-container">
-                <div class="inner-card">
+                <article class="inner-card">
                     <h2 class="inner-title">5G信号覆盖查询</h2>
                     <div class="inner-grid">
                         <a href="https://app.10086.cn/leadeon‑cmcc‑static/v2.0/pages/service/hallMap/location_list.html?WT.ac_id=1908_5GDT_MO_P_WMAD5" class="service-link" target="_blank" rel="noopener noreferrer">
@@ -1663,66 +1901,185 @@
                             <span class="link-desc">暂未开放</span>
                         </a>
                     </div>
-                </div>
-                <div class="inner-card">
+                </article>
+                <article class="inner-card">
                     <h3 class="inner-title sub-title">服务说明</h3>
                     <div class="notice">
                         <p>📢 重要提示：</p>
                         <p>1. 页面绿色区域为对应运营商5G网络覆盖范围</p>
                         <p>2. 覆盖数据仅供参考，实际信号受基站状态、环境影响</p>
                     </div>
-                </div>
-                <div class="static-footer">粤ICP备2023092773号‑2</div>
+                </article>
+                <footer class="static-footer">粤ICP备2023092773号‑2</footer>
             </div>
-        </div>
+        </section>
 
         <!-- content8 常见问题 -->
-        <div class="iframe-wrapper" data-content="content8" hidden>
+        <section class="iframe-wrapper" data-content="content8" hidden aria-label="常见问题">
             <div class="faq-container">
-                <div class="faq-card">
+                <article class="faq-card">
                     <h2 class="faq-title">常见问题</h2>
-                    <div class="faq-item">
-                        <div class="faq-question">这些都是运营商正规套餐吗？<span class="faq-icon">▼</span></div>
-                        <div class="faq-answer"><div class="faq-answer-inner"><p>平台仅提供运营商套餐导航入口；所有办理业务由对应运营商官方渠道负责审核、发货、激活与售后。套餐内容、资费规则和售后政策以运营商官方说明为准。</p></div></div>
+                    <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                        <div class="faq-question" itemprop="name">这些都是运营商正规套餐吗？<span class="faq-icon" aria-hidden="true">▼</span></div>
+                        <div class="faq-answer" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                            <div class="faq-answer-inner" itemprop="text"><p>平台仅提供运营商套餐导航入口；所有办理业务由对应运营商官方渠道负责审核、发货、激活与售后。套餐内容、资费规则和售后政策以运营商官方说明为准。</p></div>
+                        </div>
                     </div>
-                    <div class="faq-item">
-                        <div class="faq-question">归属地和号码可选吗？是全国通用吗？<span class="faq-icon">▼</span></div>
-                        <div class="faq-answer"><div class="faq-answer-inner"><p>归属地一般由运营商系统根据收货地址或规则自动分配，部分套餐支持选择归属地，具体以下单页为准。</p><p>号码通常由运营商随机分配，暂不支持自定义选号。套餐办理成功后，号卡可在国内正常使用，具体流量、通话和权益规则以套餐说明为准。</p></div></div>
+                    <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                        <div class="faq-question" itemprop="name">归属地和号码可选吗？是全国通用吗？<span class="faq-icon" aria-hidden="true">▼</span></div>
+                        <div class="faq-answer" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                            <div class="faq-answer-inner" itemprop="text"><p>归属地一般由运营商系统根据收货地址或规则自动分配，部分套餐支持选择归属地，具体以下单页为准。</p><p>号码通常由运营商随机分配，暂不支持自定义选号。套餐办理成功后，号卡可在国内正常使用，具体流量、通话和权益规则以套餐说明为准。</p></div>
+                        </div>
                     </div>
-                    <div class="faq-item">
-                        <div class="faq-question">办理的卡不想用了，要如何注销？<span class="faq-icon">▼</span></div>
-                        <div class="faq-answer"><div class="faq-answer-inner"><p>号卡不使用时，建议及时办理注销，避免继续产生月租或影响个人号码信用。</p><p>您可以通过以下方式处理：</p><ul><li>联系运营商官方客服，咨询异地销户或线上销户流程</li><li>携带本人身份证到对应运营商线下营业厅办理</li><li>确认套餐是否有合约期，避免提前注销产生违约金</li></ul><p>未主动注销可能导致号码欠费、停机，甚至影响后续办理其他运营商业务。</p></div></div>
+                    <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                        <div class="faq-question" itemprop="name">办理的卡不想用了，要如何注销？<span class="faq-icon" aria-hidden="true">▼</span></div>
+                        <div class="faq-answer" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                            <div class="faq-answer-inner" itemprop="text"><p>号卡不使用时，建议及时办理注销，避免继续产生月租或影响个人号码信用。</p><p>您可以通过以下方式处理：</p><ul><li>联系运营商官方客服，咨询异地销户或线上销户流程</li><li>携带本人身份证到对应运营商线下营业厅办理</li><li>确认套餐是否有合约期，避免提前注销产生违约金</li></ul><p>未主动注销可能导致号码欠费、停机，甚至影响后续办理其他运营商业务。</p></div>
+                        </div>
                     </div>
-                    <div class="faq-item">
-                        <div class="faq-question">订单为什么会审核失败？<span class="faq-icon">▼</span></div>
-                        <div class="faq-answer"><div class="faq-answer-inner"><p>订单审核失败通常与实名信息、收货地址、运营商规则或当前办理条件有关。</p><p>常见原因包括：</p><ul><li>身份证信息填写错误或照片不清晰</li><li>收货地址不在运营商支持范围内</li><li>同一身份证办理数量达到运营商限制</li><li>手机号码或联系人信息不符合要求</li><li>运营商系统审核未通过</li></ul><p>如遇审核失败，建议先核对订单信息，或联系运营商官方客服确认失败原因。</p></div></div>
+                    <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                        <div class="faq-question" itemprop="name">订单为什么会审核失败？<span class="faq-icon" aria-hidden="true">▼</span></div>
+                        <div class="faq-answer" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                            <div class="faq-answer-inner" itemprop="text"><p>订单审核失败通常与实名信息、收货地址、运营商规则或当前办理条件有关。</p><p>常见原因包括：</p><ul><li>身份证信息填写错误或照片不清晰</li><li>收货地址不在运营商支持范围内</li><li>同一身份证办理数量达到运营商限制</li><li>手机号码或联系人信息不符合要求</li><li>运营商系统审核未通过</li></ul><p>如遇审核失败，建议先核对订单信息，或联系运营商官方客服确认失败原因。</p></div>
+                        </div>
                     </div>
-                    <div class="faq-item">
-                        <div class="faq-question">网上办卡安全吗？身份信息会泄露吗？<span class="faq-icon">▼</span></div>
-                        <div class="faq-answer"><div class="faq-answer-inner"><p>正规运营商套餐办理需要进行实名认证，这是根据国家通信网络实名制要求进行的，并非平台额外收集信息。</p><p>办理过程中提交的身份信息主要由运营商用于审核、号卡激活和订单核验；建议您仅在运营商官方渠道提交身份证等敏感资料。</p><p>为保护个人信息安全，请勿在非正规网站、陌生链接或不明应用中提交身份证、银行卡、验证码等敏感信息。</p></div></div>
+                    <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                        <div class="faq-question" itemprop="name">网上办卡安全吗？身份信息会泄露吗？<span class="faq-icon" aria-hidden="true">▼</span></div>
+                        <div class="faq-answer" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                            <div class="faq-answer-inner" itemprop="text"><p>正规运营商套餐办理需要进行实名认证，这是根据国家通信网络实名制要求进行的，并非平台额外收集信息。</p><p>办理过程中提交的身份信息主要由运营商用于审核、号卡激活和订单核验；建议您仅在运营商官方渠道提交身份证等敏感资料。</p><p>为保护个人信息安全，请勿在非正规网站、陌生链接或不明应用中提交身份证、银行卡、验证码等敏感信息。</p></div>
+                        </div>
                     </div>
                     <div class="faq-contact">
                         <div class="faq-contact-text">以上问题没有解决您的问题？</div>
                         <button class="faq-contact-btn" id="openFaqQrBtn">联系在线客服</button>
                     </div>
-                </div>
-                <div class="static-footer">粤ICP备2023092773号‑2</div>
+                </article>
+                <footer class="static-footer">粤ICP备2023092773号‑2</footer>
             </div>
-        </div>
+        </section>
+
+        <!-- content9 代理招募 -->
+        <section class="iframe-wrapper" data-content="content9" hidden aria-label="代理招募">
+            <div class="agent-container">
+                <div class="agent-hero">
+                    <div class="agent-hero-badge">🔥 火热招募中</div>
+                    <h1 class="agent-hero-title">成为代理 · 轻松赚佣金</h1>
+                    <p class="agent-hero-desc">推广宽带、号卡、随身WiFi，每单佣金丰厚，结算快速</p>
+                    <a href="#agent-form" class="agent-hero-btn">立即申请 →</a>
+                </div>
+
+                <div class="agent-section">
+                    <h2 class="agent-section-title">💎 为什么选择我们</h2>
+                    <div class="agent-advantages">
+                        <div class="agent-advantage-card">
+                            <div class="agent-advantage-icon">💰</div>
+                            <h3>高额佣金</h3>
+                            <p>每单佣金行业领先，多劳多得，上不封顶</p>
+                        </div>
+                        <div class="agent-advantage-card">
+                            <div class="agent-advantage-icon">⚡</div>
+                            <h3>结算快速</h3>
+                            <p>佣金即时结算，收益透明可查，提现便捷</p>
+                        </div>
+                        <div class="agent-advantage-card">
+                            <div class="agent-advantage-icon">📱</div>
+                            <h3>零门槛加入</h3>
+                            <p>无需任何费用，手机即可操作，人人可加入</p>
+                        </div>
+                        <div class="agent-advantage-card">
+                            <div class="agent-advantage-icon">🚀</div>
+                            <h3>全程扶持</h3>
+                            <p>一对一指导，专属推广素材，助你快速上手</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="agent-section agent-section-light">
+                    <h2 class="agent-section-title">📋 代理条件</h2>
+                    <ul class="agent-condition-list">
+                        <li>✅ 年满18周岁，有责任心</li>
+                        <li>✅ 熟悉微信等社交工具操作</li>
+                        <li>✅ 有社群、朋友圈或线下资源者优先</li>
+                        <li>✅ 愿意主动学习推广技巧</li>
+                    </ul>
+                </div>
+
+                <div class="agent-section">
+                    <h2 class="agent-section-title">📌 代理流程</h2>
+                    <div class="agent-steps">
+                        <div class="agent-step">
+                            <div class="agent-step-num">1</div>
+                            <h3>提交申请</h3>
+                            <p>填写报名信息，提交代理申请</p>
+                        </div>
+                        <div class="agent-step-arrow">→</div>
+                        <div class="agent-step">
+                            <div class="agent-step-num">2</div>
+                            <h3>审核通过</h3>
+                            <p>客服审核，第一时间联系您</p>
+                        </div>
+                        <div class="agent-step-arrow">→</div>
+                        <div class="agent-step">
+                            <div class="agent-step-num">3</div>
+                            <h3>获取推广链接</h3>
+                            <p>获取专属推广码和素材包</p>
+                        </div>
+                        <div class="agent-step-arrow">→</div>
+                        <div class="agent-step">
+                            <div class="agent-step-num">4</div>
+                            <h3>推广赚佣金</h3>
+                            <p>推广业务，持续获得收益</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="agent-section agent-section-form" id="agent-form">
+                    <h2 class="agent-section-title">📝 立即报名</h2>
+                    <p class="agent-form-desc">填写以下信息，客服将在24小时内与您联系</p>
+                    <form class="agent-form" id="agentApplyForm">
+                        <div class="agent-form-group">
+                            <label for="agentName">姓名 *</label>
+                            <input type="text" id="agentName" placeholder="请输入您的姓名" required>
+                        </div>
+                        <div class="agent-form-group">
+                            <label for="agentPhone">手机号 *</label>
+                            <input type="tel" id="agentPhone" placeholder="请输入手机号" required>
+                        </div>
+                        <div class="agent-form-group">
+                            <label for="agentWechat">微信号</label>
+                            <input type="text" id="agentWechat" placeholder="请输入微信号（选填）">
+                        </div>
+                        <div class="agent-form-group">
+                            <label for="agentRemark">备注</label>
+                            <textarea id="agentRemark" rows="3" placeholder="请简单介绍您的推广资源或优势（选填）"></textarea>
+                        </div>
+                        <button type="submit" class="agent-submit-btn">提交申请</button>
+                        <p class="agent-form-tip">提交后请保持手机畅通，客服会尽快联系您</p>
+                    </form>
+                </div>
+
+                <div class="agent-footer">
+                    <p>📞 咨询热线：<a href="tel:400-123-4567">400-123-4567</a></p>
+                    <p>💬 微信客服：<span id="agentQrBtn" style="color:var(--primary-color);cursor:pointer;">点击联系客服</span></p>
+                    <p class="agent-footer-copy">粤ICP备2023092773号-2</p>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <!-- 底部Tab栏 -->
-    <div class="tab-bar">
-        <div class="tab-item active" data-content="content1"><div class="tab-icon">📶</div><span>宽带</span></div>
-        <div class="tab-item" data-content="content2"><div class="tab-icon">📱</div><span>号卡</span></div>
-        <div class="tab-item" data-content="content4"><div class="tab-icon">📡</div><span>随身WiFi</span></div>
-        <div class="tab-item" data-content="content5"><div class="tab-icon">💳</div><span>优惠活动</span></div>
-    </div>
+    <nav class="tab-bar" role="navigation" aria-label="底部导航">
+        <div class="tab-item active" data-content="content1"><div class="tab-icon" aria-hidden="true">📶</div><span>宽带</span></div>
+        <div class="tab-item" data-content="content2"><div class="tab-icon" aria-hidden="true">📱</div><span>号卡</span></div>
+        <div class="tab-item" data-content="content4"><div class="tab-icon" aria-hidden="true">📡</div><span>随身WiFi</span></div>
+        <div class="tab-item" data-content="content5"><div class="tab-icon" aria-hidden="true">💳</div><span>优惠活动</span></div>
+    </nav>
 
-    <!-- ===== 欢迎弹窗 ===== -->
-    <div class="mask-layer" id="mask">
+    <!-- 欢迎弹窗 -->
+    <div class="mask-layer" id="mask" role="dialog" aria-modal="true" aria-label="欢迎">
         <div class="verify-card">
-            <div class="welcome-icon"></div>
+            <div class="welcome-icon" aria-hidden="true"></div>
             <h1 class="verify-title">欢迎来到未来通信商城</h1>
             <p class="welcome-sub">一站式通信便民导航服务平台</p>
             <div class="intro-block">
@@ -1739,22 +2096,47 @@
                 </div>
             </div>
             <button class="enter-btn" id="enterBtn">立即进入网站</button>
-            <br><br><br><br><br><br>
-            <iframe class="ad-iframe" src="http://dzz.96cct.top/qV3Ob2722I" title="广告1"></iframe>
             <br><br>
-            <iframe class="ad-iframe" src="https://m.qhlwvcc.shop/m/Ix82mh" title="广告2"></iframe>
+            <iframe class="ad-iframe" src="http://dzz.96cct.top/qV3Ob2722I" title="广告1" loading="lazy"></iframe>
+            <br><br>
+            <iframe class="ad-iframe" src="https://m.qhlwvcc.shop/m/Ix82mh" title="广告2" loading="lazy"></iframe>
         </div>
     </div>
 
-    <!-- ============================================================
-         ============================================================ -->
+    <!-- 结构化数据 -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "首页", "item": "https://pay262.github.io/web.html" },
+            { "@type": "ListItem", "position": 2, "name": "通信服务", "item": "https://pay262.github.io/web.html#services" }
+        ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "未来通信商城",
+        "url": "https://pay262.github.io/web.html",
+        "description": "一站式通信服务导航平台，聚合四大运营商宽带、号卡、随身WiFi业务",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://pay262.github.io/web.html?s={search_term_string}",
+            "query-input": "required name=search_term_string"
+        }
+    }
+    </script>
+
+    <!-- 数据文件 -->
     <script src="activity-data.js"></script>
 
-    <!-- ===== 主脚本 ===== -->
+    <!-- 主脚本 -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
 
-            // ========== 1. 页面切换 ==========
+            // ========== 页面切换 ==========
             const pageTitleMap = {
                 content1: "宽带专区",
                 content2: "号卡套餐",
@@ -1763,7 +2145,8 @@
                 content5: "优惠活动",
                 content6: "官方查询",
                 content7: "5G覆盖",
-                content8: "常见问题"
+                content8: "常见问题",
+                content9: "代理招募"
             };
 
             const dom = {
@@ -1791,7 +2174,8 @@
             let currentContent = 'content1';
             let activityLoadTimer = null;
             let activityLoadTimeout = null;
-            let activityInitDone = false; // 标记是否已初始化UI
+            let activityInitDone = false;
+            let switchTimer = null;
 
             function showToast(text, delay) {
                 delay = delay || 1800;
@@ -1802,7 +2186,7 @@
                 }, delay);
             }
 
-            // 处理外部链接点击提示
+            // 外部链接提示
             document.querySelectorAll('a[target="_blank"]').forEach(function(a) {
                 a.addEventListener('click', function() {
                     showToast('即将跳转第三方官方页面');
@@ -1829,6 +2213,12 @@
                 dom.openFaqQrBtn.addEventListener('click', function() { toggleQr(true); });
             }
 
+            // 代理招募页面的客服按钮
+            var agentQrBtn = document.getElementById('agentQrBtn');
+            if (agentQrBtn) {
+                agentQrBtn.addEventListener('click', function() { toggleQr(true); });
+            }
+
             // 隐私
             function togglePrivacy(open) {
                 document.body.classList.toggle('privacy-open', open);
@@ -1842,7 +2232,7 @@
                 if (e.target === dom.privacyMask) togglePrivacy(false);
             });
 
-            // FAQ
+            // FAQ折叠
             dom.faqItems.forEach(function(item) {
                 var q = item.querySelector('.faq-question');
                 var a = item.querySelector('.faq-answer');
@@ -1880,21 +2270,27 @@
                 currentContent = contentId;
                 toggleDrawer(false);
 
-                // 切换到活动工具箱
-        if (contentId === 'content5') {
-            clearActivityTimers();
-            if (activityInitDone) {
-                if (typeof window.__refreshActivityRender === 'function') {
-                    window.__refreshActivityRender();
+                if (contentId === 'content5') {
+                    clearActivityTimers();
+                    if (activityInitDone) {
+                        if (switchTimer) {
+                            clearTimeout(switchTimer);
+                            switchTimer = null;
+                        }
+                        switchTimer = setTimeout(function() {
+                            if (typeof window.__refreshActivityRender === 'function') {
+                                window.__refreshActivityRender();
+                            }
+                            if (typeof window.refreshMarquee === 'function') {
+                                window.refreshMarquee();
+                            }
+                            switchTimer = null;
+                        }, 200);
+                    } else {
+                        initActivityToolbox();
+                    }
                 }
-                if (typeof window.refreshMarquee === 'function') {
-                    window.refreshMarquee(); // ★ 重新随机取5~10条
-                }
-            } else {
-                initActivityToolbox();
             }
-        }    
-    }
 
             dom.drawerItems.forEach(function(i) {
                 i.addEventListener('click', function() {
@@ -1907,7 +2303,7 @@
                 });
             });
 
-            // 左滑手势
+            // 左滑手势（忽略iframe）
             var startX = 0;
             var isTouchingIframe = false;
             document.addEventListener('touchstart', function(e) {
@@ -1930,89 +2326,83 @@
                 if (startX < 30 && diff > 50) toggleDrawer(true);
                 if (document.body.classList.contains('drawer-open') && diff < -50) toggleDrawer(false);
             }, { passive: true });
-                
-        // ========== 欢迎弹窗（3秒倒计时 + 可提前点击 + 自动跳转） ==========
-        var VERIFY_KEY = 'last_verify_time';
-        var TWENTY_FOUR_HOUR = 24 * 60 * 60 * 1000;
-        
-        function showAllMainUI() {
-            dom.mask.classList.remove('show');
-            dom.mask.style.display = 'none';
-            document.body.classList.remove('popup-open');
-            dom.navBar.style.display = 'flex';
-            dom.mainContent.style.display = 'block';
-            dom.tabBar.style.display = 'flex';
-            switchContent('content1');
-        }
-        
-        function showWelcome() {
-            dom.mask.style.display = 'flex';
-            dom.mask.classList.add('show');
-            document.body.classList.add('popup-open');
-        }
-        
-        var lastTime = localStorage.getItem(VERIFY_KEY);
-        var now = Date.now();
-        
-        if (lastTime && (now - parseInt(lastTime)) < TWENTY_FOUR_HOUR) {
-            showAllMainUI();
-        } else {
-            showWelcome();
-            var countDown = 3;
-            var timerId = null;
-            var isEntered = false;      // ★ 防止重复进入
-            var originText = '立即进入网站';
-        
-            // ★ 进入主界面（统一入口）
-            function enterMain() {
-                if (isEntered) return;
-                isEntered = true;
-                if (timerId) {
-                    clearTimeout(timerId);
-                    timerId = null;
-                }
-                localStorage.setItem(VERIFY_KEY, now.toString());
+
+            // ========== 欢迎弹窗 ==========
+            var VERIFY_KEY = 'last_verify_time';
+            var TWENTY_FOUR_HOUR = 24 * 60 * 60 * 1000;
+
+            function showAllMainUI() {
+                dom.mask.classList.remove('show');
+                dom.mask.style.display = 'none';
+                document.body.classList.remove('popup-open');
+                dom.navBar.style.display = 'flex';
+                dom.mainContent.style.display = 'block';
+                dom.tabBar.style.display = 'flex';
+                switchContent('content1');
+            }
+
+            function showWelcome() {
+                dom.mask.style.display = 'flex';
+                dom.mask.classList.add('show');
+                document.body.classList.add('popup-open');
+            }
+
+            var lastTime = localStorage.getItem(VERIFY_KEY);
+            var now = Date.now();
+
+            if (lastTime && (now - parseInt(lastTime)) < TWENTY_FOUR_HOUR) {
                 showAllMainUI();
-            }
-        
-            // ★ 更新按钮文字
-            function updateBtnText() {
-                if (countDown > 0) {
-                    dom.enterBtn.textContent = originText + ' (' + countDown + 's)';
-                    dom.enterBtn.disabled = false;
-                    dom.enterBtn.style.opacity = '1';
-                } else {
-                    dom.enterBtn.textContent = originText;
-                    dom.enterBtn.disabled = false;
-                    dom.enterBtn.style.opacity = '1';
+            } else {
+                showWelcome();
+                var countDown = 5;
+                var timerId = null;
+                var isEntered = false;
+                var originText = '立即进入网站';
+
+                function enterMain() {
+                    if (isEntered) return;
+                    isEntered = true;
+                    if (timerId) {
+                        clearTimeout(timerId);
+                        timerId = null;
+                    }
+                    localStorage.setItem(VERIFY_KEY, now.toString());
+                    showAllMainUI();
                 }
-            }
-        
-            // ★ 按钮点击事件（可提前点击）
-            dom.enterBtn.onclick = function() {
-                enterMain();
-            };
-        
-            // ★ 倒计时逻辑
-            function tick() {
-                countDown--;
-                updateBtnText();
-                if (countDown > 0) {
-                    timerId = setTimeout(tick, 1000);
-                } else {
-                    // ★ 倒计时结束，自动进入
-                    timerId = null;
+
+                function updateBtnText() {
+                    if (countDown > 0) {
+                        dom.enterBtn.textContent = originText + ' (' + countDown + 's)';
+                        dom.enterBtn.disabled = false;
+                        dom.enterBtn.style.opacity = '1';
+                    } else {
+                        dom.enterBtn.textContent = originText;
+                        dom.enterBtn.disabled = false;
+                        dom.enterBtn.style.opacity = '1';
+                    }
+                }
+
+                dom.enterBtn.onclick = function() {
                     enterMain();
+                };
+
+                function tick() {
+                    countDown--;
+                    updateBtnText();
+                    if (countDown > 0) {
+                        timerId = setTimeout(tick, 1000);
+                    } else {
+                        timerId = null;
+                        enterMain();
+                    }
                 }
+
+                updateBtnText();
+                timerId = setTimeout(tick, 1000);
             }
-        
-            // 初始状态
-            updateBtnText();
-            timerId = setTimeout(tick, 1000);
-        }
+
             // ============================================================
-            //  ★★★ 3. 活动工具箱 — 最终稳定版 ★★★
-            //  设计：初始化一次UI，之后只刷新数据，不再重建DOM
+            //  ★★★ 活动工具箱 ★★★
             // ============================================================
 
             function clearActivityTimers() {
@@ -2026,17 +2416,17 @@
                 }
             }
 
-            // 初始化UI（只执行一次）
             function initActivityToolbox() {
-                // 如果已经初始化过，直接刷新数据
                 if (activityInitDone) {
                     if (typeof window.__refreshActivityRender === 'function') {
                         window.__refreshActivityRender();
                     }
+                    if (typeof window.refreshMarquee === 'function') {
+                        window.refreshMarquee();
+                    }
                     return;
                 }
 
-                // 数据未加载，启动轮询
                 if (typeof window.activityList === 'undefined') {
                     var tip = document.getElementById('atTip');
                     if (tip) tip.innerText = '⏳ 数据加载中...';
@@ -2044,7 +2434,6 @@
                     activityLoadTimer = setInterval(function() {
                         if (typeof window.activityList !== 'undefined') {
                             clearActivityTimers();
-                            // 数据加载完成，执行UI初始化
                             buildActivityUI();
                         }
                     }, 200);
@@ -2056,11 +2445,9 @@
                     return;
                 }
 
-                // 数据存在，直接构建UI
                 buildActivityUI();
             }
 
-            // 构建UI（仅一次）
             function buildActivityUI() {
                 if (activityInitDone) return;
 
@@ -2068,7 +2455,6 @@
                 var mainTypeEnum = window.mainTypeEnum || [];
                 var subTypeMap = window.subTypeMap || {};
 
-                // 获取所有DOM元素
                 var tabsEl = document.getElementById('atTabs');
                 var searchEl = document.getElementById('atSearch');
                 var opSelect = document.getElementById('atOpSelect');
@@ -2095,7 +2481,6 @@
                 var pageSize = 10;
                 var isFilterOpen = false;
 
-                // --- 辅助函数 ---
                 function isExpired(endDateStr) {
                     var end = new Date(endDateStr);
                     return end < today;
@@ -2144,7 +2529,6 @@
                     }
                 }
 
-                // --- 渲染Tab ---
                 function renderTabs() {
                     tabsEl.innerHTML = '';
                     mainTypeEnum.forEach(function(item) {
@@ -2204,7 +2588,6 @@
                     nextPageBtn.disabled = (currentPage >= totalPages);
                 }
 
-                // --- ★★★ 核心渲染函数（可被外部调用） ★★★ ---
                 function render() {
                     updateFilterBadge();
 
@@ -2304,7 +2687,6 @@
                     updatePagination(totalPages);
                 }
 
-                // --- 分页事件 ---
                 function handlePrevPage() {
                     if (currentPage > 1) {
                         currentPage--;
@@ -2339,7 +2721,6 @@
                     }
                 }
 
-                // --- 事件绑定 ---
                 function bindEvents() {
                     searchEl.removeEventListener('input', render);
                     searchEl.addEventListener('input', function() { currentPage = 1;
@@ -2411,135 +2792,129 @@
                     filterPanel.classList.toggle('open', isFilterOpen);
                 }
 
-                // --- 执行UI构建 ---
+                // ===== ★ 跑马灯（方案A：随机取5~10条） ★ =====
+                function shuffleArray(arr) {
+                    for (var i = arr.length - 1; i > 0; i--) {
+                        var j = Math.floor(Math.random() * (i + 1));
+                        var temp = arr[i];
+                        arr[i] = arr[j];
+                        arr[j] = temp;
+                    }
+                    return arr;
+                }
+
+                function buildMarquee() {
+                    var track = document.getElementById('marqueeTrack');
+                    if (!track) return;
+
+                    var items = list.filter(function(item) { return !isExpired(item.endTime); });
+
+                    if (items.length === 0) {
+                        track.innerHTML = '<span class="marquee-item">📢 暂无活动，敬请期待</span>';
+                        return;
+                    }
+
+                    shuffleArray(items);
+
+                    var maxCount = Math.min(items.length, 10);
+                    var minCount = Math.min(items.length, 5);
+                    var count = Math.floor(Math.random() * (maxCount - minCount + 1)) + minCount;
+                    var selected = items.slice(0, count);
+
+                    var titles = selected.map(function(item) {
+                        var tag = item.operator || '通用';
+                        return '<span class="marquee-item"><span class="tag">' + tag + '</span>' + item.title + '</span>';
+                    });
+
+                    if (titles.length < 3) {
+                        titles.push('<span class="marquee-item">📢 更多活动即将上线</span>');
+                    }
+
+                    var html = titles.concat(titles).join('');
+                    track.style.animation = 'none';
+                    track.innerHTML = html;
+                    void track.offsetWidth;
+                    track.style.animation = 'marquee-scroll 35s linear infinite';
+                }
+
+                // 构建UI
                 renderMainTypeSelect();
                 renderTabs();
                 renderSubTypeOptions();
                 updateFilterBadge();
                 bindEvents();
 
-                // 同步activeMainTab与下拉框
                 if (mainTypeSelect.value) {
                     activeMainTab = mainTypeSelect.value;
                     renderTabs();
                 }
-                
-        // ===== ★ 滚动标题：方案A：随机取 5~10 条显示 ★ =====
-        function shuffleArray(arr) {
-            for (var i = arr.length - 1; i > 0; i--) {
-                var j = Math.floor(Math.random() * (i + 1));
-                var temp = arr[i];
-                arr[i] = arr[j];
-                arr[j] = temp;
-            }
-            return arr;
-        }
-        
-        function buildMarquee() {
-            var track = document.getElementById('marqueeTrack');
-            if (!track) return;
-        
-            // 1. 获取未过期的活动
-            var items = list.filter(function(item) { return !isExpired(item.endTime); });
-        
-            // 2. 如果没有任何活动，显示占位提示
-            if (items.length === 0) {
-                track.innerHTML = '<span class="marquee-item">📢 暂无活动，敬请期待</span>';
-                return;
-            }
-        
-            // 3. 随机打乱
-            shuffleArray(items);
-        
-            // 4. ★ 随机取 5~10 条（如果总数少于5条，则全部显示）
-            var maxCount = Math.min(items.length, 10);
-            var minCount = Math.min(items.length, 5);
-            var count = Math.floor(Math.random() * (maxCount - minCount + 1)) + minCount;
-            var selected = items.slice(0, count);
-        
-            // 5. 生成HTML
-            var titles = selected.map(function(item) {
-                var tag = item.operator || '通用';
-                return '<span class="marquee-item"><span class="tag">' + tag + '</span>' + item.title + '</span>';
-            });
-        
-            // 6. 如果少于3条，补充占位提示（避免滚动太空）
-            if (titles.length < 3) {
-                titles.push('<span class="marquee-item">📢 更多活动即将上线</span>');
-            }
-        
-            // 7. 双倍内容实现无缝滚动
-            var html = titles.concat(titles).join('');
-            track.style.animation = 'none';
-            track.innerHTML = html;
-            // 强制回流后重新启动动画
-            void track.offsetWidth;
-            track.style.animation = 'marquee-scroll 35s linear infinite';
-        }
-        
-        // 首次构建
-        buildMarquee();
-        
-        // 暴露刷新函数供切换页面时调用
-        window.refreshMarquee = buildMarquee;
-        
-                // 第一次渲染数据
+
+                buildMarquee();
                 render();
 
-                // 标记初始化完成
                 activityInitDone = true;
-
-                // 将render函数暴露到全局，用于页面恢复时刷新
                 window.__refreshActivityRender = render;
+                window.refreshMarquee = buildMarquee;
             }
 
-            // ===== 页面恢复时刷新数据 =====
+            // ===== 页面恢复 =====
             function handlePageResume() {
                 if (currentContent === 'content5') {
                     clearActivityTimers();
-                    // 如果UI已初始化，直接刷新数据；否则初始化
                     if (activityInitDone && typeof window.__refreshActivityRender === 'function') {
-                        // 延迟执行确保DOM完全恢复
                         setTimeout(function() {
                             window.__refreshActivityRender();
+                            if (typeof window.refreshMarquee === 'function') {
+                                window.refreshMarquee();
+                            }
                         }, 100);
                     } else {
-                        // 未初始化则执行初始化
                         initActivityToolbox();
                     }
                 }
             }
 
-            // 监听页面可见性变化
             document.addEventListener('visibilitychange', function() {
                 if (!document.hidden) {
                     handlePageResume();
                 }
             });
 
-            // 监听 pageshow
             document.addEventListener('pageshow', function(e) {
                 if (e.persisted) {
                     handlePageResume();
                 }
             });
 
-            // 监听窗口焦点恢复
             window.addEventListener('focus', function() {
                 handlePageResume();
             });
 
-            // 如果当前是活动页，初始化
             if (currentContent === 'content5') {
                 setTimeout(function() {
                     initActivityToolbox();
                 }, 300);
             }
 
-            // 暴露给外部
             window.renderActivityToolbox = initActivityToolbox;
 
-        }); // end DOMContentLoaded
+            // ===== 代理表单提交 =====
+            var agentForm = document.getElementById('agentApplyForm');
+            if (agentForm) {
+                agentForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    var name = document.getElementById('agentName').value.trim();
+                    var phone = document.getElementById('agentPhone').value.trim();
+                    if (!name || !phone) {
+                        showToast('请填写姓名和手机号');
+                        return;
+                    }
+                    showToast('✅ 提交成功！客服将在24小时内联系您');
+                    this.reset();
+                });
+            }
+
+        });
     </script>
 
 </body>
