@@ -1680,7 +1680,7 @@
         <div class="drawer-item" data-content="content9"><span class="drawer-icon" aria-hidden="true">🤝</span><span>代理招募</span></div>
         <div class="drawer-group-title">快捷入口</div>
         <div class="drawer-item" data-content="content6"><span class="drawer-icon" aria-hidden="true">🔍</span><span>官方查询</span></div>
-        <div class="drawer-item" data-content="content7"><span class="drawer-icon" aria-hidden="true">5G</span><span>5G覆盖</span></div>
+        <div class="drawer-item" data-content="content7"><span class="drawer-icon" aria-hidden="true">5G</span><span>5G专区</span></div>
         <div class="drawer-item" data-content="content8"><span class="drawer-icon" aria-hidden="true">❓</span><span>常见问题</span></div>
         <div class="drawer-item"><span class="drawer-icon" aria-hidden="true">📄</span><a href="https://getsimnum.caict.ac.cn/#/" target="_blank" rel="noopener noreferrer">一证通查</a></div>
         <div class="drawer-item" id="openPrivacy"><span class="drawer-icon" aria-hidden="true">🛡️</span><span>隐私政策</span></div>
@@ -1877,24 +1877,50 @@
                 <footer class="static-footer">粤ICP备2023092773号‑2</footer>
             </div>
         </section>
-
-        <!-- content7 5G覆盖 -->
-        <section class="iframe-wrapper" data-content="content7" hidden aria-label="5G覆盖查询">
+        
+        <!-- content7 5G专区 -->
+        <section class="iframe-wrapper" data-content="content7" hidden aria-label="5G专区">
             <div class="inner-container">
+        
+        <!-- ===== 5G-A 查询（微信内打开） ===== -->
+        <article class="inner-card" style="border-left: 4px solid #3A6FF8;">
+            <h2 class="inner-title">🚀 5G-A 查询</h2>
+            <p style="text-align:center;font-size:13px;color:#666;margin-bottom:8px;">
+                查询支持5G-A网络机型，体验极速网络
+            </p>
+            <!-- 复制链接按钮 -->
+            <div style="text-align:center;">
+                <button id="copy5gaLink" 
+                        class="service-link" 
+                        style="display:inline-flex;padding:12px 32px;background:linear-gradient(135deg,#3A6FF8,#5280FF);color:#fff;border-radius:10px;font-weight:600;border:none;cursor:pointer;">
+                    📋 复制链接
+                </button>
+            </div>
+            <!-- ⚠️ 温馨提示 -->
+            <p style="text-align:center;font-size:12px;color:#f59e0b;margin-bottom:12px;">
+                ⚠️ 该页面仅支持在<strong>微信</strong>中打开
+            </p>
+
+            <p style="text-align:center;font-size:12px;color:#999;margin-top:10px;">
+                5G-A（5.5G）速率比5G快5~10倍，需5G-A终端支持
+            </p>
+        </article>
+        
+                <!-- ===== 运营商5G覆盖查询 ===== -->
                 <article class="inner-card">
-                    <h2 class="inner-title">5G信号覆盖查询</h2>
+                    <h2 class="inner-title">📶 运营商5G覆盖查询</h2>
                     <div class="inner-grid">
                         <a href="https://app.10086.cn/leadeon‑cmcc‑static/v2.0/pages/service/hallMap/location_list.html?WT.ac_id=1908_5GDT_MO_P_WMAD5" class="service-link" target="_blank" rel="noopener noreferrer">
                             <span class="link-main">中国移动</span>
-                            <span class="link-desc">跳转移动5G覆盖查询</span>
+                            <span class="link-desc">5G覆盖查询</span>
                         </a>
                         <a href="https://www.189.cn/wap/telefivemap/telefivemap_hot.html?navflag=true" class="service-link" target="_blank" rel="noopener noreferrer">
                             <span class="link-main">中国电信</span>
-                            <span class="link-desc">跳转电信5G覆盖查询</span>
+                            <span class="link-desc">5G覆盖查询</span>
                         </a>
                         <a href="https://img.client.10010.com/fjyytmap/index.html" class="service-link" target="_blank" rel="noopener noreferrer">
                             <span class="link-main">中国联通</span>
-                            <span class="link-desc">跳转联通5G覆盖查询</span>
+                            <span class="link-desc">5G覆盖查询</span>
                         </a>
                         <a href="#" class="service-link disabled">
                             <span class="link-main">中国广电</span>
@@ -1902,18 +1928,71 @@
                         </a>
                     </div>
                 </article>
+        
+                <!-- ===== 5G速率测试 ===== -->
                 <article class="inner-card">
-                    <h3 class="inner-title sub-title">服务说明</h3>
+                    <h2 class="inner-title">📊 5G速率测试</h2>
+                    <div class="inner-grid">
+                        <a href="https://www.speedtest.net/" class="service-link" target="_blank" rel="noopener noreferrer">
+                            <span class="link-main">Speedtest</span>
+                            <span class="link-desc">全球通用测速</span>
+                        </a>
+                        <a href="https://www.nperf.com/" class="service-link" target="_blank" rel="noopener noreferrer">
+                            <span class="link-main">nPerf</span>
+                            <span class="link-desc">覆盖+测速</span>
+                        </a>
+                        <a href="https://www.opensignal.com/" class="service-link" target="_blank" rel="noopener noreferrer">
+                            <span class="link-main">Opensignal</span>
+                            <span class="link-desc">信号质量检测</span>
+                        </a>
+                        <a href="#" class="service-link disabled">
+                            <span class="link-main">更多工具</span>
+                            <span class="link-desc">敬请期待</span>
+                        </a>
+                    </div>
+                    <p style="font-size:12px;color:#999;text-align:center;margin-top:10px;">
+                        💡 5G下载速度 >100Mbps 为正常覆盖
+                    </p>
+                </article>
+        
+                <!-- ===== 5G手机兼容性查询 ===== -->
+                <article class="inner-card">
+                    <h2 class="inner-title">📱 5G手机兼容性查询</h2>
+                    <div class="inner-grid" style="grid-template-columns:1fr 1fr 1fr;">
+                        <a href="https://www.tenaa.com.cn/" class="service-link" target="_blank" rel="noopener noreferrer">
+                            <span class="link-main">进网许可查询</span>
+                            <span class="link-desc">工信部官网</span>
+                        </a>
+                        <a href="#" class="service-link disabled">
+                            <span class="link-main">5G-A终端列表</span>
+                            <span class="link-desc">即将上线</span>
+                        </a>
+                        <a href="#" class="service-link disabled">
+                            <span class="link-main">手机型号查询</span>
+                            <span class="link-desc">即将上线</span>
+                        </a>
+                    </div>
+                    <p style="font-size:12px;color:#999;text-align:center;margin-top:10px;">
+                        💡 5G-A需手机支持，状态栏显示“5GA”标识即表示接入成功
+                    </p>
+                </article>
+        
+                <!-- ===== 5G常见问题 ===== -->
+                <article class="inner-card">
+                    <h2 class="inner-title">❓ 5G常见问题</h2>
                     <div class="notice">
-                        <p>📢 重要提示：</p>
-                        <p>1. 页面绿色区域为对应运营商5G网络覆盖范围</p>
-                        <p>2. 覆盖数据仅供参考，实际信号受基站状态、环境影响</p>
+                        <p><strong>Q：5G和5G-A有什么区别？</strong></p>
+                        <p>A：5G-A（5.5G）是5G的增强版本，网络平均下载速率提升5~10倍。目前深圳已部署超4000个5G-A基站，覆盖超1000万人口。</p>
+                        <p><strong>Q：如何开启5G-A？</strong></p>
+                        <p>A：在拨号盘输入 <code>*#*#2828#*#*</code> 或 <code>*#*#8692#*#*</code> 开启5G-A开关，然后通过运营商APP免费办理5G-A体验包。</p>
+                        <p><strong>Q：如何查询5G覆盖？</strong></p>
+                        <p>A：可通过上方运营商官方链接查询，或在运营商APP中搜索“5G覆盖”查看。</p>
                     </div>
                 </article>
+        
                 <footer class="static-footer">粤ICP备2023092773号‑2</footer>
             </div>
         </section>
-
         <!-- content8 常见问题 -->
         <section class="iframe-wrapper" data-content="content8" hidden aria-label="常见问题">
             <div class="faq-container">
@@ -2144,7 +2223,7 @@
                 content4: "随身WiFi",
                 content5: "优惠活动",
                 content6: "官方查询",
-                content7: "5G覆盖",
+                content7: "5G专区",
                 content8: "常见问题",
                 content9: "代理招募"
             };
@@ -2212,6 +2291,41 @@
             if (dom.openFaqQrBtn) {
                 dom.openFaqQrBtn.addEventListener('click', function() { toggleQr(true); });
             }
+        
+        // ===== 复制5G-A链接 =====
+        var copyBtn = document.getElementById('copy5gaLink');
+        if (copyBtn) {
+            copyBtn.addEventListener('click', function() {
+                var link = 'https://shopnew.sz189.cn/eshop/five5GAdl/index?state=123&code=063wQAFa16nukM0p2GIa1fePxb0wQAFr';
+                // 使用 Clipboard API 复制
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(link).then(function() {
+                        showToast('✅ 链接已复制，请打开微信粘贴访问');
+                    }).catch(function() {
+                        fallbackCopy(link);
+                    });
+                } else {
+                    fallbackCopy(link);
+                }
+            });
+        }
+        
+        // 兼容方案（旧浏览器）
+        function fallbackCopy(text) {
+            var input = document.createElement('input');
+            input.value = text;
+            input.style.position = 'fixed';
+            input.style.opacity = '0';
+            document.body.appendChild(input);
+            input.select();
+            try {
+                document.execCommand('copy');
+                showToast('✅ 链接已复制，请打开微信粘贴访问');
+            } catch (e) {
+                showToast('❌ 复制失败，请手动复制链接');
+            }
+            document.body.removeChild(input);
+        }
 
             // 代理招募页面的客服按钮
             var agentQrBtn = document.getElementById('agentQrBtn');
