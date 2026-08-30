@@ -6,27 +6,29 @@
 //  活动总数：73个（移动44 / 联通15 / 电信10 / 广电4）
 // ============================================================
 
-// 主大类定义（页面 Tab 和下拉会读取）
+// ============================================================
+//  主分类定义（按福利类型分类，客户视角）
+// ============================================================
 const mainTypeEnum = [
-    { value: "", label: "全部大类" },
-    { value: "流量类", label: "流量类" },
-    { value: "话费充值类", label: "话费充值类" },
-    { value: "会员权益类", label: "会员权益类" },
-    { value: "号卡套餐类", label: "号卡套餐类" },
-    { value: "宽带业务", label: "宽带业务" },
-    { value: "合约购机", label: "合约购机" },
-    { value: "其他活动", label: "其他活动" }
+    { value: "", label: "全部" },
+    { value: "流量类", label: "📶 流量" },
+    { value: "话费充值类", label: "💰 话费" },
+    { value: "会员权益类", label: "🎁 会员权益" },
+    { value: "号卡套餐类", label: "📱 号卡套餐" },
+    { value: "宽带业务", label: "🏠 宽带" },
+    { value: "其他活动", label: "🎯 其他" }
 ];
 
-// 细分标签库（主大类 → 细分标签列表，用于下拉联动）
+// ============================================================
+//  细分标签（按福利类型细分）
+// ============================================================
 const subTypeMap = {
     "流量类": ["全国通用流量", "定向流量", "闲时流量", "流量叠加包", "赠送流量"],
-    "话费充值类": ["充值立减", "充送话费", "话费返还", "缴费优惠"],
+    "话费充值类": ["充值立减", "充送话费", "话费返还", "缴费优惠", "支付立减"],
     "会员权益类": ["视频会员", "音乐会员", "网盘会员", "出行券", "生活权益"],
     "号卡套餐类": ["新用户号卡", "老用户套餐", "副卡", "亲情号"],
     "宽带业务": ["新装宽带", "宽带提速", "宽带续费", "IPTV"],
-    "合约购机": ["合约机", "购机补贴", "以旧换新"],
-    "其他活动": ["抽奖活动", "签到", "老用户专享", "新用户专享", "领取福利"]
+    "其他活动": ["抽奖活动", "签到", "新用户专享", "老用户专享", "领取福利", "合约机", "购机补贴"]
 };
 
 // ============================================================
@@ -2662,6 +2664,388 @@ const activityList = [
     desc: "天翼云盘礼遇季活动：①登录领3次AI体验包（AI搜图、智能问答、AI绘图）；②做任务抽空间和会员；③邀请好友双双得会员，最高可得70天会员权益；④会员订购限时特惠",
     link: "https://m.cloud.189.cn/zt/2025/cloud-eleven/index.html#/?inviteId=93250",
     remark: "限天翼云盘用户；需登录天翼云盘账号参与；具体任务规则及奖品以页面实际展示为准"
+},
+// ============================================================
+//  新增活动 171（5G-A流量包·四档可选）
+//  来源：https://dev.coc.10086.cn/coc/web6/5GTrafficExchange/?pageId=1963866847517413376&channelId=P00000027705
+// ============================================================
+
+// 171. 5G-A流量包（四档可选）
+{
+    id: 171,
+    operator: "移动",
+    province: "全国",
+    city: "全国",
+    mainType: "流量类",
+    subType: ["全国通用流量"],
+    title: "5G-A流量包·四档可选（20-100元/月）",
+    startTime: "2026-08-27",
+    endTime: "2026-12-31",
+    desc: "四档资费可选：①20元/月含10GB国内通用流量+5G致享服务（下行1Gbps/上行100Mbps）；②30元/月含15GB国内通用流量+5G致享服务；③50元/月含30GB国内通用流量+5G尊享服务（下行2Gbps/上行150Mbps）；④100元/月含80GB国内通用流量+5G臻享服务（下行3Gbps/上行200Mbps）。订购立即生效，取消次月失效，无合约捆绑。流量可结转，不可共享/转赠，优先级高于套餐内通用流量。需使用支持5G-A网络的终端",
+    link: "https://dev.coc.10086.cn/coc/web6/5GTrafficExchange/?pageId=1963866847517413376&channelId=P00000027705",
+    remark: "限移动用户；同系列产品互斥可换；全球通钻卡/白金卡用户就高享受权益；具体支持终端以实际为准"
+},
+// ============================================================
+//  新增活动 172（陕西移动随心选流量包·多档可选）
+//  来源：用户提供截图 + 链接
+// ============================================================
+
+// 172. 陕西移动随心选流量包（多档可选）
+{
+    id: 172,
+    operator: "移动",
+    province: "陕西省",
+    city: "全省",
+    mainType: "流量类",
+    subType: ["全国通用流量"],
+    title: "陕西移动随心选流量包·多档可选（3-30GB，3-7天）",
+    startTime: "2026-08-27",
+    endTime: "2026-12-31",
+    desc: "三档有效期可选：①3天包：5GB可共享12元/10GB不可共享12元/10GB17元/30GB22元；②5天包：5GB可共享13元/10GB不可共享13元/10GB18元/30GB23元；③7天包：5GB可共享15元/10GB不可共享15元/10GB20元/30GB25元。需登录中国移动APP订购，具体规则以订购页面为准",
+    link: "https://wap.sn.10086.cn/h5/MobileDataFlexiblePackage/index.html?source_id=DSXA&pageCode=_LLSXX",
+    remark: "限陕西移动用户；需登录中国移动APP订购；具体档位价格及共享规则以页面实际展示为准；页面提示前往中国移动APP订购"
+},
+// ============================================================
+//  演示数据：银行 / 百度 / 美团 / 滴滴 / 京东（按福利内容归类）
+//  分类原则：客户看的是「能得到什么」，不看「来自哪里」
+// ============================================================
+
+// ===== 一、会员权益类（送会员/空间/权益） =====
+
+// 1. 招商银行信用卡 · 送视频会员年卡
+{
+    id: 1001,
+    operator: "银行",
+    province: "全国",
+    city: "全国",
+    mainType: "会员权益类",
+    subType: ["视频会员"],
+    title: "招商银行信用卡新户礼·送视频会员年卡",
+    startTime: "2026-08-01",
+    endTime: "2026-12-31",
+    desc: "招商银行信用卡新用户达标后，可领取腾讯视频/爱奇艺/优酷年卡（三选一）",
+    link: "https://www.cmbchina.com",
+    remark: "限招商银行信用卡新户"
+},
+// 2. 百度网盘 · 免费领空间+SVIP
+{
+    id: 1002,
+    operator: "百度",
+    province: "全国",
+    city: "全国",
+    mainType: "会员权益类",
+    subType: ["网盘会员"],
+    title: "百度网盘500G空间+3天SVIP会员免费领",
+    startTime: "2026-08-22",
+    endTime: "2026-12-31",
+    desc: "新用户获3天SVIP+500G空间；老用户获500G空间（有效期30天），每月可领1次",
+    link: "https://pan.baidu.com",
+    remark: "需下载百度网盘APP参与，数量有限先到先得"
+},
+// 3. 阿里云盘 · 免费领2TB空间
+{
+    id: 1003,
+    operator: "阿里",
+    province: "全国",
+    city: "全国",
+    mainType: "会员权益类",
+    subType: ["网盘会员"],
+    title: "阿里云盘2TB空间免费领（新用户专享）",
+    startTime: "2026-08-01",
+    endTime: "2026-12-31",
+    desc: "新用户完成新手任务免费领取2TB云盘空间，长期有效",
+    link: "https://www.aliyundrive.com",
+    remark: "限阿里云盘新用户"
+},
+
+// ===== 二、话费充值类（支付立减/缴费优惠/返现） =====
+
+// 4. 云闪付 · 支付立减
+{
+    id: 1004,
+    operator: "支付",
+    province: "全国",
+    city: "全国",
+    mainType: "话费充值类",
+    subType: ["支付立减"],
+    title: "云闪付消费立减5元（满10元可用）",
+    startTime: "2026-08-15",
+    endTime: "2026-09-15",
+    desc: "云闪付APP扫码支付满10元立减5元，每天限量先到先得",
+    link: "https://www.unionpay.com",
+    remark: "云闪付用户专享，每天限量"
+},
+// 5. 建设银行 · 积分兑换话费
+{
+    id: 1005,
+    operator: "银行",
+    province: "全国",
+    city: "全国",
+    mainType: "话费充值类",
+    subType: ["话费返还"],
+    title: "建行积分兑换话费·最高兑100元",
+    startTime: "2026-08-01",
+    endTime: "2026-12-31",
+    desc: "建设银行信用卡积分可兑换话费充值券，最高可兑100元话费",
+    link: "https://www.ccb.com",
+    remark: "需登录建行APP兑换，积分有效期以银行规则为准"
+},
+// 6. 微信支付 · 充值立减
+{
+    id: 1006,
+    operator: "支付",
+    province: "全国",
+    city: "全国",
+    mainType: "话费充值类",
+    subType: ["充值立减"],
+    title: "微信支付话费充值立减2-8元",
+    startTime: "2026-08-20",
+    endTime: "2026-09-20",
+    desc: "微信支付话费充值满50元随机立减2-8元，每个用户限1次",
+    link: "https://www.weixin.qq.com",
+    remark: "微信支付用户专享"
+},
+
+// ===== 三、其他活动（外卖红包/出行券/购物券） =====
+
+// 7. 美团 · 外卖红包
+{
+    id: 1007,
+    operator: "美团",
+    province: "全国",
+    city: "全国",
+    mainType: "其他活动",
+    subType: ["领取福利"],
+    title: "美团外卖红包免费领·最高20元",
+    startTime: "2026-08-01",
+    endTime: "2026-12-31",
+    desc: "每日可领取最高20元外卖红包，含满减券、折扣券等",
+    link: "https://www.meituan.com",
+    remark: "美团用户每日可领，先到先得"
+},
+// 8. 滴滴出行 · 打车优惠券
+{
+    id: 1008,
+    operator: "滴滴",
+    province: "全国",
+    city: "全国",
+    mainType: "其他活动",
+    subType: ["领取福利"],
+    title: "滴滴出行5元打车券×4张免费领",
+    startTime: "2026-08-01",
+    endTime: "2026-09-30",
+    desc: "领取5元打车优惠券4张，每次打车可用1张，有效期7天",
+    link: "https://www.didiglobal.com",
+    remark: "滴滴用户专享"
+},
+// 9. 京东 · 购物优惠券
+{
+    id: 1009,
+    operator: "京东",
+    province: "全国",
+    city: "全国",
+    mainType: "其他活动",
+    subType: ["领取福利"],
+    title: "京东PLUS会员100元优惠券包每月领",
+    startTime: "2026-08-01",
+    endTime: "2026-12-31",
+    desc: "京东PLUS会员每月可领100元优惠券包，含多档满减券",
+    link: "https://www.jd.com",
+    remark: "限京东PLUS会员"
+},
+// 10. 拼多多 · 新人免单
+{
+    id: 1010,
+    operator: "拼多多",
+    province: "全国",
+    city: "全国",
+    mainType: "其他活动",
+    subType: ["新用户专享"],
+    title: "拼多多新人首单免单（满10元减10元）",
+    startTime: "2026-08-01",
+    endTime: "2026-12-31",
+    desc: "新用户首单满10元立减10元，相当于免单",
+    link: "https://www.pinduoduo.com",
+    remark: "限拼多多新用户，每个用户限1次"
+},
+// 11. 饿了么 · 外卖红包
+{
+    id: 1011,
+    operator: "饿了么",
+    province: "全国",
+    city: "全国",
+    mainType: "其他活动",
+    subType: ["领取福利"],
+    title: "饿了么外卖红包每日领·最高15元",
+    startTime: "2026-08-01",
+    endTime: "2026-12-31",
+    desc: "每日可领取饿了么外卖红包，含满减券、无门槛券等，最高15元",
+    link: "https://www.ele.me",
+    remark: "饿了么用户每日可领"
+},
+// ============================================================
+//  推荐卡片数据（作为独立活动，自动穿插到列表中）
+//  isAd: true 标识为推荐卡片
+//  needWechat: true 标识需要添加客服
+// ============================================================
+
+// ----- 推荐卡片1：免费领流量 -----
+{
+    id: 9001,
+    operator: "推荐",
+    province: "全国",
+    city: "全国",
+    mainType: "其他活动",
+    subType: ["领取福利"],
+    title: "🔥 限时福利：免费领流量",
+    startTime: "2026-08-01",
+    endTime: "2026-12-31",
+    desc: "扫码添加客服，回复「流量」立即领取专属流量包",
+    link: "",
+    isAd: true,
+    needWechat: true,
+    remark: "添加客服即可领取"
+},
+// ----- 推荐卡片2：进群领会员 -----
+{
+    id: 9002,
+    operator: "推荐",
+    province: "全国",
+    city: "全国",
+    mainType: "会员权益类",
+    subType: ["领取福利"],
+    title: "🎁 进群领会员权益",
+    startTime: "2026-08-01",
+    endTime: "2026-12-31",
+    desc: "扫码进群，每日更新优惠福利，手慢无",
+    link: "",
+    isAd: true,
+    needWechat: true,
+    remark: "扫码进群即可领取"
+},
+// ----- 推荐卡片3：办卡赚佣金 -----
+{
+    id: 9003,
+    operator: "推荐",
+    province: "全国",
+    city: "全国",
+    mainType: "其他活动",
+    subType: ["领取福利"],
+    title: "📱 办卡赚佣金·每单50元起",
+    startTime: "2026-08-01",
+    endTime: "2026-12-31",
+    desc: "推荐好友办卡，每单佣金50元起，上不封顶",
+    link: "",
+    isAd: true,
+    needWechat: false,
+    remark: "点击下方按钮立即参与"
+},
+// ----- 推荐卡片4：私域专享福利 -----
+{
+    id: 9004,
+    operator: "推荐",
+    province: "全国",
+    city: "全国",
+    mainType: "会员权益类",
+    subType: ["领取福利"],
+    title: "💎 私域专享·独家福利",
+    startTime: "2026-08-01",
+    endTime: "2026-12-31",
+    desc: "添加客服进入私域群，每日更新独家优惠",
+    link: "",
+    isAd: true,
+    needWechat: true,
+    remark: "仅限私域用户专享"
+},
+// ============================================================
+//  二维码活动演示数据（包含 qrCode 字段）
+//  点击「📱 查看活动码」弹窗显示二维码
+// ============================================================
+
+// 演示1：移动云盘0元30GB定向流量（含二维码）
+{
+    id: 10001,
+    operator: "移动",
+    province: "全国",
+    city: "全国",
+    mainType: "流量类",
+    subType: ["定向流量"],
+    title: "移动云盘0元30GB定向流量",
+    startTime: "2022-01-01",
+    endTime: "2029-12-31",
+    desc: "0元/月领30GB移动云盘定向流量，按月自动续订。适用于移动云盘APP、微信小程序、139邮箱APP云盘模块等场景",
+    remark: "限中国移动用户（不限量套餐、副卡、物联网卡除外）",
+    // ✅ 关键字段：二维码图片地址
+    qrCode: "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https%3A%2F%2Fcaiyun.feixin.10086.cn%3A7071%2Fportal%2FcaiyunOfficialAccount%2Findex.html%3Fpath%3DzeroPurchase%26sourceid%3D1345",
+    canShare: true
+},
+
+// 演示2：移动AI潮智包0元享（含二维码）
+{
+    id: 10002,
+    operator: "移动",
+    province: "全国",
+    city: "全国",
+    mainType: "会员权益类",
+    subType: ["视频会员", "赠送流量"],
+    title: "移动AI潮智包（尝鲜版）0元享",
+    startTime: "2026-08-20",
+    endTime: "2026-12-31",
+    desc: "0元/月，含AI视频彩铃权益、移动云盘AI权益、5G新通话、30GB咪咕音乐专属流量",
+    remark: "订购立即生效，退订次月失效",
+    qrCode: "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https%3A%2F%2Fdev.coc.10086.cn%2Fcoc%2Fweb2%2FtrendyAiPackage%2F",
+    canShare: true
+},
+
+// 演示3：百度网盘SVIP会员（含二维码）
+{
+    id: 10003,
+    operator: "百度",
+    province: "全国",
+    city: "全国",
+    mainType: "会员权益类",
+    subType: ["网盘会员"],
+    title: "百度网盘SVIP会员+500G空间免费领",
+    startTime: "2026-08-22",
+    endTime: "2026-12-31",
+    desc: "新用户获3天SVIP+500G空间；老用户获500G空间（有效期30天），每月可领1次",
+    remark: "需下载百度网盘APP参与",
+    qrCode: "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https%3A%2F%2Fpan.baidu.com%2Fcomps%2Fview%2FMV84NTZfMTAzMF8yODU2X29ubGluZQ%3D%3D",
+    canShare: true
+},
+
+// 演示4：招商银行信用卡新户礼（含二维码）
+{
+    id: 10004,
+    operator: "银行",
+    province: "全国",
+    city: "全国",
+    mainType: "会员权益类",
+    subType: ["视频会员"],
+    title: "招行信用卡新户礼·送视频会员年卡",
+    startTime: "2026-08-01",
+    endTime: "2026-12-31",
+    desc: "招商银行信用卡新用户达标后，可领取腾讯视频/爱奇艺/优酷年卡（三选一）",
+    remark: "限招商银行信用卡新户",
+    qrCode: "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https%3A%2F%2Fwww.cmbchina.com",
+    canShare: true
+},
+
+// 演示5：美团外卖红包（含二维码）
+{
+    id: 10005,
+    operator: "美团",
+    province: "全国",
+    city: "全国",
+    mainType: "其他活动",
+    subType: ["领取福利"],
+    title: "美团外卖红包每日领·最高20元",
+    startTime: "2026-08-01",
+    endTime: "2026-12-31",
+    desc: "每日可领取最高20元外卖红包，含满减券、折扣券等",
+    remark: "美团用户每日可领",
+    qrCode: "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https%3A%2F%2Fwww.meituan.com",
+    canShare: false
 }
 ];
 
