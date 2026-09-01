@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">        
+<link rel="stylesheet" href="static/css/web.css?v=1.0">
+
+    <!-- ===== SEO ===== -->
+    <title>未来福利社 - 汇聚优惠福利 · 分享赚佣金</title>
+    <meta name="description" content="未来福利社汇聚运营商、银行、互联网优惠福利，分享活动赚佣金，每日签到领积分。宽带、号卡、话费、会员、随身WiFi一站导航。">
+    <meta name="keywords" content="未来福利社,汇聚优惠福利,分享赚佣金,签到领积分,宽带办理,流量卡,手机号卡,5G套餐,会员权益,话费充值">
+    <link rel="canonical" href="https://pay262.github.io/web.html">
+    <meta property="og:title" content="未来福利社 - 汇聚优惠福利 · 分享赚佣金">
+    <meta property="og:description" content="未来福利社汇聚运营商、银行、互联网优惠福利，分享活动赚佣金，每日签到领积分。宽带、号卡、话费、会员一站导航。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://pay262.github.io/web.html">
+    <meta name="theme-color" content="#3A6FF8">
+
+    <!-- 统计代码 -->
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js">
+    </script>
+    <script>
+        LA.init({ id: "3HpUziWJmj6VQUHP", ck: "3HpUziWJmj6VQUHP", autoTrack: true })
+    </script>
+
+</head>
+<body>
+
+    <!-- Toast -->
+    <div class="toast" id="toastTip"></div>
+    <div class="toast-custom" id="customToast">
+        <div id="toastMessage"></div>
+        <div class="sub" id="toastSub"></div>
+    </div>
+
+    <!-- 顶部导航 -->
+    <header class="nav-bar">
+        <div class="nav-left">
+            <button class="nav-btn" id="menuBtn" aria-label="打开菜单">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2">
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <line x1="3" y1="12" x2="21" y2="12" />
+                    <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
+            </button>
+        </div>
+        <div class="nav-title" id="pageTitle">搜索·发现 · 福利活动</div>
+        <div class="nav-right">
+            <button class="nav-earn-btn" id="navEarnBtn">📤 分享</button>
+        <button class="nav-btn" id="msgBtn" aria-label="联系客服">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" aria-hidden="true">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+        </button>
+        </div>
+    </header>
+
+    <!-- ===== 客服二维码 ===== -->
+    <div class="qr-mask" id="qrMask">
+        <div class="qr-card">
+            <div class="qr-title">添加客服微信</div>
+            <div class="qr-code-box">
+                <img src="wechat-qr.png" alt="客服微信" onerror="this.parentElement.innerHTML='📱 扫码添加'">
+            </div>
+            <div class="qr-tip">长按识别二维码 添加客服</div>
+            <button class="qr-close-btn" id="qrCloseBtn">关闭</button>
+        </div>
+    </div>
+
+    <!-- 隐私政策 -->
+    <div class="privacy-mask" id="privacyMask" role="dialog" aria-modal="true" aria-label="隐私政策">
+        <div class="privacy-box">
+            <span class="privacy-close" id="privacyClose">×</span>
+            <h1>隐私政策</h1>
+            <div class="privacy-date">生效日期：2026‑08‑17</div>
+            <h2>一、引言</h2>
+            <p>欢迎访问未来福利社。我们充分重视用户的个人信息与隐私安全。本隐私政策旨在向您说明：当您使用本网站选购运营商号卡、浏览商品、提交订单时，我们如何收集、使用、存储、保护您的个人信息，以及您拥有哪些管理自身个人信息的权利。</p>
+            <p>使用本网站服务即代表您同意本隐私政策全部条款；若您不同意本政策，请停止使用本站全部服务。</p>
+            <h2>二、我们收集哪些个人信息</h2>
+            <p>我们仅收集提供服务所必要的信息，不会强制索取与业务无关的资料，收集来源分为您主动提供与系统自动收集两类：</p>
+            <ul>
+                <li><strong>1.您主动提交的信息</strong>：在您提交号卡开卡订单时，根据国家通信实名制相关法规、运营商开卡要求，您需要提供姓名、手机号码、居民身份证信息、收货地址；如您自愿联系客服咨询，可能留存您的联系方式、聊天记录。以上信息仅用于完成号卡申领、物流配送、运营商实名核验。</li>
+                <li><strong>2.系统自动采集信息</strong>：当您浏览网站时，服务器会自动记录访问时间、IP地址、设备型号、浏览器类型、页面访问记录等日志数据；该类数据主要用于网站安全防护、故障排查、访问统计，一般无法直接定位到特定自然人。</li>
+                <li><strong>3.非必要可选信息</strong>：您可以自愿填写备注、需求说明等内容，您有权选择不予提供。</li>
+            </ul>
+            <h2>三、个人信息的使用方式</h2>
+            <ul>
+                <li>用于处理您的号卡订单、完成运营商实名开卡流程、安排物流发货、订单状态通知；</li>
+                <li>用于客服对接、售后问题处理、订单异常核验；</li>
+                <li>用于网站安全风险识别，防范恶意下单、欺诈访问；</li>
+                <li>在获得您明确同意前提下，向您推送商城优惠、运营商套餐资讯，您可随时拒绝接收营销消息。</li>
+            </ul>
+            <p>我们不会将您的实名身份信息用于开卡业务以外的用途。</p>
+            <h2>四、个人信息的共享与披露</h2>
+            <p>未经您单独授权，我们不会向第三方出售、出租您的个人信息。仅在以下有限场景进行必要共享：</p>
+            <ul>
+                <li>为完成开卡业务，将实名订单信息合规提交至对应运营商平台；</li>
+                <li>为完成配送，向物流服务商提供收货地址、联系电话；</li>
+                <li>国家机关依法提出查询、调取要求时，我们将按照法律法规配合提供对应信息。</li>
+            </ul>
+            <h2>五、个人信息存储与安全保护</h2>
+            <p>我们采用合理的技术手段保护您的个人数据，防止信息泄露、篡改、丢失。个人信息保存期限以实现服务目的、法定留存期限为限；当订单业务完成且不再需要留存时，我们会按照规则做脱敏或删除处理。互联网环境无法做到绝对安全，如您发现账号、订单信息存在泄露风险，请立即联系我们。</p>
+            <h2>六、您享有的个人信息权利</h2>
+            <ul>
+                <li>查询权：您可以向客服申请查询本站保存的与您相关的订单、个人资料；</li>
+                <li>更正权：如信息填写错误，可联系客服更正可修改项目；</li>
+                <li>删除权：在满足条件时，您可申请删除订单内个人实名资料；运营商侧实名信息需遵循运营商平台规则；</li>
+                <li>撤回授权：您可以撤回营销通知授权，撤回不影响此前基于授权开展的业务处理。</li>
+            </ul>
+            <h2>七、未成年人保护</h2>
+            <p>通信号卡开卡业务仅限成年人办理。若您为未满18周岁未成年人，请在监护人陪同与同意下使用本服务；请勿独立提交实名订单。如我们发现非法收集未成年人信息，将第一时间删除相关数据。</p>
+            <h2>八、Cookie 的使用</h2>
+            <p>本站可使用Cookie用于提升浏览体验、统计访问数据。您可以通过浏览器设置拒绝Cookie，但部分页面功能可能因此受到影响。</p>
+            <h2>九、隐私政策更新</h2>
+            <p>我们可能根据法律法规更新本隐私政策。更新后的版本将展示于此弹窗内，更新日期随之变更；重大变更时我们会在网站提示，建议您定期查阅。</p>
+            <h2>十、联系我们</h2>
+            <p>如您对于隐私政策、个人信息处理存在疑问、诉求，可以通过商城客服渠道联系我们。</p>
+        </div>
+    </div>
+
+
+    <!-- ===== 侧边抽屉 ===== -->
+    <div class="drawer-mask" id="drawerMask"></div>
+    <nav class="drawer" id="drawerNav">
+        <div class="drawer-logo">未来福利社</div>
+        <div class="drawer-subtitle">汇聚运营商·银行·互联网 优惠福利</div>
+        <div class="drawer-group-title">业务服务</div>
+        <div class="drawer-item active" data-content="content1"><span class="drawer-icon">📶</span><span>宽带专区</span></div>
+        <div class="drawer-item" data-content="content2"><span class="drawer-icon">📱</span><span>号卡套餐</span></div>
+        <div class="drawer-item" data-content="content3"><span class="drawer-icon">🌐</span><span>3号网厅</span></div>
+        <div class="drawer-item" data-content="content4"><span class="drawer-icon">📡</span><span>随身WiFi</span></div>
+        <div class="drawer-item" data-content="content5"><span class="drawer-icon">💳</span><span>福利活动</span></div>
+        <div class="drawer-item" data-content="content9"><span class="drawer-icon">🤝</span><span>代理招募</span></div>
+        <div class="drawer-group-title">快捷入口</div>
+        <div class="drawer-item" data-content="content6"><span class="drawer-icon">🔍</span><span>官方查询</span></div>
+        <div class="drawer-item" data-content="content7"><span class="drawer-icon">5G</span><span>5G专区</span></div>
+        <div class="drawer-item" data-content="content8"><span class="drawer-icon">❓</span><span>常见问题</span></div>
+        <div class="drawer-item"><span class="drawer-icon">📄</span><a href="https://getsimnum.caict.ac.cn/#/" target="_blank">一证通查</a></div>
+        <div class="drawer-item" id="openPrivacy"><span class="drawer-icon">🛡️</span><span>隐私政策</span></div>
+        <div class="drawer-item" id="drawerWechat"><span class="drawer-icon">💬</span><span>客服微信</span></div>
+        <div class="drawer-footer">粤ICP备2023092773号-2</div>
+    </nav>
+
+    <!-- ===== 主内容 ===== -->
+    <main class="content-area" role="main">
+
+        <!-- content1 宽带专区 -->
+        <section class="iframe-wrapper" data-content="content1">
+            <iframe class="portal-iframe" src="https://hk.yunhaoka.cn/#/pages/micro_store/index?agent_id=fd7687894ce7e304b967e505d8255dd7" loading="lazy"></iframe>
+        </section>
+
+        <!-- content2 号卡套餐 -->
+        <section class="iframe-wrapper" data-content="content2" hidden>
+            <iframe class="portal-iframe" src="https://vip.777haoka.cn/index?k=T1RwMzdMQWw4cGc9" loading="lazy"></iframe>
+        </section>
+
+        <!-- content3 3号网厅 -->
+        <section class="iframe-wrapper" data-content="content3" hidden>
+            <iframe class="portal-iframe" src="https://172.lot-ml.com/ProductEn/index/21f179ff2eb29bd5" loading="lazy"></iframe>
+        </section>
+
+        <!-- content4 随身WiFi -->
+        <section class="iframe-wrapper" data-content="content4" hidden>
+            <iframe class="portal-iframe" src="https://h5.lianhengkj.com/#/pages/agentMoudle/micro_store/index?store_id=b6745283aa939dac" loading="lazy"></iframe>
+        </section>
+
+        <!-- ===== content5 活动工具箱（核心） ===== -->
+        <section class="iframe-wrapper" data-content="content5" hidden>
+            <div class="activity-toolbox">
+
+                <!-- 活动头部 -->
+                <header class="at-header">
+                    <h1>🎁 搜索·发现 · <small>福利活动</small></h1>
+                </header>
+
+                <!-- 跑马灯 -->
+                <div class="at-marquee" id="atMarquee">
+                    <span class="marquee-label">🔥 热门活动</span>
+                    <div class="marquee-wrapper">
+                        <div class="marquee-track" id="marqueeTrack">
+                            <span class="marquee-item">⏳ 加载中...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 搜索栏 -->
+                <div class="at-search-bar">
+                    <button class="at-filter-toggle" id="atFilterToggle">
+                        <span class="at-filter-icon">☰</span>
+                        <span>筛选</span>
+                        <span class="at-filter-arrow">▾</span>
+                        <span class="at-filter-badge" id="atFilterBadge">0</span>
+                    </button>
+                    <div class="at-search-input-wrap">
+                        <span class="at-search-icon">🔍</span>
+                        <input id="atSearch" type="text" placeholder="搜索流量/话费/会员…">
+                    </div>
+                    <button class="at-reset-btn" id="atResetBtn">重置</button>
+                </div>
+
+                <!-- 筛选面板 -->
+                <div class="at-filter-panel" id="atFilterPanel">
+                    <div class="at-filter-panel-inner">
+                        <div class="at-filter-group">
+                            <label for="atOpSelect">📡 运营商</label>
+                            <select id="atOpSelect">
+                                <option value="">全部</option>
+                                <option value="移动">中国移动</option>
+                                <option value="联通">中国联通</option>
+                                <option value="电信">中国电信</option>
+                                <option value="广电">中国广电</option>
+                            </select>
+                        </div>
+                        <div class="at-filter-group">
+                            <label for="atProvinceSelect">📍 省份</label>
+                            <select id="atProvinceSelect">
+                                <option value="">全部</option>
+                                <option value="全国">全国通用</option>
+                            </select>
+                        </div>
+                        <div class="at-filter-group">
+                            <label for="atMainTypeSelect">📂 主大类</label>
+                            <select id="atMainTypeSelect"><option value="">全部</option></select>
+                        </div>
+                        <div class="at-filter-group">
+                            <label for="atSubTypeSelect">🏷️ 细分标签</label>
+                            <select id="atSubTypeSelect"><option value="">全部</option></select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 分类Tab -->
+                <nav class="at-tabs" id="atTabs"></nav>
+
+                <!-- 空状态 -->
+                <div class="at-empty-state" id="atEmptyState">
+                    <div class="at-empty-icon">🔍</div>
+                    <h3 class="at-empty-title">福利探测中...</h3>
+                    <p class="at-empty-desc">试试换个关键词或分类</p>
+                    <div class="empty-action-box earn" onclick="switchContent('content2')">
+                        <div class="title earn-color">📱 办卡也能赚钱！</div>
+                        <div class="desc">推荐好友办卡，轻松赚佣金</div>
+                        <div class="link earn-color">立即加入 →</div>
+                    </div>
+                </div>
+
+                <!-- 结果区域 -->
+                <div class="at-result-area" id="atResultArea">
+                    <div class="at-tip" id="atTip"></div>
+                    <div class="at-grid" id="atGrid">
+                        <div class="at-empty-result" id="atEmptyResult">😕 没有找到匹配的活动</div>
+                    </div>
+                    <nav class="at-pagination" id="atPagination">
+                        <button class="at-page-btn" id="atPrevPage">上一页</button>
+                        <span class="at-page-info" id="atPageInfo">1/1</span>
+                        <button class="at-page-btn" id="atNextPage">下一页</button>
+                    </nav>
+                </div>
+            </div>
+        </section>
+
+        <!-- content6 官方查询 -->
+        <section class="iframe-wrapper" data-content="content6" hidden>
+            <div class="inner-container">
+                <div class="inner-card">
+                    <h2 class="inner-title">运营商订单查询</h2>
+                    <div class="inner-grid">
+                        <a href="https://dev.coc.10086.cn/coc/web/coc2020/cardqueryorder/" class="service-link" target="_blank">中国移动</a>
+                        <a href="https://pms.189.cn/cljy-web/static/xshkzzfw/xshkzzfw_index.html" class="service-link" target="_blank">中国电信</a>
+                        <a href="https://m.10010.com/myorder/" class="service-link" target="_blank">中国联通</a>
+                        <a href="https://www.10099.com.cn/personal-center-my-order.html" class="service-link" target="_blank">中国广电</a>
+                    </div>
+                </div>
+                <div class="inner-card">
+                    <h3 class="inner-title sub-title">服务说明</h3>
+                    <div class="notice"><p>📢 重要提示：订单取消申请提交后不可撤回</p></div>
+                </div>
+                <footer class="static-footer">粤ICP备2023092773号-2</footer>
+            </div>
+        </section>
+
+        <!-- content7 5G专区 -->
+        <section class="iframe-wrapper" data-content="content7" hidden>
+            <div class="inner-container">
+                <div class="inner-card" style="border-left:4px solid #3A6FF8;">
+                    <h2 class="inner-title">🚀 5G-A 查询</h2>
+                    <p style="text-align:center;font-size:13px;color:#666;">查询支持5G-A网络机型</p>
+                    <div style="text-align:center;">
+                        <button id="copy5gaLink" class="service-link" style="display:inline-flex;padding:12px 32px;background:linear-gradient(135deg,#3A6FF8,#5280FF);color:#fff;border-radius:10px;font-weight:600;border:none;cursor:pointer;">📋 复制链接</button>
+                    </div>
+                    <p style="text-align:center;font-size:12px;color:#f59e0b;">⚠️ 该页面仅支持在微信中打开</p>
+                </div>
+                <div class="inner-card">
+                    <h2 class="inner-title">📶 运营商5G覆盖查询</h2>
+                    <div class="inner-grid">
+                        <a href="#" class="service-link">移动</a><a href="#" class="service-link">电信</a>
+                        <a href="#" class="service-link">联通</a><a href="#" class="service-link disabled">广电</a>
+                    </div>
+                </div>
+                <footer class="static-footer">粤ICP备2023092773号-2</footer>
+            </div>
+        </section>
+
+        <!-- content8 常见问题 -->
+        <section class="iframe-wrapper" data-content="content8" hidden>
+            <div class="faq-container">
+                <div class="faq-card">
+                    <h2 class="faq-title">常见问题</h2>
+                    <div class="faq-item"><div class="faq-question">套餐正规吗？<span>▼</span></div><div class="faq-answer"><div class="faq-answer-inner">均为运营商官方套餐</div></div></div>
+                    <div class="faq-item"><div class="faq-question">如何注销？<span>▼</span></div><div class="faq-answer"><div class="faq-answer-inner">联系运营商客服</div></div></div>
+                    <div class="faq-item"><div class="faq-question">积分怎么用？<span>▼</span></div><div class="faq-answer"><div class="faq-answer-inner">签到得积分，可在积分商城兑换福利</div></div></div>
+                    <div class="faq-item"><div class="faq-question">怎么赚佣金？<span>▼</span></div><div class="faq-answer"><div class="faq-answer-inner">分享活动给好友，好友参与你赚佣金</div></div></div>
+                    <div class="faq-contact"><div class="faq-contact-text">还有问题？</div><button class="faq-contact-btn" id="openFaqQrBtn">联系在线客服</button></div>
+                </div>
+                <footer class="static-footer">粤ICP备2023092773号-2</footer>
+            </div>
+        </section>
+
+        <!-- content9 代理招募 -->
+        <section class="iframe-wrapper" data-content="content9" hidden>
+            <div class="agent-container">
+                <div class="agent-hero">
+                    <div class="agent-hero-badge">🔥 火热招募中</div>
+                    <h1 class="agent-hero-title">成为代理 · 轻松赚佣金</h1>
+                    <p class="agent-hero-desc">推广宽带、号卡、随身WiFi，每单佣金丰厚</p>
+                    <a href="#agent-form" class="agent-hero-btn">立即申请 →</a>
+                </div>
+                <div class="agent-section">
+                    <h2 class="agent-section-title">💎 优势</h2>
+                    <div class="agent-advantages">
+                        <div class="agent-advantage-card"><div class="agent-advantage-icon">💰</div><h3>高额佣金</h3><p>行业领先</p></div>
+                        <div class="agent-advantage-card"><div class="agent-advantage-icon">⚡</div><h3>结算快速</h3><p>即时结算</p></div>
+                        <div class="agent-advantage-card"><div class="agent-advantage-icon">📱</div><h3>零门槛</h3><p>人人可加入</p></div>
+                        <div class="agent-advantage-card"><div class="agent-advantage-icon">🚀</div><h3>全程扶持</h3><p>一对一指导</p></div>
+                    </div>
+                </div>
+                <div class="agent-section agent-section-light">
+                    <h2 class="agent-section-title">📋 条件</h2>
+                    <ul class="agent-condition-list"><li>✅ 年满18周岁</li><li>✅ 熟悉微信操作</li><li>✅ 有资源者优先</li></ul>
+                </div>
+                <div class="agent-section agent-section-form" id="agent-form">
+                    <h2 class="agent-section-title">📝 报名</h2>
+                    <p class="agent-form-desc">填写信息，客服24小时内联系</p>
+                    <form id="agentApplyForm">
+                        <div class="agent-form-group"><label>姓名 *</label><input type="text" id="agentName" placeholder="请输入姓名" required></div>
+                        <div class="agent-form-group"><label>手机号 *</label><input type="tel" id="agentPhone" placeholder="请输入手机号" required></div>
+                        <div class="agent-form-group"><label>微信号</label><input type="text" id="agentWechat" placeholder="请输入微信号"></div>
+                        <div class="agent-form-group"><label>备注</label><textarea id="agentRemark" rows="3" placeholder="介绍您的资源"></textarea></div>
+                        <button type="submit" class="agent-submit-btn">提交申请</button>
+                        <p class="agent-form-tip">保持手机畅通，客服会尽快联系</p>
+                    </form>
+                </div>
+                <div class="agent-footer">
+                    <p>📞 咨询热线：<a href="tel:400-123-4567">400-123-4567</a></p>
+                    <p>💬 微信客服：<span id="agentQrBtn" style="color:var(--primary-color);cursor:pointer;">点击联系客服</span></p>
+                    <p class="agent-footer-copy">粤ICP备2023092773号-2</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ===== 底部Tab栏 ===== -->
+    <nav class="tab-bar" role="navigation">
+        <div class="tab-item" data-content="content5"><div class="tab-icon">💳</div><span>福利</span></div>
+        <div class="tab-item" data-content="content1"><div class="tab-icon">📶</div><span>宽带</span></div>
+        <div class="tab-item" data-content="content2" style="position:relative;">
+            <div class="tab-icon">📱</div>
+            <span>号卡</span>
+            <span class="tab-badge">🔥</span>
+        </div>
+        <div class="tab-item" data-content="content4"><div class="tab-icon">📡</div><span>随身WiFi</span></div>
+    </nav>
+
+    <!-- ===== 欢迎弹窗 ===== -->
+    <div class="mask-layer" id="mask">
+        <div class="verify-card">
+            <div class="welcome-icon"></div>
+            <h1 class="verify-title">👏 欢迎来到未来福利社</h1>
+            <p class="welcome-sub">汇聚运营商·银行·互联网·优惠福利·分享赚佣金</p>
+            <div class="intro-block">
+                <h3 class="intro-title">🌐 平台简介</h3>
+                <p class="intro-text">未来福利社汇聚运营商、银行、互联网等各类优惠福利，每日签到得积分，分享活动赚佣金，宽带、号卡、话费、会员一站导航。</p>
+            </div>
+            <div class="intro-block">
+                <h3 class="intro-title">✨ 核心功能</h3>
+                <div class="func-list">
+                    <div class="func-item">📶 流量福利</div>
+                    <div class="func-item">💰 话费福利</div>
+                    <div class="func-item">🎁 会员权益</div>
+                    <div class="func-item">📱 号卡套餐</div>
+                    <div class="func-item">🏠 宽带办理</div>
+                    <div class="func-item">📡 随身WiFi</div>
+                </div>
+            </div>
+            <button class="enter-btn" id="enterBtn">🎁 立即领福利</button>
+            <iframe class="ad-iframe" src="http://dzz.96cct.top/qV3Ob2722I" loading="lazy"></iframe>
+            <iframe class="ad-iframe" src="https://m.qhlwvcc.shop/m/Ix82mh" loading="lazy"></iframe>
+        </div>
+    </div>
+
+    <!-- ===== 结构化数据 ===== -->
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": "未来福利社",
+            "url": "https://pay262.github.io/web.html",
+            "description": "汇聚运营商、银行、互联网等各类优惠福利，签到领积分，分享赚佣金。",
+            "potentialAction": {
+                "@type": "SearchAction",
+                "target": "https://pay262.github.io/web.html?s={search_term_string}",
+                "query-input": "required name=search_term_string"
+            }
+        }
+    </script>
+
+    <!-- ===== 加载数据 ===== -->
+    <script src="activity-data.js"></script>
+
+    <!-- ===== 主脚本 ===== -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // ============================================================
+            //  1. 页面切换
+            // ============================================================
+            const pageTitleMap = {
+                content1: "宽带专区",
+                content2: "号卡套餐",
+                content3: "3号网厅",
+                content4: "随身WiFi",
+                content5: "未来福利社",
+                content6: "官方查询",
+                content7: "5G专区",
+                content8: "常见问题",
+                content9: "代理招募"
+            };
+
+            var dom = {
+                menuBtn: document.getElementById('menuBtn'),
+                drawerMask: document.getElementById('drawerMask'),
+                pageTitle: document.getElementById('pageTitle'),
+                drawerItems: document.querySelectorAll('.drawer-item'),
+                tabItems: document.querySelectorAll('.tab-item'),
+                msgBtn: document.getElementById('msgBtn'),
+                qrMask: document.getElementById('qrMask'),
+                qrCloseBtn: document.getElementById('qrCloseBtn'),
+                openFaqQrBtn: document.getElementById('openFaqQrBtn'),
+                faqItems: document.querySelectorAll('.faq-item'),
+                mask: document.getElementById('mask'),
+                enterBtn: document.getElementById('enterBtn'),
+                mainContent: document.querySelector('.content-area'),
+                navBar: document.querySelector('.nav-bar'),
+                tabBar: document.querySelector('.tab-bar'),
+                toastTip: document.getElementById('toastTip'),
+                openPrivacy: document.getElementById('openPrivacy'),
+                privacyMask: document.getElementById('privacyMask'),
+                privacyClose: document.getElementById('privacyClose'),
+                navEarnBtn: document.getElementById('navEarnBtn'),
+                agentQrBtn: document.getElementById('agentQrBtn'),
+                drawerWechat: document.getElementById('drawerWechat'),
+                floatWechatBtn: document.getElementById('floatWechatBtn'),
+                floatInviteBtn: document.getElementById('floatInviteBtn')
+            };
+
+            var currentContent = 'content1';
+            var activityInitDone = false;
+            var switchTimer = null;
+
+            function showToast(text, delay) {
+                delay = delay || 1800;
+                dom.toastTip.innerText = text;
+                dom.toastTip.classList.add('show');
+                setTimeout(function() { dom.toastTip.classList.remove('show'); }, delay);
+            }
+
+            function showCustomToast(msg, sub) {
+                var toast = document.getElementById('customToast');
+                document.getElementById('toastMessage').textContent = msg;
+                document.getElementById('toastSub').textContent = sub || '';
+                toast.classList.add('show');
+                clearTimeout(toast._timer);
+                toast._timer = setTimeout(function() { toast.classList.remove('show'); }, 3000);
+            }
+
+            function toggleDrawer(open) { document.body.classList.toggle('drawer-open', open); }
+
+            function toggleQr(open) { document.body.classList.toggle('qr-open', open); }
+
+            function togglePrivacy(open) { document.body.classList.toggle('privacy-open', open); }
+
+            function showWechatQr() { toggleQr(true); }
+
+            // 抽屉
+            dom.menuBtn.addEventListener('click', function() { toggleDrawer(true); });
+            dom.drawerMask.addEventListener('click', function() { toggleDrawer(false); });
+            dom.msgBtn.addEventListener('click', function() { toggleQr(true); });
+            dom.qrCloseBtn.addEventListener('click', function() { toggleQr(false); });
+            dom.qrMask.addEventListener('click', function(e) { if (e.target === dom.qrMask) toggleQr(false); });
+            if (dom.openFaqQrBtn) dom.openFaqQrBtn.addEventListener('click', function() { toggleQr(true); });
+            if (dom.agentQrBtn) dom.agentQrBtn.addEventListener('click', function() { toggleQr(true); });
+            if (dom.drawerWechat) dom.drawerWechat.addEventListener('click', function() { toggleDrawer(false);
+                toggleQr(true); });
+            if (dom.floatWechatBtn) dom.floatWechatBtn.addEventListener('click', function() { toggleQr(true); });
+            
+            // 📤 分享（分享功能）
+            if (dom.navEarnBtn) dom.navEarnBtn.addEventListener('click', function() { inviteFriend(); });
+            // 隐私
+            dom.openPrivacy.addEventListener('click', function() { toggleDrawer(false);
+                togglePrivacy(true); });
+            dom.privacyClose.addEventListener('click', function() { togglePrivacy(false); });
+            dom.privacyMask.addEventListener('click', function(e) { if (e.target === dom.privacyMask) togglePrivacy(false); });
+
+            // FAQ折叠
+            dom.faqItems.forEach(function(item) {
+                var q = item.querySelector('.faq-question');
+                var a = item.querySelector('.faq-answer');
+                q.addEventListener('click', function() {
+                    var isOpen = item.classList.contains('active');
+                    dom.faqItems.forEach(function(i) { i.classList.remove('active');
+                        i.querySelector('.faq-answer').style.maxHeight = null; });
+                    if (!isOpen) { item.classList.add('active');
+                        a.style.maxHeight = a.scrollHeight + 'px'; }
+                });
+            });
+
+            // 复制5G链接
+            var copyBtn = document.getElementById('copy5gaLink');
+            if (copyBtn) {
+                copyBtn.addEventListener('click', function() {
+                    var link = 'https://shopnew.sz189.cn/eshop/five5GAdl/index';
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(link).then(function() { showToast('✅ 链接已复制'); })['catch'](
+                        function() { fallbackCopy(link); });
+                    } else { fallbackCopy(link); }
+                });
+            }
+
+            function fallbackCopy(text) {
+                var input = document.createElement('input');
+                input.value = text;
+                input.style.cssText = 'position:fixed;opacity:0;';
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('copy');
+                document.body.removeChild(input);
+                showToast('✅ 链接已复制');
+            }
+
+            function switchContent(contentId) {
+                var wrapper = document.querySelector('.iframe-wrapper[data-content="' + contentId + '"]');
+                if (!wrapper) return;
+                var title = pageTitleMap[contentId] || '未来福利社';
+                document.querySelectorAll('.iframe-wrapper').forEach(function(w) { w.hidden = true; });
+                wrapper.hidden = false;
+                dom.pageTitle.textContent = title;
+                dom.drawerItems.forEach(function(i) { i.classList.toggle('active', i.dataset.content === contentId); });
+                dom.tabItems.forEach(function(i) { i.classList.toggle('active', i.dataset.content === contentId); });
+                currentContent = contentId;
+                toggleDrawer(false);
+                if (contentId === 'content5') {
+                    if (activityInitDone) {
+                        if (switchTimer) clearTimeout(switchTimer);
+                        switchTimer = setTimeout(function() {
+                            if (typeof window.__refreshActivityRender === 'function') window.__refreshActivityRender();
+                            if (typeof window.refreshMarquee === 'function') window.refreshMarquee();
+                            switchTimer = null;
+                        }, 200);
+                    } else { initActivityToolbox(); }
+                }
+            }
+
+            dom.drawerItems.forEach(function(i) {
+                i.addEventListener('click', function() { if (i.dataset.content) switchContent(i.dataset.content); });
+            });
+            dom.tabItems.forEach(function(i) {
+                i.addEventListener('click', function() { if (i.dataset.content) switchContent(i.dataset.content); });
+            });
+
+            // ============================================================
+            //  2. 欢迎弹窗
+            // ============================================================
+            var VERIFY_KEY = 'wlh_last_verify';
+            var TWENTY_FOUR_HOUR = 24 * 60 * 60 * 1000;
+
+            function showAllMainUI() {
+                dom.mask.classList.remove('show');
+                dom.mask.style.display = 'none';
+                document.body.classList.remove('popup-open');
+                dom.navBar.style.display = 'flex';
+                dom.mainContent.style.display = 'block';
+                dom.tabBar.style.display = 'flex';
+                switchContent('content5');
+            }
+
+            var lastTime = localStorage.getItem(VERIFY_KEY);
+            var now = Date.now();
+
+            if (lastTime && (now - parseInt(lastTime)) < TWENTY_FOUR_HOUR) {
+                showAllMainUI();
+            } else {
+                dom.mask.style.display = 'flex';
+                dom.mask.classList.add('show');
+                document.body.classList.add('popup-open');
+                var countDown = 5;
+                var timerId = null;
+                var isEntered = false;
+                var originText = '🎁 立即领福利';
+
+                function enterMain() {
+                    if (isEntered) return;
+                    isEntered = true;
+                    if (timerId) clearTimeout(timerId);
+                    localStorage.setItem(VERIFY_KEY, now.toString());
+                    showAllMainUI();
+                }
+                dom.enterBtn.onclick = enterMain;
+
+                function updateBtnText() {
+                    dom.enterBtn.textContent = countDown > 0 ? originText + ' (' + countDown + 's)' : originText;
+                    dom.enterBtn.disabled = false;
+                }
+                updateBtnText();
+                timerId = setInterval(function() {
+                    countDown--;
+                    updateBtnText();
+                    if (countDown <= 0) { clearInterval(timerId);
+                        enterMain(); }
+                }, 1000);
+            }
+
+            // ============================================================
+            //  3. 邀请好友(分享功能)
+            // ============================================================
+            function inviteFriend() {
+                var inviteLink = window.location.href + '?ref=' + (Math.random().toString(36).substr(2, 6));
+                var text = '🎁 我在未来福利社赚佣金，快来一起领福利！' + inviteLink;
+                if (navigator.share) {
+                    navigator.share({ title: '邀请好友赚佣金', text: text, url: inviteLink })['catch'](function() {});
+                } else {
+                    var dummy = document.createElement('input');
+                    dummy.value = text;
+                    document.body.appendChild(dummy);
+                    dummy.select();
+                    try {
+                        document.execCommand('copy');
+                        showCustomToast('✅ 邀请链接已复制', '分享给好友，TA参与你赚佣金');
+                    } catch (e) {
+                        showCustomToast('📋 请手动复制链接', inviteLink);
+                    }
+                    document.body.removeChild(dummy);
+                }
+            }
+
+            document.getElementById('inviteBtn').addEventListener('click', inviteFriend);
+            if (dom.floatInviteBtn) dom.floatInviteBtn.addEventListener('click', inviteFriend);
+            document.getElementById('inviteBanner').addEventListener('click', function(e) {
+                if (e.target.id !== 'inviteBtn') inviteFriend();
+            });
+
+            // ============================================================
+            //  4. 签到积分系统（保留但未使用，因HTML注释）
+            // ============================================================
+
+            // ============================================================
+            //  5. 活动工具箱（完整版）
+            // ============================================================
+            var activityLoadTimer = null;
+            var activityLoadTimeout = null;
+
+            function clearActivityTimers() {
+                if (activityLoadTimer) { clearInterval(activityLoadTimer);
+                    activityLoadTimer = null; }
+                if (activityLoadTimeout) { clearTimeout(activityLoadTimeout);
+                    activityLoadTimeout = null; }
+            }
+
+            function initActivityToolbox() {
+                if (activityInitDone) {
+                    if (typeof window.__refreshActivityRender === 'function') window.__refreshActivityRender();
+                    if (typeof window.refreshMarquee === 'function') window.refreshMarquee();
+                    return;
+                }
+                if (typeof window.activityList === 'undefined' || window.activityList.length === 0) {
+                    var tip = document.getElementById('atTip');
+                    if (tip) tip.innerText = '⏳ 数据加载中...';
+                    clearActivityTimers();
+                    activityLoadTimer = setInterval(function() {
+                        if (typeof window.activityList !== 'undefined' && window.activityList.length > 0) {
+                            clearActivityTimers();
+                            buildActivityUI();
+                        }
+                    }, 200);
+                    activityLoadTimeout = setTimeout(function() {
+                        clearActivityTimers();
+                        var tip2 = document.getElementById('atTip');
+                        if (tip2) {
+                            tip2.innerText = '⏳ 加载超时，请刷新页面重试';
+                            tip2.style.color = '#f59e0b';
+                        }
+                        var emptyState = document.getElementById('atEmptyState');
+                        if (emptyState) emptyState.style.display = 'flex';
+                    }, 8000);
+                    return;
+                }
+                buildActivityUI();
+            }
+
+            function buildActivityUI() {
+                if (activityInitDone) return;
+
+                var list = window.activityList || [];
+                var mainTypeEnum = window.mainTypeEnum || [];
+                var subTypeMap = window.subTypeMap || {};
+
+                // 分离常规活动与推荐卡片
+                var regularList = list.filter(function(item) { return !item.isAd; });
+                var adPool = list.filter(function(item) { return item.isAd; });
+
+                if (list.length > 0 && list.length < 3) { console.warn('数据量较少，请检查数据源'); }
+
+                var tabsEl = document.getElementById('atTabs');
+                var searchEl = document.getElementById('atSearch');
+                var opSelect = document.getElementById('atOpSelect');
+                var provinceSelect = document.getElementById('atProvinceSelect');
+                var mainTypeSelect = document.getElementById('atMainTypeSelect');
+                var subTypeSelect = document.getElementById('atSubTypeSelect');
+                var resetBtn = document.getElementById('atResetBtn');
+                var gridEl = document.getElementById('atGrid');
+                var tipEl = document.getElementById('atTip');
+                var emptyStateEl = document.getElementById('atEmptyState');
+                var resultAreaEl = document.getElementById('atResultArea');
+                var emptyResultEl = document.getElementById('atEmptyResult');
+                var paginationEl = document.getElementById('atPagination');
+                var prevPageBtn = document.getElementById('atPrevPage');
+                var nextPageBtn = document.getElementById('atNextPage');
+                var pageInfoEl = document.getElementById('atPageInfo');
+                var filterToggle = document.getElementById('atFilterToggle');
+                var filterPanel = document.getElementById('atFilterPanel');
+                var filterBadge = document.getElementById('atFilterBadge');
+
+                var today = new Date();
+                var activeMainTab = '';
+                var currentPage = 1;
+                var pageSize = 10;
+                var isFilterOpen = false;
+                var lastCacheKey = '';
+                var lastFilteredData = [];
+
+                var validTypes = mainTypeEnum.filter(function(item) { return item.value && item.value !== ''; });
+
+                function isExpired(endDateStr) { var end = new Date(endDateStr); return end < today; }
+
+                function isSoonExpire(endDateStr) {
+                    var end = new Date(endDateStr);
+                    var diff = (end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+                    return diff >= 0 && diff <= 7;
+                }
+                                
+                function getOpClass(op) {
+                    var map = {
+                        '移动': 'op-移动',
+                        '联通': 'op-联通',
+                        '电信': 'op-电信',
+                        '广电': 'op-广电',
+                        '银行': 'op-银行',
+                        '百度': 'op-百度',
+                        '阿里': 'op-阿里',
+                        '京东': 'op-京东',
+                        '腾讯': 'op-腾讯',
+                        '拼多多': 'op-拼多多',
+                        '美团': 'op-美团',
+                        '滴滴': 'op-滴滴',
+                        '饿了么': 'op-饿了么'
+                    };
+                    return map[op] || 'op-其他';
+                }
+
+                function matchSubType(itemSub, selectSub) {
+                    if (!selectSub) return true;
+                    if (Array.isArray(itemSub)) { return itemSub.indexOf(selectSub) !== -1; } else { return itemSub ===
+                            selectSub; }
+                }
+
+                function hasFilter() {
+                    var kw = searchEl.value.trim();
+                    var op = opSelect.value;
+                    var pro = provinceSelect.value;
+                    var main = mainTypeSelect.value || activeMainTab;
+                    var sub = subTypeSelect.value;
+                    return !!(kw || op || pro || main || sub);
+                }
+
+                function updateFilterBadge() {
+                    var count = 0;
+                    if (opSelect.value) count++;
+                    if (provinceSelect.value) count++;
+                    if (mainTypeSelect.value || activeMainTab) count++;
+                    if (subTypeSelect.value) count++;
+                    if (count > 0) {
+                        filterBadge.textContent = count;
+                        filterBadge.classList.add('show');
+                    } else {
+                        filterBadge.classList.remove('show');
+                    }
+                }
+
+                function renderTabs() {
+                    tabsEl.innerHTML = '';
+                    validTypes.forEach(function(item) {
+                        var span = document.createElement('span');
+                        span.className = 'at-tab' + (activeMainTab === item.value ? ' active' : '');
+                        span.innerText = item.label;
+                        span.dataset.value = item.value;
+                        span.addEventListener('click', function() {
+                            activeMainTab = (activeMainTab === this.dataset.value) ? '' : this.dataset.value;
+                            mainTypeSelect.value = activeMainTab;
+                            currentPage = 1;
+                            renderTabs();
+                            populateSubTypeSelect(activeMainTab);
+                            updateFilterBadge();
+                            render();
+                        });
+                        tabsEl.appendChild(span);
+                    });
+                }
+
+                function populateMainTypeSelect() {
+                    mainTypeSelect.innerHTML = '<option value="">全部</option>';
+                    validTypes.forEach(function(item) {
+                        var opt = document.createElement('option');
+                        opt.value = item.value;
+                        opt.textContent = item.label;
+                        mainTypeSelect.appendChild(opt);
+                    });
+                }
+
+                function populateSubTypeSelect(mainValue) {
+                    subTypeSelect.innerHTML = '<option value="">全部</option>';
+                    if (mainValue && subTypeMap[mainValue]) {
+                        subTypeMap[mainValue].forEach(function(tag) {
+                            var opt = document.createElement('option');
+                            opt.value = tag;
+                            opt.textContent = tag;
+                            subTypeSelect.appendChild(opt);
+                        });
+                    }
+                }
+
+                function updatePagination(totalPages) {
+                    if (totalPages <= 1) { paginationEl.style.display = 'none'; return; }
+                    paginationEl.style.display = 'flex';
+                    pageInfoEl.textContent = currentPage + '/' + totalPages;
+                    prevPageBtn.disabled = (currentPage <= 1);
+                    nextPageBtn.disabled = (currentPage >= totalPages);
+                }
+
+                function render() {
+                    updateFilterBadge();
+
+                    if (!hasFilter()) {
+                        emptyStateEl.style.display = 'flex';
+                        resultAreaEl.classList.remove('active');
+                        currentPage = 1;
+                        paginationEl.style.display = 'none';
+                        tipEl.innerText = '';
+                        gridEl.innerHTML = '';
+                        emptyResultEl.classList.remove('show');
+                        return;
+                    }
+
+                    emptyStateEl.style.display = 'none';
+                    resultAreaEl.classList.add('active');
+
+                    var cacheKey = searchEl.value + '|' + opSelect.value + '|' + provinceSelect.value + '|' +
+                        (mainTypeSelect.value || activeMainTab) + '|' + subTypeSelect.value;
+
+                    var validRegular = regularList.filter(function(item) { return !isExpired(item.endTime); });
+                    var filteredRegular;
+
+                    if (cacheKey === lastCacheKey && lastFilteredData.length) {
+                        filteredRegular = lastFilteredData;
+                    } else {
+                        var kw = searchEl.value.trim().toLowerCase();
+                        var opVal = opSelect.value;
+                        var proVal = provinceSelect.value;
+                        var mainVal = mainTypeSelect.value || activeMainTab;
+                        var subVal = subTypeSelect.value;
+
+                        filteredRegular = validRegular.filter(function(item) {
+                            if (kw) {
+                                var subText = Array.isArray(item.subType) ? item.subType.join(' ') : item.subType;
+                                var text = (item.title + ' ' + item.city + ' ' + item.province + ' ' + item.remark +
+                                    ' ' + subText).toLowerCase();
+                                if (text.indexOf(kw) === -1) return false;
+                            }
+                            if (opVal && item.operator !== opVal) return false;
+                            if (proVal && item.province !== proVal) return false;
+                            if (mainVal && item.mainType !== mainVal) return false;
+                            if (subVal && !matchSubType(item.subType, subVal)) return false;
+                            return true;
+                        });
+                        lastCacheKey = cacheKey;
+                        lastFilteredData = filteredRegular;
+                    }
+
+                    var totalItems = filteredRegular.length;
+                    var totalPages = Math.ceil(totalItems / pageSize) || 1;
+
+                    if (currentPage > totalPages) currentPage = totalPages;
+                    if (currentPage < 1) currentPage = 1;
+
+                    var start = (currentPage - 1) * pageSize;
+                    var end = Math.min(start + pageSize, totalItems);
+                    var pageRegular = filteredRegular.slice(start, end);
+
+                    // 构造当前页的卡片列表（常规 + 随机一条推荐）
+                    var pageItems = [];
+                    if (pageRegular.length > 0) {
+                        pageItems = pageRegular.slice();
+                        if (adPool.length > 0) {
+                            var randomAd = adPool[Math.floor(Math.random() * adPool.length)];
+                            var insertIdx = Math.floor(Math.random() * (pageItems.length + 1));
+                            pageItems.splice(insertIdx, 0, randomAd);
+                        }
+                    }
+
+                    var displayStart = start + 1;
+                    tipEl.innerText = '找到 ' + totalItems + ' 个匹配活动，第 ' + displayStart + ' - ' + end + ' 条' +
+                        (adPool.length > 0 && pageRegular.length > 0 ? '' : '');
+                    gridEl.innerHTML = '';
+
+                    if (pageItems.length === 0) {
+                        emptyResultEl.classList.add('show');
+                        gridEl.appendChild(emptyResultEl);
+                    } else {
+                        emptyResultEl.classList.remove('show');
+                    }
+
+                    // 渲染卡片
+                    pageItems.forEach(function(item, index) {
+                        var card = document.createElement('div');
+                        var cardClass = 'at-card';
+                        if (isSoonExpire(item.endTime)) cardClass += ' warn-soon';
+                        if (item.isAd) cardClass += ' at-ad-card';
+                        if (item.isTop) cardClass += ' at-top-card';
+                        card.className = cardClass;
+
+                        var subs = Array.isArray(item.subType) ? item.subType : [item.subType];
+                        var subTagsHtml = subs.map(function(t) { return '<span class="at-subtag">' + t +
+                                '</span>'; }).join('');
+
+                        var opBadge = '<span class="at-badge ' + getOpClass(item.operator) + '">' + item.operator +
+                            '</span>';
+                        var mainBadge = '<span class="at-badge tag-main">' + item.mainType + '</span>';
+                        var regionBadge = '<span class="at-badge tag-region">' + item.province + ' ' + item.city +
+                            '</span>';
+                        var soonBadge = isSoonExpire(item.endTime) ? '<span class="at-badge tag-soon">即将到期</span>' :
+                            '';
+                        var earnBadge = item.canShare ? '<span class="at-badge tag-earn">💰 分享赚佣金</span>' : '';
+                        var adBadge = item.isAd ? '<span class="at-badge tag-ad">📢 推荐</span>' : '';
+                        var topBadge = item.isTop ? '<span class="at-badge tag-top">⭐ 置顶</span>' : '';
+                        var wechatBadge2 = item.needWechat ? '<span class="at-badge tag-wechat">💬 私域专享</span>' : '';
+
+                        var actionBtn = '';
+                        if (item.qrCode) {
+                            actionBtn = '<button class="at-card-link qr-trigger" data-qr="' + item.qrCode +
+                                '" data-title="' + item.title + '">📱 查看活动码</button>';
+                        } else if (item.link) {
+                            actionBtn = '<a href="' + item.link + '" target="_blank" class="at-card-link">👉 查看活动链接</a>';
+                        }
+
+                        var shareHtml = '';
+                        if (item.canShare) {
+                            shareHtml = '<button class="share-earn-btn" data-title="' + item.title +
+                                '" data-link="' + (item.link || window.location.href) +
+                                '">💰 分享赚佣金</button>';
+                        }
+
+                        card.innerHTML =
+                            '<div class="at-badges">' + opBadge + mainBadge + regionBadge + soonBadge + earnBadge +
+                            adBadge + topBadge + wechatBadge2 + '</div>' +
+                            '<div class="at-subtags">' + subTagsHtml + '</div>' +
+                            '<div class="at-card-title">' + item.title + '</div>' +
+                            '<div class="at-card-date">有效期：' + item.startTime + ' ~ ' + item.endTime + '</div>' +
+                            '<div class="at-card-desc">' + item.desc + '</div>' +
+                            (item.remark ? '<div class="at-card-remark">备注：' + item.remark + '</div>' : '') +
+                            actionBtn + shareHtml;
+
+                        // 二维码点击 - 打开弹窗
+                        var qrBtn = card.querySelector('.qr-trigger');
+                        if (qrBtn) {
+                            qrBtn.addEventListener('click', function() {
+                                var popup = document.getElementById('activityQrMask');
+                                var img = document.getElementById('qrPopupImage');
+                                var title = document.getElementById('qrPopupTitle');
+                                if (popup) {
+                                    img.src = this.dataset.qr;
+                                    title.textContent = this.dataset.title || '活动二维码';
+                                    // 清除内联样式，确保类样式生效
+                                    popup.style.display = '';
+                                    popup.classList.add('active');
+                                    document.body.style.overflow = 'hidden';
+                                }
+                            });
+                        }
+
+                        // 分享按钮
+                        var shareBtn2 = card.querySelector('.share-earn-btn');
+                        if (shareBtn2) {
+                            shareBtn2.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                var title = this.dataset.title;
+                                var link = this.dataset.link;
+                                var text = '🎁 发现一个超值福利：' + title + '，一起领福利赚佣金！' + link;
+                                if (navigator.share) {
+                                    navigator.share({ title: title, text: text, url: link })['catch'](function() {});
+                                } else {
+                                    var dummy = document.createElement('input');
+                                    dummy.value = text;
+                                    document.body.appendChild(dummy);
+                                    dummy.select();
+                                    try {
+                                        document.execCommand('copy');
+                                        showCustomToast('✅ 已复制分享链接', '分享给好友，TA参与你赚佣金');
+                                    } catch (e) {
+                                        showCustomToast('📋 请手动复制链接', link);
+                                    }
+                                    document.body.removeChild(dummy);
+                                }
+                            });
+                        }
+
+                        gridEl.appendChild(card);
+                    });
+
+                    updatePagination(totalPages);
+                }
+
+                function handlePrevPage() {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        render();
+                        var wrapper = document.querySelector('.iframe-wrapper[data-content="content5"]');
+                        if (wrapper) wrapper.scrollTop = 0;
+                    }
+                }
+
+                function handleNextPage() {
+                    var validRegular = regularList.filter(function(item) { return !isExpired(item.endTime); });
+                    var cacheKey = searchEl.value + '|' + opSelect.value + '|' + provinceSelect.value + '|' +
+                        (mainTypeSelect.value || activeMainTab) + '|' + subTypeSelect.value;
+                    var filteredRegular;
+                    if (cacheKey === lastCacheKey && lastFilteredData.length) {
+                        filteredRegular = lastFilteredData;
+                    } else {
+                        var kw = searchEl.value.trim().toLowerCase();
+                        var opVal = opSelect.value;
+                        var proVal = provinceSelect.value;
+                        var mainVal = mainTypeSelect.value || activeMainTab;
+                        var subVal = subTypeSelect.value;
+                        filteredRegular = validRegular.filter(function(item) {
+                            if (kw) {
+                                var subText = Array.isArray(item.subType) ? item.subType.join(' ') : item.subType;
+                                var text = (item.title + ' ' + item.city + ' ' + item.province + ' ' + item.remark +
+                                    ' ' + subText).toLowerCase();
+                                if (text.indexOf(kw) === -1) return false;
+                            }
+                            if (opVal && item.operator !== opVal) return false;
+                            if (proVal && item.province !== proVal) return false;
+                            if (mainVal && item.mainType !== mainVal) return false;
+                            if (subVal && !matchSubType(item.subType, subVal)) return false;
+                            return true;
+                        });
+                        lastFilteredData = filteredRegular;
+                        lastCacheKey = cacheKey;
+                    }
+                    var totalPages = Math.ceil(filteredRegular.length / pageSize);
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        render();
+                        var wrapper = document.querySelector('.iframe-wrapper[data-content="content5"]');
+                        if (wrapper) wrapper.scrollTop = 0;
+                    }
+                }
+
+                function onReset() {
+                    searchEl.value = '';
+                    opSelect.value = '';
+                    provinceSelect.value = '';
+                    mainTypeSelect.value = '';
+                    subTypeSelect.value = '';
+                    activeMainTab = '';
+                    currentPage = 1;
+                    lastCacheKey = '';
+                    lastFilteredData = [];
+                    renderTabs();
+                    populateSubTypeSelect('');
+                    updateFilterBadge();
+                    emptyStateEl.style.display = 'flex';
+                    resultAreaEl.classList.remove('active');
+                    tipEl.innerText = '';
+                    gridEl.innerHTML = '';
+                    emptyResultEl.classList.remove('show');
+                    paginationEl.style.display = 'none';
+                    isFilterOpen = false;
+                    filterToggle.classList.remove('active');
+                    filterPanel.classList.remove('open');
+                }
+
+                // 搜索防抖
+                var searchTimer = null;
+                searchEl.addEventListener('input', function() {
+                    clearTimeout(searchTimer);
+                    searchTimer = setTimeout(function() { currentPage = 1;
+                        render(); }, 300);
+                });
+
+                opSelect.addEventListener('change', function() { currentPage = 1;
+                    render(); });
+                provinceSelect.addEventListener('change', function() { currentPage = 1;
+                    render(); });
+                mainTypeSelect.addEventListener('change', function() {
+                    activeMainTab = this.value;
+                    currentPage = 1;
+                    renderTabs();
+                    populateSubTypeSelect(this.value);
+                    updateFilterBadge();
+                    render();
+                });
+                subTypeSelect.addEventListener('change', function() { currentPage = 1;
+                    render(); });
+                resetBtn.addEventListener('click', onReset);
+                prevPageBtn.addEventListener('click', handlePrevPage);
+                nextPageBtn.addEventListener('click', handleNextPage);
+                filterToggle.addEventListener('click', function() {
+                    isFilterOpen = !isFilterOpen;
+                    this.classList.toggle('active', isFilterOpen);
+                    filterPanel.classList.toggle('open', isFilterOpen);
+                });
+
+                // 跑马灯
+                function buildMarquee() {
+                    var track = document.getElementById('marqueeTrack');
+                    if (!track) return;
+                    var items = regularList.filter(function(item) { return !isExpired(item.endTime); });
+                    if (items.length === 0) {
+                        track.innerHTML = '<span class="marquee-item">📢 暂无活动，敬请期待</span>';
+                        return;
+                    }
+                    var shuffled = items.sort(function() { return 0.5 - Math.random(); });
+                    var count = Math.min(shuffled.length, 8);
+                    var selected = shuffled.slice(0, count);
+                    var html = selected.map(function(item) {
+                        return '<span class="marquee-item"><span class="tag">' + item.operator + '</span>' + item
+                            .title + '</span>';
+                    }).concat(selected.slice(0, 3).map(function(item) {
+                        return '<span class="marquee-item"><span class="tag">' + item.operator + '</span>' + item
+                            .title + '</span>';
+                    })).join('');
+                    track.style.animation = 'none';
+                    track.innerHTML = html;
+                    void track.offsetWidth;
+                    track.style.animation = 'marquee-scroll 35s linear infinite';
+                }
+
+                // 初始化
+                populateMainTypeSelect();
+                populateSubTypeSelect('');
+                renderTabs();
+                updateFilterBadge();
+                buildMarquee();
+                render();
+
+                activityInitDone = true;
+                window.__refreshActivityRender = render;
+                window.refreshMarquee = buildMarquee;
+            }
+
+            // 页面恢复
+            function handlePageResume() {
+                if (currentContent === 'content5') {
+                    if (activityInitDone && typeof window.__refreshActivityRender === 'function') {
+                        setTimeout(function() {
+                            window.__refreshActivityRender();
+                            if (typeof window.refreshMarquee === 'function') window.refreshMarquee();
+                        }, 100);
+                    } else { initActivityToolbox(); }
+                }
+            }
+
+            document.addEventListener('visibilitychange', function() { if (!document.hidden) handlePageResume(); });
+            document.addEventListener('pageshow', function(e) { if (e.persisted) handlePageResume(); });
+            window.addEventListener('focus', handlePageResume);
+
+            if (currentContent === 'content5') { setTimeout(initActivityToolbox, 300); } else { setTimeout(initActivityToolbox,
+                    500); }
+
+            // ============================================================
+            //  6. 代理表单
+            // ============================================================
+            var agentForm = document.getElementById('agentApplyForm');
+            if (agentForm) {
+                agentForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    var name = document.getElementById('agentName').value.trim();
+                    var phone = document.getElementById('agentPhone').value.trim();
+                    if (!name || !phone) { showToast('请填写姓名和手机号'); return; }
+                    showToast('✅ 提交成功！客服将在24小时内联系您');
+                    this.reset();
+                });
+            }
+
+            // ============================================================
+            //  7. 活动二维码弹窗关闭修复（不设置 display: none）
+            // ============================================================
+            var qrPopupMask = document.getElementById('activityQrMask');
+            var qrPopupClose = document.getElementById('qrPopupClose');
+
+            if (qrPopupClose) {
+                qrPopupClose.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (qrPopupMask) {
+                        qrPopupMask.classList.remove('active');
+                        // 不再设置 display: none，让类样式控制
+                        document.body.style.overflow = '';
+                        var img = document.getElementById('qrPopupImage');
+                        if (img) img.src = '';
+                    }
+                });
+            }
+
+            if (qrPopupMask) {
+                qrPopupMask.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('active');
+                        document.body.style.overflow = '';
+                        var img = document.getElementById('qrPopupImage');
+                        if (img) img.src = '';
+                    }
+                });
+            }
+
+            window.showWechatQr = showWechatQr;
+
+            console.log('✅ 未来福利社 v2.0 加载完成（二维码关闭已修复）');
+        });
+
+        // 全局关闭函数
+        window.closeQrPopup = function() {
+            var popup = document.getElementById('activityQrMask');
+            if (popup) {
+                popup.classList.remove('active');
+                popup.style.display = '';      // 清空内联样式
+                document.body.style.overflow = '';
+                var img = document.getElementById('qrPopupImage');
+                if (img) img.src = '';
+            }
+        };
+    </script>
+
+    <!-- 活动二维码弹窗 -->
+    <div class="qr-popup-mask" id="activityQrMask">
+        <div class="qr-popup-card">
+            <div class="qr-popup-header">
+                <span class="qr-popup-title" id="qrPopupTitle">活动二维码</span>
+                <button class="qr-popup-close" id="qrPopupClose" onclick="closeQrPopup(); return false;">×</button>
+                            </div>
+            <div class="qr-popup-body">
+                <img id="qrPopupImage" src="" alt="二维码">
+                <p class="qr-popup-tip">长按识别二维码 参与活动</p>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
