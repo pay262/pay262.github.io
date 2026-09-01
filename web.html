@@ -1096,7 +1096,7 @@
                                 }
                             });
                         }
-
+                                                
                         // 分享按钮
                         var shareBtn2 = card.querySelector('.share-earn-btn');
                         if (shareBtn2) {
@@ -1104,19 +1104,31 @@
                                 e.stopPropagation();
                                 var title = this.dataset.title;
                                 var link = this.dataset.link;
-                                var text = '🎁 发现一个超值福利：' + title + '，一起领福利赚佣金！' + link;
+                        
+                                // 生成平台邀请链接（带随机ref）
+                                var newRef = Math.random().toString(36).substr(2, 6);
+                                var baseUrl = window.location.href.split('?')[0];
+                                var currentParams = new URLSearchParams(window.location.search);
+                                currentParams.set('ref', newRef);
+                                var inviteLink = baseUrl + '?' + currentParams.toString();
+                        
+                                // 使用两个换行符，增强换行兼容性
+                                var shareText = '🎁 发现一个超值福利：' + title + '，一起领福利赚佣金！' + link + '\n\n更多福利活动👉' + inviteLink;
+                        
                                 if (navigator.share) {
-                                    navigator.share({ title: title, text: text, url: link })['catch'](function() {});
+                                    navigator.share({ title: title, text: shareText, url: link }).catch(function() {});
                                 } else {
-                                    var dummy = document.createElement('input');
-                                    dummy.value = text;
+                                    // 改用 textarea 以支持多行文本复制
+                                    var dummy = document.createElement('textarea');
+                                    dummy.value = shareText;
+                                    dummy.style.cssText = 'position:fixed;top:-1000px;left:-1000px;opacity:0;';
                                     document.body.appendChild(dummy);
                                     dummy.select();
                                     try {
                                         document.execCommand('copy');
                                         showCustomToast('✅ 已复制分享链接', '分享给好友，TA参与你赚佣金');
                                     } catch (e) {
-                                        showCustomToast('📋 请手动复制链接', link);
+                                        showCustomToast('📋 请手动复制链接', shareText);
                                     }
                                     document.body.removeChild(dummy);
                                 }
