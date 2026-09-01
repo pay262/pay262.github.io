@@ -1,0 +1,1597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>支付行业知识大全 | 代理手册</title>
+    <script src="./knowledge.js">
+    </script>
+    <style>
+        /* ===== 全局 & 主题 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+        }
+        :root {
+            --bg: #ffffff;
+            --text: #1f2937;
+            --card-bg: #fff;
+            --border: #e5e7eb;
+            --primary: #2563eb;
+            --primary-light: #eff6ff;
+            --warn: #dc2626;
+            --tag-bg: #f3f4f6;
+            --radius: 8px;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+        }
+        [data-theme="dark"] {
+            --bg: #111827;
+            --text: #e5e7eb;
+            --card-bg: #1f2937;
+            --border: #374151;
+            --primary: #3b82f6;
+            --primary-light: #1e293b;
+            --warn: #ef4444;
+            --tag-bg: #374151;
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            transition: 0.2s;
+        }
+
+        /* ===== 头部 ===== */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: var(--bg);
+            z-index: 10;
+            gap: 8px;
+        }
+        .header-left {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .header-right {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .menu-btn,
+        .theme-btn {
+            border: 1px solid var(--border);
+            background: transparent;
+            padding: 5px 9px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            color: var(--text);
+        }
+        .calc-open-btn {
+            border: 1px solid var(--primary);
+            background: var(--primary);
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .calc-open-btn:hover {
+            opacity: 0.88;
+        }
+
+        /* ===== 侧边栏 ===== */
+        .container {
+            display: flex;
+            min-height: calc(100vh - 53px);
+        }
+        .sidebar {
+            width: 240px;
+            border-right: 1px solid var(--border);
+            background: var(--card-bg);
+            padding: 12px 14px;
+            position: fixed;
+            top: 53px;
+            bottom: 0;
+            left: 0;
+            overflow-y: auto;
+            transform: translateX(-100%);
+            transition: transform 0.22s ease;
+            z-index: 9;
+        }
+        .sidebar.open {
+            transform: translateX(0);
+        }
+        .side-group {
+            margin-bottom: 6px;
+        }
+        .side-group-header {
+            padding: 8px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            font-size: 14px;
+            background: rgba(37, 99, 235, 0.05);
+            color: var(--text);
+        }
+        .side-group-header:hover {
+            background: rgba(37, 99, 235, 0.10);
+        }
+        .side-group-items {
+            overflow: hidden;
+            max-height: 2000px;
+            transition: max-height 0.25s ease;
+        }
+        .side-group-items.collapse {
+            max-height: 0;
+        }
+        .side-group-header .arrow {
+            font-size: 11px;
+            transition: transform 0.22s ease;
+        }
+        .side-group-header.collapse .arrow {
+            transform: rotate(-90deg);
+        }
+        .side-menu-item {
+            padding: 7px 10px;
+            border-radius: 6px;
+            margin: 2px 0;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.15s;
+        }
+        .side-menu-item:hover {
+            background: var(--primary-light);
+        }
+        .side-menu-item.active {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        /* ===== 主区域 ===== */
+        .main-wrap {
+            flex: 1;
+            padding: 14px 16px;
+            max-width: 1100px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .search-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--card-bg);
+            color: var(--text);
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .tag-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+        .tag {
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 12px;
+            cursor: pointer;
+            background: var(--tag-bg);
+            transition: 0.15s;
+        }
+        .tag.active {
+            background: var(--primary);
+            color: #fff;
+        }
+        .list-grid {
+            display: grid;
+            gap: 10px;
+        }
+        .article-card {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px 14px;
+            background: var(--card-bg);
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .article-card:hover {
+            box-shadow: var(--shadow);
+        }
+        .article-card h3 {
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+        .article-card .summary {
+            font-size: 13px;
+            opacity: 0.82;
+            margin-bottom: 6px;
+        }
+        .card-tags {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .card-tag {
+            font-size: 11px;
+            padding: 1px 7px;
+            border-radius: 3px;
+            background: var(--tag-bg);
+        }
+
+        /* ===== 分页控件美化 ===== */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            margin-top: 20px;
+            padding: 10px 0;
+            flex-wrap: wrap;
+        }
+        .pagination button {
+            min-width: 84px;
+            padding: 8px 18px;
+            border: none;
+            border-radius: 20px;
+            background: var(--primary);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s, opacity 0.2s;
+            box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+            letter-spacing: 0.3px;
+        }
+        .pagination button:hover:not(:disabled) {
+            background: #1d4ed8;
+            transform: scale(1.02);
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
+        }
+        .pagination button:active:not(:disabled) {
+            transform: scale(0.96);
+        }
+        .pagination button:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+        .pagination .page-info {
+            font-size: 14px;
+            color: var(--text);
+            background: var(--tag-bg);
+            padding: 5px 16px;
+            border-radius: 20px;
+            font-weight: 500;
+            min-width: 100px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        [data-theme="dark"] .pagination button {
+            box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+        }
+        [data-theme="dark"] .pagination button:hover:not(:disabled) {
+            background: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+        [data-theme="dark"] .pagination .page-info {
+            border-color: var(--border);
+        }
+
+        /* ===== 详情弹窗 ===== */
+        .modal-mask {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.50);
+            z-index: 20;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+        }
+        .modal-mask.show {
+            display: flex;
+        }
+        .modal-box {
+            width: 100%;
+            max-width: 680px;
+            max-height: 90vh;
+            overflow-y: auto;
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 18px 20px;
+        }
+        .modal-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .modal-close {
+            cursor: pointer;
+            font-size: 22px;
+            color: var(--text);
+        }
+        .modal-content p {
+            margin: 8px 0;
+            line-height: 1.65;
+        }
+        .modal-content ul {
+            margin: 8px 0 8px 20px;
+            line-height: 1.65;
+        }
+        .warn-block {
+            margin: 12px 0;
+            padding: 8px 12px;
+            border-left: 4px solid var(--warn);
+            background: rgba(220, 38, 38, 0.07);
+            border-radius: 0 6px 6px 0;
+            font-size: 14px;
+        }
+        .related-title {
+            margin-top: 14px;
+            margin-bottom: 6px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        .related-item {
+            display: inline-block;
+            padding: 3px 9px;
+            margin: 3px 4px 3px 0;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: 0.12s;
+        }
+        .related-item:hover {
+            background: var(--primary-light);
+        }
+
+        /* ===== 政策弹窗 ===== */
+        .policy-mask {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.50);
+            z-index: 25;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+        }
+        .policy-mask.show {
+            display: flex;
+        }
+        .policy-box {
+            width: 100%;
+            max-width: 880px;
+            height: 82vh;
+            background: var(--card-bg);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .policy-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .policy-iframe-wrap {
+            flex: 1;
+        }
+        .policy-iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+            background: #fff;
+        }
+        .policy-foot {
+            padding: 8px 16px;
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .policy-foot button {
+            padding: 5px 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 13px;
+            cursor: pointer;
+            background: var(--primary);
+            color: #fff;
+        }
+        .policy-foot button:hover {
+            opacity: 0.85;
+        }
+
+        /* =========================================================
+                   计算器 — 紧凑型 + 子Tab + 彩色大Tab
+                   ========================================================= */
+        .calc-mask {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: 30;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+        }
+        .calc-mask.show {
+            display: flex;
+        }
+        .calc-wrap {
+            width: 100%;
+            max-width: 560px;
+            max-height: 94vh;
+            overflow-y: auto;
+            background: var(--card-bg);
+            border-radius: 12px;
+            color: var(--text);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        }
+        .calc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 14px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .calc-header h3 {
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .calc-close {
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text);
+            line-height: 1;
+        }
+
+        /* ===== 大Tab ===== */
+        .calc-big-tab {
+            display: flex;
+            gap: 4px;
+            padding: 8px 12px 4px 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .calc-big-tab button {
+            flex: 1;
+            height: 48px !important;
+            padding: 0 20px !important;
+            font-size: 18px !important;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.15s;
+            white-space: nowrap;
+        }
+        .tab-subsidy {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .tab-subsidy.active {
+            background: #2563eb;
+            color: #fff;
+        }
+        .tab-profit {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .tab-profit.active {
+            background: #059669;
+            color: #fff;
+        }
+        .tab-fee {
+            background: #f3e8ff;
+            color: #6b21a8;
+        }
+        .tab-fee.active {
+            background: #7c3aed;
+            color: #fff;
+        }
+        .calc-big-tab button:hover {
+            opacity: 0.8;
+        }
+
+        .calc-big-panel {
+            display: none;
+            padding: 10px 12px 14px 12px;
+        }
+        .calc-big-panel.show {
+            display: block;
+        }
+
+        /* 子Tab */
+        .calc-sub-tab {
+            display: flex;
+            gap: 3px;
+            margin-bottom: 8px;
+        }
+        .calc-sub-tab button {
+            flex: 1;
+            padding: 5px 4px;
+            font-size: 12px;
+            border: none;
+            border-radius: 5px;
+            background: var(--tag-bg);
+            color: var(--text);
+            cursor: pointer;
+            transition: 0.12s;
+        }
+        .calc-sub-tab button.active {
+            background: var(--primary);
+            color: #fff;
+        }
+        .calc-sub-panel {
+            display: none;
+        }
+        .calc-sub-panel.show {
+            display: block;
+        }
+
+        /* 计算器卡片 */
+        .calc-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 10px 12px;
+            margin-bottom: 8px;
+        }
+        .calc-card:last-child {
+            margin-bottom: 0;
+        }
+        .calc-card h4 {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            border-left: 3px solid var(--primary);
+            padding-left: 8px;
+        }
+        .calc-tip {
+            font-size: 12px;
+            background: var(--primary-light);
+            padding: 6px 10px;
+            border-radius: 5px;
+            margin-bottom: 8px;
+            line-height: 1.5;
+            color: var(--text);
+            opacity: 0.85;
+        }
+        .calc-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 10px;
+            margin-bottom: 6px;
+            align-items: center;
+        }
+        .calc-row .field {
+            flex: 1 0 100%;
+            min-width: 0;
+        }
+        .calc-row .field.half {
+            flex: 1 0 calc(50% - 5px);
+            min-width: 120px;
+        }
+        .calc-row .field.third {
+            flex: 1 0 calc(33.33% - 7px);
+            min-width: 90px;
+        }
+        .calc-row label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 1px;
+            opacity: 0.8;
+        }
+        .calc-row input {
+            width: 100%;
+            padding: 5px 8px;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            font-size: 13px;
+            background: var(--card-bg);
+            color: var(--text);
+            transition: 0.12s;
+            height: 32px;
+        }
+        .calc-row input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+        }
+        .calc-row input::placeholder {
+            color: #aaa;
+            font-size: 12px;
+        }
+        .calc-actions {
+            display: flex;
+            gap: 6px;
+            margin: 6px 0 4px 0;
+        }
+        .calc-actions button {
+            flex: 1;
+            padding: 6px 8px;
+            border: none;
+            border-radius: 5px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.12s;
+            height: 34px;
+        }
+        .calc-actions .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+        .calc-actions .btn-primary:hover {
+            opacity: 0.88;
+        }
+        .calc-actions .btn-reset {
+            background: var(--tag-bg);
+            color: var(--text);
+        }
+        .calc-actions .btn-reset:hover {
+            opacity: 0.75;
+        }
+
+        .calc-result {
+            margin-top: 6px;
+            background: var(--primary-light);
+            padding: 8px 10px;
+            border-radius: 5px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .calc-result .warn {
+            color: var(--warn);
+            font-weight: 500;
+        }
+        .calc-result .strong {
+            font-weight: 600;
+        }
+
+        /* 反向模式tab */
+        .mode-tab {
+            display: flex;
+            gap: 3px;
+            margin-bottom: 6px;
+        }
+        .mode-tab button {
+            flex: 1;
+            padding: 4px 4px;
+            font-size: 11px;
+            border: none;
+            border-radius: 4px;
+            background: var(--tag-bg);
+            color: var(--text);
+            cursor: pointer;
+            transition: 0.12s;
+        }
+        .mode-tab button.active {
+            background: var(--primary);
+            color: #fff;
+        }
+        .mode-panel {
+            display: none;
+        }
+        .mode-panel.show {
+            display: block;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 220px;
+            }
+            .main-wrap {
+                padding: 10px 12px;
+            }
+            .calc-wrap {
+                max-width: 100%;
+                border-radius: 10px;
+            }
+            .calc-big-panel {
+                padding: 8px 10px 12px 10px;
+            }
+            .calc-row .field.half {
+                flex: 1 0 100%;
+            }
+            .calc-row .field.third {
+                flex: 1 0 100%;
+            }
+            .pagination button {
+                min-width: 70px;
+                padding: 6px 14px;
+                font-size: 13px;
+            }
+            .pagination .page-info {
+                font-size: 13px;
+                padding: 4px 12px;
+                min-width: 80px;
+            }
+        }
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 15px;
+            }
+            .calc-header h3 {
+                font-size: 13px;
+            }
+            .calc-big-tab button {
+                height: 40px !important;
+                font-size: 15px !important;
+                padding: 0 12px !important;
+            }
+            .calc-sub-tab button {
+                font-size: 11px;
+                padding: 4px 2px;
+            }
+            .pagination {
+                gap: 10px;
+            }
+            .pagination button {
+                min-width: 60px;
+                padding: 5px 10px;
+                font-size: 12px;
+            }
+            .pagination .page-info {
+                font-size: 12px;
+                padding: 3px 10px;
+                min-width: 70px;
+            }
+        }
+
+        @media print {
+            header,
+            .sidebar,
+            .modal-head,
+            .related-title,
+            .calc-mask,
+            .policy-mask {
+                display: none !important;
+            }
+            .modal-mask {
+                background: none !important;
+                position: static !important;
+                display: block !important;
+            }
+            .modal-box {
+                max-height: none !important;
+            }
+        }
+
+        /* ===== 辅助 ===== */
+        .mt-1 {
+            margin-top: 4px;
+        }
+        .mb-1 {
+            margin-bottom: 4px;
+        }
+        .text-sm {
+            font-size: 12px;
+        }
+        .op-6 {
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header>
+        <div class="header-left">
+            <button class="menu-btn" id="menuBtn">☰</button>
+            <h1 style="font-size:17px;font-weight:600;">支付行业知识大全</h1>
+        </div>
+        <div class="header-right">
+            <button class="calc-open-btn" id="openCalcBtn">🧮 计算器</button>
+            <button class="theme-btn" id="themeBtn">🌙</button>
+        </div>
+    </header>
+
+    <!-- ===== SIDEBAR ===== -->
+    <div class="container" id="mainContainer">
+        <aside class="sidebar" id="sidebarDom">
+            <h4 style="font-size:14px;margin-bottom:8px;">📂 知识分类</h4>
+            <div class="side-group">
+                <div class="side-group-header collapse">📖 基础行业知识 <span class="arrow">▼</span></div>
+                <div class="side-group-items collapse">
+                    <div class="side-menu-item" data-filter="all">📖 全部知识库</div>
+                    <div class="side-menu-item" data-filter="名词解释">📝 名词解释</div>
+                    <div class="side-menu-item" data-filter="费率成本">💰 费率&成本</div>
+                    <div class="side-menu-item" data-filter="机具避坑">⚠️ 机具避坑</div>
+                    <div class="side-menu-item" data-filter="风控冻结">🔒 风控与冻结</div>
+                    <div class="side-menu-item" data-filter="代理入行">👨‍💻 代理入行</div>
+                    <div class="side-menu-item" data-filter="政策合规">📜 政策合规</div>
+                </div>
+            </div>
+            <div class="side-group">
+                <div class="side-group-header collapse">🔧 售后故障排查 <span class="arrow">▼</span></div>
+                <div class="side-group-items collapse">
+                    <div class="side-menu-item" data-filter="售后故障">🔧 故障&不到账</div>
+                </div>
+            </div>
+            <div class="side-group">
+                <div class="side-group-header collapse">💬 话术模板库 <span class="arrow">▼</span></div>
+                <div class="side-group-items collapse">
+                    <div class="side-menu-item" data-filter="话术模板">📄 沟通申诉话术</div>
+                </div>
+            </div>
+            <div class="side-group">
+                <div class="side-group-header collapse">📄 政策文件 <span class="arrow">▼</span></div>
+                <div class="side-group-items collapse">
+                    <div class="side-menu-item" id="openPolicyBtn">拉卡拉&银行联合收单政策</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ===== MAIN ===== -->
+        <main class="main-wrap">
+            <input class="search-input" id="searchInput" placeholder="🔍 搜索知识点标题、内容……">
+            <div class="tag-group" id="tagWrap">
+                <span class="tag" data-filter="all">全部</span>
+                <span class="tag" data-filter="名词解释">名词解释</span>
+                <span class="tag" data-filter="费率成本">费率成本</span>
+                <span class="tag" data-filter="机具避坑">机具避坑</span>
+                <span class="tag" data-filter="风控冻结">风控冻结</span>
+                <span class="tag" data-filter="代理入行">代理入行</span>
+                <span class="tag" data-filter="政策合规">政策合规</span>
+                <span class="tag" data-filter="售后故障">售后故障</span>
+                <span class="tag" data-filter="话术模板">话术模板</span>
+            </div>
+            <div class="list-grid" id="listWrap"></div>
+            <div class="pagination" id="paginationWrap">
+                <button id="prevPageBtn" class="page-btn">上一页</button>
+                <span class="page-info" id="pageInfo">第 1 / 1 页</span>
+                <button id="nextPageBtn" class="page-btn">下一页</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- ===== 知识库详情弹窗 ===== -->
+    <div class="modal-mask" id="modalMask">
+        <div class="modal-box">
+            <div class="modal-head">
+                <h2 id="modalTitle" style="font-size:17px;"></h2>
+                <span class="modal-close" id="modalClose">×</span>
+            </div>
+            <div class="modal-content" id="modalBody"></div>
+            <div class="related-title">📎 相关阅读</div>
+            <div id="relatedWrap"></div>
+        </div>
+    </div>
+
+    <!-- ===== 政策弹窗 ===== -->
+    <div class="policy-mask" id="policyMask">
+        <div class="policy-box">
+            <div class="policy-head">
+                <h3 style="font-size:15px;">拉卡拉 &amp; 银行联合收单政策</h3>
+                <span class="modal-close" id="policyClose">×</span>
+            </div>
+            <div class="policy-iframe-wrap">
+                <iframe id="policyIframe" class="policy-iframe" src=""></iframe>
+            </div>
+            <div class="policy-foot">
+                <span style="font-size:12px;color:var(--warn);">⚠️ 页面空白请点下方按钮</span>
+                <button id="policyOpenNewTab">新标签打开</button>
+                <button id="policyInnerClose">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    计算器弹窗
+    ============================================================ -->
+    <div class="calc-mask" id="calcMask">
+        <div class="calc-wrap">
+            <div class="calc-header">
+                <h3>🧮 POS 综合计算器</h3>
+                <span class="calc-close" id="calcClose">×</span>
+            </div>
+
+            <!-- 大Tab -->
+            <div class="calc-big-tab">
+                <button class="tab-subsidy active" onclick="switchBigTab(0)">补贴费率</button>
+                <button class="tab-profit" onclick="switchBigTab(1)">代理分润</button>
+                <button class="tab-fee" onclick="switchBigTab(2)">刷卡手续费</button>
+            </div>
+
+            <!-- ====== Tab0: 补贴费率 ====== -->
+            <div class="calc-big-panel show" id="bigPanel0">
+                <div class="calc-sub-tab">
+                    <button class="active" onclick="switchSubTab(0,0)">正向 · 算实际费率</button>
+                    <button onclick="switchSubTab(0,1)">反向 · 算补贴金额</button>
+                </div>
+                <div class="calc-sub-panel show" id="subPanel0_0">
+                    <div class="calc-card">
+                        <h4>📈 正向计算</h4>
+                        <div class="calc-tip">
+                            公式：实际费率 = (交易额 × 商户费率 − 补贴) ÷ 交易额
+                        </div>
+                        <div class="calc-row">
+                            <div class="field half">
+                                <label>交易额 (元)</label>
+                                <input type="number" id="subsidyTotalAmt" placeholder="100000" value="100000">
+                            </div>
+                            <div class="field half">
+                                <label>商户费率 (%)</label>
+                                <input type="number" step="0.01" id="subsidyRate" placeholder="0.38" value="0.38">
+                            </div>
+                        </div>
+                        <div class="calc-row">
+                            <div class="field">
+                                <label>银行补贴 (元)</label>
+                                <input type="number" id="subsidyMoney" placeholder="300" value="300">
+                            </div>
+                        </div>
+                        <div class="calc-actions">
+                            <button class="btn-primary" onclick="calcSubsidyForward()">计算</button>
+                            <button class="btn-reset" onclick="resetSubsidyForward()">清空</button>
+                        </div>
+                        <div class="calc-result" id="resSubsidyForward"></div>
+                    </div>
+                </div>
+                <div class="calc-sub-panel" id="subPanel0_1">
+                    <div class="calc-card">
+                        <h4>📉 反向计算</h4>
+                        <div class="calc-tip">
+                            公式：补贴金额 = 交易额 × (商户费率 − 目标实际费率)
+                        </div>
+                        <div class="calc-row">
+                            <div class="field half">
+                                <label>交易额 (元)</label>
+                                <input type="number" id="subsidyRevAmt" placeholder="100000" value="100000">
+                            </div>
+                            <div class="field half">
+                                <label>商户费率 (%)</label>
+                                <input type="number" step="0.01" id="subsidyRevMerRate" placeholder="0.38" value="0.38">
+                            </div>
+                        </div>
+                        <div class="calc-row">
+                            <div class="field">
+                                <label>目标实际费率 (%)</label>
+                                <input type="number" step="0.001" id="subsidyRevTarget" placeholder="0.08" value="0.08">
+                            </div>
+                        </div>
+                        <div class="calc-actions">
+                            <button class="btn-primary" onclick="calcSubsidyReverse()">计算补贴</button>
+                            <button class="btn-reset" onclick="resetSubsidyReverse()">清空</button>
+                        </div>
+                        <div class="calc-result" id="resSubsidyReverse"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== Tab1: 代理分润 ====== -->
+            <div class="calc-big-panel" id="bigPanel1">
+                <div class="calc-card">
+                    <h4>💰 代理分润计算</h4>
+                    <div class="calc-tip">
+                        分润 = 交易额 × (商户费率 − 代理结算费率)
+                    </div>
+                    <div class="calc-row">
+                        <div class="field half">
+                            <label>周期交易额 (元)</label>
+                            <input type="number" id="profitTrade" placeholder="1000000" value="1000000">
+                        </div>
+                        <div class="field half">
+                            <label>商户费率 (%)</label>
+                            <input type="number" step="0.01" id="profitMerRate" placeholder="0.60" value="0.60">
+                        </div>
+                    </div>
+                    <div class="calc-row">
+                        <div class="field">
+                            <label>代理结算费率 (%)</label>
+                            <input type="number" step="0.01" id="profitAgentRate" placeholder="0.51" value="0.51">
+                        </div>
+                    </div>
+                    <div class="calc-actions">
+                        <button class="btn-primary" onclick="calcProfit()">计算分润</button>
+                        <button class="btn-reset" onclick="resetProfit()">清空</button>
+                    </div>
+                    <div class="calc-result" id="resProfit"></div>
+                </div>
+            </div>
+
+            <!-- ====== Tab2: 刷卡手续费 ====== -->
+            <div class="calc-big-panel" id="bigPanel2">
+                <div class="calc-sub-tab">
+                    <button class="active" onclick="switchSubTab(2,0)">正向 · 算手续费</button>
+                    <button onclick="switchSubTab(2,1)">反向 · 推算费率</button>
+                </div>
+
+                <!-- 正向 -->
+                <div class="calc-sub-panel show" id="subPanel2_0">
+                    <div class="calc-card">
+                        <h4>📊 正向计算</h4>
+                        <div class="calc-tip">
+                            总手续费 = 交易额 × 费率% + 秒到费 + 流量费
+                        </div>
+                        <div class="calc-row">
+                            <div class="field third">
+                                <label>交易金额 (元)</label>
+                                <input type="number" id="tradeMoney1" placeholder="10000" value="10000">
+                            </div>
+                            <div class="field third">
+                                <label>费率 (%)</label>
+                                <input type="number" step="0.01" id="rate1" placeholder="0.6" value="0.6">
+                            </div>
+                            <div class="field third">
+                                <label>秒到费 (元/笔)</label>
+                                <input type="number" id="secFee" placeholder="3" value="3">
+                            </div>
+                        </div>
+                        <div class="calc-row">
+                            <div class="field">
+                                <label>流量费 (元/笔)</label>
+                                <input type="number" id="flowFee" placeholder="0.3" value="0.3">
+                            </div>
+                        </div>
+                        <div class="calc-actions">
+                            <button class="btn-primary" onclick="calcForward()">计算</button>
+                            <button class="btn-reset" onclick="resetForward()">清空</button>
+                        </div>
+                        <div class="calc-result" id="resForward"></div>
+                    </div>
+                </div>
+
+                <!-- 反向：精细推算 -->
+                <div class="calc-sub-panel" id="subPanel2_1">
+                    <div class="calc-card">
+                        <h4>🔍 反向精细推算</h4>
+                        <div class="calc-tip">
+                            总扣费 = 交易额 − 到账金额。固定两项，推算第三项。
+                        </div>
+                        <div class="calc-row">
+                            <div class="field half">
+                                <label>交易金额 (元)</label>
+                                <input type="number" id="tradeMoney2" placeholder="1000" value="1000">
+                            </div>
+                            <div class="field half">
+                                <label>实际到账 (元)</label>
+                                <input type="number" id="receiveMoney" placeholder="922" value="922">
+                            </div>
+                        </div>
+
+                        <div class="mode-tab">
+                            <button class="active" onclick="switchMode(0)">求费率</button>
+                            <button onclick="switchMode(1)">求流量费</button>
+                            <button onclick="switchMode(2)">求秒到费</button>
+                        </div>
+
+                        <!-- 模式0 -->
+                        <div class="mode-panel show" id="panel0">
+                            <div class="calc-row">
+                                <div class="field half">
+                                    <label>已知秒到费 (元)</label>
+                                    <input type="number" id="fix_sec0" placeholder="3" value="3">
+                                </div>
+                                <div class="field half">
+                                    <label>已知流量费 (元)</label>
+                                    <input type="number" id="fix_flow0" placeholder="0.3" value="0.3">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 模式1 -->
+                        <div class="mode-panel" id="panel1">
+                            <div class="calc-row">
+                                <div class="field half">
+                                    <label>已知费率 (%)</label>
+                                    <input type="number" step="0.01" id="fix_rate1" placeholder="0.6" value="0.6">
+                                </div>
+                                <div class="field half">
+                                    <label>已知秒到费 (元)</label>
+                                    <input type="number" id="fix_sec1" placeholder="3" value="3">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 模式2 -->
+                        <div class="mode-panel" id="panel2">
+                            <div class="calc-row">
+                                <div class="field half">
+                                    <label>已知费率 (%)</label>
+                                    <input type="number" step="0.01" id="fix_rate2" placeholder="0.6" value="0.6">
+                                </div>
+                                <div class="field half">
+                                    <label>已知流量费 (元)</label>
+                                    <input type="number" id="fix_flow2" placeholder="0.3" value="0.3">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="calc-actions">
+                            <button class="btn-primary" onclick="calcReverseAdv()">推算</button>
+                            <button class="btn-reset" onclick="resetReverseAdv()">清空</button>
+                        </div>
+                        <div class="calc-result" id="resReverseAdv"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /.calc-wrap -->
+    </div><!-- /.calc-mask -->
+
+
+    <script>
+        // ============================================================
+        //  DOM 工具
+        // ============================================================
+        const $ = s => document.querySelector(s);
+        const $$ = s => document.querySelectorAll(s);
+
+        // ============================================================
+        //  侧边栏 / 主题 / 搜索
+        // ============================================================
+        $("#menuBtn").addEventListener('click', () => {
+            $("#sidebarDom").classList.toggle('open');
+        });
+
+        $$('.side-group-header').forEach(header => {
+            header.addEventListener('click', function() {
+                const items = this.nextElementSibling;
+                const isOpen = !this.classList.contains('collapse');
+                $$('.side-group-header').forEach(h => h.classList.add('collapse'));
+                $$('.side-group-items').forEach(el => el.classList.add('collapse'));
+                if (!isOpen) {
+                    this.classList.remove('collapse');
+                    items.classList.remove('collapse');
+                }
+            });
+        });
+
+        $("#themeBtn").addEventListener('click', () => {
+            const d = document.documentElement;
+            if (d.getAttribute('data-theme') === 'dark') {
+                d.removeAttribute('data-theme');
+                $("#themeBtn").innerText = '🌙';
+            } else {
+                d.setAttribute('data-theme', 'dark');
+                $("#themeBtn").innerText = '☀️';
+            }
+        });
+
+        // ============================================================
+        //  知识库渲染 (来自 knowledge.js) + 分页
+        // ============================================================
+        let currentFilter = "all";
+        let currentPage = 1;
+        const pageSize = 10;
+        let filteredData = [];
+
+        function renderList() {
+            const kw = $("#searchInput").value.trim().toLowerCase();
+            let arr = [...knowledgeDB];
+            if (currentFilter !== "all") {
+                arr = arr.filter(item => item.tags.includes(currentFilter));
+            }
+            if (kw) {
+                arr = arr.filter(item =>
+                    item.title.toLowerCase().includes(kw) ||
+                    item.summary.toLowerCase().includes(kw) ||
+                    item.content.toLowerCase().includes(kw)
+                );
+            }
+            filteredData = arr;
+
+            const totalPages = Math.ceil(filteredData.length / pageSize) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            const start = (currentPage - 1) * pageSize;
+            const end = start + pageSize;
+            const pageData = filteredData.slice(start, end);
+
+            const html = pageData.map(item =>
+                `<div class="article-card" data-id="${item.id}">
+                    <h3>${item.title}</h3>
+                    <div class="summary">${item.summary}</div>
+                    <div class="card-tags">${item.tags.map(t=>`<span class="card-tag">${t}</span>`).join('')}</div>
+                </div>`
+            ).join('');
+            $("#listWrap").innerHTML = html;
+
+            $$('.article-card').forEach(card => {
+                card.addEventListener('click', () => openModal(Number(card.dataset.id)));
+            });
+
+            renderPagination(totalPages);
+        }
+
+        function renderPagination(totalPages) {
+            const prevBtn = $("#prevPageBtn");
+            const nextBtn = $("#nextPageBtn");
+            const pageInfo = $("#pageInfo");
+            pageInfo.innerText = `第 ${currentPage} / ${totalPages} 页`;
+            prevBtn.disabled = (currentPage === 1);
+            nextBtn.disabled = (currentPage === totalPages);
+        }
+
+        $("#prevPageBtn").addEventListener('click', function() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderList();
+            }
+        });
+        $("#nextPageBtn").addEventListener('click', function() {
+            const totalPages = Math.ceil(filteredData.length / pageSize) || 1;
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderList();
+            }
+        });
+
+        // ============================================================
+        //  详情弹窗
+        // ============================================================
+        function openModal(id) {
+            const art = knowledgeDB.find(x => x.id === id);
+            if (!art) return;
+            $("#modalTitle").innerText = art.title;
+            let bodyHtml = art.content;
+            if (art.warning) {
+                bodyHtml += `<div class="warn-block">${art.warning}</div>`;
+            }
+            $("#modalBody").innerHTML = bodyHtml;
+            let relHtml = "";
+            if (art.relatedIds && art.relatedIds.length) {
+                art.relatedIds.forEach(rid => {
+                    const r = knowledgeDB.find(x => x.id === rid);
+                    if (r) relHtml += `<span class="related-item" data-id="${r.id}">${r.title}</span>`;
+                });
+            }
+            $("#relatedWrap").innerHTML = relHtml;
+            $$("#relatedWrap .related-item").forEach(el => {
+                el.addEventListener('click', () => openModal(Number(el.dataset.id)));
+            });
+            $("#modalMask").classList.add('show');
+        }
+
+        function closeModal() {
+            $("#modalMask").classList.remove('show');
+        }
+        $("#modalClose").addEventListener('click', closeModal);
+        $("#modalMask").addEventListener('click', e => {
+            if (e.target === $("#modalMask")) closeModal();
+        });
+
+        $$("#tagWrap .tag").forEach(tag => {
+            tag.addEventListener('click', function() {
+                $$("#tagWrap .tag").forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.dataset.filter;
+                currentPage = 1;
+                renderList();
+            });
+        });
+
+        $$(".side-menu-item").forEach(item => {
+            item.addEventListener('click', function() {
+                if (this.id === "openPolicyBtn") return;
+                $$(".side-menu-item").forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.dataset.filter;
+                currentPage = 1;
+                $("#sidebarDom").classList.remove('open');
+                renderList();
+            });
+        });
+
+        $("#searchInput").addEventListener('input', function() {
+            currentPage = 1;
+            renderList();
+        });
+
+        renderList();
+        $$("#tagWrap .tag")[0].classList.add('active');
+        $$(".side-menu-item")[0].classList.add('active');
+
+        // ============================================================
+        //  政策弹窗
+        // ============================================================
+        const POLICY_URL =
+            "https://mbpsite.wsmsd.cn/html/sit/mkt/bmt-web/protocol/external-policy-presentation.html";
+
+        function openPolicyModal() {
+            $("#policyIframe").src = POLICY_URL;
+            $("#policyMask").classList.add('show');
+            $("#sidebarDom").classList.remove('open');
+        }
+
+        function closePolicyModal() {
+            $("#policyMask").classList.remove('show');
+            $("#policyIframe").src = "";
+        }
+        $("#openPolicyBtn").addEventListener('click', openPolicyModal);
+        $("#policyClose").addEventListener('click', closePolicyModal);
+        $("#policyInnerClose").addEventListener('click', closePolicyModal);
+        $("#policyMask").addEventListener('click', e => {
+            if (e.target === $("#policyMask")) closePolicyModal();
+        });
+        $("#policyOpenNewTab").addEventListener('click', () => {
+            window.open(POLICY_URL, "_blank");
+        });
+
+        // ============================================================
+        //  计算器 — 大Tab 切换
+        // ============================================================
+        let bigTabIndex = 0;
+
+        function switchBigTab(idx) {
+            bigTabIndex = idx;
+            $$('.calc-big-panel').forEach((el, i) => el.classList.toggle('show', i === idx));
+            const btns = document.querySelectorAll('.calc-big-tab button');
+            btns.forEach((btn, i) => {
+                btn.classList.toggle('active', i === idx);
+            });
+        }
+
+        // ============================================================
+        //  计算器 — 子Tab 切换
+        // ============================================================
+        function switchSubTab(bigIdx, subIdx) {
+            const prefix = bigIdx === 0 ? 'subPanel0_' : 'subPanel2_';
+            const container = document.getElementById(bigIdx === 0 ? 'bigPanel0' : 'bigPanel2');
+            const panels = container.querySelectorAll('.calc-sub-panel');
+            panels.forEach(p => p.classList.remove('show'));
+            const target = document.getElementById(prefix + subIdx);
+            if (target) target.classList.add('show');
+            const btns = container.querySelectorAll('.calc-sub-tab button');
+            btns.forEach((b, i) => b.classList.toggle('active', i === subIdx));
+        }
+
+        // ============================================================
+        //  补贴费率 正向
+        // ============================================================
+        function calcSubsidyForward() {
+            const total = parseFloat($("#subsidyTotalAmt").value) || 0;
+            const rate = parseFloat($("#subsidyRate").value) || 0;
+            const subsidy = parseFloat($("#subsidyMoney").value) || 0;
+            const dom = $("#resSubsidyForward");
+            if (total <= 0) { dom.innerHTML =
+                `<div class="warn">⚠️ 请输入有效的交易额</div>`; return; }
+            const totalFee = total * (rate / 100);
+            const realFee = totalFee - subsidy;
+            const realRate = total > 0 ? (realFee / total) * 100 : 0;
+            dom.innerHTML = `
+            <div>交易额 <span class="strong">${total.toFixed(2)}</span> 元 &nbsp;|&nbsp; 商户费率 <span class="strong">${rate}%</span></div>
+            <div>补贴 <span class="strong">${subsidy.toFixed(2)}</span> 元</div>
+            <div>总手续费 ${totalFee.toFixed(2)} 元 → 实际手续费 ${realFee.toFixed(2)} 元</div>
+            <div style="margin-top:4px;font-size:14px;"><strong>实际费率 = ${realRate.toFixed(4)}%</strong></div>
+          `;
+        }
+
+        function resetSubsidyForward() {
+            $("#subsidyTotalAmt").value = '';
+            $("#subsidyRate").value = '';
+            $("#subsidyMoney").value = '';
+            $("#resSubsidyForward").innerHTML = '';
+        }
+
+        // ============================================================
+        //  补贴费率 反向
+        // ============================================================
+        function calcSubsidyReverse() {
+            const total = parseFloat($("#subsidyRevAmt").value) || 0;
+            const merRate = parseFloat($("#subsidyRevMerRate").value) || 0;
+            const targetRate = parseFloat($("#subsidyRevTarget").value) || 0;
+            const dom = $("#resSubsidyReverse");
+            if (total <= 0) { dom.innerHTML =
+                `<div class="warn">⚠️ 请输入有效的交易额</div>`; return; }
+            if (targetRate >= merRate) {
+                dom.innerHTML = `<div class="warn">⚠️ 目标实际费率需小于商户费率</div>`;
+                return;
+            }
+            const subsidy = total * ((merRate - targetRate) / 100);
+            const totalFee = total * (merRate / 100);
+            const realFee = totalFee - subsidy;
+            dom.innerHTML = `
+            <div>交易额 <span class="strong">${total.toFixed(2)}</span> 元 &nbsp;|&nbsp; 商户费率 <span class="strong">${merRate}%</span></div>
+            <div>目标实际费率 <span class="strong">${targetRate}%</span></div>
+            <div style="margin-top:4px;">总手续费 ${totalFee.toFixed(2)} 元</div>
+            <div style="font-size:14px;margin-top:2px;">
+              <strong>需要补贴金额 = ${subsidy.toFixed(2)} 元</strong>
+              <span class="op-6" style="font-weight:400;margin-left:8px;">（实际手续费 ${realFee.toFixed(2)} 元）</span>
+            </div>
+          `;
+        }
+
+        function resetSubsidyReverse() {
+            $("#subsidyRevAmt").value = '';
+            $("#subsidyRevMerRate").value = '';
+            $("#subsidyRevTarget").value = '';
+            $("#resSubsidyReverse").innerHTML = '';
+        }
+
+        // ============================================================
+        //  代理分润
+        // ============================================================
+        function calcProfit() {
+            const trade = parseFloat($("#profitTrade").value) || 0;
+            const mer = parseFloat($("#profitMerRate").value) || 0;
+            const agent = parseFloat($("#profitAgentRate").value) || 0;
+            const dom = $("#resProfit");
+            if (trade <= 0) { dom.innerHTML = `<div class="warn">⚠️ 请输入交易额</div>`; return; }
+            const diff = (mer - agent);
+            const profit = trade * (diff / 100);
+            dom.innerHTML = `
+            <div>交易额 <span class="strong">${trade.toFixed(2)}</span> 元</div>
+            <div>商户费率 ${mer}% &nbsp;−&nbsp; 结算费率 ${agent}% = 分润差 <span class="strong">${diff.toFixed(4)}%</span></div>
+            <div style="font-size:14px;margin-top:4px;"><strong>本期分润 = ${profit.toFixed(2)} 元</strong></div>
+          `;
+        }
+
+        function resetProfit() {
+            $("#profitTrade").value = '';
+            $("#profitMerRate").value = '';
+            $("#profitAgentRate").value = '';
+            $("#resProfit").innerHTML = '';
+        }
+
+        // ============================================================
+        //  刷卡手续费 正向
+        // ============================================================
+        function calcForward() {
+            const trade = parseFloat($("#tradeMoney1").value) || 0;
+            const rate = parseFloat($("#rate1").value) || 0; // 单位 %
+            const sec = parseFloat($("#secFee").value) || 0;
+            const flow = parseFloat($("#flowFee").value) || 0;
+            const dom = $("#resForward");
+            if (trade <= 0) { dom.innerHTML = `<div class="warn">⚠️ 请输入交易金额</div>`; return; }
+            const fee = trade * (rate / 100) + sec + flow;
+            const receive = trade - fee;
+            dom.innerHTML = `
+            <div>交易额 <span class="strong">${trade.toFixed(2)}</span> 元 &nbsp;|&nbsp; 费率 <span class="strong">${rate}%</span></div>
+            <div>秒到费 ${sec.toFixed(2)} 元 &nbsp;|&nbsp; 流量费 ${flow.toFixed(2)} 元</div>
+            <div style="margin-top:4px;font-size:14px;">
+              <strong>总手续费 ${fee.toFixed(2)} 元</strong> &nbsp;→&nbsp; 到账 <strong>${receive.toFixed(2)}</strong> 元
+            </div>
+          `;
+        }
+
+        function resetForward() {
+            $("#tradeMoney1").value = '';
+            $("#rate1").value = '';
+            $("#secFee").value = '';
+            $("#flowFee").value = '';
+            $("#resForward").innerHTML = '';
+        }
+
+        // ============================================================
+        //  刷卡手续费 反向
+        // ============================================================
+        let curMode = 0;
+
+        function switchMode(idx) {
+            curMode = idx;
+            document.querySelectorAll('.mode-panel').forEach((el, i) => {
+                el.classList.toggle('show', i === idx);
+            });
+            document.querySelectorAll('.mode-tab button').forEach((el, i) => {
+                el.classList.toggle('active', i === idx);
+            });
+        }
+
+        function calcReverseAdv() {
+            const trade = parseFloat($("#tradeMoney2").value) || 0;
+            const receive = parseFloat($("#receiveMoney").value) || 0;
+            const dom = $("#resReverseAdv");
+            if (trade <= 0) { dom.innerHTML = `<div class="warn">⚠️ 请输入交易金额</div>`; return; }
+            if (receive >= trade) {
+                dom.innerHTML = `<div class="warn">⚠️ 到账金额必须小于交易金额</div>`;
+                return;
+            }
+            const totalFee = trade - receive;
+            let html =
+                `<div>交易额 <span class="strong">${trade.toFixed(2)}</span> 元 &nbsp;|&nbsp; 到账 <span class="strong">${receive.toFixed(2)}</span> 元</div>
+                   <div><strong>总扣费 = ${totalFee.toFixed(2)} 元</strong></div>`;
+
+            if (curMode === 0) {
+                // 求费率：固定秒到+流量
+                const sec = parseFloat($("#fix_sec0").value) || 0;
+                const flow = parseFloat($("#fix_flow0").value) || 0;
+                const varFee = totalFee - sec - flow;
+                if (varFee < 0) {
+                    html += `<div class="warn">⚠️ 固定费用已超过总扣费，参数不合理</div>`;
+                } else {
+                    const ratePercent = varFee / trade * 100; // 直接得到%
+                    html += `
+                <div>秒到费 ${sec.toFixed(2)} 元 &nbsp;|&nbsp; 流量费 ${flow.toFixed(2)} 元</div>
+                <div style="font-size:14px;margin-top:4px;"><strong>推算费率 = ${ratePercent.toFixed(4)}%</strong></div>
+              `;
+                }
+            } else if (curMode === 1) {
+                // 求流量费：固定费率+秒到
+                const rate = parseFloat($("#fix_rate1").value) || 0; // %
+                const sec = parseFloat($("#fix_sec1").value) || 0;
+                const rateFee = trade * (rate / 100);
+                const flowCalc = totalFee - rateFee - sec;
+                html += `
+              <div>费率 ${rate}% &nbsp;|&nbsp; 秒到费 ${sec.toFixed(2)} 元</div>
+              <div style="font-size:14px;margin-top:4px;"><strong>推算流量费 = ${flowCalc.toFixed(3)} 元/笔</strong></div>
+            `;
+                if (flowCalc < 0) html += `<div class="warn">⚠️ 流量费为负数，参数不合理</div>`;
+            } else if (curMode === 2) {
+                // 求秒到费：固定费率+流量
+                const rate = parseFloat($("#fix_rate2").value) || 0; // %
+                const flow = parseFloat($("#fix_flow2").value) || 0;
+                const rateFee = trade * (rate / 100);
+                const secCalc = totalFee - rateFee - flow;
+                html += `
+              <div>费率 ${rate}% &nbsp;|&nbsp; 流量费 ${flow.toFixed(2)} 元</div>
+              <div style="font-size:14px;margin-top:4px;"><strong>推算秒到费 = ${secCalc.toFixed(3)} 元/笔</strong></div>
+            `;
+                if (secCalc < 0) html += `<div class="warn">⚠️ 秒到费为负数，参数不合理</div>`;
+            }
+            dom.innerHTML = html;
+        }
+
+        function resetReverseAdv() {
+            $("#tradeMoney2").value = '';
+            $("#receiveMoney").value = '';
+            $("#fix_sec0").value = '';
+            $("#fix_flow0").value = '';
+            $("#fix_rate1").value = '';
+            $("#fix_sec1").value = '';
+            $("#fix_rate2").value = '';
+            $("#fix_flow2").value = '';
+            $("#resReverseAdv").innerHTML = '';
+            switchMode(0);
+        }
+
+        // ============================================================
+        //  计算器弹窗 开关
+        // ============================================================
+        $("#openCalcBtn").onclick = () => $("#calcMask").classList.add("show");
+        $("#calcClose").onclick = () => $("#calcMask").classList.remove("show");
+        $("#calcMask").addEventListener("click", e => {
+            if (e.target === $("#calcMask")) $("#calcMask").classList.remove("show");
+        });
+
+        // ============================================================
+        //  初始化
+        // ============================================================
+        switchMode(0);
+    </script>
+
+    <!-- 统计代码（保留） -->
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?8011763cb497f7b00f2e4d502a337c0b";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js">
+    </script>
+    <script>
+        LA.init({ id: "3HpUziWJmj6VQUHP", ck: "3HpUziWJmj6VQUHP", autoTrack: true })
+    </script>
+
+</body>
+<textarea style="display:none">
+</html>
