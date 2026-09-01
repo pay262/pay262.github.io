@@ -1105,20 +1105,47 @@
                                 var title = this.dataset.title;
                                 var link = this.dataset.link;
                         
-                                // 生成平台邀请链接（带随机ref）
-                                var newRef = Math.random().toString(36).substr(2, 6);
+                                // ---- 1. 获取或生成固定用户推广码（localStorage） ----
+                                var userRef = localStorage.getItem('userRef');
+                                if (!userRef) {
+                                    userRef = Math.random().toString(36).substr(2, 6);
+                                    localStorage.setItem('userRef', userRef);
+                                }
+                        
+                                // ---- 2. 构建平台邀请链接 ----
                                 var baseUrl = window.location.href.split('?')[0];
                                 var currentParams = new URLSearchParams(window.location.search);
-                                currentParams.set('ref', newRef);
+                                currentParams.set('ref', userRef);
                                 var inviteLink = baseUrl + '?' + currentParams.toString();
                         
-                                // 使用两个换行符，增强换行兼容性
+                                // ---- 3. 构建分享文本（活动标题 + 活动链接 + 换行 + 平台链接） ----
                                 var shareText = '🎁 发现一个超值福利：' + title + '，一起领福利赚佣金！' + link + '\n\n更多福利活动👉' + inviteLink;
                         
-                                if (navigator.share) {
-                                    navigator.share({ title: title, text: shareText, url: link }).catch(function() {});
+                                // ---- 4. 统计分享次数（百度统计事件） ----
+                                if (typeof _hmt !== 'undefined') {
+                                    _hmt.push(['_trackEvent', '分享', '点击', title, 1]);
+                                    console.log('📊 百度统计已记录：分享活动 "' + title + '"');
                                 } else {
-                                    // 改用 textarea 以支持多行文本复制
+                                    console.warn('百度统计未加载，无法记录分享事件');
+                                }
+                        
+                                // ---- 5. 本地累计计数（仅展示） ----
+                                var localCountKey = 'share_total_' + userRef;
+                                var localCount = parseInt(localStorage.getItem(localCountKey) || '0', 10);
+                                localCount++;
+                                localStorage.setItem(localCountKey, localCount);
+                                console.log('📊 您已分享 ' + localCount + ' 次（本地计数）');
+                        
+                                // ---- 6. 执行分享或复制 ----
+                                if (navigator.share) {
+                                    navigator.share({ title: title, text: shareText, url: link }).catch(function(err) {
+                                        // 如果用户取消分享，不报错
+                                        if (err.name !== 'AbortError') {
+                                            console.warn('分享失败:', err);
+                                        }
+                                    });
+                                } else {
+                                    // 使用 textarea 支持多行复制
                                     var dummy = document.createElement('textarea');
                                     dummy.value = shareText;
                                     dummy.style.cssText = 'position:fixed;top:-1000px;left:-1000px;opacity:0;';
@@ -1126,7 +1153,7 @@
                                     dummy.select();
                                     try {
                                         document.execCommand('copy');
-                                        showCustomToast('✅ 已复制分享链接', '分享给好友，TA参与你赚佣金');
+                                        showCustomToast('✅ 已复制分享链接（累计分享 ' + localCount + ' 次）', '分享给好友，TA参与你赚佣金');
                                     } catch (e) {
                                         showCustomToast('📋 请手动复制链接', shareText);
                                     }
