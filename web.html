@@ -407,6 +407,19 @@
             <iframe class="ad-iframe" src="https://m.qhlwvcc.shop/m/Ix82mh" loading="lazy"></iframe>
         </div>
     </div>
+    <!-- 活动二维码弹窗 -->
+    <div class="qr-popup-mask" id="activityQrMask">
+        <div class="qr-popup-card">
+            <div class="qr-popup-header">
+                <span class="qr-popup-title" id="qrPopupTitle">活动二维码</span>
+                <button class="qr-popup-close" id="qrPopupClose" onclick="closeQrPopup(); return false;">×</button>
+                            </div>
+            <div class="qr-popup-body">
+                <img id="qrPopupImage" src="" alt="二维码">
+                <p class="qr-popup-tip">长按识别二维码 参与活动</p>
+            </div>
+        </div>
+    </div>
 
     <!-- ===== 结构化数据 ===== -->
     <script type="application/ld+json">
@@ -642,26 +655,93 @@
             // ============================================================
             //  3. 邀请好友(分享功能)
             // ============================================================
-            function inviteFriend() {
-                var inviteLink = window.location.href + '?ref=' + (Math.random().toString(36).substr(2, 6));
-                var text = '🎁 我在未来福利社赚佣金，快来一起领福利！' + inviteLink;
-                if (navigator.share) {
-                    navigator.share({ title: '邀请好友赚佣金', text: text, url: inviteLink })['catch'](function() {});
-                } else {
-                    var dummy = document.createElement('input');
-                    dummy.value = text;
-                    document.body.appendChild(dummy);
-                    dummy.select();
-                    try {
-                        document.execCommand('copy');
-                        showCustomToast('✅ 邀请链接已复制', '分享给好友，TA参与你赚佣金');
-                    } catch (e) {
-                        showCustomToast('📋 请手动复制链接', inviteLink);
+        function inviteFriend() {
+            // 1. 生成新的邀请码（6位随机字符）
+            var newRef = Math.random().toString(36).substr(2, 6);
+            
+            // 2. 获取当前页面完整 URL，并正确处理已有 ref 参数
+            var baseUrl = window.location.href.split('?')[0]; // 去掉所有查询参数
+            var currentParams = new URLSearchParams(window.location.search);
+            
+            // 3. 更新或添加 ref 参数
+            currentParams.set('ref', newRef);
+            
+            // 4. 重新构建完整链接
+            var inviteLink = baseUrl + '?' + currentParams.toString();
+            
+            // 5. 分享文案
+            var shareText = '🎁 我在未来福利社赚佣金，快来一起领福利！' + inviteLink;
+        
+            // 6. 尝试使用 Web Share API（移动端原生分享）
+            if (navigator.share) {
+                navigator.share({
+                    title: '邀请好友赚佣金',
+                    text: shareText,
+                    url: inviteLink
+                }).catch(function(err) {
+                    // 用户取消分享时不报错
+                    if (err.name !== 'AbortError') {
+                        console.warn('分享取消或失败:', err);
+                        fallbackCopy(shareText);
                     }
-                    document.body.removeChild(dummy);
-                }
+                });
+                return;
             }
-
+        
+            // 7. 降级方案：复制到剪贴板
+            fallbackCopy(shareText);
+        }
+        
+        /**
+         * 兼容性复制函数（同时支持 clipboard API 和 execCommand）
+         */
+        function fallbackCopy(text) {
+            // 优先使用 Clipboard API（现代浏览器）
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text)
+                    .then(function() {
+                        showCustomToast('✅ 邀请链接已复制', '分享给好友，TA参与你赚佣金');
+                    })
+                    .catch(function(err) {
+                        // 如果 Clipboard API 失败（如权限问题），降级到 execCommand
+                        console.warn('Clipboard API 失败，降级到 execCommand:', err);
+                        execCopy(text);
+                    });
+            } else {
+                // 直接使用 execCommand（兼容旧浏览器）
+                execCopy(text);
+            }
+        }
+        
+        /**
+         * 使用 input + execCommand 复制（适用于小米浏览器等）
+         */
+        function execCopy(text) {
+            // 创建临时 input 元素
+            var input = document.createElement('input');
+            input.value = text;
+            // 设置为透明且不可见，避免影响页面布局
+            input.style.cssText = 'position:fixed;top:-1000px;left:-1000px;opacity:0;';
+            document.body.appendChild(input);
+            
+            // 选中并尝试复制
+            input.select();
+            input.setSelectionRange(0, text.length); // 移动端兼容
+            
+            try {
+                var success = document.execCommand('copy');
+                if (success) {
+                    showCustomToast('✅ 邀请链接已复制', '分享给好友，TA参与你赚佣金');
+                } else {
+                    showCustomToast('📋 请手动复制链接', text);
+                }
+            } catch (e) {
+                showCustomToast('📋 请手动复制链接', text);
+            }
+            
+            // 清理 DOM
+            document.body.removeChild(input);
+        }
             document.getElementById('inviteBtn').addEventListener('click', inviteFriend);
             if (dom.floatInviteBtn) dom.floatInviteBtn.addEventListener('click', inviteFriend);
             document.getElementById('inviteBanner').addEventListener('click', function(e) {
@@ -1269,19 +1349,6 @@
         };
     </script>
 
-    <!-- 活动二维码弹窗 -->
-    <div class="qr-popup-mask" id="activityQrMask">
-        <div class="qr-popup-card">
-            <div class="qr-popup-header">
-                <span class="qr-popup-title" id="qrPopupTitle">活动二维码</span>
-                <button class="qr-popup-close" id="qrPopupClose" onclick="closeQrPopup(); return false;">×</button>
-                            </div>
-            <div class="qr-popup-body">
-                <img id="qrPopupImage" src="" alt="二维码">
-                <p class="qr-popup-tip">长按识别二维码 参与活动</p>
-            </div>
-        </div>
-    </div>
 
 </body>
 </html>
