@@ -3065,6 +3065,228 @@ const activityList = [
     link: "https://wap.cq.10086.cn/h5/electronicchannelmember/vip0Detail.html?root_trace_id=6726af82-cedf-43e6-9859-9d82810d8ac8"
 },
 // ============================================================
+//  新增活动 180-190（银行+互联网大厂）
+//  来源：运营商公告 + 权威媒体
+//  最新编号从 180 开始
+// ============================================================
+
+// 180. 农业银行美团支付首绑随机立减
+{
+    id: 180,
+    operator: "银行",
+    province: "全国",
+    city: "全国",
+    mainType: "其他活动",
+    subType: ["支付立减"],
+    title: "农行信用卡美团首绑·随机立减至高18元",
+    startTime: "2026-09-01",
+    endTime: "2026-09-30",
+    desc: "农行信用卡持卡人在美团旗下APP首次绑定农行信用卡并支付，首笔订单可享随机立减1-18元优惠。每天不少于2000名额，先到先得[citation:4][citation:14]",
+    remark: "限农行信用卡持卡人；仅限美团支付首绑；每天0点开始；同一客户活动期间仅享1次[citation:4]",
+    link: "https://www.abchina.com/cn/CreditCard/Special0ffers/All/qgmtqx20260901.htm"
+},
+// 181. 农业银行美团大额满减
+{
+    id: 181,
+    operator: "银行",
+    province: "全国",
+    city: "全国",
+    mainType: "其他活动",
+    subType: ["支付立减"],
+    title: "农行信用卡美团支付·满1000立减10元",
+    startTime: "2026-09-01",
+    endTime: "2026-09-30",
+    desc: "62开头农行信用卡持卡人在美团/大众点评/美团外卖APP消费，通过美团支付满1000元立减10元。每月限3万名，先到先得[citation:9]",
+    remark: "限62开头农行信用卡持卡人；每月限参与1次；可与平台红包叠加[citation:9]",
+    link: "https://www.abchina.com/zt/CreditCard/Special0ffers/All/qgmtdemj20260901.htm"
+},
+// 182. 农业银行银联手机Pay消费返现
+{
+    id: 182,
+    operator: "银行",
+    province: "全国",
+    city: "全国",
+    mainType: "其他活动",
+    subType: ["支付立减"],
+    title: "农行银联手机Pay·境内消费1%返现",
+    startTime: "2026-09-01",
+    endTime: "2026-09-30",
+    desc: "农行62银联信用卡通过手机Pay在境内线上线下一笔消费即可享1%刷卡金返现。单笔至高返10元，累计至高返50元；总奖池20万元，先到先得[citation:1]",
+    remark: "限农行62银联信用卡持卡人；需通过支持NFC的钱包APP绑定；不含港澳台地区交易[citation:1]",
+    link: "https://www.abchina.com/zt/CreditCard/Special0ffers/All/ylsjp20260901.htm"
+},
+// 183. 农业银行消费达标月月返现
+{
+    id: 183,
+    operator: "银行",
+    province: "全国",
+    city: "全国",
+    mainType: "其他活动",
+    subType: ["支付立减"],
+    title: "农行信用卡月月返现·消费满5000元领奖",
+    startTime: "2026-09-01",
+    endTime: "2026-09-30",
+    desc: "农行信用卡主卡持卡人报名后，当月消费满5000元可领【微信支付单笔满1000享2倍积分】券；满1万元和3万元可获抽奖机会[citation:6]",
+    remark: "限农行信用卡主卡持卡人；需通过农行掌银APP报名；报名券限80万份[citation:6]",
+    link: "https://www.abchina.com/zt/CreditCard/Special0ffers/All/yyfx20260827.htm"
+},
+// 184. 农业银行推荐办卡有礼
+{
+    id: 184,
+    operator: "银行",
+    province: "全国",
+    city: "全国",
+    mainType: "其他活动",
+    subType: ["新用户专享"],
+    title: "农行信用卡推荐办卡·至高得1000元刷卡金",
+    startTime: "2026-09-01",
+    endTime: "2026-09-30",
+    desc: "农行信用卡持卡人推荐新客户办理指定信用卡并完成首刷，推荐人可获价值100元刷卡金/人。推荐多人可享多份，每月至高1000元[citation:11]",
+    remark: "限农行信用卡主卡持卡人；被推荐人需为农行信用卡新客户[citation:11]",
+    link: "https://www.abchina.com.cn/cn/CreditCard/Special0ffers/All/xwlj20260828.htm"
+},
+// 185. 京东PLUS会员日·限量大额券
+{
+    id: 185,
+    operator: "京东",
+    province: "全国",
+    city: "全国",
+    mainType: "会员权益类",
+    subType: ["生活权益", "出行券"],
+    title: "京东PLUS会员日·限量大额券9月8-10日",
+    startTime: "2026-09-08",
+    endTime: "2026-09-10",
+    desc: "PLUS会员日放出限量大额券，早10点、晚20点准时补货。包含：家电券满2000-200/3000-300/5000-500；数码券满1000-100/2000-200；全品类大额券满1200-80/1500-100等[citation:5]",
+    remark: "限京东PLUS会员；每月8-10日重点放券；需定闹钟蹲点抢；券当月有效[citation:5]",
+    link: "https://www.redhongan.com/p/257897.html"
+},
+// 186. 京东PLUS月度100元券包
+{
+    id: 186,
+    operator: "京东",
+    province: "全国",
+    city: "全国",
+    mainType: "会员权益类",
+    subType: ["领取福利"],
+    title: "京东PLUS月度100元券包·9月1日更新",
+    startTime: "2026-09-01",
+    endTime: "2026-09-30",
+    desc: "PLUS会员每月可领固定券包：105-5全品类券×2、200-10全品类券×2、500-30自营券×1、1000-40自营券×1及家电数码品类券若干。当月有效，月底清零[citation:5]",
+    remark: "限京东PLUS会员；需手动领取不会自动到账；路径：我的-PLUS会员中心-月度100元券包[citation:5]",
+    link: "https://www.redhongan.com/p/257897.html"
+},
+// 187. 京东PLUS低价续费攻略
+{
+    id: 187,
+    operator: "京东",
+    province: "全国",
+    city: "全国",
+    mainType: "其他活动",
+    subType: ["老用户专享"],
+    title: "京东PLUS季度末低价续费通道",
+    startTime: "2026-09-01",
+    endTime: "2026-09-30",
+    desc: "9月为季度末，京东常放出续费隐藏低价。京东APP搜\"会员100\"可进入低价续费通道，不要直接原价149元续费[citation:5]",
+    remark: "限京东PLUS会员；需搜索特定口令进入低价通道[citation:5]",
+    link: "https://www.redhongan.com/p/257897.html"
+},
+// 188. 京东·广西东盟水果消费券
+{
+    id: 188,
+    operator: "京东",
+    province: "全国",
+    city: "全国",
+    mainType: "其他活动",
+    subType: ["领取福利"],
+    title: "京东·广西东盟水果消费券·第三期9月1日开领",
+    startTime: "2026-09-01",
+    endTime: "2026-09-30",
+    desc: "广西商务厅牵头推出\"东盟水果 汇聚广西\"消费券，覆盖榴莲、山竹、芒果、苹果蕉、荔浦芋头等特色好物，单笔至高立减200元。前两阶段累计发放超540万张[citation:15]",
+    remark: "每日10点在京东上线；覆盖榴莲、芒果、火龙果、山竹等东盟及广西特产[citation:15]",
+    link: "http://www.xinminweekly.com.cn/shenghuo/2026/09/01/50935.html"
+},
+// 189. 百度智能云·推广新客专享
+{
+    id: 189,
+    operator: "百度",
+    province: "全国",
+    city: "全国",
+    mainType: "其他活动",
+    subType: ["新用户专享"],
+    title: "百度智能云·推广新客专享优惠",
+    startTime: "2026-09-01",
+    endTime: "2026-09-15",
+    desc: "百度智能云推广大使引荐用户可享新客专享价，仅限新用户购买。活动产品不支持降配、退款[citation:7]",
+    remark: "限百度智能云新用户；不可与其他优惠叠加[citation:7]",
+    link: "https://cloud.baidu.com/campaign/ambassador-product/index.html"
+},
+// 190. 百度之星程序设计大赛
+{
+    id: 190,
+    operator: "百度",
+    province: "全国",
+    city: "全国",
+    mainType: "其他活动",
+    subType: ["老用户专享"],
+    title: "第22届百度之星程序设计大赛",
+    startTime: "2026-08-23",
+    endTime: "2026-09-19",
+    desc: "百度公司举办的第22届百度之星程序设计大赛，促进高校程序设计和AI教学创新与改革[citation:12]",
+    remark: "面向高校学生；需关注官网报名信息[citation:12]",
+    link: "http://cxcyglpt.dlutci.edu.cn/comp/front/comp/info?id=MzQ3LTYzMjFjMQ"
+},
+// ============================================================
+//  新增活动 191（平安银行信用卡自动充话费礼）
+//  来源：用户提供截图 + 平安口袋银行官方活动页面
+//  编号从 191 开始
+// ============================================================
+
+// 191. 平安银行信用卡自动充话费礼·领3-12元话费券
+{
+    id: 191,
+    operator: "银行",
+    province: "全国",
+    city: "全国",
+    mainType: "其他活动",
+    subType: ["支付立减", "新用户专享"],
+    title: "平安银行信用卡自动充话费礼·领3-12元话费券",
+    startTime: "2026-09-01",
+    endTime: "2026-09-30",
+    desc: "平安银行信用卡特邀用户可领取随机价值3-12元自动充话费礼包一份，包含3张面值为1-4元的优惠券，优惠券面值随机组合，一次到账，分月生效。领取后开通口袋话费自动充并绑定平安信用卡支付，下一扣款日即可抵扣。优惠券与自动充笔笔9.98折同享",
+    remark: "限平安银行信用卡特邀用户；同一客户活动期间限领1次；优惠券分3个月生效，每张有效期35天；需开通话费自动充功能后使用；不支持携号转网及虚拟号段",
+    link: "https://b.pingan.com.cn/kuaizhan/v2/5K1467/20260417/k106510/index.html?nickname=&nonce=110046104&partnerid=C0013&wxname=%E5%B9%B3%E5%AE%89%E9%93%B6%E8%A1%8C&wxno=gh_a977c8acfae7&openid=oiBF4joES0mY6_qitwHxdIrl8kJ4&timestamp=1788257206882&headimgurl=&subscribe=1&signature=31763d1958b76a1bec928ebc9876ef4b8929f8d9&unionid=oIBh4uDE4nLGx_i3bv_3X17i3SQA&sex=&thirdPartyAppId=G0003&enUmForShare=888888888888&strategyid=CC_W505851_U3-548616_A_C18005&usertagid=KDPT-3-548616&innerid=KDAPP-P116927-BFCQ-2&source=S202608032192&activity_FlowId=m_D0Q1SRekySKvBM9Y3672&traceid=50030_aqSpkrkVXSn&SSLSOURCE=BROP-CMP"
+},
+// 192. 平安银行信用卡推荐办卡·新户专享多重权益（修正分类）
+{
+    id: 192,
+    operator: "银行",
+    province: "全国",
+    city: "全国",
+    mainType: "其他活动",
+    subType: ["新用户专享", "领取福利"],
+    title: "平安银行信用卡·新户办卡享多重权益（岁岁平安/JOY卡）",
+    startTime: "2026-09-01",
+    endTime: "2026-09-30",
+    desc: "通过推荐链接办理平安银行指定信用卡（岁岁平安卡/JOY银联卡），可享新户专属权益：①岁岁平安卡：天天返利全年至高返480元、338迎新省钱包（连续180天立减1.88元）、达标享五大平安守护；②JOY银联卡：新户好礼9.9元购（6选1）、第2年PLUS会员1分购、积分超值兑、口袋商城24期免息分期。年费优惠详见各卡种规则",
+    remark: "限平安银行信用卡新户；需通过推荐链接申请；具体权益以银行官方活动细则为准",
+    link: "https://mgmpa.gaofeie.com/pages/pabank-card-apply/pabank-card-apply?scene=sid%3A10001%2Cseriesid%3A10030%2Cuid%3A12965"
+},
+// 193. 招商银行信用卡新户开卡权益·多卡种可选
+{
+    id: 193,
+    operator: "银行",
+    province: "全国",
+    city: "全国",
+    mainType: "其他活动",
+    subType: ["新用户专享", "领取福利"],
+    title: "招商银行信用卡新户开卡权益·多卡种可选",
+    startTime: "2026-08-01",
+    endTime: "2026-09-30",
+    desc: "招商银行信用卡新户申卡达标可享多款新户礼（多选一）：①京东联名卡：达标领1年PLUS会员+额外1年或120元券包（激活+绑京东支付+消费1笔满36元；额外5笔满20元）；②美团联名卡：领80元美团券或30天外卖减6元（消费1笔满36元+绑美团支付）；③标准信用卡（含星座/饿了么/bilibili/原神等20余种卡面）：领1000积分/笔笔返现/双肩包/煎炒锅等五选一（消费1笔满36元，支持支付宝/微信/云闪付）",
+    remark: "限招商银行信用卡新户；需通过指定链接申请；权益达标后需在掌上生活APP或美团APP手动领取；礼品库存有限先到先得；活动时间至2026年9月30日",
+    link: "https://res.cc.cmbimg.com/itafront/TrafficFront/index.html#/mgmpageinit/xbdmgmcs1?webAddress=9FX_ICONCFDDX&where=zs9_jd2&pageName=MRecContract&activityTitle=MGMXSDS202509JD2&appChn=05&dsid=&dscontr=&pretrackno=6faeb8a2cad94dd3816718575ca4f085&pretrack=10403788&mgmSm2Flag=1&mgmSource=share&m1TraceId=6faeb8a2cad94dd3816718575ca4f085"
+},
+// ============================================================
 //  演示数据：银行 / 百度 / 美团 / 滴滴 / 京东（按福利内容归类）
 //  分类原则：客户看的是「能得到什么」，不看「来自哪里」
 // ============================================================
