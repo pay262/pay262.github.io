@@ -1096,7 +1096,7 @@
                                 }
                             });
                         }
-                                                
+                                            
                         // 分享按钮
                         var shareBtn2 = card.querySelector('.share-earn-btn');
                         if (shareBtn2) {
@@ -1121,12 +1121,16 @@
                                 // ---- 3. 构建分享文本（活动标题 + 活动链接 + 换行 + 平台链接） ----
                                 var shareText = '🎁 发现一个超值福利：' + title + '，一起领福利赚佣金！' + link + '\n\n更多福利活动👉' + inviteLink;
                         
-                                // ---- 4. 统计分享次数（百度统计事件） ----
-                                if (typeof _hmt !== 'undefined') {
-                                    _hmt.push(['_trackEvent', '分享', '点击', title, 1]);
-                                    console.log('📊 百度统计已记录：分享活动 "' + title + '"');
+                                // ---- 4. 统计分享次数（51la 事件分析） ----
+                                if (typeof LA !== 'undefined' && LA.track) {
+                                    LA.track('分享点击', {
+                                        activity_title: title,
+                                        user_ref: userRef,
+                                        activity_link: link
+                                    });
+                                    console.log('📊 51la 已记录事件：分享活动 "' + title + '"');
                                 } else {
-                                    console.warn('百度统计未加载，无法记录分享事件');
+                                    console.warn('51la 未加载或 track 方法不可用，无法记录分享事件');
                                 }
                         
                                 // ---- 5. 本地累计计数（仅展示） ----
@@ -1139,13 +1143,11 @@
                                 // ---- 6. 执行分享或复制 ----
                                 if (navigator.share) {
                                     navigator.share({ title: title, text: shareText, url: link }).catch(function(err) {
-                                        // 如果用户取消分享，不报错
                                         if (err.name !== 'AbortError') {
                                             console.warn('分享失败:', err);
                                         }
                                     });
                                 } else {
-                                    // 使用 textarea 支持多行复制
                                     var dummy = document.createElement('textarea');
                                     dummy.value = shareText;
                                     dummy.style.cssText = 'position:fixed;top:-1000px;left:-1000px;opacity:0;';
@@ -1160,8 +1162,8 @@
                                     document.body.removeChild(dummy);
                                 }
                             });
-                        }
-
+                        }                                            
+                                            
                         gridEl.appendChild(card);
                     });
 
