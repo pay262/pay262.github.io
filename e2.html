@@ -35,7 +35,6 @@
         body.popup-open {
             overflow: hidden;
         }
-        /* 海报生成时锁定页面 */
         body.poster-generating {
             overflow: hidden;
             position: fixed;
@@ -1277,7 +1276,7 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
             border-left: 4px solid #3b82f6;
             transition: 0.2s;
-            position: relative; /* 为右上角按钮定位 */
+            position: relative;
         }
         .activity-toolbox .at-card.warn-soon {
             border-left-color: #f59e0b;
@@ -2253,6 +2252,9 @@
     <!-- html2canvas 用于生成海报 -->
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js">
     </script>
+    <!-- qrcode-generator 本地生成二维码（优先） -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js">
+    </script>
 
 </head>
 <body>
@@ -3033,6 +3035,37 @@
             }
 
             // ============================================================
+            //  本地生成二维码（优先，不依赖 API）
+            // ============================================================
+            function generateQRDataURL(text, size) {
+                size = size || 200;
+                try {
+                    // 使用 qrcode-generator 库
+                    var typeNumber = 4;
+                    var errorCorrectionLevel = 'L';
+                    var qr = qrcode(typeNumber, errorCorrectionLevel);
+                    qr.addData(text);
+                    qr.make();
+                    var canvas = document.createElement('canvas');
+                    var ctx = canvas.getContext('2d');
+                    var moduleCount = qr.getModuleCount();
+                    var cellSize = size / moduleCount;
+                    canvas.width = size;
+                    canvas.height = size;
+                    for (var row = 0; row < moduleCount; row++) {
+                        for (var col = 0; col < moduleCount; col++) {
+                            ctx.fillStyle = qr.isDark(row, col) ? '#000' : '#fff';
+                            ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+                        }
+                    }
+                    return canvas.toDataURL('image/png');
+                } catch (e) {
+                    // 如果本地生成失败（如库未加载），降级到 API
+                    return 'https://api.qrserver.com/v1/create-qr-code/?size=' + size + 'x' + size + '&data=' + encodeURIComponent(text);
+                }
+            }
+
+            // ============================================================
             //  海报生成函数（新增，含页面锁定）
             // ============================================================
             function generatePoster(title, desc, qrCode, startTime, endTime, operator) {
@@ -3213,7 +3246,7 @@
 
             // ============================================================
             //  修改后的 buildActivityUI（核心）
-            //  替换原有的 buildActivityUI 函数
+            //  包含设备自适应按钮（PC显示二维码，手机显示链接）
             // ============================================================
             function buildActivityUI() {
                 if (activityInitDone) return;
@@ -3363,7 +3396,7 @@
                 }
 
                 // ============================================================
-                //  修改后的 render 函数（新增二维码预处理 + 海报按钮）
+                //  修改后的 render 函数
                 // ============================================================
                 function render() {
                     updateFilterBadge();
@@ -3434,10 +3467,10 @@
                         }
                     }
 
-                    // ★★★ 新增：为有 link 但无 qrCode 的活动自动生成二维码 ★★★
+                    // ★★★ 二维码生成：优先本地，失败降级 API ★★★
                     pageItems.forEach(function(item) {
                         if (item.link && !item.qrCode) {
-                            item.qrCode = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(item.link);
+                            item.qrCode = generateQRDataURL(item.link, 200);
                         }
                     });
 
@@ -3452,6 +3485,9 @@
                     } else {
                         emptyResultEl.classList.remove('show');
                     }
+
+                    // 检测设备：PC 还是移动端（宽度阈值 768px）
+                    var isMobile = window.innerWidth < 768;
 
                     // 渲染卡片
                     pageItems.forEach(function(item, index) {
@@ -3474,12 +3510,26 @@
                         var topBadge = item.isTop ? '<span class="at-badge tag-top">⭐ 置顶</span>' : '';
                         var wechatBadge2 = item.needWechat ? '<span class="at-badge tag-wechat">💬 私域专享</span>' : '';
 
+                        // ===== 设备自适应按钮 =====
                         var actionBtn = '';
-                        if (item.qrCode) {
-                            actionBtn = '<button class="at-card-link qr-trigger" data-qr="' + item.qrCode +
-                                '" data-title="' + item.title + '">📱 查看活动码</button>';
+                        if (item.qrCode && item.link) {
+                            // 两者都有：根据设备选择
+                            if (isMobile) {
+                                // 移动端优先链接
+                                actionBtn = '<a href="' + item.link + '" target="_blank" class="at-card-link">👉 查看链接</a>';
+                            } else {
+                                // PC端优先二维码
+                                actionBtn = '<button class="at-card-link qr-trigger" data-qr="' + item.qrCode + '" data-title="' + item.title + '">📱 查看二维码</button>';
+                            }
+                        } else if (item.qrCode) {
+                            // 只有二维码
+                            actionBtn = '<button class="at-card-link qr-trigger" data-qr="' + item.qrCode + '" data-title="' + item.title + '">📱 查看二维码</button>';
                         } else if (item.link) {
-                            actionBtn = '<a href="' + item.link + '" target="_blank" class="at-card-link">👉 查看活动链接</a>';
+                            // 只有链接
+                            actionBtn = '<a href="' + item.link + '" target="_blank" class="at-card-link">👉 查看链接</a>';
+                        } else {
+                            // 都没有
+                            actionBtn = '';
                         }
 
                         var shareHtml = '';
@@ -3513,7 +3563,7 @@
                             (item.remark ? '<div class="at-card-remark">备注：' + item.remark + '</div>' : '') +
                             actionBtn + shareHtml + posterBtnHtml;
 
-                        // 二维码点击
+                        // 二维码点击（仅当按钮是二维码触发按钮）
                         var qrBtn = card.querySelector('.qr-trigger');
                         if (qrBtn) {
                             qrBtn.addEventListener('click', function() {
