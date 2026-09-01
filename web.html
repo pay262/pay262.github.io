@@ -134,7 +134,7 @@
         <div class="drawer-logo">未来福利社</div>
         <div class="drawer-subtitle">汇聚运营商·银行·互联网 优惠福利</div>
         <div class="drawer-group-title">业务服务</div>
-        <div class="drawer-item active" data-content="content1"><span class="drawer-icon">📶</span><span>宽带专区</span></div>
+        <div class="drawer-item active" data-content="content1"><span class="drawer-icon">📶</span><span>宽带套餐</span></div>
         <div class="drawer-item" data-content="content2"><span class="drawer-icon">📱</span><span>号卡套餐</span></div>
         <div class="drawer-item" data-content="content3"><span class="drawer-icon">🌐</span><span>3号网厅</span></div>
         <div class="drawer-item" data-content="content4"><span class="drawer-icon">📡</span><span>随身WiFi</span></div>
@@ -153,14 +153,14 @@
     <!-- ===== 主内容 ===== -->
     <main class="content-area" role="main">
 
-        <!-- content1 宽带专区 -->
+        <!-- content1 号卡套餐 -->
         <section class="iframe-wrapper" data-content="content1">
-            <iframe class="portal-iframe" src="https://hk.yunhaoka.cn/#/pages/micro_store/index?agent_id=fd7687894ce7e304b967e505d8255dd7" loading="lazy"></iframe>
+            <iframe class="portal-iframe" src="https://vip.777haoka.cn/index?k=T1RwMzdMQWw4cGc9" loading="lazy"></iframe>
         </section>
 
-        <!-- content2 号卡套餐 -->
+        <!-- content2 宽带套餐 -->
         <section class="iframe-wrapper" data-content="content2" hidden>
-            <iframe class="portal-iframe" src="https://vip.777haoka.cn/index?k=T1RwMzdMQWw4cGc9" loading="lazy"></iframe>
+            <iframe class="portal-iframe" src="https://hk.yunhaoka.cn/#/pages/micro_store/index?agent_id=fd7687894ce7e304b967e505d8255dd7" loading="lazy"></iframe>
         </section>
 
         <!-- content3 3号网厅 -->
@@ -249,7 +249,7 @@
                     <div class="empty-action-box earn" onclick="switchContent('content2')">
                         <div class="title earn-color">📱 办卡也能赚钱！</div>
                         <div class="desc">推荐好友办卡，轻松赚佣金</div>
-                        <div class="link earn-color">立即加入 →</div>
+                        <div class="link earn-color">立即办卡 →</div>
                     </div>
                 </div>
 
@@ -448,7 +448,7 @@
             //  1. 页面切换
             // ============================================================
             const pageTitleMap = {
-                content1: "宽带专区",
+                content1: "宽带套餐",
                 content2: "号卡套餐",
                 content3: "3号网厅",
                 content4: "随身WiFi",
@@ -600,6 +600,8 @@
                 i.addEventListener('click', function() { if (i.dataset.content) switchContent(i.dataset.content); });
             });
 
+        // ★ 暴露到全局，供内联 onclick 调用
+        window.switchContent = switchContent;
             // ============================================================
             //  2. 欢迎弹窗
             // ============================================================
@@ -1333,7 +1335,7 @@
 
             window.showWechatQr = showWechatQr;
 
-            console.log('✅ 未来福利社 v2.0 加载完成（二维码关闭已修复）');
+            console.log('✅ 未来福利社 v2.0 加载完成');
         });
 
         // 全局关闭函数
