@@ -3469,7 +3469,7 @@ const activityList = [
     remark: "限四川农行掌银注册客户；参与路径：①微信扫活动二维码；②关注“农行四川分行微银行”公众号-热门活动-瓜分百万；③农行掌银APP-城市专区-瓜分百万礼金；活动由蜂助手股份有限公司提供技术支持",
     link: "https://wx.abchina.com/webank/main-view/openTagForSC?id=gDU%2BHgXSy1Y%3D&dynamicData=pA3ReLln7%2BaQsscLxT1vwF2oeeOT%2FViC&displayParam=3XnK3qEc5hkMKzI3jwbNbw%3D%3D",
     canShare: true
-},
+}
 ];
 
 // ============================================================
