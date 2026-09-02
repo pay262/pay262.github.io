@@ -3448,6 +3448,28 @@ const activityList = [
     link: "https://wx.abchina.com/webank/main-view/openTagForZHSes?id=w%2FO2bm0hmec%3D&dynamicData=51f9c91ed46436d05402a78836aa32041cf1c563ff67d7c3dab5be9a7c7fffdb&type=new",
     canShare: false
 },
+// ============================================================
+//  新增活动 202（四川农行瓜分百万礼金）
+//  来源：用户提供截图 + 农业银行掌银APP
+//  编号从 202 开始
+// ============================================================
+
+// 202. 四川农行瓜分百万礼金·邀请好友抽微信立减金
+{
+    id: 202,
+    operator: "银行",
+    province: "四川省",
+    city: "全省",
+    mainType: "其他活动",
+    subType: ["新用户专享", "支付立减"],
+    title: "四川农行瓜分百万礼金·邀请好友抽微信立减金",
+    startTime: "2026-04-01",
+    endTime: "2026-12-31",
+    desc: "四川农行掌银注册客户每月可获1次抽奖机会，支付0.02-0.1元随机金额后可领取奖品（至高666元微信立减金），支付金额1-3个工作日内原路退回。选择农行数字人民币钱包支付可再得1元微信立减金。邀请好友扫码参与活动，邀请人可获得邀请奖，受邀好友若为新注册掌银/数字人民币钱包客户，邀请人可额外获得奖励",
+    remark: "限四川农行掌银注册客户；参与路径：①微信扫活动二维码；②关注“农行四川分行微银行”公众号-热门活动-瓜分百万；③农行掌银APP-城市专区-瓜分百万礼金；活动由蜂助手股份有限公司提供技术支持",
+    link: "https://wx.abchina.com/webank/main-view/openTagForSC?id=gDU%2BHgXSy1Y%3D&dynamicData=pA3ReLln7%2BaQsscLxT1vwF2oeeOT%2FViC&displayParam=3XnK3qEc5hkMKzI3jwbNbw%3D%3D",
+    canShare: true
+},
 ];
 
 // ============================================================
