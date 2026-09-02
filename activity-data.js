@@ -3288,6 +3288,79 @@ const activityList = [
     link: "https://res.cc.cmbimg.com/itafront/TrafficFront/index.html#/mgmpageinit/xbdmgmcs1?webAddress=9FX_ICONCFDDX&where=zs9_jd2&pageName=MRecContract&activityTitle=MGMXSDS202509JD2&appChn=05&dsid=&dscontr=&pretrackno=6faeb8a2cad94dd3816718575ca4f085&pretrack=10403788&mgmSm2Flag=1&mgmSource=share&m1TraceId=6faeb8a2cad94dd3816718575ca4f085",
     canShare: true                      // ← 新增：显示「分享赚佣金」按钮
 },
+// ============================================================
+//  新增活动 194（广东移动30元100GB流量月包）
+//  来源：用户提供短信 + 抖音截图
+//  编号从 194 开始
+// ============================================================
+
+// 194. 广东移动30元100GB流量月包（24个月）
+{
+    id: 194,
+    operator: "移动",
+    province: "广东省",
+    city: "全省",
+    mainType: "流量类",
+    subType: ["全国通用流量"],
+    title: "广东移动30元100GB流量月包（24个月）",
+    startTime: "2026-09-02",
+    endTime: "2026-12-31",
+    desc: "30元/月享100GB国内通用流量（不含港澳台），基础配置为5GB标准流量，剩余95GB为24个月促销赠送流量[reference:0]。优惠期24个月，到期自动取消，不改套餐不换号。无合约期，随时可注销",
+    remark: "限收到邀请短信的广东移动用户参与，转发无效；仅限办理1次，优惠期24个月[reference:1]；流量当月有效，不可结转",
+    link: "https://dx.10086.cn/LDlpEw",
+    canShare: false
+},
+// ============================================================
+//  新增活动 195-197（云南电信秋季营销流量套餐）
+//  来源：云南电信网上营业厅
+// ============================================================
+
+// 195. 云南电信19元805G全国流量套餐
+{
+    id: 195,
+    operator: "电信",
+    province: "云南省",
+    city: "全省",
+    mainType: "号卡套餐类",
+    subType: ["新用户号卡", "全国通用流量"],
+    title: "云南电信19元805G全国流量套餐（秋季营销）",
+    startTime: "2026-09-02",
+    endTime: "2026-12-31",
+    desc: "19元/月享805GB全国通用流量（不含港澳台），归属地云南，2026年秋季营销专属套餐",
+    link: "https://shop.yn.189.cn/web/ap-goods/#/Product/pages/unstDetail/hk-index?productId=1798785101540524032&shareSource=FQWPYQ&type=BUSINESS&typeName=null&channelId=600008574665&staffPhone=13320532079&tlStaffPhone=13320532079&sii=1001864712477851251&index=SC",
+    remark: "限云南电信用户；页面需JavaScript加载；具体资费及合约规则以商品详情页为准"
+},
+// 196. 云南电信29元1000G全国流量套餐
+{
+    id: 196,
+    operator: "电信",
+    province: "云南省",
+    city: "全省",
+    mainType: "号卡套餐类",
+    subType: ["新用户号卡", "全国通用流量"],
+    title: "云南电信29元1000G全国流量套餐（秋季营销）",
+    startTime: "2026-09-02",
+    endTime: "2026-12-31",
+    desc: "29元/月享1000GB全国通用流量（不含港澳台），归属地云南，2026年秋季营销专属套餐",
+    link: "https://shop.yn.189.cn/web/ap-goods/#/Product/pages/unstDetail/hk-index?productId=1798762346803789824&shareSource=FQWPYQ&type=BUSINESS&typeName=null&channelId=600008574665&staffPhone=13320532079&tlStaffPhone=13320532079&sii=1001864712477851250&index=SC",
+    remark: "限云南电信用户；页面需JavaScript加载；具体资费及合约规则以商品详情页为准"
+},
+// 197. 云南电信39元1000G全国流量+权益套餐
+{
+    id: 197,
+    operator: "电信",
+    province: "云南省",
+    city: "全省",
+    mainType: "号卡套餐类",
+    subType: ["新用户号卡", "全国通用流量", "会员权益类"],
+    title: "云南电信39元1000G全国流量+权益套餐（秋季营销）",
+    startTime: "2026-09-02",
+    endTime: "2026-12-31",
+    desc: "39元/月享1000GB全国通用流量（不含港澳台）+附加权益，归属地云南，2026年秋季营销专属套餐",
+    link: "https://shop.yn.189.cn/web/ap-goods/#/Product/pages/unstDetail/hk-index?productId=1798739995796209664&shareSource=FQWPYQ&type=BUSINESS&typeName=null&channelId=600008574665&staffPhone=13320532079&tlStaffPhone=13320532079&sii=1001864712477851249&index=SC",
+    remark: "限云南电信用户；页面需JavaScript加载；具体权益内容及资费规则以商品详情页为准"
+}，
+
 ];
 
 // ============================================================
