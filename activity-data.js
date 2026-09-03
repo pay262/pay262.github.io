@@ -3532,8 +3532,46 @@ const activityList = [
         remark: "限建设银行储蓄卡或信用卡持卡人；需通过建行手机银行APP或网点柜台等银行端渠道完成绑卡；礼包自动发放无需手动领取",
         link: "https://mobile.ccb.com/e_report/outlink/index.html?link_id=40ced96acea044c8be7466ce5194f282&Cmpn_Prj_ECD=ksbk_wx0903",
         canShare: false
-    }
+    },
+    
+// ============================================================
+//  新增活动 208-209（广西移动网龄回馈流量包·当月版/次月版）
+//  来源：广西移动网上营业厅
+//  编号从 208 开始
+// ============================================================
 
+// 208. 广西移动网龄回馈流量包·当月版
+{
+    id: 208,
+    operator: "移动",
+    province: "广西壮族自治区",
+    city: "全区",
+    mainType: "流量类",
+    subType: ["赠送流量"],
+    title: "广西移动网龄回馈流量包·当月版",
+    startTime: "2026-09-03",
+    endTime: "2026-12-31",
+    desc: "广西移动用户可参与网龄回馈活动，领取当月生效的流量包。具体流量额度及规则需登录广西移动网上营业厅查看",
+    remark: "限广西移动用户；需登录广西移动号码查看具体活动内容；活动页面需在手机端打开",
+    link: "https://www.gx.10086.cn/gxwd/wdAdGoodsDetail/buyerIndex.html?2c94cba39b31527a019b48d5a27e023d,shop_id=2c94d2a99982b9dd01999d22faab26b3&flag=1&shareChannel=20_gridding_qd&ad_id=2c94beae9b55e5a9019b8332f0bc3659",
+    canShare: false
+},
+// 209. 广西移动网龄回馈流量包·次月版
+{
+    id: 209,
+    operator: "移动",
+    province: "广西壮族自治区",
+    city: "全区",
+    mainType: "流量类",
+    subType: ["赠送流量"],
+    title: "广西移动网龄回馈流量包·次月版",
+    startTime: "2026-09-03",
+    endTime: "2026-12-31",
+    desc: "广西移动用户可参与网龄回馈活动，领取次月生效的流量包。具体流量额度及规则需登录广西移动网上营业厅查看",
+    remark: "限广西移动用户；需登录广西移动号码查看具体活动内容；活动页面需在手机端打开",
+    link: "https://www.gx.10086.cn/gxwd/wdAdGoodsDetail/buyerIndex.html?2c94cba39b31527f019b494086790000,shop_id=2c94d2a99982b9dd01999d22faab26b3&flag=1&shareChannel=20_gridding_qd&ad_id=2c94beae9b55e5a9019b833203f0364f",
+    canShare: false
+}
 
 ];
 
