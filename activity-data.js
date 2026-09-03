@@ -3463,7 +3463,78 @@ const activityList = [
     remark: "限上海电信用户；需拨打02110000联系客服办理；需先订购天翼云电脑精英版（原价158元/月）；减免促销与云电脑产品可叠加；校园话补促销仅限校园用户；方案编号：26SH100206；活动有效期至2026年12月31日[reference:2]",
     link: "https://sh.189.cn/newmall/static/tariffReport/pc/113021.html",
     canShare: false
-}
+},
+// ============================================================
+//  活动 204-207（建设银行活动合集）
+//  直接复制此数组追加到 activityList 末尾即可
+// ============================================================
+
+    // 204. 建行“惠省钱”·至低0.99元购微信立减金
+    {
+        id: 204,
+        operator: "银行",
+        province: "全国",
+        city: "全国",
+        mainType: "其他活动",
+        subType: ["支付立减"],
+        title: "建行“惠省钱”·至低0.99元购微信立减金",
+        startTime: "2026-08-04",
+        endTime: "2026-09-30",
+        desc: "建设银行用户参与“惠省钱”活动，可至低0.99元购买微信立减金，立减金可用于微信支付消费抵扣。活动期间每位用户限参与1次，具体立减金面额及购买价格以活动页面为准",
+        remark: "限建设银行用户；需通过建设银行手机银行APP参与；名额有限先到先得",
+        link: "https://mobile.ccb.com/e_report/outlink/index.html?link_id=fbf3f8227b964a2785ebb8b922b6b5e9&o=999999999_01_tuiw20260903&UTM_CONTENT=wx_fuwuhao_wxyh_w&UTM_MEDIUM=tq_mhsq12_2026903&UTM_TERM=12_050",
+        canShare: false
+    },
+    // 205. 建行“出行享优惠”·1分钱购支付宝乘车券包
+    {
+        id: 205,
+        operator: "银行",
+        province: "全国",
+        city: "全国",
+        mainType: "其他活动",
+        subType: ["出行券", "支付立减"],
+        title: "建行出行享优惠·1分钱购4张支付宝乘车券包",
+        startTime: "2026-01-01",
+        endTime: "2026-12-31",
+        desc: "建设银行用户可1分钱购买支付宝乘车券包，内含4张乘车券（至高优惠1元/张），可用于支付宝乘车码支付时抵扣。数量有限，领完即止",
+        remark: "限建设银行用户；需通过建设银行手机银行APP参与；乘车券使用规则以页面实际展示为准",
+        link: "https://mobile.ccb.com/e_report/outlink/index.html?link_id=18cce6b4e96f463191a07a77c3be6387&spActId=transport001",
+        canShare: false
+    },
+    // 206. 建行“遇建抖音支付有礼”·领5元抖音支付优惠
+    {
+        id: 206,
+        operator: "银行",
+        province: "全国",
+        city: "全国",
+        mainType: "其他活动",
+        subType: ["支付立减"],
+        title: "建行“遇建抖音支付有礼”·领5元抖音支付优惠",
+        startTime: "2026-01-01",
+        endTime: "2026-12-31",
+        desc: "建设银行用户通过建行手机银行参与“抖音支付有礼”活动，即有机会领取5元优惠奖励。奖励形式包括现金红包、支付立减券或指定商品券，具体以活动页面展示为准。数量有限，领完即止",
+        remark: "限建设银行用户；需通过建行手机银行活动页面参与；奖励形式随机；数量有限先到先得",
+        link: "https://mobile.ccb.com/e_report/outlink/index.html?link_id=e9b82d4e0d77403bbf229638f78a2183&a=9130b1e074e8403caeacffc5ad81d235",
+        canShare: false
+    },
+    // 207. 建行“快手支付绑卡有礼”·领288元券包
+    {
+        id: 207,
+        operator: "银行",
+        province: "全国",
+        city: "全国",
+        mainType: "其他活动",
+        subType: ["支付立减"],
+        title: "建行“快手支付绑卡有礼”·领288元券包",
+        startTime: "2026-07-09",
+        endTime: "2026-12-31",
+        desc: "建设银行用户通过建行手机银行APP、银行网点柜台等银行端的一键绑卡功能，在快手支付绑定建行储蓄卡或信用卡，成功绑卡后可直接获得快手优惠券礼包（合计288元券包）。用户无需领取，礼包由快手直接发放至银行预留手机号注册的快手账户中",
+        remark: "限建设银行储蓄卡或信用卡持卡人；需通过建行手机银行APP或网点柜台等银行端渠道完成绑卡；礼包自动发放无需手动领取",
+        link: "https://mobile.ccb.com/e_report/outlink/index.html?link_id=40ced96acea044c8be7466ce5194f282&Cmpn_Prj_ECD=ksbk_wx0903",
+        canShare: false
+    }
+
+
 ];
 
 // ============================================================
