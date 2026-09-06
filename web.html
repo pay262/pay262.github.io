@@ -3082,226 +3082,235 @@
         // ============================================================
         //  3. 广告轮播 HTML 生成函数（使用内联 SVG + srcdoc）
         // ============================================================
-        function createAdCarouselHTML() {
-            // ----- 广告数据配置（支持 type: 'image' 或 'iframe'） -----
-            const ads = [
-                {
-                    type: 'image',
-                    label: '赞助商',
-                    color: '#3A6FF8',
-                    link: ''  //跳转链接
-                },
-                {
-                    type: 'iframe',
-                    src: 'https://m.qhlwvcc.shop/m/Ix82mh',   // 注意：展示内容
-                    link: ''  //跳转链接
-                },
-                {
-                    type: 'iframe',
-                    src: 'http://dl.kvwp.top/qV3Ob2722I',   // 注意：展示内容
-                    link: ''
+            function createAdCarouselHTML() {
+                // ============================================================
+                //  广告数据读取优先级：
+                //  1. window.adCarouselList（专用广告数据源）
+                //  2. window.activityList 中 isCarouselAd: true 的条目
+                //  3. 默认后备数据（确保不报错）
+                // ============================================================
+                let ads = [];
+            
+                if (typeof window.adCarouselList !== 'undefined' && Array.isArray(window.adCarouselList) && window.adCarouselList.length > 0) {
+                    ads = window.adCarouselList;
+                } else if (typeof window.activityList !== 'undefined' && Array.isArray(window.activityList)) {
+                    const carouselItems = window.activityList.filter(item => item.isCarouselAd === true);
+                    if (carouselItems.length > 0) {
+                        ads = carouselItems.map(item => ({
+                            type: item.carouselType || 'image',
+                            label: item.title || '广告',
+                            color: item.color || '#3A6FF8',
+                            link: item.link || '#',
+                            src: item.carouselSrc || (item.link ? generateQRDataURL(item.link, 200) : '')
+                        }));
+                    }
                 }
-            ];
-            // ----------------------------------------------------------
-
-            // 生成幻灯片 HTML
-            const slidesHtml = ads.map((ad) => {
-                let content = '';
-                if (ad.type === 'image') {
-                    // 使用内联 SVG 生成图片（无需外部图片）
-                    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="${ad.color}"/><text x="200" y="150" text-anchor="middle" dy=".3em" fill="#fff" font-size="24" font-family="sans-serif">${ad.label}</text></svg>`;
-                    content = `<img src="data:image/svg+xml,${encodeURIComponent(svg)}" alt="${ad.label}" style="width:100%;height:100%;object-fit:cover;">`;
-                } else if (ad.type === 'iframe') {
-                    content = `<iframe src="${ad.src}" loading="lazy" allowfullscreen style="width:100%;height:100%;border:none;min-height:280px;"></iframe>`;
+            
+                if (ads.length === 0) {
+                    ads = [
+                        { type: 'image', label: '福利1', color: '#3A6FF8', link: 'https://example.com/ad1' },
+                        { type: 'image', label: '福利2', color: '#FF6B00', link: 'https://example.com/ad2' },
+                        { type: 'iframe', src: 'https://example.com', link: 'https://example.com' }
+                    ];
                 }
+            
+                // ============================================================
+                //  生成轮播 HTML（与之前完全相同）
+                // ============================================================
+                const slidesHtml = ads.map((ad) => {
+                    let content = '';
+                    if (ad.type === 'image') {
+                        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="${ad.color || '#3A6FF8'}"/><text x="200" y="150" text-anchor="middle" dy=".3em" fill="#fff" font-size="24" font-family="sans-serif">${ad.label || '广告'}</text></svg>`;
+                        content = `<img src="data:image/svg+xml,${encodeURIComponent(svg)}" alt="${ad.label || '广告'}" style="width:100%;height:100%;object-fit:cover;">`;
+                    } else if (ad.type === 'iframe') {
+                        content = `<iframe src="${ad.src || 'https://example.com'}" loading="lazy" allowfullscreen style="width:100%;height:100%;border:none;min-height:280px;"></iframe>`;
+                    }
+                    return `
+                        <div class="slide" data-link="${ad.link || '#'}" style="width:100%;height:100%;flex-shrink:0;cursor:pointer;position:relative;overflow:hidden;background:#f5f5f5;">
+                            ${content}
+                            <div style="position:absolute;bottom:8px;right:12px;background:rgba(0,0,0,0.5);color:#fff;padding:2px 12px;border-radius:12px;font-size:12px;z-index:5;pointer-events:none;">点击查看</div>
+                        </div>
+                    `;
+                }).join('');
+            
+                const dotsHtml = ads.map((_, i) => `<span class="dot" data-index="${i}"></span>`).join('');
+            
                 return `
-                    <div class="slide" data-link="${ad.link}" style="width:100%;height:100%;flex-shrink:0;cursor:pointer;position:relative;overflow:hidden;background:#f5f5f5;">
-                        ${content}
-                        <div style="position:absolute;bottom:8px;right:12px;background:rgba(0,0,0,0.5);color:#fff;padding:2px 12px;border-radius:12px;font-size:12px;z-index:5;pointer-events:none;">点击查看</div>
-                    </div>
-                `;
-            }).join('');
-
-            const dotsHtml = ads.map((_, i) => `<span class="dot" data-index="${i}"></span>`).join('');
-
-            // 完整轮播 HTML
-            return `
-        <!DOCTYPE html>
-        <html>
-        <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { background:#f0f0f0; display:flex; align-items:center; justify-content:center; height:100vh; overflow:hidden; }
-        .carousel-wrapper {
-            position:relative;
-            width:100%;
-            max-width:500px;
-            height:320px;
-            background:#fff;
-            border-radius:12px;
-            overflow:hidden;
-            box-shadow:0 4px 12px rgba(0,0,0,0.1);
-        }
-        .slides-container {
-            display:flex;
-            width:100%;
-            height:100%;
-            transition: transform 0.4s ease;
-        }
-        .slide {
-            width:100%;
-            height:100%;
-            flex-shrink:0;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            overflow:hidden;
-            position:relative;
-            background:#f5f5f5;
-        }
-        .slide img, .slide iframe {
-            width:100%;
-            height:100%;
-            border:none;
-            display:block;
-        }
-        .slide iframe {
-            min-height:280px;
-        }
-        .dots {
-            position:absolute;
-            bottom:10px;
-            left:50%;
-            transform:translateX(-50%);
-            display:flex;
-            gap:8px;
-            z-index:10;
-        }
-        .dot {
-            width:8px;
-            height:8px;
-            border-radius:50%;
-            background:rgba(255,255,255,0.5);
-            transition:background 0.3s;
-            cursor:pointer;
-        }
-        .dot.active {
-            background:#fff;
-            box-shadow:0 0 6px rgba(0,0,0,0.3);
-        }
-        .arrow {
-            position:absolute;
-            top:50%;
-            transform:translateY(-50%);
-            background:rgba(0,0,0,0.3);
-            color:#fff;
-            border:none;
-            border-radius:50%;
-            width:32px;
-            height:32px;
-            font-size:18px;
-            cursor:pointer;
-            z-index:10;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            transition:background 0.2s;
-        }
-        .arrow:hover { background:rgba(0,0,0,0.6); }
-        .arrow-left { left:8px; }
-        .arrow-right { right:8px; }
-        @media (max-width:480px) {
-            .carousel-wrapper { border-radius:8px; height:260px; }
-        }
-        </style>
-        </head>
-        <body>
-        <div class="carousel-wrapper">
-            <div class="slides-container" id="slidesContainer">
-                ${slidesHtml}
+            <!DOCTYPE html>
+            <html>
+            <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+            * { margin:0; padding:0; box-sizing:border-box; }
+            body { background:#f0f0f0; display:flex; align-items:center; justify-content:center; height:100vh; overflow:hidden; }
+            .carousel-wrapper {
+                position:relative;
+                width:100%;
+                max-width:500px;
+                height:320px;
+                background:#fff;
+                border-radius:12px;
+                overflow:hidden;
+                box-shadow:0 4px 12px rgba(0,0,0,0.1);
+            }
+            .slides-container {
+                display:flex;
+                width:100%;
+                height:100%;
+                transition: transform 0.4s ease;
+            }
+            .slide {
+                width:100%;
+                height:100%;
+                flex-shrink:0;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                overflow:hidden;
+                position:relative;
+                background:#f5f5f5;
+            }
+            .slide img, .slide iframe {
+                width:100%;
+                height:100%;
+                border:none;
+                display:block;
+            }
+            .slide iframe {
+                min-height:280px;
+            }
+            .dots {
+                position:absolute;
+                bottom:10px;
+                left:50%;
+                transform:translateX(-50%);
+                display:flex;
+                gap:8px;
+                z-index:10;
+            }
+            .dot {
+                width:8px;
+                height:8px;
+                border-radius:50%;
+                background:rgba(255,255,255,0.5);
+                transition:background 0.3s;
+                cursor:pointer;
+            }
+            .dot.active {
+                background:#fff;
+                box-shadow:0 0 6px rgba(0,0,0,0.3);
+            }
+            .arrow {
+                position:absolute;
+                top:50%;
+                transform:translateY(-50%);
+                background:rgba(0,0,0,0.3);
+                color:#fff;
+                border:none;
+                border-radius:50%;
+                width:32px;
+                height:32px;
+                font-size:18px;
+                cursor:pointer;
+                z-index:10;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                transition:background 0.2s;
+            }
+            .arrow:hover { background:rgba(0,0,0,0.6); }
+            .arrow-left { left:8px; }
+            .arrow-right { right:8px; }
+            @media (max-width:480px) {
+                .carousel-wrapper { border-radius:8px; height:260px; }
+            }
+            </style>
+            </head>
+            <body>
+            <div class="carousel-wrapper">
+                <div class="slides-container" id="slidesContainer">
+                    ${slidesHtml}
+                </div>
+                <div class="dots">${dotsHtml}</div>
+                <button class="arrow arrow-left" id="prevBtn">‹</button>
+                <button class="arrow arrow-right" id="nextBtn">›</button>
             </div>
-            <div class="dots">${dotsHtml}</div>
-            <button class="arrow arrow-left" id="prevBtn">‹</button>
-            <button class="arrow arrow-right" id="nextBtn">›</button>
-        </div>
-        <script>
-            (function(){
-                var container = document.getElementById('slidesContainer');
-                var slides = container.querySelectorAll('.slide');
-                var dots = document.querySelectorAll('.dot');
-                var current = 0, total = slides.length, interval = null;
-
-                function goTo(index) {
-                    if (index < 0) index = total - 1;
-                    if (index >= total) index = 0;
-                    current = index;
-                    container.style.transform = 'translateX(-' + (current * 100) + '%)';
+            <script>
+                (function(){
+                    var container = document.getElementById('slidesContainer');
+                    var slides = container.querySelectorAll('.slide');
+                    var dots = document.querySelectorAll('.dot');
+                    var current = 0, total = slides.length, interval = null;
+            
+                    function goTo(index) {
+                        if (index < 0) index = total - 1;
+                        if (index >= total) index = 0;
+                        current = index;
+                        container.style.transform = 'translateX(-' + (current * 100) + '%)';
+                        dots.forEach(function(dot, i) {
+                            dot.classList.toggle('active', i === current);
+                        });
+                    }
+            
+                    function next() { goTo(current + 1); }
+                    function prev() { goTo(current - 1); }
+            
+                    slides.forEach(function(slide) {
+                        slide.addEventListener('click', function(e) {
+                            var link = this.dataset.link;
+                            if (link && !e.target.closest('.arrow') && !e.target.closest('.dots')) {
+                                if (e.target.closest('iframe')) return;
+                                window.open(link, '_blank');
+                            }
+                        });
+                    });
+            
                     dots.forEach(function(dot, i) {
-                        dot.classList.toggle('active', i === current);
+                        dot.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            goTo(i);
+                            resetInterval();
+                        });
                     });
-                }
-
-                function next() { goTo(current + 1); }
-                function prev() { goTo(current - 1); }
-
-                slides.forEach(function(slide) {
-                    slide.addEventListener('click', function(e) {
-                        var link = this.dataset.link;
-                        if (link && !e.target.closest('.arrow') && !e.target.closest('.dots')) {
-                            if (e.target.closest('iframe')) return;
-                            window.open(link, '_blank');
-                        }
-                    });
-                });
-
-                dots.forEach(function(dot, i) {
-                    dot.addEventListener('click', function(e) {
+            
+                    document.getElementById('prevBtn').addEventListener('click', function(e) {
                         e.stopPropagation();
-                        goTo(i);
+                        prev();
                         resetInterval();
                     });
-                });
-
-                document.getElementById('prevBtn').addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    prev();
-                    resetInterval();
-                });
-                document.getElementById('nextBtn').addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    next();
-                    resetInterval();
-                });
-
-                function startInterval() {
-                    if (interval) clearInterval(interval);
-                    interval = setInterval(next, 3000);
-                }
-                function resetInterval() {
-                    if (interval) clearInterval(interval);
+                    document.getElementById('nextBtn').addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        next();
+                        resetInterval();
+                    });
+            
+                    function startInterval() {
+                        if (interval) clearInterval(interval);
+                        interval = setInterval(next, 3000);
+                    }
+                    function resetInterval() {
+                        if (interval) clearInterval(interval);
+                        startInterval();
+                    }
+            
+                    goTo(0);
                     startInterval();
-                }
-
-                goTo(0);
-                startInterval();
-
-                var wrapper = document.querySelector('.carousel-wrapper');
-                wrapper.addEventListener('mouseenter', function() {
-                    if (interval) clearInterval(interval);
-                });
-                wrapper.addEventListener('mouseleave', function() {
-                    startInterval();
-                });
-            })();
-        <\/script>
-        </body>
-        </html>
-            `;
-        }
-
-        // ============================================================
+            
+                    var wrapper = document.querySelector('.carousel-wrapper');
+                    wrapper.addEventListener('mouseenter', function() {
+                        if (interval) clearInterval(interval);
+                    });
+                    wrapper.addEventListener('mouseleave', function() {
+                        startInterval();
+                    });
+                })();
+            <\/script>
+            </body>
+            </html>
+                `;
+            }
+                    // ============================================================
         //  4. 活动工具箱（含事件委托、分页回顶、海报加载动画）
         // ============================================================
         var activityLoadTimer = null;
