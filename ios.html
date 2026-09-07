@@ -374,42 +374,9 @@
         /* ============================================================
            活动详情弹窗
            ============================================================ */
+        .detail-mask { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.55); z-index:9997; display:none; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); }
         .detail-mask.active { display:flex; }
-/* 遮罩层 - 阻止自身滚动 */
-.detail-mask {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.55);
-    z-index: 9997;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    overflow: hidden; /* 新增：禁止遮罩滚动 */
-}
-
-/* 卡片容器 - 启用 iOS 平滑滚动 */
-.detail-card {
-    background: #fff;
-    border-radius: 20px;
-    max-width: 500px;
-    width: 100%;
-    max-height: 92vh;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch; /* 关键：iOS 平滑滚动 */
-    padding: 24px 20px 20px;
-    position: relative;
-    animation: detailFadeIn 0.3s ease;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    /* 确保高度由内容撑开，但不超过最大高度 */
-    height: auto;
-    flex-shrink: 0; /* 防止 flex 压缩 */
-}
+        .detail-card { background:#fff; border-radius:20px; max-width:500px; width:100%; max-height:92vh; overflow-y:auto; padding:24px 20px 20px; position:relative; animation:detailFadeIn 0.3s ease; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
         @keyframes detailFadeIn { from { opacity:0; transform:translateY(20px) scale(0.96); } to { opacity:1; transform:translateY(0) scale(1); } }
         .detail-close { position:absolute; right:14px; top:14px; width:36px; height:36px; border:none; background:#f3f4f6; border-radius:50%; font-size:22px; line-height:1; color:#6b7280; cursor:pointer; transition:0.2s; display:flex; align-items:center; justify-content:center; }
         .detail-close:active { transform:scale(0.92); background:#e5e7eb; }
@@ -1000,59 +967,338 @@
         // ============================================================
         //  4. 广告轮播生成器（从全局数据源读取，使用 srcdoc 直接注入）
         // ============================================================
-        function createAdCarouselHTML() {
-            // 读取广告数据
-            var ads = [];
-            if (typeof window.adCarouselList !== 'undefined' && Array.isArray(window.adCarouselList) && window.adCarouselList.length > 0) {
-                ads = window.adCarouselList;
-            } else if (typeof window.activityList !== 'undefined' && Array.isArray(window.activityList)) {
-                var carouselItems = window.activityList.filter(function(item) { return item.isCarouselAd === true; });
-                if (carouselItems.length > 0) {
-                    ads = carouselItems.map(function(item) {
-                        return {
-                            type: item.carouselType || 'image',
-                            label: item.title || '广告',
-                            color: item.color || '#3A6FF8',
-                            link: item.link || '#',
-                            src: item.carouselSrc || (item.link ? generateQRDataURL(item.link, 200) : '')
-                        };
-                    });
-                }
-            }
-            // 确保至少有三条广告（后备）
-            if (ads.length < 3) {
-                var defaultAds = [
-                    { type: 'image', label: '福利1', color: '#3A6FF8', link: 'https://example.com/ad1' },
-                    { type: 'image', label: '福利2', color: '#FF6B00', link: 'https://example.com/ad2' },
-                    { type: 'image', label: '福利3', color: '#07C160', link: 'https://example.com/ad3' }
-                ];
-                // 如果 ads 为空，直接用默认；否则只填充不足部分
-                if (ads.length === 0) {
-                    ads = defaultAds;
-                } else {
-                    while (ads.length < 3) {
-                        ads.push(defaultAds[ads.length % defaultAds.length]);
-                    }
-                }
-            }
-
-            var slidesHtml = ads.map(function(ad) {
-                var content = '';
-                if (ad.type === 'image') {
-                    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="' + (ad.color || '#3A6FF8') + '"/><text x="200" y="150" text-anchor="middle" dy=".3em" fill="#fff" font-size="24" font-family="sans-serif">' + (ad.label || ad.title || '广告') + '</text></svg>';
-                    content = '<img src="data:image/svg+xml,' + encodeURIComponent(svg) + '" alt="' + (ad.label || ad.title || '广告') + '" style="width:100%;height:100%;object-fit:cover;">';
-                } else if (ad.type === 'iframe') {
-                    content = '<div style="position:relative;width:100%;height:100%;"><iframe src="' + ad.src + '" loading="lazy" allowfullscreen style="width:100%;height:100%;border:none;min-height:280px;" sandbox="allow-scripts"></iframe><div class="iframe-fallback" style="display:flex;flex-direction:column;align-items:center;justify-content:center;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);color:#fff;cursor:pointer;z-index:2;border-radius:12px;" data-link="' + ad.link + '"><span style="font-size:20px;">🔗</span><span style="margin-top:8px;font-size:16px;">点击查看详情</span><span style="font-size:12px;opacity:0.7;margin-top:4px;">该页面无法嵌入，点击跳转</span></div></div>';
-                }
-                return '<div class="slide" data-link="' + (ad.link || '#') + '" style="width:100%;height:100%;flex-shrink:0;cursor:pointer;position:relative;overflow:hidden;background:#f5f5f5;">' + content + '<div style="position:absolute;bottom:8px;right:12px;background:rgba(0,0,0,0.5);color:#fff;padding:2px 12px;border-radius:12px;font-size:12px;z-index:5;pointer-events:none;">点击查看</div></div>';
-            }).join('');
-
-            var dotsHtml = ads.map(function(_, i) { return '<span class="dot" data-index="' + i + '"></span>'; }).join('');
-
-            // 将整个 HTML 压缩为单行，避免换行符问题
-            return '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>*{margin:0;padding:0;box-sizing:border-box;}body{background:#f0f0f0;display:flex;align-items:center;justify-content:center;height:100vh;overflow:hidden;}.carousel-wrapper{position:relative;width:100%;max-width:500px;height:320px;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.1);}.slides-container{display:flex;width:100%;height:100%;transition:transform 0.4s ease;}.slide{width:100%;height:100%;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;background:#f5f5f5;}.slide img,.slide iframe{width:100%;height:100%;border:none;display:block;}.slide iframe{min-height:280px;}.dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:10;}.dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.5);transition:background 0.3s;cursor:pointer;}.dot.active{background:#fff;box-shadow:0 0 6px rgba(0,0,0,0.3);}.arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.3);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:18px;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;transition:background 0.2s;}.arrow:hover{background:rgba(0,0,0,0.6);}.arrow-left{left:8px;}.arrow-right{right:8px;}@media (max-width:480px){.carousel-wrapper{border-radius:8px;height:260px;}}</style></head><body><div class="carousel-wrapper"><div class="slides-container" id="slidesContainer">' + slidesHtml + '</div><div class="dots">' + dotsHtml + '</div><button class="arrow arrow-left" id="prevBtn">‹</button><button class="arrow arrow-right" id="nextBtn">›</button></div><script>(function(){var container=document.getElementById("slidesContainer");var slides=container.querySelectorAll(".slide");var dots=document.querySelectorAll(".dot");var current=0,total=slides.length,interval=null;function goTo(index){if(index<0)index=total-1;if(index>=total)index=0;current=index;container.style.transform="translateX(-"+(current*100)+"%)";dots.forEach(function(dot,i){dot.classList.toggle("active",i===current);});}function next(){goTo(current+1);}function prev(){goTo(current-1);}slides.forEach(function(slide){slide.addEventListener("click",function(e){var link=this.dataset.link;if(link&&!e.target.closest(".arrow")&&!e.target.closest(".dots")){if(e.target.closest("iframe"))return;window.open(link,"_blank");}});var fallback=slide.querySelector(".iframe-fallback");if(fallback){fallback.addEventListener("click",function(e){e.stopPropagation();var link=this.dataset.link;if(link)window.open(link,"_blank");});}});dots.forEach(function(dot,i){dot.addEventListener("click",function(e){e.stopPropagation();goTo(i);resetInterval();});});document.getElementById("prevBtn").addEventListener("click",function(e){e.stopPropagation();prev();resetInterval();});document.getElementById("nextBtn").addEventListener("click",function(e){e.stopPropagation();next();resetInterval();});function startInterval(){if(interval)clearInterval(interval);interval=setInterval(next,3000);}function resetInterval(){if(interval)clearInterval(interval);startInterval();}goTo(0);startInterval();var wrapper=document.querySelector(".carousel-wrapper");wrapper.addEventListener("mouseenter",function(){if(interval)clearInterval(interval);});wrapper.addEventListener("mouseleave",function(){startInterval();});})();<\/script></body></html>';
+function createAdCarouselHTML() {
+    // ----- 从外部数据源读取广告配置 -----
+    let ads = [];
+    if (typeof window.adCarouselList !== 'undefined' && Array.isArray(window.adCarouselList) && window.adCarouselList.length > 0) {
+        ads = window.adCarouselList;
+    } else if (typeof window.activityList !== 'undefined' && Array.isArray(window.activityList)) {
+        const carouselItems = window.activityList.filter(item => item.isCarouselAd === true);
+        if (carouselItems.length > 0) {
+            ads = carouselItems.map(item => ({
+                type: item.carouselType || 'image',
+                title: item.title || '广告',
+                link: item.link || '#',
+                src: item.carouselSrc || (item.type === 'video' ? 'https://www.w3schools.com/html/mov_bbb.mp4' : 'https://example.com'),
+                color: item.color || '#3A6FF8'
+            }));
         }
+    }
+    // 确保至少有 3 条广告（后备）
+    if (ads.length === 0) {
+        ads = [
+            { type: 'image', title: '图片广告', color: '#3A6FF8', link: 'https://example.com/ad1' },
+            { type: 'video', title: '视频广告', src: 'https://www.w3schools.com/html/mov_bbb.mp4', link: 'https://example.com/ad2' },
+            { type: 'iframe', title: '网页广告', src: 'https://example.com', link: 'https://example.com' }
+        ];
+    }
 
+    // 生成幻灯片 HTML
+    const slidesHtml = ads.map((ad, index) => {
+        let content = '';
+        let label = '';
+        if (ad.type === 'image') {
+            label = '📷 图片';
+            // 使用内联 SVG 作为图片（渐变背景+文字）
+            const color1 = ad.color || '#3A6FF8';
+            const color2 = color1 + 'cc'; // 略深
+            content = `
+                <svg width="100%" height="100%" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;">
+                    <defs>
+                        <linearGradient id="g${index}" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:${color1};stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:${color2};stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <rect width="400" height="300" fill="url(#g${index})"/>
+                    <circle cx="200" cy="120" r="36" fill="rgba(255,255,255,0.12)"/>
+                    <circle cx="200" cy="120" r="22" fill="rgba(255,255,255,0.20)"/>
+                    <text x="200" y="128" text-anchor="middle" dy=".3em" fill="#fff" font-size="32" font-weight="700" font-family="sans-serif">${ad.title || '广告'}</text>
+                    <text x="200" y="172" text-anchor="middle" fill="rgba(255,255,255,0.75)" font-size="15" font-family="sans-serif">点击跳转</text>
+                    <rect x="140" y="220" width="120" height="32" rx="16" fill="rgba(255,255,255,0.18)"/>
+                    <text x="200" y="242" text-anchor="middle" fill="#fff" font-size="13" font-weight="500" font-family="sans-serif">查看详情 →</text>
+                </svg>
+            `;
+        } else if (ad.type === 'video') {
+            label = '🎬 视频';
+            const videoSrc = ad.src || 'https://www.w3schools.com/html/mov_bbb.mp4';
+            content = `
+                <video autoplay muted loop playsinline controls preload="metadata" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;">
+                    <source src="${videoSrc}" type="video/mp4">
+                    您的浏览器不支持视频播放。
+                </video>
+                <div class="video-placeholder" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#1a1a2e;color:#aaa;z-index:1;">
+                    <span style="margin-right:10px;">⏳</span> 加载视频中…
+                </div>
+            `;
+        } else if (ad.type === 'iframe') {
+            label = '🌐 网页';
+            const iframeSrc = ad.src || 'https://example.com';
+            content = `
+                <iframe src="${iframeSrc}" loading="lazy" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups" style="position:absolute;inset:0;width:100%;height:100%;border:none;z-index:2;"></iframe>
+            `;
+        }
+        return `
+            <div class="slide" data-link="${ad.link || '#'}" style="width:100%;height:100%;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;background:#f5f5f5;">
+                ${content}
+                <div class="slide-label" style="position:absolute;bottom:12px;right:12px;background:rgba(0,0,0,0.55);color:#fff;padding:4px 14px;border-radius:20px;font-size:13px;font-weight:500;z-index:5;pointer-events:none;backdrop-filter:blur(4px);">${label}</div>
+            </div>
+        `;
+    }).join('');
+
+    const dotsHtml = ads.map((_, i) => `<span class="dot" data-index="${i}"></span>`).join('');
+
+    // 完整轮播 HTML（包含样式和交互，与测试文件一致）
+    return `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                * { margin:0; padding:0; box-sizing:border-box; }
+                body { background:#f0f0f0; display:flex; align-items:center; justify-content:center; height:100vh; overflow:hidden; }
+                .carousel-wrapper {
+                    position:relative;
+                    width:100%;
+                    max-width:500px;
+                    height:320px;
+                    background:#fff;
+                    border-radius:12px;
+                    overflow:hidden;
+                    box-shadow:0 4px 12px rgba(0,0,0,0.1);
+                }
+                .slides-container {
+                    display:flex;
+                    width:100%;
+                    height:100%;
+                    transition: transform 0.4s ease;
+                }
+                .slide {
+                    width:100%;
+                    height:100%;
+                    flex-shrink:0;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    overflow:hidden;
+                    position:relative;
+                    background:#f5f5f5;
+                }
+                .slide img, .slide video, .slide iframe {
+                    width:100%;
+                    height:100%;
+                    border:none;
+                    display:block;
+                }
+                .slide video {
+                    object-fit:cover;
+                    background:#000;
+                }
+                .slide iframe {
+                    min-height:280px;
+                }
+                .slide-label {
+                    position:absolute;
+                    bottom:12px;
+                    right:12px;
+                    background:rgba(0,0,0,0.55);
+                    color:#fff;
+                    padding:4px 14px;
+                    border-radius:20px;
+                    font-size:13px;
+                    font-weight:500;
+                    z-index:5;
+                    pointer-events:none;
+                    backdrop-filter:blur(4px);
+                }
+                .dots {
+                    position:absolute;
+                    bottom:12px;
+                    left:50%;
+                    transform:translateX(-50%);
+                    display:flex;
+                    gap:10px;
+                    z-index:10;
+                }
+                .dot {
+                    width:10px;
+                    height:10px;
+                    border-radius:50%;
+                    background:rgba(255,255,255,0.45);
+                    transition:background 0.3s, transform 0.2s;
+                    cursor:pointer;
+                    border:2px solid rgba(255,255,255,0.15);
+                }
+                .dot.active {
+                    background:#fff;
+                    box-shadow:0 0 10px rgba(0,0,0,0.25);
+                    transform:scale(1.15);
+                    border-color:#fff;
+                }
+                .arrow {
+                    position:absolute;
+                    top:50%;
+                    transform:translateY(-50%);
+                    background:rgba(0,0,0,0.3);
+                    color:#fff;
+                    border:none;
+                    border-radius:50%;
+                    width:36px;
+                    height:36px;
+                    font-size:20px;
+                    cursor:pointer;
+                    z-index:10;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    transition:background 0.2s, transform 0.2s;
+                    backdrop-filter:blur(2px);
+                }
+                .arrow:hover { background:rgba(0,0,0,0.6); transform:translateY(-50%) scale(1.05); }
+                .arrow:active { transform:translateY(-50%) scale(0.92); }
+                .arrow-left { left:10px; }
+                .arrow-right { right:10px; }
+                .video-placeholder {
+                    position:absolute;
+                    inset:0;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    background:#1a1a2e;
+                    color:#aaa;
+                    font-size:14px;
+                    z-index:1;
+                    pointer-events:none;
+                }
+                @media (max-width:480px) {
+                    .carousel-wrapper { border-radius:8px; height:260px; }
+                    .arrow { width:30px; height:30px; font-size:16px; }
+                    .dot { width:8px; height:8px; }
+                    .slide-label { font-size:11px; padding:3px 10px; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="carousel-wrapper">
+                <div class="slides-container" id="slidesContainer">
+                    ${slidesHtml}
+                </div>
+                <div class="dots">${dotsHtml}</div>
+                <button class="arrow arrow-left" id="prevBtn">‹</button>
+                <button class="arrow arrow-right" id="nextBtn">›</button>
+            </div>
+            <script>
+                (function(){
+                    var container = document.getElementById('slidesContainer');
+                    var slides = container.querySelectorAll('.slide');
+                    var dots = document.querySelectorAll('.dot');
+                    var current = 0, total = slides.length, interval = null;
+
+                    // 隐藏视频占位（视频加载后）
+                    slides.forEach(function(slide) {
+                        var video = slide.querySelector('video');
+                        var placeholder = slide.querySelector('.video-placeholder');
+                        if (video && placeholder) {
+                            video.addEventListener('loadeddata', function() {
+                                placeholder.style.display = 'none';
+                            });
+                            video.addEventListener('error', function() {
+                                placeholder.innerHTML = '<span style="color:#ff6b6b;">⚠️ 视频加载失败</span>';
+                            });
+                            setTimeout(function() {
+                                if (placeholder && placeholder.style.display !== 'none') {
+                                    placeholder.style.display = 'none';
+                                }
+                            }, 8000);
+                        }
+                    });
+
+                    function goTo(index) {
+                        if (index < 0) index = total - 1;
+                        if (index >= total) index = 0;
+                        current = index;
+                        container.style.transform = 'translateX(-' + (current * 100) + '%)';
+                        dots.forEach(function(dot, i) {
+                            dot.classList.toggle('active', i === current);
+                        });
+                        // 控制视频播放
+                        var allVideos = container.querySelectorAll('video');
+                        allVideos.forEach(function(v) { v.pause(); });
+                        var currentSlide = slides[current];
+                        var vid = currentSlide.querySelector('video');
+                        if (vid) {
+                            if (vid.readyState >= 2) {
+                                vid.play().catch(function() {});
+                            } else {
+                                var playWhenReady = function() {
+                                    vid.play().catch(function() {});
+                                    vid.removeEventListener('loadeddata', playWhenReady);
+                                };
+                                vid.addEventListener('loadeddata', playWhenReady);
+                                if (vid.readyState >= 1) {
+                                    vid.play().catch(function() {});
+                                }
+                            }
+                        }
+                    }
+
+                    function next() { goTo(current + 1); }
+                    function prev() { goTo(current - 1); }
+
+                    slides.forEach(function(slide) {
+                        slide.addEventListener('click', function(e) {
+                            if (e.target.closest('video') || e.target.closest('iframe')) return;
+                            var link = this.dataset.link;
+                            if (link) window.open(link, '_blank');
+                        });
+                    });
+
+                    dots.forEach(function(dot, i) {
+                        dot.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            goTo(i);
+                            resetInterval();
+                        });
+                    });
+
+                    document.getElementById('prevBtn').addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        prev();
+                        resetInterval();
+                    });
+                    document.getElementById('nextBtn').addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        next();
+                        resetInterval();
+                    });
+
+                    function startInterval() {
+                        if (interval) clearInterval(interval);
+                        interval = setInterval(next, 3500);
+                    }
+                    function resetInterval() {
+                        if (interval) clearInterval(interval);
+                        startInterval();
+                    }
+                    goTo(0);
+                    startInterval();
+
+                    var wrapper = document.querySelector('.carousel-wrapper');
+                    wrapper.addEventListener('mouseenter', function() { if (interval) clearInterval(interval); });
+                    wrapper.addEventListener('mouseleave', function() { startInterval(); });
+                    var touchTimeout = null;
+                    wrapper.addEventListener('touchstart', function() { if (interval) clearInterval(interval); if (touchTimeout) clearTimeout(touchTimeout); });
+                    wrapper.addEventListener('touchend', function() {
+                        if (touchTimeout) clearTimeout(touchTimeout);
+                        touchTimeout = setTimeout(function() { startInterval(); }, 3000);
+                    });
+                })();
+            <\/script>
+        </body>
+        </html>
+    `;
+}
         // ============================================================
         //  5. 活动工具箱（渲染、分页、搜索等）
         // ============================================================
