@@ -823,39 +823,6 @@
 
     <!-- ===== 主脚本 ===== -->
     <script>
-        // ============================================================
-        //  1. 内置默认数据（当外部 activity-data.js 未加载时使用）
-        // ============================================================
-        if (typeof window.activityList === 'undefined') {
-            window.activityList = [
-                { id: 1, title: '移动 × 支付宝双V会员领流量', desc: '每月中国移动 × 支付宝双V会员用户可领1GB通用流量', operator: '移动', mainType: '流量', subType: ['会员福利'], province: '全国', city: '全国', startTime: '2026-08-01', endTime: '2026-12-31', remark: '限双V会员，无法跳转可通过浏览器或分享至微信打开', link: 'https://example.com/mobile-alipay', canShare: true, isAd: false, isTop: false, needWechat: false },
-                { id: 2, title: '广西移动10元300G全球通5G-A尊享合约', desc: '10元/月享300GB国内通用流量 + 3000分钟国内通话 + 1500条国内短信，含5G-A网络权益', operator: '移动', mainType: '流量', subType: ['5G', '合约'], province: '广西壮族自治区', city: '全省', startTime: '2026-07-04', endTime: '2028-06-01', remark: '需全球通或幸运客户身份，合约期24个月，承诺月消费不低于16-17元', link: 'https://example.com/gx-5g', canShare: true, isAd: false, isTop: true, needWechat: false },
-                { id: 3, title: '联通冰淇淋套餐5折优惠', desc: '限时5折办理联通冰淇淋套餐，享全国流量不限量', operator: '联通', mainType: '号卡', subType: ['套餐'], province: '全国', city: '全国', startTime: '2026-08-15', endTime: '2026-09-15', remark: '仅限新用户办理', link: 'https://example.com/unicom-icecream', canShare: true, isAd: false, isTop: false, needWechat: false },
-                { id: 4, title: '电信宽带新装送路由器', desc: '新装电信宽带，免费送WiFi6路由器一台', operator: '电信', mainType: '宽带', subType: ['新装优惠'], province: '全国', city: '全国', startTime: '2026-08-01', endTime: '2026-10-31', remark: '限100M及以上套餐', link: 'https://example.com/ct-broadband', canShare: false, isAd: false, isTop: false, needWechat: false }
-            ];
-            window.mainTypeEnum = [
-                { value: '流量', label: '流量' },
-                { value: '话费', label: '话费' },
-                { value: '会员权益', label: '会员权益' },
-                { value: '号卡', label: '号卡' },
-                { value: '宽带', label: '宽带' },
-                { value: '其他', label: '其他' }
-            ];
-            window.subTypeMap = {
-                '流量': ['全国流量', '本地流量', '5G', '合约'],
-                '话费': ['充值优惠', '话费赠送'],
-                '会员权益': ['视频会员', '音乐会员', '生活服务'],
-                '号卡': ['套餐', '靓号', '大流量'],
-                '宽带': ['新装优惠', '续费优惠'],
-                '其他': ['银行福利', '保险优惠']
-            };
-            window.adCarouselList = [
-                { type: 'image', label: '限时福利', color: '#3A6FF8', link: 'https://example.com/ad1' },
-                { type: 'image', label: '热门活动', color: '#FF6B00', link: 'https://example.com/ad2' },
-                { type: 'iframe', src: 'https://example.com', link: 'https://example.com' }
-            ];
-            console.log('📦 使用内置默认数据');
-        }
 
         // ============================================================
         //  2. 页面切换与导航
