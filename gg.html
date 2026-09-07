@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>广告轮播测试（动态 srcdoc）</title>
+    <style>
+        body {
+            padding: 20px;
+            background: #f0f0f0;
+            font-family: sans-serif;
+        }
+        h2 {
+            margin: 0 0 12px;
+            color: #333;
+        }
+        iframe {
+            width: 100%;
+            max-width: 500px;
+            height: 320px;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            background: #fff;
+        }
+        .tips {
+            margin-top: 16px;
+            color: #555;
+            font-size: 14px;
+        }
+        .tips code {
+            background: #eee;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .badge-group {
+            margin-top: 12px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+        }
+        .badge-img {
+            background: #3A6FF8;
+        }
+        .badge-vid {
+            background: #E53935;
+        }
+        .badge-web {
+            background: #2E7D32;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>🔁 广告轮播测试 · 图片 · 视频 · 网页</h2>
+    <iframe id="testAd"></iframe>
+    <div class="badge-group">
+        <span class="badge badge-img">📷 图片</span>
+        <span class="badge badge-vid">🎬 视频</span>
+        <span class="badge badge-web">🌐 网页</span>
+    </div>
+    <div class="tips">
+        <p>✅ 上方轮播依次展示 <strong>图片 · 视频 · 网页</strong> 三种广告形式，自动切换。</p>
+        <p>💡 图片为内联 SVG，视频为 Big Buck Bunny 示例，网页内嵌 example.com。</p>
+        <p>🔧 若仅显示第一张，请打开浏览器控制台查看错误（F12 → Console）。</p>
+    </div>
+
+    <script>
+        (function() {
+            var iframe = document.getElementById('testAd');
+
+            // 轮播 HTML 内容（完全自包含）
+            var html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset='UTF-8'>
+            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+            <style>
+                * { margin:0; padding:0; box-sizing:border-box; }
+                body { background:#f0f0f0; display:flex; align-items:center; justify-content:center; height:100vh; overflow:hidden; }
+                .carousel-wrapper {
+                    position:relative;
+                    width:100%;
+                    max-width:500px;
+                    height:320px;
+                    background:#fff;
+                    border-radius:12px;
+                    overflow:hidden;
+                    box-shadow:0 4px 12px rgba(0,0,0,0.1);
+                }
+                .slides-container {
+                    display:flex;
+                    width:100%;
+                    height:100%;
+                    transition: transform 0.4s ease;
+                }
+                .slide {
+                    width:100%;
+                    height:100%;
+                    flex-shrink:0;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    overflow:hidden;
+                    position:relative;
+                    background:#f5f5f5;
+                }
+                .slide img,
+                .slide video,
+                .slide iframe {
+                    width:100%;
+                    height:100%;
+                    border:none;
+                    display:block;
+                }
+                .slide video {
+                    object-fit:cover;
+                    background:#000;
+                }
+                .slide iframe {
+                    min-height:280px;
+                }
+                .slide-label {
+                    position:absolute;
+                    bottom:12px;
+                    right:12px;
+                    background:rgba(0,0,0,0.55);
+                    color:#fff;
+                    padding:4px 14px;
+                    border-radius:20px;
+                    font-size:13px;
+                    font-weight:500;
+                    z-index:5;
+                    pointer-events:none;
+                    backdrop-filter:blur(4px);
+                    letter-spacing:0.3px;
+                }
+                .slide-label .icon { margin-right:4px; }
+                .dots {
+                    position:absolute;
+                    bottom:12px;
+                    left:50%;
+                    transform:translateX(-50%);
+                    display:flex;
+                    gap:10px;
+                    z-index:10;
+                }
+                .dot {
+                    width:10px;
+                    height:10px;
+                    border-radius:50%;
+                    background:rgba(255,255,255,0.45);
+                    transition:background 0.3s, transform 0.2s;
+                    cursor:pointer;
+                    border:2px solid rgba(255,255,255,0.15);
+                }
+                .dot.active {
+                    background:#fff;
+                    box-shadow:0 0 10px rgba(0,0,0,0.25);
+                    transform:scale(1.15);
+                    border-color:#fff;
+                }
+                .arrow {
+                    position:absolute;
+                    top:50%;
+                    transform:translateY(-50%);
+                    background:rgba(0,0,0,0.3);
+                    color:#fff;
+                    border:none;
+                    border-radius:50%;
+                    width:36px;
+                    height:36px;
+                    font-size:20px;
+                    cursor:pointer;
+                    z-index:10;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    transition:background 0.2s, transform 0.2s;
+                    backdrop-filter:blur(2px);
+                }
+                .arrow:hover { background:rgba(0,0,0,0.6); transform:translateY(-50%) scale(1.05); }
+                .arrow:active { transform:translateY(-50%) scale(0.92); }
+                .arrow-left { left:10px; }
+                .arrow-right { right:10px; }
+                @media (max-width:480px) {
+                    .carousel-wrapper { border-radius:8px; height:260px; }
+                    .arrow { width:30px; height:30px; font-size:16px; }
+                    .dot { width:8px; height:8px; }
+                    .slide-label { font-size:11px; padding:3px 10px; }
+                }
+                /* 视频加载占位 */
+                .video-placeholder {
+                    position:absolute;
+                    inset:0;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    background:#1a1a2e;
+                    color:#aaa;
+                    font-size:14px;
+                    z-index:1;
+                    pointer-events:none;
+                }
+                .video-placeholder .spinner {
+                    width:30px;
+                    height:30px;
+                    border:3px solid rgba(255,255,255,0.1);
+                    border-top-color:#fff;
+                    border-radius:50%;
+                    animation:spin 0.8s linear infinite;
+                    margin-right:12px;
+                }
+                @keyframes spin { to { transform:rotate(360deg); } }
+                /* 图片幻灯片内部文字 */
+                .slide-img-content {
+                    display:flex;
+                    flex-direction:column;
+                    align-items:center;
+                    justify-content:center;
+                    width:100%;
+                    height:100%;
+                    color:#fff;
+                    font-family:sans-serif;
+                }
+                .slide-img-content h2 {
+                    font-size:28px;
+                    font-weight:700;
+                    margin-bottom:6px;
+                    text-shadow:0 2px 8px rgba(0,0,0,0.2);
+                }
+                .slide-img-content p {
+                    font-size:14px;
+                    opacity:0.85;
+                    text-shadow:0 1px 4px rgba(0,0,0,0.15);
+                }
+                /* 视频控制条美化 */
+                .slide video::-webkit-media-controls {
+                    background:rgba(0,0,0,0.4);
+                    border-radius:0 0 12px 12px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class='carousel-wrapper'>
+                <div class='slides-container' id='slidesContainer'>
+                    <!-- 幻灯片1：图片（内联SVG，蓝色） -->
+                    <div class='slide' data-link='https://example.com/ad1'>
+                        <svg width='100%' height='100%' viewBox='0 0 400 300' preserveAspectRatio='xMidYMid slice' style='position:absolute;inset:0;'>
+                            <defs>
+                                <linearGradient id='g1' x1='0%' y1='0%' x2='100%' y2='100%'>
+                                    <stop offset='0%' style='stop-color:#3A6FF8;stop-opacity:1' />
+                                    <stop offset='100%' style='stop-color:#1A4DB8;stop-opacity:1' />
+                                </linearGradient>
+                            </defs>
+                            <rect width='400' height='300' fill='url(#g1)'/>
+                            <circle cx='200' cy='120' r='36' fill='rgba(255,255,255,0.12)'/>
+                            <circle cx='200' cy='120' r='22' fill='rgba(255,255,255,0.20)'/>
+                            <text x='200' y='128' text-anchor='middle' dy='.3em' fill='#fff' font-size='32' font-weight='700' font-family='sans-serif'>📷 图片广告</text>
+                            <text x='200' y='172' text-anchor='middle' fill='rgba(255,255,255,0.75)' font-size='15' font-family='sans-serif'>点击跳转 · 福利1</text>
+                            <rect x='140' y='220' width='120' height='32' rx='16' fill='rgba(255,255,255,0.18)'/>
+                            <text x='200' y='242' text-anchor='middle' fill='#fff' font-size='13' font-weight='500' font-family='sans-serif'>查看详情 →</text>
+                        </svg>
+                        <div class='slide-label'><span class='icon'>📷</span> 图片</div>
+                    </div>
+
+                    <!-- 幻灯片2：视频 -->
+                    <div class='slide' data-link='https://example.com/ad2'>
+                        <video
+                        id='adVideo'
+                        autoplay
+                        muted
+                        loop
+                        playsinline
+                        controls
+                        preload='metadata'
+                        style='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;'
+                        >
+                        <source src='https://www.w3schools.com/html/mov_bbb.mp4' type='video/mp4'>
+                        <source src='https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4' type='video/mp4'>
+                        您的浏览器不支持视频播放。
+                    </video>
+                    <!-- 占位（视频加载时显示） -->
+                    <div class='video-placeholder' id='videoPlaceholder'>
+                        <div class='spinner'></div>
+                        <span>加载视频中…</span>
+                    </div>
+                    <div class='slide-label' style='z-index:6;'><span class='icon'>🎬</span> 视频</div>
+                </div>
+
+                <!-- 幻灯片3：网页（iframe） -->
+                <div class='slide' data-link='https://example.com'>
+                    <iframe
+                    src='https://example.com'
+                    loading='lazy'
+                    allowfullscreen
+                    sandbox='allow-scripts allow-same-origin allow-forms allow-popups'
+                    style='position:absolute;inset:0;width:100%;height:100%;border:none;z-index:2;'
+                ></iframe>
+                <div class='slide-label' style='z-index:6;'><span class='icon'>🌐</span> 网页</div>
+            </div>
+        </div>
+
+        <div class='dots'>
+            <span class='dot active' data-index='0'></span>
+            <span class='dot' data-index='1'></span>
+            <span class='dot' data-index='2'></span>
+        </div>
+        <button class='arrow arrow-left' id='prevBtn'>‹</button>
+        <button class='arrow arrow-right' id='nextBtn'>›</button>
+    </div>
+
+    <script>
+        (function(){
+            var container = document.getElementById('slidesContainer');
+            var slides = container.querySelectorAll('.slide');
+            var dots = document.querySelectorAll('.dot');
+            var current = 0, total = slides.length, interval = null;
+
+            // 视频占位隐藏
+            var placeholder = document.getElementById('videoPlaceholder');
+            var videoEl = document.getElementById('adVideo');
+            if (videoEl) {
+                // 视频加载完成后隐藏占位
+                videoEl.addEventListener('loadeddata', function() {
+                    if (placeholder) placeholder.style.display = 'none';
+                });
+                // 如果加载失败也隐藏占位（显示错误状态）
+                videoEl.addEventListener('error', function() {
+                    if (placeholder) {
+                        placeholder.innerHTML = '<span style="color:#ff6b6b;">⚠️ 视频加载失败</span>';
+                    }
+                });
+                // 超时隐藏占位（防止卡住）
+                setTimeout(function() {
+                    if (placeholder && placeholder.style.display !== 'none') {
+                        placeholder.style.display = 'none';
+                    }
+                }, 8000);
+            }
+
+            function goTo(index) {
+                if (index < 0) index = total - 1;
+                if (index >= total) index = 0;
+                current = index;
+                container.style.transform = 'translateX(-' + (current * 100) + '%)';
+                dots.forEach(function(dot, i) {
+                    dot.classList.toggle('active', i === current);
+                });
+
+                // 控制视频播放：暂停所有视频，播放当前幻灯片中的视频
+                var allVideos = container.querySelectorAll('video');
+                allVideos.forEach(function(v) {
+                    v.pause();
+                });
+                var currentSlide = slides[current];
+                var vid = currentSlide.querySelector('video');
+                if (vid) {
+                    // 如果视频有数据，尝试播放；否则静默失败
+                    if (vid.readyState >= 2) {
+                        vid.play().catch(function(e) {
+                            // 自动播放被阻止，忽略（用户可手动点击播放）
+                            console.log('视频自动播放被阻止，用户可手动播放');
+                        });
+                    } else {
+                        // 视频尚未加载，监听加载完成后播放
+                        var playWhenReady = function() {
+                            vid.play().catch(function() {});
+                            vid.removeEventListener('loadeddata', playWhenReady);
+                        };
+                        vid.addEventListener('loadeddata', playWhenReady);
+                        // 如果已经加载了一部分，尝试播放
+                        if (vid.readyState >= 1) {
+                            vid.play().catch(function() {});
+                        }
+                    }
+                }
+            }
+
+            function next() { goTo(current + 1); }
+            function prev() { goTo(current - 1); }
+
+            // 点击幻灯片跳转（排除视频和iframe）
+            slides.forEach(function(slide) {
+                slide.addEventListener('click', function(e) {
+                    // 如果点击的是 video、iframe 或它们的子元素，不触发跳转
+                    var target = e.target;
+                    if (target.closest('video') || target.closest('iframe')) {
+                        return;
+                    }
+                    var link = this.dataset.link;
+                    if (link) {
+                        window.open(link, '_blank');
+                    }
+                });
+            });
+
+            // 圆点点击
+            dots.forEach(function(dot, i) {
+                dot.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    goTo(i);
+                    resetInterval();
+                });
+            });
+
+            // 箭头点击
+            document.getElementById('prevBtn').addEventListener('click', function(e) {
+                e.stopPropagation();
+                prev();
+                resetInterval();
+            });
+            document.getElementById('nextBtn').addEventListener('click', function(e) {
+                e.stopPropagation();
+                next();
+                resetInterval();
+            });
+
+            function startInterval() {
+                if (interval) clearInterval(interval);
+                interval = setInterval(next, 3500);
+            }
+
+            function resetInterval() {
+                if (interval) clearInterval(interval);
+                startInterval();
+            }
+
+            // 初始化
+            goTo(0);
+            startInterval();
+
+            // 悬停暂停
+            var wrapper = document.querySelector('.carousel-wrapper');
+            wrapper.addEventListener('mouseenter', function() {
+                if (interval) clearInterval(interval);
+            });
+            wrapper.addEventListener('mouseleave', function() {
+                startInterval();
+            });
+
+            // 触摸设备：触摸时暂停，触摸结束恢复
+            var touchTimeout = null;
+            wrapper.addEventListener('touchstart', function() {
+                if (interval) clearInterval(interval);
+                if (touchTimeout) clearTimeout(touchTimeout);
+            });
+            wrapper.addEventListener('touchend', function() {
+                if (touchTimeout) clearTimeout(touchTimeout);
+                touchTimeout = setTimeout(function() {
+                    startInterval();
+                }, 3000);
+            });
+
+            console.log('✅ 轮播已启动 · 共 ' + total + ' 张幻灯片（图片·视频·网页）');
+        })();
+        <\/script>
+    </body>
+    </html>
+    `;
+
+            // 将 HTML 赋值给 iframe 的 srcdoc
+            iframe.srcdoc = html;
+            iframe.onload = function() {
+                console.log('✅ iframe 加载完成');
+            };
+        })();
+    </script>
+
+</body>
+</html>
