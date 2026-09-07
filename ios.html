@@ -479,7 +479,7 @@
     <!-- 外部依赖库 -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" defer></script>
-    <!-- 活动数据（请确保 activity-data.js 定义了 window.activityList, window.mainTypeEnum, window.subTypeMap, window.adCarouselList） -->
+    <!-- 活动数据（如果不存在，则使用内置默认数据） -->
     <script src="activity-data.js" defer></script>
 </head>
 <body>
@@ -786,8 +786,8 @@
                 <img id="detailQrImg" src="" alt="二维码">
                 <div class="qr-hint">长按识别二维码 参与活动</div>
             </div>
-            <!-- 广告轮播 iframe（Blob URL 方式，兼容 iOS） -->
-            <iframe class="detail-ad" id="detailAdIframe" loading="lazy" allowfullscreen></iframe>
+            <!-- 广告轮播 iframe（使用 srcdoc，确保兼容） -->
+            <iframe class="detail-ad" id="detailAdIframe" loading="lazy" allowfullscreen sandbox="allow-scripts allow-popups"></iframe>
             <a class="detail-link-btn" id="detailLinkBtn" href="#" target="_blank">🚀 直达链接</a>
             <div class="detail-footer">未来福利社 · 汇聚优惠福利</div>
         </div>
@@ -823,7 +823,6 @@
 
     <!-- ===== 主脚本 ===== -->
     <script>
-
         // ============================================================
         //  2. 页面切换与导航
         // ============================================================
@@ -966,7 +965,7 @@
         }
 
         // ============================================================
-        //  4. 广告轮播生成器（从全局数据源读取，Blob URL 方式）
+        //  4. 广告轮播生成器（从全局数据源读取，使用 srcdoc 直接注入）
         // ============================================================
         function createAdCarouselHTML() {
             // 读取广告数据
@@ -987,12 +986,21 @@
                     });
                 }
             }
-            if (ads.length === 0) {
-                ads = [
+            // 确保至少有三条广告（后备）
+            if (ads.length < 3) {
+                var defaultAds = [
                     { type: 'image', label: '福利1', color: '#3A6FF8', link: 'https://example.com/ad1' },
                     { type: 'image', label: '福利2', color: '#FF6B00', link: 'https://example.com/ad2' },
-                    { type: 'iframe', src: 'https://example.com', link: 'https://example.com' }
+                    { type: 'image', label: '福利3', color: '#07C160', link: 'https://example.com/ad3' }
                 ];
+                // 如果 ads 为空，直接用默认；否则只填充不足部分
+                if (ads.length === 0) {
+                    ads = defaultAds;
+                } else {
+                    while (ads.length < 3) {
+                        ads.push(defaultAds[ads.length % defaultAds.length]);
+                    }
+                }
             }
 
             var slidesHtml = ads.map(function(ad) {
@@ -1008,6 +1016,7 @@
 
             var dotsHtml = ads.map(function(_, i) { return '<span class="dot" data-index="' + i + '"></span>'; }).join('');
 
+            // 将整个 HTML 压缩为单行，避免换行符问题
             return '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>*{margin:0;padding:0;box-sizing:border-box;}body{background:#f0f0f0;display:flex;align-items:center;justify-content:center;height:100vh;overflow:hidden;}.carousel-wrapper{position:relative;width:100%;max-width:500px;height:320px;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.1);}.slides-container{display:flex;width:100%;height:100%;transition:transform 0.4s ease;}.slide{width:100%;height:100%;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;background:#f5f5f5;}.slide img,.slide iframe{width:100%;height:100%;border:none;display:block;}.slide iframe{min-height:280px;}.dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:10;}.dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.5);transition:background 0.3s;cursor:pointer;}.dot.active{background:#fff;box-shadow:0 0 6px rgba(0,0,0,0.3);}.arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.3);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:18px;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;transition:background 0.2s;}.arrow:hover{background:rgba(0,0,0,0.6);}.arrow-left{left:8px;}.arrow-right{right:8px;}@media (max-width:480px){.carousel-wrapper{border-radius:8px;height:260px;}}</style></head><body><div class="carousel-wrapper"><div class="slides-container" id="slidesContainer">' + slidesHtml + '</div><div class="dots">' + dotsHtml + '</div><button class="arrow arrow-left" id="prevBtn">‹</button><button class="arrow arrow-right" id="nextBtn">›</button></div><script>(function(){var container=document.getElementById("slidesContainer");var slides=container.querySelectorAll(".slide");var dots=document.querySelectorAll(".dot");var current=0,total=slides.length,interval=null;function goTo(index){if(index<0)index=total-1;if(index>=total)index=0;current=index;container.style.transform="translateX(-"+(current*100)+"%)";dots.forEach(function(dot,i){dot.classList.toggle("active",i===current);});}function next(){goTo(current+1);}function prev(){goTo(current-1);}slides.forEach(function(slide){slide.addEventListener("click",function(e){var link=this.dataset.link;if(link&&!e.target.closest(".arrow")&&!e.target.closest(".dots")){if(e.target.closest("iframe"))return;window.open(link,"_blank");}});var fallback=slide.querySelector(".iframe-fallback");if(fallback){fallback.addEventListener("click",function(e){e.stopPropagation();var link=this.dataset.link;if(link)window.open(link,"_blank");});}});dots.forEach(function(dot,i){dot.addEventListener("click",function(e){e.stopPropagation();goTo(i);resetInterval();});});document.getElementById("prevBtn").addEventListener("click",function(e){e.stopPropagation();prev();resetInterval();});document.getElementById("nextBtn").addEventListener("click",function(e){e.stopPropagation();next();resetInterval();});function startInterval(){if(interval)clearInterval(interval);interval=setInterval(next,3000);}function resetInterval(){if(interval)clearInterval(interval);startInterval();}goTo(0);startInterval();var wrapper=document.querySelector(".carousel-wrapper");wrapper.addEventListener("mouseenter",function(){if(interval)clearInterval(interval);});wrapper.addEventListener("mouseleave",function(){startInterval();});})();<\/script></body></html>';
         }
 
@@ -1196,7 +1205,7 @@
         function copyText2(text) { var dummy = document.createElement('textarea'); dummy.value = text; dummy.style.cssText = 'position:fixed;top:-1000px;left:-1000px;opacity:0;'; document.body.appendChild(dummy); dummy.select(); try { document.execCommand('copy'); showCustomToast('✅ 已复制分享文案', '快去分享给好友吧'); } catch (e) { showCustomToast('📋 请手动复制', text); } document.body.removeChild(dummy); }
 
         // ============================================================
-        //  8. 活动详情弹窗（包含广告轮播 Blob URL 注入）
+        //  8. 活动详情弹窗（包含广告轮播 srcdoc 注入）
         // ============================================================
         var detailMask = document.getElementById('detailMask');
         var detailCloseBtn = document.getElementById('detailCloseBtn');
@@ -1251,17 +1260,16 @@
                 linkBtn.target = '';
             }
 
-            // ---- 设置广告轮播 iframe（使用 Blob URL，兼容 iOS） ----
+            // ---- 设置广告轮播 iframe（使用 srcdoc 直接注入） ----
             var adIframe = document.getElementById('detailAdIframe');
             if (adIframe) {
                 try {
                     var html = createAdCarouselHTML();
-                    var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-                    var url = URL.createObjectURL(blob);
-                    adIframe.src = url;
-                    adIframe.onload = function() { console.log('✅ 广告 iframe 加载成功 (Blob URL)'); };
+                    adIframe.srcdoc = html;
+                    adIframe.onload = function() { console.log('✅ 广告 iframe 加载成功 (srcdoc)'); };
                     adIframe.onerror = function(e) {
                         console.error('❌ 广告 iframe 加载失败:', e);
+                        // 备用方案：使用 data URI
                         try {
                             var encoded = encodeURIComponent(html);
                             adIframe.src = 'data:text/html;charset=utf-8,' + encoded;
@@ -1285,9 +1293,7 @@
             document.body.style.overflow = '';
             var adIframe = document.getElementById('detailAdIframe');
             if (adIframe) {
-                if (adIframe.src && adIframe.src.startsWith('blob:')) {
-                    URL.revokeObjectURL(adIframe.src);
-                }
+                adIframe.srcdoc = '';
                 adIframe.src = '';
             }
         }
@@ -1803,7 +1809,7 @@
             }
         };
 
-        console.log('✅ 未来福利社 加载完成（完整版，兼容 iOS）');
+        console.log('✅ 未来福利社 加载完成（使用 srcdoc，兼容安卓/iOS）');
     </script>
 </body>
 </html>
