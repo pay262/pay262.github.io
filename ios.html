@@ -374,9 +374,42 @@
         /* ============================================================
            活动详情弹窗
            ============================================================ */
-        .detail-mask { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.55); z-index:9997; display:none; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); }
         .detail-mask.active { display:flex; }
-        .detail-card { background:#fff; border-radius:20px; max-width:500px; width:100%; max-height:92vh; overflow-y:auto; padding:24px 20px 20px; position:relative; animation:detailFadeIn 0.3s ease; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
+/* 遮罩层 - 阻止自身滚动 */
+.detail-mask {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 9997;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    overflow: hidden; /* 新增：禁止遮罩滚动 */
+}
+
+/* 卡片容器 - 启用 iOS 平滑滚动 */
+.detail-card {
+    background: #fff;
+    border-radius: 20px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 92vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* 关键：iOS 平滑滚动 */
+    padding: 24px 20px 20px;
+    position: relative;
+    animation: detailFadeIn 0.3s ease;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    /* 确保高度由内容撑开，但不超过最大高度 */
+    height: auto;
+    flex-shrink: 0; /* 防止 flex 压缩 */
+}
         @keyframes detailFadeIn { from { opacity:0; transform:translateY(20px) scale(0.96); } to { opacity:1; transform:translateY(0) scale(1); } }
         .detail-close { position:absolute; right:14px; top:14px; width:36px; height:36px; border:none; background:#f3f4f6; border-radius:50%; font-size:22px; line-height:1; color:#6b7280; cursor:pointer; transition:0.2s; display:flex; align-items:center; justify-content:center; }
         .detail-close:active { transform:scale(0.92); background:#e5e7eb; }
