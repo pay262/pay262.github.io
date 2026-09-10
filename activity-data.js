@@ -4040,6 +4040,28 @@ const activityList = [
     link: "https://mywap2.icbc.com.cn/ICBCWAPBank/servlet/WAPBAppInject?injectMenuId=ThemePage&injectParams=dGFyZ2V0UGFyYW1zPWNEMDBNelptWXpjMU9EY3pNVGxoT0RrNU5UWTFNRGxoTURka1pXSTFOMlF6TUdFd016VmpOMlEwTXpVeVpqTmxPVEkxTURsalpUWmhaakl6WWpreE16UTA=",
     canShare: false
 },
+// ============================================================
+//  新增活动 235（移动7天打卡领话费）
+//  来源：25xianbao.com + 91hym.cn + 用户提供链接
+//  编号从 235 开始
+// ============================================================
+
+// 235. 移动7天打卡领话费·连续签到必得5元/10元
+{
+    id: 235,
+    operator: "移动",
+    province: "全国",
+    city: "全国",
+    mainType: "其他活动",
+    subType: ["签到"],
+    title: "移动7天打卡领话费·连续签到必得5元/10元",
+    startTime: "2026-09-09",
+    endTime: "2026-11-30",
+    desc: "中国移动用户每日进入活动页面点击打卡，连续签到满7天即可获得话费奖励（非抽奖，必得）。奖励根据网龄等级发放：V1-V3网龄用户必得5元话费，V4-V5网龄用户必得10元话费。话费为无门槛直充，直接到账话费余额，非分期抵扣券。每日打卡后还可额外参与抽奖，最高可中5GB流量或88元话费",
+    remark: "限中国移动用户；活动时间2026年9月9日至11月30日或奖品发完即止；名额共33万份，先到先得；必须连续签到7天，中断则重新计算；一个手机号仅可领取一次奖励；入口：中国移动APP搜索“打卡分百万”或“7天打卡”，也可通过网龄入口横幅进入",
+    link: "https://dev.coc.10086.cn/coc/web6/dailyLoginEvent/index",
+    canShare: false
+},
 ];
 
 // ============================================================
