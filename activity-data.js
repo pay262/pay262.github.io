@@ -281,7 +281,7 @@ window.adCarouselList = [
     },
     {
         type: 'iframe',
-        src: 'https://m.qhlwvcc.shop/m/Ix82mh',   // 仅限允许被嵌入的网站
+        src: 'https://a.ypvwvzlq.cn/r/68apTU',   // 仅限允许被嵌入的网站
         link: ''  //跳转链接
     },
     {
