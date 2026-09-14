@@ -4141,7 +4141,7 @@ const activityList = [
     endTime: "2026-12-31",
     desc: "9元/月享60GB国内通用流量+热门会员权益（具体会员内容及合约规则以办理页为准）。通过京东链接提交手机号办理，能否成功取决于当地电信系统。目前已知河南电信可订购，其他地区需自测",
     remark: "限河南电信用户（其他地区自测）；通过京东链接提交订单办理；具体会员权益、合约期限及生效规则以办理页实际展示为准；部分地区或套餐可能存在互斥限制",
-    link: "https://tsw.m.jjd.com/package/info?skuId=100007426275&shopId=1000084883&packagePhone=",
+    link: "https://tsw.m.jd.com/package/info?skuId=100007426275&shopId=1000084883&packagePhone=",
     canShare: false
 },
 
