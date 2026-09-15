@@ -244,10 +244,21 @@
         .agent-footer-copy { font-size:11px; color:#999; margin-top:8px; }
 
         /* ============================================================
-           活动详情弹窗
+           活动详情弹窗（Safari 兼容核心修复）
            ============================================================ */
-        .detail-mask { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.55); z-index:9997; display:none; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); }
-        .detail-mask.active { display:flex; }
+        .detail-mask {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 9997;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+        .detail-mask.active { display: flex; }
         .detail-card { background:#fff; border-radius:20px; max-width:500px; width:100%; max-height:92vh; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:16px 20px 20px; position:relative; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
         .detail-close { position:sticky; top:0; float:right; width:36px; height:36px; border:none; background:#f3f4f6; border-radius:50%; font-size:22px; line-height:1; color:#6b7280; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:10; margin-left:auto; margin-bottom:4px; }
         .detail-badges { display:flex; flex-wrap:wrap; gap:4px 6px; margin-bottom:10px; clear:both; }
@@ -264,7 +275,8 @@
         .detail-footer { text-align:center; font-size:12px; color:#9ca3af; margin-top:14px; }
 
         /* ============================================================
-           🎯 广告容器（原生 DOM 渲染，无 Blob、无 sandbox 包裹）
+           🎯 广告容器（Safari 修复核心）
+           用 display: block / none 控制 ad-item，iframe 动态创建
            ============================================================ */
         .detail-ad {
             width: 100%;
@@ -280,10 +292,13 @@
             top: 0; left: 0;
             width: 100%;
             height: 100%;
+            /* ✅ Safari 关键：用 display 控制，不用 opacity/visibility */
             display: none;
             background: #f5f5f5;
         }
-        .detail-ad .ad-item.active { display: block; }
+        .detail-ad .ad-item.active {
+            display: block;
+        }
         .detail-ad .ad-item iframe {
             width: 100%;
             height: 100%;
@@ -846,23 +861,19 @@
         }
 
         // ============================================================
-        //  🎯 广告轮播渲染器
+        //  🎯 广告轮播渲染器（Safari 兼容终极方案）
         //  关键设计：
-        //  1. 直接在主页面创建 <iframe src="广告链接">，不用 Blob URL 包裹
-        //  2. 不加 sandbox（避免传递给子框架导致广告页被限制）
-        //  3. 加 allow="cookies" 和 referrerpolicy 保留完整来源信息
-        //  4. 广告联盟可以看到真实 Referer 和 Cookie，正常计费
+        //  1. ad-item 用 display:none/block 控制（不用 opacity/visibility）
+        //  2. iframe 动态创建：只在 ad-item 变为 active 时才创建
+        //  3. 保证 iframe 创建时父容器是 display:block，Safari 会立即加载
         // ============================================================
         function renderAdCarousel(container) {
             if (!container) return;
 
-            // 清理旧定时器和内容
             if (container._adTimer) { clearInterval(container._adTimer); container._adTimer = null; }
             container.innerHTML = '';
 
-            // 读取广告数据
             var ads = window.adCarouselList || [];
-            // 过滤：iframe 类型必须有 src 或 link
             ads = ads.filter(function(ad) {
                 if (ad.type === 'iframe') return !!(ad.src || ad.link);
                 return true;
@@ -873,59 +884,24 @@
                 return;
             }
 
-            // 创建广告项
+            container._ads = ads;
+            container._currentIndex = 0;
+            container._items = [];
+
+            // 创建 ad-item 容器（不预创建 iframe，只在 active 时创建）
             ads.forEach(function(ad, i) {
                 var item = document.createElement('div');
                 item.className = 'ad-item' + (i === 0 ? ' active' : '');
+                item.dataset.index = i;
 
-                if (ad.type === 'image') {
-                    // 图片广告：内联 SVG
-                    var c1 = ad.color || '#3A6FF8';
-                    var c2 = c1 + 'cc';
-                    item.innerHTML = '<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice">' +
-                        '<defs><linearGradient id="adg' + i + '" x1="0%" y1="0%" x2="100%" y2="100%">' +
-                        '<stop offset="0%" stop-color="' + c1 + '"/><stop offset="100%" stop-color="' + c2 + '"/>' +
-                        '</linearGradient></defs>' +
-                        '<rect width="400" height="300" fill="url(#adg' + i + ')"/>' +
-                        '<circle cx="200" cy="118" r="34" fill="rgba(255,255,255,0.12)"/>' +
-                        '<circle cx="200" cy="118" r="20" fill="rgba(255,255,255,0.20)"/>' +
-                        '<text x="200" y="126" text-anchor="middle" dy=".3em" fill="#fff" font-size="26" font-weight="700" font-family="sans-serif">' + (ad.title || '广告') + '</text>' +
-                        '<text x="200" y="170" text-anchor="middle" fill="rgba(255,255,255,0.75)" font-size="14" font-family="sans-serif">点击查看详情</text>' +
-                        '</svg>';
-                    if (ad.link) {
-                        item.style.cursor = 'pointer';
-                        (function(link) {
-                            item.addEventListener('click', function() { window.open(link, '_blank'); });
-                        })(ad.link);
-                    }
-                } else if (ad.type === 'iframe') {
-                    // ✅ 关键：直接创建 iframe，src 直连广告链接
-                    // 不加 sandbox（避免传递给子框架导致广告页被限制）
-                    // 不加 Blob URL 包裹（保留完整 origin / referer / cookie）
-                    var iframe = document.createElement('iframe');
-                    iframe.src = ad.src || ad.link;
-                    iframe.setAttribute('allowfullscreen', 'true');
-                    iframe.setAttribute('allow', 'cookies; storage-access; autoplay; encrypted-media; fullscreen');
-                    iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
-                    iframe.setAttribute('scrolling', 'auto');
-                    iframe.setAttribute('frameborder', '0');
-                    iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;background:#fff;';
-                    iframe.onload = function() {
-                        console.log('✅ 广告加载完成:', ad.src || ad.link);
-                    };
-                    iframe.onerror = function() {
-                        console.error('❌ 广告加载失败:', ad.src || ad.link);
-                    };
-                    item.appendChild(iframe);
+                if (i === 0) {
+                    // 第一个直接创建内容（因为在弹窗可见时创建）
+                    buildAdContent(item, ad, i);
                 }
-
-                // 类型标签
-                var label = document.createElement('div');
-                label.className = 'ad-label';
-                label.textContent = ad.type === 'image' ? '📷 图片' : '🌐 网页';
-                item.appendChild(label);
+                // 非第一个暂时留空（display: none，切换时再创建 iframe）
 
                 container.appendChild(item);
+                container._items.push(item);
             });
 
             // 分页点
@@ -939,37 +915,99 @@
                     dots.appendChild(dot);
                 });
                 container.appendChild(dots);
-            }
 
-            // 轮播控制
-            var items = container.querySelectorAll('.ad-item');
-            var dotEls = container.querySelectorAll('.ad-dot');
-            var current = 0;
-            var total = items.length;
-
-            function goTo(idx) {
-                if (idx < 0) idx = total - 1;
-                if (idx >= total) idx = 0;
-                current = idx;
-                items.forEach(function(it, k) { it.classList.toggle('active', k === idx); });
-                dotEls.forEach(function(d, k) { d.classList.toggle('active', k === idx); });
-            }
-
-            dotEls.forEach(function(d) {
-                d.addEventListener('click', function() {
-                    goTo(parseInt(this.dataset.i, 10));
-                    restart();
+                dots.querySelectorAll('.ad-dot').forEach(function(d) {
+                    d.addEventListener('click', function() {
+                        var idx = parseInt(this.dataset.i, 10);
+                        switchTo(container, idx);
+                    });
                 });
+            }
+
+            // 自动轮播
+            if (ads.length > 1) {
+                container._adTimer = setInterval(function() {
+                    var next = (container._currentIndex + 1) % ads.length;
+                    switchTo(container, next);
+                }, 6000);
+            }
+        }
+
+        // 切换到指定广告
+        function switchTo(container, idx) {
+            var ads = container._ads;
+            var items = container._items;
+            if (!ads || !items || idx < 0 || idx >= items.length) return;
+
+            // 1. 先切换 display（旧的下，新的上）
+            items.forEach(function(it, k) {
+                it.classList.toggle('active', k === idx);
             });
 
-            function next() { goTo(current + 1); }
-
-            function restart() {
-                if (container._adTimer) clearInterval(container._adTimer);
-                if (total > 1) container._adTimer = setInterval(next, 6000);
+            // 2. 如果目标还没有内容，动态创建 iframe
+            //    此时目标 ad-item 是 display:block，父容器可见，Safari 会正常加载
+            var target = items[idx];
+            if (target && !target.dataset.built) {
+                buildAdContent(target, ads[idx], idx);
             }
 
-            restart();
+            container._currentIndex = idx;
+
+            // 3. 更新分页点
+            var dots = container.querySelectorAll('.ad-dot');
+            dots.forEach(function(d, k) {
+                d.classList.toggle('active', k === idx);
+            });
+        }
+
+        // 构建广告内容（在 ad-item 可见时调用）
+        function buildAdContent(item, ad, idx) {
+            item.innerHTML = '';
+
+            if (ad.type === 'image') {
+                var c1 = ad.color || '#3A6FF8';
+                var c2 = c1 + 'cc';
+                item.innerHTML = '<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice">' +
+                    '<defs><linearGradient id="adg' + idx + '" x1="0%" y1="0%" x2="100%" y2="100%">' +
+                    '<stop offset="0%" stop-color="' + c1 + '"/><stop offset="100%" stop-color="' + c2 + '"/>' +
+                    '</linearGradient></defs>' +
+                    '<rect width="400" height="300" fill="url(#adg' + idx + ')"/>' +
+                    '<circle cx="200" cy="118" r="34" fill="rgba(255,255,255,0.12)"/>' +
+                    '<circle cx="200" cy="118" r="20" fill="rgba(255,255,255,0.20)"/>' +
+                    '<text x="200" y="126" text-anchor="middle" dy=".3em" fill="#fff" font-size="26" font-weight="700" font-family="sans-serif">' + (ad.title || '广告') + '</text>' +
+                    '<text x="200" y="170" text-anchor="middle" fill="rgba(255,255,255,0.75)" font-size="14" font-family="sans-serif">点击查看详情</text>' +
+                    '</svg>';
+                if (ad.link) {
+                    item.style.cursor = 'pointer';
+                    item.addEventListener('click', function() { window.open(ad.link, '_blank'); });
+                }
+            } else if (ad.type === 'iframe') {
+                // ✅ 关键：直接创建 iframe，src 直连广告链接
+                // 此时父容器 display:block，Safari 会立即加载 iframe 内容
+                var iframe = document.createElement('iframe');
+                iframe.src = ad.src || ad.link;
+                iframe.setAttribute('allowfullscreen', 'true');
+                iframe.setAttribute('allow', 'cookies; storage-access; autoplay; encrypted-media; fullscreen');
+                iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+                iframe.setAttribute('scrolling', 'auto');
+                iframe.setAttribute('frameborder', '0');
+                iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;background:#fff;';
+                iframe.onload = function() {
+                    console.log('✅ 广告加载完成:', ad.src || ad.link);
+                };
+                iframe.onerror = function() {
+                    console.error('❌ 广告加载失败:', ad.src || ad.link);
+                };
+                item.appendChild(iframe);
+            }
+
+            // 类型标签
+            var label = document.createElement('div');
+            label.className = 'ad-label';
+            label.textContent = ad.type === 'image' ? '📷 图片' : '🌐 网页';
+            item.appendChild(label);
+
+            item.dataset.built = '1';
         }
 
         // ============================================================
@@ -1152,7 +1190,8 @@
         function copyText2(text) { var d = document.createElement('textarea'); d.value = text; d.style.cssText = 'position:fixed;top:-1000px;left:-1000px;opacity:0;'; document.body.appendChild(d); d.select(); try { document.execCommand('copy'); showCustomToast('✅ 已复制分享文案', '快去分享给好友吧'); } catch (e) { showCustomToast('📋 请手动复制', text); } document.body.removeChild(d); }
 
         // ============================================================
-        //  🎯 活动详情弹窗
+        //  🎯 活动详情弹窗（Safari 兼容）
+        //  关键：弹窗可见后延迟 100ms 再渲染广告，确保 Safari 完成布局
         // ============================================================
         var detailMask = document.getElementById('detailMask');
         var detailCloseBtn = document.getElementById('detailCloseBtn');
@@ -1199,21 +1238,26 @@
                 linkBtn.target = '';
             }
 
-            // 🎯 渲染广告轮播（原生 DOM，直接 iframe src 直连广告链接）
-            var adContainer = document.getElementById('detailAdContainer');
-            if (adContainer) {
-                renderAdCarousel(adContainer);
-            }
-
+            // 显示弹窗
             detailMask.classList.add('active');
             document.body.style.overflow = 'hidden';
+
+            // 🎯 Safari 关键：延迟 100ms 等弹窗完成渲染后再创建 iframe
+            // 此时 detail-mask 是 display:flex，detail-ad 容器可见
+            // Safari 会立即加载 iframe 内容
+            setTimeout(function() {
+                var adContainer = document.getElementById('detailAdContainer');
+                if (adContainer) {
+                    renderAdCarousel(adContainer);
+                }
+            }, 100);
         }
 
         function closeDetail() {
             detailMask.classList.remove('active');
             document.body.style.overflow = '';
 
-            // 清空广告容器（销毁所有 iframe，停止加载）
+            // 清空广告容器（销毁所有 iframe）
             var adContainer = document.getElementById('detailAdContainer');
             if (adContainer) {
                 if (adContainer._adTimer) { clearInterval(adContainer._adTimer); adContainer._adTimer = null; }
@@ -1675,7 +1719,7 @@
             }
         };
 
-        console.log('✅ 未来福利社 加载完成（广告原生 DOM 直连，保留 Cookie/Referer，支持 iOS/安卓）');
+        console.log('✅ 未来福利社 加载完成（Safari 兼容：iframe 动态创建 + display 控制）');
     </script>
 </body>
 </html>
