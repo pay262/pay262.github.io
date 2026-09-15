@@ -244,7 +244,7 @@
         .agent-footer-copy { font-size:11px; color:#999; margin-top:8px; }
 
         /* ============================================================
-           活动详情弹窗（iOS 兼容）
+           活动详情弹窗
            ============================================================ */
         .detail-mask { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.55); z-index:9997; display:none; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); }
         .detail-mask.active { display:flex; }
@@ -259,11 +259,86 @@
         .detail-qr-area { text-align:center; margin:12px 0 14px; padding:12px; background:#f8fafc; border-radius:12px; border:1px dashed #d1d9e6; }
         .detail-qr-area img { max-width:200px; width:100%; height:auto; border-radius:8px; }
         .detail-qr-area .qr-hint { font-size:12px; color:#9ca3af; margin-top:6px; }
-        /* 广告轮播 iframe 样式 */
-        .detail-ad { width:100%; border:none; border-radius:12px; margin:12px 0 14px; background:#f3f4f6; height:320px; display:block; }
         .detail-link-btn { display:block; width:100%; padding:14px 0; background:linear-gradient(90deg,var(--primary-color),#5280FF); color:#fff; border:none; border-radius:12px; font-size:17px; font-weight:600; text-align:center; cursor:pointer; text-decoration:none; }
         .detail-link-btn.disabled { background:#9ca3af; cursor:not-allowed; }
         .detail-footer { text-align:center; font-size:12px; color:#9ca3af; margin-top:14px; }
+
+        /* ============================================================
+           🎯 广告容器（原生 DOM 渲染，无 Blob、无 sandbox 包裹）
+           ============================================================ */
+        .detail-ad {
+            width: 100%;
+            height: 320px;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            background: #f5f5f5;
+            margin: 12px 0 14px;
+        }
+        .detail-ad .ad-item {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            background: #f5f5f5;
+        }
+        .detail-ad .ad-item.active { display: block; }
+        .detail-ad .ad-item iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+            background: #fff;
+        }
+        .detail-ad .ad-item svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .detail-ad .ad-label {
+            position: absolute;
+            bottom: 10px;
+            right: 12px;
+            background: rgba(0,0,0,0.5);
+            color: #fff;
+            padding: 3px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            z-index: 5;
+            pointer-events: none;
+        }
+        .detail-ad .ad-dots {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+        .detail-ad .ad-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+        .detail-ad .ad-dot.active {
+            background: #fff;
+            transform: scale(1.2);
+            border-color: #fff;
+        }
+        .detail-ad .ad-empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #999;
+            font-size: 13px;
+        }
 
         /* ===== 海报加载遮罩 ===== */
         .poster-loading-mask { position:fixed; top:0; left:0; width:100%; height:100%; background:#1a1a2e; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:99999; color:#fff; }
@@ -604,11 +679,8 @@
                 <img id="detailQrImg" src="" alt="二维码">
                 <div class="qr-hint">长按识别二维码 参与活动</div>
             </div>
-            <!-- 🎯 广告轮播 iframe：直接使用 src 加载 HTTPS 广告链接，真实渲染计费 -->
-            <iframe class="detail-ad" id="detailAdIframe" loading="eager" allowfullscreen
-                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
-                    allow="cookies; storage-access; autoplay; encrypted-media"
-                    referrerpolicy="no-referrer-when-downgrade"></iframe>
+            <!-- 🎯 广告容器：原生 DOM 渲染，由 renderAdCarousel() 动态注入 iframe -->
+            <div class="detail-ad" id="detailAdContainer"></div>
             <a class="detail-link-btn" id="detailLinkBtn" href="#" target="_blank">🚀 直达链接</a>
             <div class="detail-footer">未来福利社 · 汇聚优惠福利</div>
         </div>
@@ -774,106 +846,130 @@
         }
 
         // ============================================================
-        //  🎯 广告轮播生成器（直接 iframe src 加载 HTTPS 广告链接）
-        //  说明：如果所有广告都是 iframe 类型且只有一条，直接显示
-        //        多条时使用轮播切换，但每条广告都用独立的 iframe src 加载
-        //        确保 Cookie / Referer / Origin 完整，广告联盟可正常计费
+        //  🎯 广告轮播渲染器
+        //  关键设计：
+        //  1. 直接在主页面创建 <iframe src="广告链接">，不用 Blob URL 包裹
+        //  2. 不加 sandbox（避免传递给子框架导致广告页被限制）
+        //  3. 加 allow="cookies" 和 referrerpolicy 保留完整来源信息
+        //  4. 广告联盟可以看到真实 Referer 和 Cookie，正常计费
         // ============================================================
-        function createAdCarouselHTML() {
+        function renderAdCarousel(container) {
+            if (!container) return;
+
+            // 清理旧定时器和内容
+            if (container._adTimer) { clearInterval(container._adTimer); container._adTimer = null; }
+            container.innerHTML = '';
+
+            // 读取广告数据
             var ads = window.adCarouselList || [];
-            // 过滤掉没有 src 的 iframe 类型（旧数据兼容）
+            // 过滤：iframe 类型必须有 src 或 link
             ads = ads.filter(function(ad) {
                 if (ad.type === 'iframe') return !!(ad.src || ad.link);
                 return true;
             });
+
             if (ads.length === 0) {
-                ads = [{ type: 'image', title: '广告位招租', color: '#3A6FF8', link: '' }];
+                container.innerHTML = '<div class="ad-empty">暂无广告</div>';
+                return;
             }
 
-            // 单条广告：直接返回简洁 iframe 页面
-            if (ads.length === 1 && ads[0].type === 'iframe') {
-                var onlyAd = ads[0];
-                return '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">' +
-                    '<style>*{margin:0;padding:0;box-sizing:border-box;}html,body{width:100%;height:100%;overflow:hidden;background:#fff;}iframe{width:100%;height:100%;border:none;display:block;}</style>' +
-                    '</head><body>' +
-                    '<iframe src="' + (onlyAd.src || onlyAd.link) + '" ' +
-                    'sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox" ' +
-                    'allow="cookies; storage-access; autoplay; encrypted-media" ' +
-                    'referrerpolicy="no-referrer-when-downgrade" ' +
-                    'scrolling="auto"></iframe>' +
-                    '</body></html>';
-            }
+            // 创建广告项
+            ads.forEach(function(ad, i) {
+                var item = document.createElement('div');
+                item.className = 'ad-item' + (i === 0 ? ' active' : '');
 
-            // 多条广告：轮播
-            var slidesHtml = ads.map(function(ad, idx) {
-                var inner = '';
-                var label = '';
                 if (ad.type === 'image') {
-                    label = '📷 图片';
+                    // 图片广告：内联 SVG
                     var c1 = ad.color || '#3A6FF8';
                     var c2 = c1 + 'cc';
-                    inner = '<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%;display:block;">' +
-                        '<defs><linearGradient id="adg' + idx + '" x1="0%" y1="0%" x2="100%" y2="100%">' +
+                    item.innerHTML = '<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice">' +
+                        '<defs><linearGradient id="adg' + i + '" x1="0%" y1="0%" x2="100%" y2="100%">' +
                         '<stop offset="0%" stop-color="' + c1 + '"/><stop offset="100%" stop-color="' + c2 + '"/>' +
                         '</linearGradient></defs>' +
-                        '<rect width="400" height="300" fill="url(#adg' + idx + ')"/>' +
+                        '<rect width="400" height="300" fill="url(#adg' + i + ')"/>' +
                         '<circle cx="200" cy="118" r="34" fill="rgba(255,255,255,0.12)"/>' +
                         '<circle cx="200" cy="118" r="20" fill="rgba(255,255,255,0.20)"/>' +
                         '<text x="200" y="126" text-anchor="middle" dy=".3em" fill="#fff" font-size="26" font-weight="700" font-family="sans-serif">' + (ad.title || '广告') + '</text>' +
-                        '<text x="200" y="170" text-anchor="middle" fill="rgba(255,255,255,0.75)" font-size="14" font-family="sans-serif">点击查看详情</text></svg>';
-                } else if (ad.type === 'video') {
-                    label = '🎬 视频';
-                    inner = '<video muted playsinline loop preload="metadata" style="width:100%;height:100%;object-fit:cover;display:block;">' +
-                        '<source src="' + (ad.src || '') + '" type="video/mp4"></video>';
+                        '<text x="200" y="170" text-anchor="middle" fill="rgba(255,255,255,0.75)" font-size="14" font-family="sans-serif">点击查看详情</text>' +
+                        '</svg>';
+                    if (ad.link) {
+                        item.style.cursor = 'pointer';
+                        (function(link) {
+                            item.addEventListener('click', function() { window.open(link, '_blank'); });
+                        })(ad.link);
+                    }
                 } else if (ad.type === 'iframe') {
-                    label = '🌐 网页';
-                    // ✅ 关键：直接 iframe src，真实渲染，带完整 Cookie/Referer
-                    inner = '<iframe src="' + (ad.src || ad.link) + '" ' +
-                        'style="width:100%;height:100%;border:none;display:block;background:#fff;" ' +
-                        'sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox" ' +
-                        'allow="cookies; storage-access; autoplay; encrypted-media" ' +
-                        'referrerpolicy="no-referrer-when-downgrade" ' +
-                        'scrolling="auto"></iframe>';
+                    // ✅ 关键：直接创建 iframe，src 直连广告链接
+                    // 不加 sandbox（避免传递给子框架导致广告页被限制）
+                    // 不加 Blob URL 包裹（保留完整 origin / referer / cookie）
+                    var iframe = document.createElement('iframe');
+                    iframe.src = ad.src || ad.link;
+                    iframe.setAttribute('allowfullscreen', 'true');
+                    iframe.setAttribute('allow', 'cookies; storage-access; autoplay; encrypted-media; fullscreen');
+                    iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+                    iframe.setAttribute('scrolling', 'auto');
+                    iframe.setAttribute('frameborder', '0');
+                    iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;background:#fff;';
+                    iframe.onload = function() {
+                        console.log('✅ 广告加载完成:', ad.src || ad.link);
+                    };
+                    iframe.onerror = function() {
+                        console.error('❌ 广告加载失败:', ad.src || ad.link);
+                    };
+                    item.appendChild(iframe);
                 }
-                return '<div class="slide" style="width:100%;height:100%;flex-shrink:0;position:relative;overflow:hidden;background:#f5f5f5;">' +
-                    inner +
-                    '<div style="position:absolute;bottom:8px;right:12px;background:rgba(0,0,0,0.5);color:#fff;padding:3px 12px;border-radius:12px;font-size:12px;z-index:5;pointer-events:none;">' + label + '</div>' +
-                    '</div>';
-            }).join('');
 
-            var dotsHtml = ads.map(function(_, i) {
-                return '<span class="dot' + (i === 0 ? ' active' : '') + '" data-i="' + i + '"></span>';
-            }).join('');
+                // 类型标签
+                var label = document.createElement('div');
+                label.className = 'ad-label';
+                label.textContent = ad.type === 'image' ? '📷 图片' : '🌐 网页';
+                item.appendChild(label);
 
-            return '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">' +
-                '<style>' +
-                '*{margin:0;padding:0;box-sizing:border-box;}' +
-                'body{background:#f0f0f0;display:flex;align-items:center;justify-content:center;height:100vh;overflow:hidden;font-family:-apple-system,sans-serif;}' +
-                '.carousel-wrapper{position:relative;width:100%;height:100%;background:#fff;overflow:hidden;}' +
-                '.slides-container{display:flex;width:100%;height:100%;transition:transform 0.4s ease;}' +
-                '.slide{width:100%;height:100%;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;background:#f5f5f5;}' +
-                '.dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.5);display:inline-block;cursor:pointer;margin:0 5px;transition:all 0.2s;border:2px solid rgba(255,255,255,0.2);}' +
-                '.dot.active{background:#fff;transform:scale(1.2);box-shadow:0 0 8px rgba(0,0,0,0.3);border-color:#fff;}' +
-                '.dots{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:10;}' +
-                '</style></head><body>' +
-                '<div class="carousel-wrapper">' +
-                '<div class="slides-container" id="sc">' + slidesHtml + '</div>' +
-                '<div class="dots" id="dots">' + dotsHtml + '</div>' +
-                '</div>' +
-                '<script>(function(){' +
-                'var c=document.getElementById("sc");' +
-                'var s=c.querySelectorAll(".slide");' +
-                'var d=document.getElementById("dots").querySelectorAll(".dot");' +
-                'var i=0,n=s.length,t=null;' +
-                'function go(x){if(x<0)x=n-1;if(x>=n)x=0;i=x;c.style.transform="translateX(-"+(i*100)+"%)";for(var k=0;k<d.length;k++){if(k===i)d[k].classList.add("active");else d[k].classList.remove("active");}}' +
-                'function next(){go(i+1);}' +
-                'function start(){if(t)clearInterval(t);t=setInterval(next,5000);}' +
-                'for(var k=0;k<d.length;k++){(function(idx){d[idx].addEventListener("click",function(e){e.stopPropagation();go(idx);start();});})(k);}' +
-                'go(0);start();' +
-                'var w=document.querySelector(".carousel-wrapper");' +
-                'w.addEventListener("mouseenter",function(){if(t)clearInterval(t);});' +
-                'w.addEventListener("mouseleave",start);' +
-                '})();<\/script></body></html>';
+                container.appendChild(item);
+            });
+
+            // 分页点
+            if (ads.length > 1) {
+                var dots = document.createElement('div');
+                dots.className = 'ad-dots';
+                ads.forEach(function(_, i) {
+                    var dot = document.createElement('span');
+                    dot.className = 'ad-dot' + (i === 0 ? ' active' : '');
+                    dot.dataset.i = i;
+                    dots.appendChild(dot);
+                });
+                container.appendChild(dots);
+            }
+
+            // 轮播控制
+            var items = container.querySelectorAll('.ad-item');
+            var dotEls = container.querySelectorAll('.ad-dot');
+            var current = 0;
+            var total = items.length;
+
+            function goTo(idx) {
+                if (idx < 0) idx = total - 1;
+                if (idx >= total) idx = 0;
+                current = idx;
+                items.forEach(function(it, k) { it.classList.toggle('active', k === idx); });
+                dotEls.forEach(function(d, k) { d.classList.toggle('active', k === idx); });
+            }
+
+            dotEls.forEach(function(d) {
+                d.addEventListener('click', function() {
+                    goTo(parseInt(this.dataset.i, 10));
+                    restart();
+                });
+            });
+
+            function next() { goTo(current + 1); }
+
+            function restart() {
+                if (container._adTimer) clearInterval(container._adTimer);
+                if (total > 1) container._adTimer = setInterval(next, 6000);
+            }
+
+            restart();
         }
 
         // ============================================================
@@ -1056,7 +1152,7 @@
         function copyText2(text) { var d = document.createElement('textarea'); d.value = text; d.style.cssText = 'position:fixed;top:-1000px;left:-1000px;opacity:0;'; document.body.appendChild(d); d.select(); try { document.execCommand('copy'); showCustomToast('✅ 已复制分享文案', '快去分享给好友吧'); } catch (e) { showCustomToast('📋 请手动复制', text); } document.body.removeChild(d); }
 
         // ============================================================
-        //  🎯 活动详情弹窗（Blob URL 注入广告 iframe）
+        //  🎯 活动详情弹窗
         // ============================================================
         var detailMask = document.getElementById('detailMask');
         var detailCloseBtn = document.getElementById('detailCloseBtn');
@@ -1103,41 +1199,10 @@
                 linkBtn.target = '';
             }
 
-            // ============================================================
-            //  🎯 注入广告 iframe —— 使用 Blob URL 包裹轮播 HTML
-            //  轮播 HTML 内部的 iframe 直接使用 src 加载 HTTPS 广告链接
-            //  这样 Cookie / Referer / Origin 完整保留，广告联盟可正常计费
-            // ============================================================
-            var adIframe = document.getElementById('detailAdIframe');
-            if (adIframe) {
-                try {
-                    var html = createAdCarouselHTML();
-
-                    if (adIframe._blobUrl) {
-                        try { URL.revokeObjectURL(adIframe._blobUrl); } catch (e) {}
-                        adIframe._blobUrl = null;
-                    }
-
-                    var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-                    var blobUrl = URL.createObjectURL(blob);
-
-                    adIframe._blobUrl = blobUrl;
-                    adIframe.srcdoc = '';
-                    adIframe.src = blobUrl;
-
-                    adIframe.onload = function() {
-                        console.log('✅ 广告 iframe 加载成功 (Blob URL)');
-                    };
-                    adIframe.onerror = function(e) {
-                        console.error('❌ 广告 iframe 加载失败:', e);
-                    };
-
-                    console.log('🎯 广告 iframe 使用 Blob URL:', blobUrl);
-                } catch (e) {
-                    console.error('广告轮播生成失败:', e);
-                    adIframe.srcdoc = '';
-                    adIframe.innerHTML = '<div style="padding:20px;text-align:center;color:#999;">广告加载失败</div>';
-                }
+            // 🎯 渲染广告轮播（原生 DOM，直接 iframe src 直连广告链接）
+            var adContainer = document.getElementById('detailAdContainer');
+            if (adContainer) {
+                renderAdCarousel(adContainer);
             }
 
             detailMask.classList.add('active');
@@ -1148,16 +1213,11 @@
             detailMask.classList.remove('active');
             document.body.style.overflow = '';
 
-            var adIframe = document.getElementById('detailAdIframe');
-            if (adIframe) {
-                if (adIframe._blobUrl) {
-                    try { URL.revokeObjectURL(adIframe._blobUrl); } catch (e) {}
-                    adIframe._blobUrl = null;
-                }
-                adIframe.srcdoc = '';
-                adIframe.src = '';
-                adIframe.onload = null;
-                adIframe.onerror = null;
+            // 清空广告容器（销毁所有 iframe，停止加载）
+            var adContainer = document.getElementById('detailAdContainer');
+            if (adContainer) {
+                if (adContainer._adTimer) { clearInterval(adContainer._adTimer); adContainer._adTimer = null; }
+                adContainer.innerHTML = '';
             }
         }
 
@@ -1615,7 +1675,7 @@
             }
         };
 
-        console.log('✅ 未来福利社 加载完成（方案A：HTTPS 广告 iframe 直连 + Blob URL 注入）');
+        console.log('✅ 未来福利社 加载完成（广告原生 DOM 直连，保留 Cookie/Referer，支持 iOS/安卓）');
     </script>
 </body>
 </html>
