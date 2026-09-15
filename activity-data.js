@@ -270,24 +270,24 @@ const subTypeMap = {
     "宽带业务": ["新装宽带", "宽带提速", "宽带续费", "IPTV"],
     "其他活动": ["抽奖活动", "签到", "新用户专享", "老用户专享", "领取福利", "合约机", "购机补贴"]
 };
-
 // ===== 🆕 广告轮播数据（与活动数据一起更新） =====
 window.adCarouselList = [
     {
-        type: 'image',           // 支持 'image' 或 'iframe'
-        label: '赞助商',
-        color: '#3A6FF8',
-        link: ''
+        type: 'image',           // 类型：图片
+        title: '赞助商广告',      // 必填：广告标题，显示在图片中央
+        color: '#3A6FF8',        // 必填：图片背景色（渐变色）
+        link: 'https://example.com/ad1' // 选填：点击图片跳转的链接
     },
     {
-        type: 'iframe',
-        src: 'http://dl.kvwp.top/qV3Ob2722I',   // 仅限允许被嵌入的网站
-        link: ''  //跳转链接
+        type: 'iframe',          // 类型：网页（降级为跳转卡片）
+        title: '推广活动',        // 必填：卡片上显示的标题
+        link: 'http://dl.kvwp.top/qV3Ob2722I' // **必填**：点击卡片后跳转的完整链接
+        // 注意：旧配置中的 src 字段在当前方案中不再需要
     },
     {
-        type: 'iframe',
-        src: 'https://r.rdhzbye.cn/a/Z8YIJi',   // 仅限允许被嵌入的网站
-        link: ''  //跳转链接
+        type: 'iframe',          // 类型：网页（降级为跳转卡片）
+        title: '限时优惠',        // 必填：卡片上显示的标题
+        link: 'https://r.rdhzbye.cn/a/Z8YIJi' // **必填**：点击卡片后跳转的完整链接
     }
 ];
 // ============================================================
