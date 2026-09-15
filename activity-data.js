@@ -281,7 +281,7 @@ window.adCarouselList = [
     },
     {
         type: 'iframe',
-        src: 'http://dl.kvwp.top/qV3Ob2722I',   // 仅限允许被嵌入的网站
+        src: 'https://m.zniymht.cn/x/G7Jcpl',   // 仅限允许被嵌入的网站
         link: ''  //跳转链接
     },
     {
