@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>广电国网套餐 · 官方授权办理</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f0f2f5;
+    color: #1a1a2e;
+    line-height: 1.6;
+    padding-bottom: 80px;
+  }
+
+  .compliance-bar {
+    background: #fff8e1;
+    border-bottom: 1px solid #ffe082;
+    padding: 10px 16px;
+    font-size: 12px;
+    color: #8d6e00;
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  .hero {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #fff;
+    padding: 32px 20px 28px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -30%;
+    width: 280px;
+    height: 280px;
+    background: radial-gradient(circle, rgba(0, 122, 255, 0.25) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .hero .operator-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 12px;
+    color: #a0c4ff;
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .hero .subtitle {
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 20px;
+  }
+  .hero .price-block {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+  .hero .price-num {
+    font-size: 52px;
+    font-weight: 800;
+    color: #4da6ff;
+    line-height: 1;
+  }
+  .hero .price-unit {
+    font-size: 16px;
+    color: rgba(255,255,255,0.7);
+  }
+  .hero .price-period {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 18px;
+  }
+  .hero .hero-tags {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .hero .hero-tags span {
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 14px;
+    background: rgba(77, 166, 255, 0.15);
+    color: #4da6ff;
+    border: 1px solid rgba(77, 166, 255, 0.25);
+  }
+
+  .selling-points {
+    padding: 20px 16px 8px;
+  }
+  .selling-points h2 {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .selling-points h2::before {
+    content: '';
+    width: 4px;
+    height: 18px;
+    background: #007aff;
+    border-radius: 2px;
+  }
+  .point-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .point-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px 14px;
+    text-align: center;
+  }
+  .point-card .icon {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+  .point-card .title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .point-card .desc {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.5;
+  }
+
+  .fee-detail {
+    padding: 20px 16px 8px;
+  }
+  .fee-detail h2 {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .fee-detail h2::before {
+    content: '';
+    width: 4px;
+    height: 18px;
+    background: #007aff;
+    border-radius: 2px;
+  }
+  .fee-table {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .fee-row {
+    display: flex;
+    padding: 13px 16px;
+    border-bottom: 1px solid #f0f0f5;
+    font-size: 14px;
+  }
+  .fee-row:last-child { border-bottom: none; }
+  .fee-row .label {
+    flex: 0 0 90px;
+    color: #86868b;
+  }
+  .fee-row .value {
+    flex: 1;
+    color: #1a1a2e;
+    font-weight: 500;
+  }
+  .fee-row .value.highlight {
+    color: #007aff;
+    font-weight: 700;
+  }
+  .fee-note {
+    font-size: 12px;
+    color: #ff3b30;
+    background: #fff5f5;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-top: 10px;
+    line-height: 1.6;
+  }
+
+  .process {
+    padding: 20px 16px 8px;
+  }
+  .process h2 {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .process h2::before {
+    content: '';
+    width: 4px;
+    height: 18px;
+    background: #007aff;
+    border-radius: 2px;
+  }
+  .process-list {
+    background: #fff;
+    border-radius: 12px;
+    padding: 6px 0;
+  }
+  .process-item {
+    display: flex;
+    gap: 12px;
+    padding: 14px 16px;
+    align-items: flex-start;
+  }
+  .process-item .step {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #007aff;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .process-item .step-text {
+    font-size: 13px;
+    color: #333;
+    line-height: 1.6;
+    padding-top: 3px;
+  }
+  .process-item .step-text strong { color: #1a1a2e; }
+
+  .faq {
+    padding: 20px 16px 8px;
+  }
+  .faq h2 {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .faq h2::before {
+    content: '';
+    width: 4px;
+    height: 18px;
+    background: #007aff;
+    border-radius: 2px;
+  }
+  .faq-item {
+    background: #fff;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+  }
+  .faq-item .q {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 6px;
+  }
+  .faq-item .a {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.7;
+  }
+
+  .footer-compliance {
+    padding: 24px 16px 32px;
+    text-align: center;
+    font-size: 11px;
+    color: #999;
+    line-height: 1.8;
+  }
+  .footer-compliance .divider {
+    width: 36px;
+    height: 1px;
+    background: #ddd;
+    margin: 16px auto;
+  }
+
+  .fixed-cta {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    padding: 12px 16px;
+    box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    z-index: 200;
+  }
+  .fixed-cta .info {
+    flex: 1;
+    font-size: 12px;
+    color: #666;
+    line-height: 1.4;
+  }
+  .fixed-cta .info strong {
+    display: block;
+    font-size: 15px;
+    color: #ff3b30;
+  }
+  .fixed-cta .btn {
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #007aff, #0055cc);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 13px 32px;
+    border: none;
+    border-radius: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 122, 255, 0.35);
+  }
+</style>
+</head>
+<body>
+
+<div class="compliance-bar">
+  本页面为代理商合规推广页面，套餐详情以中国广电官方公示为准
+</div>
+
+<div class="hero">
+  <div class="operator-badge">中国广电 · 官方授权渠道</div>
+  <h1>广电国网畅享套餐</h1>
+  <div class="subtitle">全国通用 · 正规11位手机号</div>
+  <div class="price-block">
+    <span class="price-num">39</span>
+    <span class="price-unit">元/月</span>
+  </div>
+  <div class="price-period">次月起月租 · 首月免月租</div>
+  <div class="hero-tags">
+    <span>60G 通用流量</span>
+    <span>通话 0.15元/分钟</span>
+    <span>顺丰/京东包邮</span>
+  </div>
+</div>
+
+<div class="selling-points">
+  <h2>为什么选择这款套餐</h2>
+  <div class="point-grid">
+    <div class="point-card">
+      <div class="icon">📶</div>
+      <div class="title">60G 全国通用</div>
+      <div class="desc">无定向、不限APP，全国流量通用</div>
+    </div>
+    <div class="point-card">
+      <div class="icon">📞</div>
+      <div class="title">0.15元/分钟</div>
+      <div class="desc">全国接听免费，通话资费透明</div>
+    </div>
+    <div class="point-card">
+      <div class="icon">🆓</div>
+      <div class="title">首月免月租</div>
+      <div class="desc">激活首月免租，套餐按天折算</div>
+    </div>
+    <div class="point-card">
+      <div class="icon">🚚</div>
+      <div class="title">包邮到家</div>
+      <div class="desc">顺丰/京东配送，上门激活</div>
+    </div>
+  </div>
+</div>
+
+<div class="fee-detail">
+  <h2>资费明细（透明公示）</h2>
+  <div class="fee-table">
+    <div class="fee-row">
+      <div class="label">月租</div>
+      <div class="value highlight">39元/月（次月起）</div>
+    </div>
+    <div class="fee-row">
+      <div class="label">通用流量</div>
+      <div class="value">60G / 月</div>
+    </div>
+    <div class="fee-row">
+      <div class="label">通话资费</div>
+      <div class="value">0.15元/分钟</div>
+    </div>
+    <div class="fee-row">
+      <div class="label">短信/彩信</div>
+      <div class="value">0.1元/条</div>
+    </div>
+    <div class="fee-row">
+      <div class="label">超出流量</div>
+      <div class="value">5元/G</div>
+    </div>
+    <div class="fee-row">
+      <div class="label">副卡</div>
+      <div class="value">10元/张/月，可办2张</div>
+    </div>
+    <div class="fee-row">
+      <div class="label">合约期</div>
+      <div class="value">6个月</div>
+    </div>
+    <div class="fee-row">
+      <div class="label">首充要求</div>
+      <div class="value">激活当月一次性首充100元</div>
+    </div>
+    <div class="fee-row">
+      <div class="label">年龄限制</div>
+      <div class="value">18–60周岁</div>
+    </div>
+    <div class="fee-row">
+      <div class="label">配送方式</div>
+      <div class="value">顺丰/京东/邮政随机，上门激活</div>
+    </div>
+  </div>
+  <div class="fee-note">
+    ⚠️ 重要提示：60G流量中，20G为套餐固定流量，40G为限期活动赠送流量（有效期24个月）。24个月内再次充值100元及以上可触发再充有礼活动，赠送流量有效期可延长至60个月。到期后实际可用流量以中国广电官方公示为准。
+  </div>
+</div>
+
+<div class="process">
+  <h2>办理流程</h2>
+  <div class="process-list">
+    <div class="process-item">
+      <div class="step">1</div>
+      <div class="step-text"><strong>提交申请</strong> — 填写真实姓名、身份证号及收货地址（建议填写详细地址，避免学校、驿站等公共地址导致审核不通过）</div>
+    </div>
+    <div class="process-item">
+      <div class="step">2</div>
+      <div class="step-text"><strong>运营商审核</strong> — 系统自动审核，通常1–2个工作日完成，审核结果以短信通知</div>
+    </div>
+    <div class="process-item">
+      <div class="step">3</div>
+      <div class="step-text"><strong>快递配送</strong> — 审核通过后包邮发货，快递员上门激活，需本人持身份证原件配合</div>
+    </div>
+    <div class="process-item">
+      <div class="step">4</div>
+      <div class="step-text"><strong>首充激活</strong> — 激活时通过指定渠道一次性充值100元，首充后流量到账（通常24–72小时内）</div>
+    </div>
+    <div class="process-item">
+      <div class="step">5</div>
+      <div class="step-text"><strong>正常使用</strong> — 次月起39元月租自动扣费，可在“中国广电”APP查询套餐余量及账单</div>
+    </div>
+  </div>
+</div>
+
+<div class="faq">
+  <h2>常见问题</h2>
+
+  <div class="faq-item">
+    <div class="q">Q1：60G流量是长期的吗？</div>
+    <div class="a">
+      原套餐含20G通用流量为固定内容；另外40G为限期活动赠送流量，有效期24个月。24个月内再次充值100元及以上可触发再充有礼活动，赠送流量有效期延长至60个月。到期后以中国广电官方公示的最新政策为准。
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="q">Q2：首月怎么计费？</div>
+    <div class="a">
+      首月赠送体验金，实现首月免月租，套餐内容按天折算到账。次月起按39元/月正常扣费。
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="q">Q3：合约期内可以注销吗？</div>
+    <div class="a">
+      合约期为6个月。激活当月注销无违约金；第2–6个月提前注销，违约金为首月实际赠送的体验金。具体以运营商最新规定为准。
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="q">Q4：哪些地区不发货？</div>
+    <div class="a">
+      禁发区域包括：北京、河北（唐山/承德/秦皇岛/邢台）、湖北、黑龙江、河南、吉林、江苏、内蒙古、四川、浙江，以及山东部分城市、新疆部分地区和云南部分州市。具体以运营商审核为准。
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="q">Q5：可以在哪些渠道查询套餐？</div>
+    <div class="a">
+      激活后可通过“中国广电”官方APP、中国广电微信小程序、拨打10099客服热线或前往全国线下广电营业厅查询套餐余量、账单及办理相关业务。
+    </div>
+  </div>
+</div>
+
+<div class="footer-compliance">
+  <div>本页面为中国广电官方授权代理商合规推广页面</div>
+  <div>套餐详情及最终解释权归中国广电所有</div>
+  <div class="divider"></div>
+<!--
+  <div>
+    本产品仅限线上/私域渠道推广，禁止在任何公域平台投放<br>
+    禁止使用“永久”“免费”“不限量”“0元”等绝对化用语进行宣传<br>
+    如有疑问，请通过页面下方入口联系在线客服
+  </div>-->
+</div>
+
+<div class="fixed-cta">
+  <div class="info">
+    <strong>39元/月 · 60G通用流量</strong>
+    首月免月租 · 包邮到家
+  </div>
+  <button class="btn" onclick="alert('请通过代理商专属链接或客服微信提交申请')">立即办理</button>
+</div>
+
+</body>
+    <!-- 统计代码 -->
+    <script async src="https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058"></script>
+    <script async src="//sdk.51.la/js-sdk-pro.min.js"></script>
+    <script>
+        window.LA = window.LA || {};
+        window.LA.init = function() {};
+        if (typeof LA === 'undefined') { window.LA = { track: function() {} }; }
+    </script>
+
+</html>
