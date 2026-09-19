@@ -2859,1425 +2859,1451 @@
     <!-- ============================================================ -->
     <!-- 主脚本（所有功能完整集成） -->
     <!-- ============================================================ -->
-    <script>
+<script>
+// ============================================================
+//  1. 页面切换
+// ============================================================
+const pageTitleMap = {
+    content1: "宽带套餐",
+    content2: "号卡套餐",
+    content3: "3号网厅",
+    content4: "随身WiFi",
+    content5: "未来福利社",
+    content6: "官方查询",
+    content7: "5G专区",
+    content8: "常见问题",
+    content9: "代理招募"
+};
 
-        // ============================================================
-        //  1. 页面切换
-        // ============================================================
-        const pageTitleMap = {
-            content1: "宽带套餐",
-            content2: "号卡套餐",
-            content3: "3号网厅",
-            content4: "随身WiFi",
-            content5: "未来福利社",
-            content6: "官方查询",
-            content7: "5G专区",
-            content8: "常见问题",
-            content9: "代理招募"
-        };
+var dom = {
+    menuBtn: document.getElementById('menuBtn'),
+    drawerMask: document.getElementById('drawerMask'),
+    pageTitle: document.getElementById('pageTitle'),
+    drawerItems: document.querySelectorAll('.drawer-item'),
+    tabItems: document.querySelectorAll('.tab-item'),
+    msgBtn: document.getElementById('msgBtn'),
+    qrMask: document.getElementById('qrMask'),
+    qrCloseBtn: document.getElementById('qrCloseBtn'),
+    openFaqQrBtn: document.getElementById('openFaqQrBtn'),
+    faqItems: document.querySelectorAll('.faq-item'),
+    mainContent: document.querySelector('.content-area'),
+    navBar: document.querySelector('.nav-bar'),
+    tabBar: document.querySelector('.tab-bar'),
+    toastTip: document.getElementById('toastTip'),
+    openPrivacy: document.getElementById('openPrivacy'),
+    privacyMask: document.getElementById('privacyMask'),
+    privacyClose: document.getElementById('privacyClose'),
+    navEarnBtn: document.getElementById('navEarnBtn'),
+    agentQrBtn: document.getElementById('agentQrBtn'),
+    drawerWechat: document.getElementById('drawerWechat'),
+    floatWechatBtn: document.getElementById('floatWechatBtn'),
+    floatInviteBtn: document.getElementById('floatInviteBtn')
+};
 
-        var dom = {
-            menuBtn: document.getElementById('menuBtn'),
-            drawerMask: document.getElementById('drawerMask'),
-            pageTitle: document.getElementById('pageTitle'),
-            drawerItems: document.querySelectorAll('.drawer-item'),
-            tabItems: document.querySelectorAll('.tab-item'),
-            msgBtn: document.getElementById('msgBtn'),
-            qrMask: document.getElementById('qrMask'),
-            qrCloseBtn: document.getElementById('qrCloseBtn'),
-            openFaqQrBtn: document.getElementById('openFaqQrBtn'),
-            faqItems: document.querySelectorAll('.faq-item'),
-            mainContent: document.querySelector('.content-area'),
-            navBar: document.querySelector('.nav-bar'),
-            tabBar: document.querySelector('.tab-bar'),
-            toastTip: document.getElementById('toastTip'),
-            openPrivacy: document.getElementById('openPrivacy'),
-            privacyMask: document.getElementById('privacyMask'),
-            privacyClose: document.getElementById('privacyClose'),
-            navEarnBtn: document.getElementById('navEarnBtn'),
-            agentQrBtn: document.getElementById('agentQrBtn'),
-            drawerWechat: document.getElementById('drawerWechat'),
-            floatWechatBtn: document.getElementById('floatWechatBtn'),
-            floatInviteBtn: document.getElementById('floatInviteBtn')
-        };
+var currentContent = 'content1';
+var activityInitDone = false;
+var switchTimer = null;
 
-        var currentContent = 'content1';
-        var activityInitDone = false;
-        var switchTimer = null;
+function showToast(text, delay) {
+    delay = delay || 1800;
+    dom.toastTip.innerText = text;
+    dom.toastTip.classList.add('show');
+    setTimeout(function() { dom.toastTip.classList.remove('show'); }, delay);
+}
 
-        function showToast(text, delay) {
-            delay = delay || 1800;
-            dom.toastTip.innerText = text;
-            dom.toastTip.classList.add('show');
-            setTimeout(function() { dom.toastTip.classList.remove('show'); }, delay);
-        }
+function showCustomToast(msg, sub) {
+    var toast = document.getElementById('customToast');
+    document.getElementById('toastMessage').textContent = msg;
+    document.getElementById('toastSub').textContent = sub || '';
+    toast.classList.add('show');
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(function() { toast.classList.remove('show'); }, 3000);
+}
 
-        function showCustomToast(msg, sub) {
-            var toast = document.getElementById('customToast');
-            document.getElementById('toastMessage').textContent = msg;
-            document.getElementById('toastSub').textContent = sub || '';
-            toast.classList.add('show');
-            clearTimeout(toast._timer);
-            toast._timer = setTimeout(function() { toast.classList.remove('show'); }, 3000);
-        }
+function toggleDrawer(open) { document.body.classList.toggle('drawer-open', open); }
+function toggleQr(open) { document.body.classList.toggle('qr-open', open); }
+function togglePrivacy(open) { document.body.classList.toggle('privacy-open', open); }
+function showWechatQr() { toggleQr(true); }
 
-        function toggleDrawer(open) { document.body.classList.toggle('drawer-open', open); }
+dom.menuBtn.addEventListener('click', function() { toggleDrawer(true); });
+dom.drawerMask.addEventListener('click', function() { toggleDrawer(false); });
+dom.msgBtn.addEventListener('click', function() { toggleQr(true); });
+dom.qrCloseBtn.addEventListener('click', function() { toggleQr(false); });
+dom.qrMask.addEventListener('click', function(e) { if (e.target === dom.qrMask) toggleQr(false); });
+if (dom.openFaqQrBtn) dom.openFaqQrBtn.addEventListener('click', function() { toggleQr(true); });
+if (dom.agentQrBtn) dom.agentQrBtn.addEventListener('click', function() { toggleQr(true); });
+if (dom.drawerWechat) dom.drawerWechat.addEventListener('click', function() { toggleDrawer(false); toggleQr(true); });
+if (dom.floatWechatBtn) dom.floatWechatBtn.addEventListener('click', function() { toggleQr(true); });
 
-        function toggleQr(open) { document.body.classList.toggle('qr-open', open); }
+if (dom.navEarnBtn) dom.navEarnBtn.addEventListener('click', function() { inviteFriend(); });
+dom.openPrivacy.addEventListener('click', function() { toggleDrawer(false); togglePrivacy(true); });
+dom.privacyClose.addEventListener('click', function() { togglePrivacy(false); });
+dom.privacyMask.addEventListener('click', function(e) { if (e.target === dom.privacyMask) togglePrivacy(false); });
 
-        function togglePrivacy(open) { document.body.classList.toggle('privacy-open', open); }
-
-        function showWechatQr() { toggleQr(true); }
-
-        dom.menuBtn.addEventListener('click', function() { toggleDrawer(true); });
-        dom.drawerMask.addEventListener('click', function() { toggleDrawer(false); });
-        dom.msgBtn.addEventListener('click', function() { toggleQr(true); });
-        dom.qrCloseBtn.addEventListener('click', function() { toggleQr(false); });
-        dom.qrMask.addEventListener('click', function(e) { if (e.target === dom.qrMask) toggleQr(false); });
-        if (dom.openFaqQrBtn) dom.openFaqQrBtn.addEventListener('click', function() { toggleQr(true); });
-        if (dom.agentQrBtn) dom.agentQrBtn.addEventListener('click', function() { toggleQr(true); });
-        if (dom.drawerWechat) dom.drawerWechat.addEventListener('click', function() { toggleDrawer(false);
-            toggleQr(true); });
-        if (dom.floatWechatBtn) dom.floatWechatBtn.addEventListener('click', function() { toggleQr(true); });
-
-        if (dom.navEarnBtn) dom.navEarnBtn.addEventListener('click', function() { inviteFriend(); });
-        dom.openPrivacy.addEventListener('click', function() { toggleDrawer(false);
-            togglePrivacy(true); });
-        dom.privacyClose.addEventListener('click', function() { togglePrivacy(false); });
-        dom.privacyMask.addEventListener('click', function(e) { if (e.target === dom.privacyMask) togglePrivacy(false); });
-
-        // FAQ折叠
-        dom.faqItems.forEach(function(item) {
-            var q = item.querySelector('.faq-question');
-            var a = item.querySelector('.faq-answer');
-            q.addEventListener('click', function() {
-                var isOpen = item.classList.contains('active');
-                dom.faqItems.forEach(function(i) { i.classList.remove('active');
-                    i.querySelector('.faq-answer').style.maxHeight = null; });
-                if (!isOpen) { item.classList.add('active');
-                    a.style.maxHeight = a.scrollHeight + 'px'; }
-            });
+// FAQ折叠
+dom.faqItems.forEach(function(item) {
+    var q = item.querySelector('.faq-question');
+    var a = item.querySelector('.faq-answer');
+    q.addEventListener('click', function() {
+        var isOpen = item.classList.contains('active');
+        dom.faqItems.forEach(function(i) {
+            i.classList.remove('active');
+            i.querySelector('.faq-answer').style.maxHeight = null;
         });
-
-        // 复制5G链接
-        var copyBtn = document.getElementById('copy5gaLink');
-        if (copyBtn) {
-            copyBtn.addEventListener('click', function() {
-                var link = 'https://shopnew.sz189.cn/eshop/five5GAdl/index';
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(link).then(function() { showToast('✅ 链接已复制'); })['catch'](
-                        function() { fallbackCopy(link); });
-                } else { fallbackCopy(link); }
-            });
+        if (!isOpen) {
+            item.classList.add('active');
+            a.style.maxHeight = a.scrollHeight + 'px';
         }
+    });
+});
 
-        function fallbackCopy(text) {
-            var input = document.createElement('input');
-            input.value = text;
-            input.style.cssText = 'position:fixed;opacity:0;';
-            document.body.appendChild(input);
-            input.select();
-            document.execCommand('copy');
-            document.body.removeChild(input);
-            showToast('✅ 链接已复制');
-        }
+// 复制5G链接
+var copyBtn = document.getElementById('copy5gaLink');
+if (copyBtn) {
+    copyBtn.addEventListener('click', function() {
+        var link = 'https://shopnew.sz189.cn/eshop/five5GAdl/index';
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(link).then(function() { showToast('✅ 链接已复制'); })['catch'](function() { fallbackCopy(link); });
+        } else { fallbackCopy(link); }
+    });
+}
 
-        // ===== 切换内容 =====
-        function switchContent(contentId) {
-            var wrapper = document.querySelector('.iframe-wrapper[data-content="' + contentId + '"]');
-            if (!wrapper) return;
-            var title = pageTitleMap[contentId] || '未来福利社';
-            document.querySelectorAll('.iframe-wrapper').forEach(function(w) {
-                w.classList.remove('active');
-            });
-            wrapper.classList.add('active');
-            dom.pageTitle.textContent = title;
-            dom.drawerItems.forEach(function(i) { i.classList.toggle('active', i.dataset.content === contentId); });
-            dom.tabItems.forEach(function(i) { i.classList.toggle('active', i.dataset.content === contentId); });
-            currentContent = contentId;
-            toggleDrawer(false);
-            if (contentId === 'content5') {
-                if (activityInitDone) {
-                    if (switchTimer) clearTimeout(switchTimer);
-                    switchTimer = setTimeout(function() {
-                        if (typeof window.__refreshActivityRender === 'function') window.__refreshActivityRender();
-                        if (typeof window.refreshMarquee === 'function') window.refreshMarquee();
-                        switchTimer = null;
-                    }, 200);
-                } else { initActivityToolbox(); }
-            }
-        }
+function fallbackCopy(text) {
+    var input = document.createElement('input');
+    input.value = text;
+    input.style.cssText = 'position:fixed;opacity:0;';
+    document.body.appendChild(input);
+    input.select();
+    document.execCommand('copy');
+    document.body.removeChild(input);
+    showToast('✅ 链接已复制');
+}
 
-        dom.drawerItems.forEach(function(i) {
-            i.addEventListener('click', function() { if (i.dataset.content) switchContent(i.dataset.content); });
-        });
-        dom.tabItems.forEach(function(i) {
-            i.addEventListener('click', function() { if (i.dataset.content) switchContent(i.dataset.content); });
-        });
-
-        window.switchContent = switchContent;
-
-        // ============================================================
-        //  2. 分享/邀请
-        // ============================================================
-        function inviteFriend() {
-            var newRef = Math.random().toString(36).substr(2, 6);
-            var baseUrl = window.location.href.split('?')[0];
-            var currentParams = new URLSearchParams(window.location.search);
-            currentParams.set('ref', newRef);
-            var inviteLink = baseUrl + '?' + currentParams.toString();
-            var shareText = '🎁 我在未来福利社赚佣金，快来一起领福利！' + inviteLink;
-
-            if (navigator.share) {
-                navigator.share({
-                    title: '邀请好友赚佣金',
-                    text: shareText,
-                    url: inviteLink
-                }).catch(function(err) {
-                    if (err.name !== 'AbortError') {
-                        console.warn('分享取消或失败:', err);
-                        fallbackCopy2(shareText);
-                    }
-                });
-                return;
-            }
-            fallbackCopy2(shareText);
-        }
-
-        function fallbackCopy2(text) {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(text)
-                    .then(function() {
-                        showCustomToast('✅ 邀请链接已复制', '分享给好友，TA参与你赚佣金');
-                    })
-                    .catch(function(err) {
-                        console.warn('Clipboard API 失败，降级到 execCommand:', err);
-                        execCopy2(text);
-                    });
-            } else {
-                execCopy2(text);
-            }
-        }
-
-        function execCopy2(text) {
-            var input = document.createElement('input');
-            input.value = text;
-            input.style.cssText = 'position:fixed;top:-1000px;left:-1000px;opacity:0;';
-            document.body.appendChild(input);
-            input.select();
-            input.setSelectionRange(0, text.length);
-            try {
-                var success = document.execCommand('copy');
-                if (success) {
-                    showCustomToast('✅ 邀请链接已复制', '分享给好友，TA参与你赚佣金');
-                } else {
-                    showCustomToast('📋 请手动复制链接', text);
-                }
-            } catch (e) {
-                showCustomToast('📋 请手动复制链接', text);
-            }
-            document.body.removeChild(input);
-        }
-
-        // ============================================================
-        //  3. 广告轮播 HTML 生成函数（使用内联 SVG + srcdoc）
-        // ============================================================
-            function createAdCarouselHTML() {
-                // ============================================================
-                //  广告数据读取优先级：
-                //  1. window.adCarouselList（专用广告数据源）
-                //  2. window.activityList 中 isCarouselAd: true 的条目
-                //  3. 默认后备数据（确保不报错）
-                // ============================================================
-                let ads = [];
-            
-                if (typeof window.adCarouselList !== 'undefined' && Array.isArray(window.adCarouselList) && window.adCarouselList.length > 0) {
-                    ads = window.adCarouselList;
-                } else if (typeof window.activityList !== 'undefined' && Array.isArray(window.activityList)) {
-                    const carouselItems = window.activityList.filter(item => item.isCarouselAd === true);
-                    if (carouselItems.length > 0) {
-                        ads = carouselItems.map(item => ({
-                            type: item.carouselType || 'image',
-                            label: item.title || '广告',
-                            color: item.color || '#3A6FF8',
-                            link: item.link || '#',
-                            src: item.carouselSrc || (item.link ? generateQRDataURL(item.link, 200) : '')
-                        }));
-                    }
-                }
-            
-                if (ads.length === 0) {
-                    ads = [
-                        { type: 'image', label: '福利1', color: '#3A6FF8', link: 'https://example.com/ad1' },
-                        { type: 'image', label: '福利2', color: '#FF6B00', link: 'https://example.com/ad2' },
-                        { type: 'iframe', src: 'https://example.com', link: 'https://example.com' }
-                    ];
-                }
-            
-                // ============================================================
-                //  生成轮播 HTML（与之前完全相同）
-                // ============================================================
-                const slidesHtml = ads.map((ad) => {
-                    let content = '';
-                    if (ad.type === 'image') {
-                        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="${ad.color || '#3A6FF8'}"/><text x="200" y="150" text-anchor="middle" dy=".3em" fill="#fff" font-size="24" font-family="sans-serif">${ad.label || '广告'}</text></svg>`;
-                        content = `<img src="data:image/svg+xml,${encodeURIComponent(svg)}" alt="${ad.label || '广告'}" style="width:100%;height:100%;object-fit:cover;">`;
-                    } else if (ad.type === 'iframe') {
-                        content = `<iframe src="${ad.src || 'https://example.com'}" loading="lazy" allowfullscreen style="width:100%;height:100%;border:none;min-height:280px;" sandbox="allow-scripts"></iframe>`;
-                    }
-                    return `
-                        <div class="slide" data-link="${ad.link || '#'}" style="width:100%;height:100%;flex-shrink:0;cursor:pointer;position:relative;overflow:hidden;background:#f5f5f5;">
-                            ${content}
-                            <div style="position:absolute;bottom:8px;right:12px;background:rgba(0,0,0,0.5);color:#fff;padding:2px 12px;border-radius:12px;font-size:12px;z-index:5;pointer-events:none;">点击查看</div>
-                        </div>
-                    `;
-                }).join('');
-            
-                const dotsHtml = ads.map((_, i) => `<span class="dot" data-index="${i}"></span>`).join('');
-            
-                return `
-            <!DOCTYPE html>
-            <html>
-            <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>
-            * { margin:0; padding:0; box-sizing:border-box; }
-            body { background:#f0f0f0; display:flex; align-items:center; justify-content:center; height:100vh; overflow:hidden; }
-            .carousel-wrapper {
-                position:relative;
-                width:100%;
-                max-width:500px;
-                height:320px;
-                background:#fff;
-                border-radius:12px;
-                overflow:hidden;
-                box-shadow:0 4px 12px rgba(0,0,0,0.1);
-            }
-            .slides-container {
-                display:flex;
-                width:100%;
-                height:100%;
-                transition: transform 0.4s ease;
-            }
-            .slide {
-                width:100%;
-                height:100%;
-                flex-shrink:0;
-                display:flex;
-                align-items:center;
-                justify-content:center;
-                overflow:hidden;
-                position:relative;
-                background:#f5f5f5;
-            }
-            .slide img, .slide iframe {
-                width:100%;
-                height:100%;
-                border:none;
-                display:block;
-            }
-            .slide iframe {
-                min-height:280px;
-            }
-            .dots {
-                position:absolute;
-                bottom:10px;
-                left:50%;
-                transform:translateX(-50%);
-                display:flex;
-                gap:8px;
-                z-index:10;
-            }
-            .dot {
-                width:8px;
-                height:8px;
-                border-radius:50%;
-                background:rgba(255,255,255,0.5);
-                transition:background 0.3s;
-                cursor:pointer;
-            }
-            .dot.active {
-                background:#fff;
-                box-shadow:0 0 6px rgba(0,0,0,0.3);
-            }
-            .arrow {
-                position:absolute;
-                top:50%;
-                transform:translateY(-50%);
-                background:rgba(0,0,0,0.3);
-                color:#fff;
-                border:none;
-                border-radius:50%;
-                width:32px;
-                height:32px;
-                font-size:18px;
-                cursor:pointer;
-                z-index:10;
-                display:flex;
-                align-items:center;
-                justify-content:center;
-                transition:background 0.2s;
-            }
-            .arrow:hover { background:rgba(0,0,0,0.6); }
-            .arrow-left { left:8px; }
-            .arrow-right { right:8px; }
-            @media (max-width:480px) {
-                .carousel-wrapper { border-radius:8px; height:260px; }
-            }
-            </style>
-            </head>
-            <body>
-            <div class="carousel-wrapper">
-                <div class="slides-container" id="slidesContainer">
-                    ${slidesHtml}
-                </div>
-                <div class="dots">${dotsHtml}</div>
-                <button class="arrow arrow-left" id="prevBtn">‹</button>
-                <button class="arrow arrow-right" id="nextBtn">›</button>
-            </div>
-            <script>
-                (function(){
-                    var container = document.getElementById('slidesContainer');
-                    var slides = container.querySelectorAll('.slide');
-                    var dots = document.querySelectorAll('.dot');
-                    var current = 0, total = slides.length, interval = null;
-            
-                    function goTo(index) {
-                        if (index < 0) index = total - 1;
-                        if (index >= total) index = 0;
-                        current = index;
-                        container.style.transform = 'translateX(-' + (current * 100) + '%)';
-                        dots.forEach(function(dot, i) {
-                            dot.classList.toggle('active', i === current);
-                        });
-                    }
-            
-                    function next() { goTo(current + 1); }
-                    function prev() { goTo(current - 1); }
-            
-                    slides.forEach(function(slide) {
-                        slide.addEventListener('click', function(e) {
-                            var link = this.dataset.link;
-                            if (link && !e.target.closest('.arrow') && !e.target.closest('.dots')) {
-                                if (e.target.closest('iframe')) return;
-                                window.open(link, '_blank');
-                            }
-                        });
-                    });
-            
-                    dots.forEach(function(dot, i) {
-                        dot.addEventListener('click', function(e) {
-                            e.stopPropagation();
-                            goTo(i);
-                            resetInterval();
-                        });
-                    });
-            
-                    document.getElementById('prevBtn').addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        prev();
-                        resetInterval();
-                    });
-                    document.getElementById('nextBtn').addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        next();
-                        resetInterval();
-                    });
-            
-                    function startInterval() {
-                        if (interval) clearInterval(interval);
-                        interval = setInterval(next, 6000);
-                    }
-                    function resetInterval() {
-                        if (interval) clearInterval(interval);
-                        startInterval();
-                    }
-            
-                    goTo(0);
-                    startInterval();
-            
-                    var wrapper = document.querySelector('.carousel-wrapper');
-                    wrapper.addEventListener('mouseenter', function() {
-                        if (interval) clearInterval(interval);
-                    });
-                    wrapper.addEventListener('mouseleave', function() {
-                        startInterval();
-                    });
-                })();
-            <\/script>
-            </body>
-            </html>
-                `;
-            }
-                    // ============================================================
-        //  4. 活动工具箱（含事件委托、分页回顶、海报加载动画）
-        // ============================================================
-        var activityLoadTimer = null;
-        var dataLoadAttempts = 0;
-        var MAX_LOAD_ATTEMPTS = 12;
-
-        function clearActivityTimers() {
-            if (activityLoadTimer) { clearInterval(activityLoadTimer);
-                activityLoadTimer = null; }
-        }
-
-        function initActivityToolbox() {
-            if (activityInitDone) {
+// ===== 切换内容 =====
+function switchContent(contentId) {
+    var wrapper = document.querySelector('.iframe-wrapper[data-content="' + contentId + '"]');
+    if (!wrapper) return;
+    var title = pageTitleMap[contentId] || '未来福利社';
+    document.querySelectorAll('.iframe-wrapper').forEach(function(w) { w.classList.remove('active'); });
+    wrapper.classList.add('active');
+    dom.pageTitle.textContent = title;
+    dom.drawerItems.forEach(function(i) { i.classList.toggle('active', i.dataset.content === contentId); });
+    dom.tabItems.forEach(function(i) { i.classList.toggle('active', i.dataset.content === contentId); });
+    currentContent = contentId;
+    toggleDrawer(false);
+    if (contentId === 'content5') {
+        if (activityInitDone) {
+            if (switchTimer) clearTimeout(switchTimer);
+            switchTimer = setTimeout(function() {
                 if (typeof window.__refreshActivityRender === 'function') window.__refreshActivityRender();
                 if (typeof window.refreshMarquee === 'function') window.refreshMarquee();
-                return;
+                switchTimer = null;
+            }, 200);
+        } else { initActivityToolbox(); }
+    }
+}
+
+dom.drawerItems.forEach(function(i) {
+    i.addEventListener('click', function() { if (i.dataset.content) switchContent(i.dataset.content); });
+});
+dom.tabItems.forEach(function(i) {
+    i.addEventListener('click', function() { if (i.dataset.content) switchContent(i.dataset.content); });
+});
+
+window.switchContent = switchContent;
+
+// ============================================================
+//  2. 分享/邀请
+// ============================================================
+function inviteFriend() {
+    var newRef = Math.random().toString(36).substr(2, 6);
+    var baseUrl = window.location.href.split('?')[0];
+    var currentParams = new URLSearchParams(window.location.search);
+    currentParams.set('ref', newRef);
+    var inviteLink = baseUrl + '?' + currentParams.toString();
+    var shareText = '🎁 我在未来福利社赚佣金，快来一起领福利！' + inviteLink;
+
+    if (navigator.share) {
+        navigator.share({
+            title: '邀请好友赚佣金',
+            text: shareText,
+            url: inviteLink
+        }).catch(function(err) {
+            if (err.name !== 'AbortError') {
+                console.warn('分享取消或失败:', err);
+                fallbackCopy2(shareText);
             }
-            if (typeof window.activityList === 'undefined' || window.activityList.length === 0) {
-                var tip = document.getElementById('atTip');
-                if (tip) tip.innerText = '⏳ 数据加载中...';
-                clearActivityTimers();
-                dataLoadAttempts = 0;
-                activityLoadTimer = setInterval(function() {
-                    dataLoadAttempts++;
-                    if (typeof window.activityList !== 'undefined' && window.activityList.length > 0) {
-                        clearActivityTimers();
-                        buildActivityUI();
-                    } else if (dataLoadAttempts >= MAX_LOAD_ATTEMPTS) {
-                        clearActivityTimers();
-                        var tip2 = document.getElementById('atTip');
-                        if (tip2) {
-                            tip2.innerText = '⏳ 数据加载超时，请刷新页面重试';
-                            tip2.style.color = '#f59e0b';
-                        }
-                        var emptyState = document.getElementById('atEmptyState');
-                        if (emptyState) emptyState.style.display = 'flex';
-                    }
-                }, 200);
-                return;
-            }
-            buildActivityUI();
-        }
+        });
+        return;
+    }
+    fallbackCopy2(shareText);
+}
 
-        // ============================================================
-        //  本地生成二维码
-        // ============================================================
-        function generateQRDataURL(text, size) {
-            size = size || 200;
-            try {
-                if (typeof qrcode !== 'function') {
-                    throw new Error('qrcode library not ready');
-                }
-                var typeNumber = 4;
-                var errorCorrectionLevel = 'L';
-                var qr = qrcode(typeNumber, errorCorrectionLevel);
-                qr.addData(text);
-                qr.make();
-                var canvas = document.createElement('canvas');
-                var ctx = canvas.getContext('2d');
-                var moduleCount = qr.getModuleCount();
-                var cellSize = size / moduleCount;
-                canvas.width = size;
-                canvas.height = size;
-                for (var row = 0; row < moduleCount; row++) {
-                    for (var col = 0; col < moduleCount; col++) {
-                        ctx.fillStyle = qr.isDark(row, col) ? '#000' : '#fff';
-                        ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
-                    }
-                }
-                return canvas.toDataURL('image/png');
-            } catch (e) {
-                return 'https://api.qrserver.com/v1/create-qr-code/?size=' + size + 'x' + size + '&data=' + encodeURIComponent(text);
-            }
-        }
-
-        // ============================================================
-        //  海报生成（带加载动画，遮罩完全不透明）
-        // ============================================================
-        var _posterGenerating = false;
-
-        function generatePoster(title, desc, qrCode, startTime, endTime, operator, source, sourceQr) {
-            if (_posterGenerating) {
-                showToast('⏳ 正在生成中，请稍候');
-                return;
-            }
-            _posterGenerating = true;
-            document.body.classList.add('poster-generating');
-
-            var loadingMask = document.createElement('div');
-            loadingMask.className = 'poster-loading-mask';
-            loadingMask.innerHTML = '<div class="spinner"></div><div class="loading-text">海报生成中...</div><div class="loading-sub">请稍候</div>';
-            document.body.appendChild(loadingMask);
-
-            var userRef = localStorage.getItem('userRef');
-            if (!userRef) {
-                userRef = Math.random().toString(36).substr(2, 6);
-                localStorage.setItem('userRef', userRef);
-            }
-
-            document.getElementById('posterTitle').textContent = title || '超值福利活动';
-            document.getElementById('posterDesc').textContent = desc || '扫码立即参与';
-            document.getElementById('posterQrImage').src = qrCode || '';
-            document.getElementById('posterDate').textContent = '有效期：' + (startTime || '') + ' ~ ' + (endTime || '');
-            document.getElementById('posterInviter').textContent = '推荐人：' + userRef;
-
-            var opColors = {
-                '移动': '#1a73e8',
-                '联通': '#e60012',
-                '电信': '#0055aa',
-                '广电': '#00b050',
-                '银行': '#2d6a4f',
-                '京东': '#c71622',
-                '美团': '#ffc300',
-                '饿了么': '#0088ff'
-            };
-            var opColor = opColors[operator] || '#3A6FF8';
-            var opTag = document.getElementById('posterOperator');
-            opTag.textContent = operator || '福利活动';
-            opTag.style.background = opColor;
-
-            var sourceContainer = document.getElementById('posterSource');
-            if (sourceQr) {
-                sourceContainer.innerHTML = '<img src="' + sourceQr + '" alt="来源二维码" style="width:60px;height:60px;border-radius:8px;border:1px solid #eee;">';
-            } else if (source) {
-                sourceContainer.textContent = '来源：' + source;
-            } else {
-                sourceContainer.textContent = '来源：未来福利社';
-            }
-
-            var container = document.getElementById('posterContainer');
-            container.style.left = '0';
-            container.style.top = '0';
-            container.style.position = 'fixed';
-            container.style.zIndex = '9999';
-            container.style.background = '#fff';
-
-            if (typeof html2canvas === 'undefined') {
-                showToast('❌ 海报库未加载，请刷新');
-                resetPosterContainer();
-                _posterGenerating = false;
-                document.body.classList.remove('poster-generating');
-                if (loadingMask.parentNode) loadingMask.remove();
-                return;
-            }
-
-            html2canvas(container, {
-                scale: 2,
-                useCORS: true,
-                allowTaint: false,
-                backgroundColor: '#ffffff',
-                width: 600,
-                height: container.scrollHeight,
-                logging: false
-            }).then(function(canvas) {
-                var imgData = canvas.toDataURL('image/png');
-                showPosterPreview(imgData, title);
-            }).catch(function(err) {
-                console.error('海报生成失败:', err);
-                showToast('❌ 海报生成失败，请重试');
-            }).finally(function() {
-                resetPosterContainer();
-                _posterGenerating = false;
-                document.body.classList.remove('poster-generating');
-                if (loadingMask.parentNode) loadingMask.remove();
+function fallbackCopy2(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text)
+            .then(function() { showCustomToast('✅ 邀请链接已复制', '分享给好友，TA参与你赚佣金'); })
+            .catch(function(err) {
+                console.warn('Clipboard API 失败，降级到 execCommand:', err);
+                execCopy2(text);
             });
+    } else { execCopy2(text); }
+}
 
-            function resetPosterContainer() {
-                container.style.left = '-9999px';
-                container.style.position = 'fixed';
-                container.style.zIndex = '-1';
-            }
+function execCopy2(text) {
+    var input = document.createElement('input');
+    input.value = text;
+    input.style.cssText = 'position:fixed;top:-1000px;left:-1000px;opacity:0;';
+    document.body.appendChild(input);
+    input.select();
+    input.setSelectionRange(0, text.length);
+    try {
+        var success = document.execCommand('copy');
+        if (success) { showCustomToast('✅ 邀请链接已复制', '分享给好友，TA参与你赚佣金'); }
+        else { showCustomToast('📋 请手动复制链接', text); }
+    } catch (e) { showCustomToast('📋 请手动复制链接', text); }
+    document.body.removeChild(input);
+}
+
+// ============================================================
+//  3. 广告轮播 HTML 生成函数（✅ 已修复计费问题）
+// ============================================================
+function createAdCarouselHTML() {
+    // ============================================================
+    //  广告数据读取优先级：
+    //  1. window.adCarouselList（专用广告数据源）
+    //  2. window.activityList 中 isCarouselAd: true 的条目
+    //  3. 默认后备数据（确保不报错）
+    // ============================================================
+    let ads = [];
+
+    if (typeof window.adCarouselList !== 'undefined' && Array.isArray(window.adCarouselList) && window.adCarouselList.length > 0) {
+        ads = window.adCarouselList;
+    } else if (typeof window.activityList !== 'undefined' && Array.isArray(window.activityList)) {
+        const carouselItems = window.activityList.filter(item => item.isCarouselAd === true);
+        if (carouselItems.length > 0) {
+            ads = carouselItems.map(item => ({
+                type: item.carouselType || 'image',
+                label: item.title || '广告',
+                color: item.color || '#3A6FF8',
+                link: item.link || '#',
+                src: item.carouselSrc || (item.link ? generateQRDataURL(item.link, 200) : '')
+            }));
+        }
+    }
+
+    if (ads.length === 0) {
+        ads = [
+            { type: 'image', label: '福利1', color: '#3A6FF8', link: 'https://example.com/ad1' },
+            { type: 'image', label: '福利2', color: '#FF6B00', link: 'https://example.com/ad2' },
+            { type: 'iframe', src: 'https://example.com', link: 'https://example.com' }
+        ];
+    }
+
+    // ============================================================
+    //  生成轮播 HTML
+    // ============================================================
+    const slidesHtml = ads.map((ad) => {
+        let content = '';
+        if (ad.type === 'image') {
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="${ad.color || '#3A6FF8'}"/><text x="200" y="150" text-anchor="middle" dy=".3em" fill="#fff" font-size="24" font-family="sans-serif">${ad.label || '广告'}</text></svg>`;
+            content = `<img src="data:image/svg+xml,${encodeURIComponent(svg)}" alt="${ad.label || '广告'}" style="width:100%;height:100%;object-fit:cover;">`;
+        } else if (ad.type === 'iframe') {
+            // ✅ FIX 1：去掉 sandbox（恢复 cookie/storage，广告联盟能识别访客）
+            // ✅ FIX 2：去掉 loading="lazy"（确保真实发起请求，不是 about:blank）
+            // ✅ FIX 3：加 referrerpolicy（广告平台可识别来源）+ allow（富媒体广告兼容）
+            content = `<iframe
+                src="${ad.src || 'https://example.com'}"
+                allowfullscreen
+                referrerpolicy="no-referrer-when-downgrade"
+                allow="autoplay; fullscreen; encrypted-media; clipboard-write; geolocation"
+                style="width:100%;height:100%;border:none;min-height:280px;display:block;">
+            </iframe>`;
+        }
+        return `
+            <div class="slide" data-link="${ad.link || '#'}" style="width:100%;height:100%;flex-shrink:0;cursor:pointer;position:relative;overflow:hidden;background:#f5f5f5;">
+                ${content}
+                <div style="position:absolute;bottom:8px;right:12px;background:rgba(0,0,0,0.5);color:#fff;padding:2px 12px;border-radius:12px;font-size:12px;z-index:5;pointer-events:none;">点击查看</div>
+            </div>
+        `;
+    }).join('');
+
+    const dotsHtml = ads.map((_, i) => `<span class="dot" data-index="${i}"></span>`).join('');
+
+    return `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#f0f0f0; display:flex; align-items:center; justify-content:center; height:100vh; overflow:hidden; }
+.carousel-wrapper {
+    position:relative;
+    width:100%;
+    max-width:500px;
+    height:320px;
+    background:#fff;
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 4px 12px rgba(0,0,0,0.1);
+}
+.slides-container {
+    display:flex;
+    width:100%;
+    height:100%;
+    transition: transform 0.4s ease;
+    /* ✅ FIX 4：contain:none，避免浏览器把离屏 slide 当成"懒加载区" */
+    contain: none;
+}
+.slide {
+    width:100%;
+    height:100%;
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    position:relative;
+    background:#f5f5f5;
+}
+.slide img, .slide iframe {
+    width:100%;
+    height:100%;
+    border:none;
+    display:block;
+}
+.slide iframe {
+    min-height:280px;
+    /* ✅ FIX 5：显式 eager，强制所有广告 iframe 真实加载 */
+    loading: eager;
+}
+.dots {
+    position:absolute;
+    bottom:10px;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    gap:8px;
+    z-index:10;
+}
+.dot {
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.5);
+    transition:background 0.3s;
+    cursor:pointer;
+}
+.dot.active {
+    background:#fff;
+    box-shadow:0 0 6px rgba(0,0,0,0.3);
+}
+.arrow {
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    background:rgba(0,0,0,0.3);
+    color:#fff;
+    border:none;
+    border-radius:50%;
+    width:32px;
+    height:32px;
+    font-size:18px;
+    cursor:pointer;
+    z-index:10;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:background 0.2s;
+}
+.arrow:hover { background:rgba(0,0,0,0.6); }
+.arrow-left { left:8px; }
+.arrow-right { right:8px; }
+@media (max-width:480px) {
+    .carousel-wrapper { border-radius:8px; height:260px; }
+}
+</style>
+</head>
+<body>
+<div class="carousel-wrapper">
+    <div class="slides-container" id="slidesContainer">
+        ${slidesHtml}
+    </div>
+    <div class="dots">${dotsHtml}</div>
+    <button class="arrow arrow-left" id="prevBtn">‹</button>
+    <button class="arrow arrow-right" id="nextBtn">›</button>
+</div>
+<script>
+    (function(){
+        var container = document.getElementById('slidesContainer');
+        var slides = container.querySelectorAll('.slide');
+        var dots = document.querySelectorAll('.dot');
+        var current = 0, total = slides.length, interval = null;
+
+        function goTo(index) {
+            if (index < 0) index = total - 1;
+            if (index >= total) index = 0;
+            current = index;
+            container.style.transform = 'translateX(-' + (current * 100) + '%)';
+            dots.forEach(function(dot, i) {
+                dot.classList.toggle('active', i === current);
+            });
         }
 
-        // ============================================================
-        //  海报预览弹窗
-        // ============================================================
-        function showPosterPreview(imgData, title) {
-            var oldMask = document.getElementById('posterPreviewMask');
-            if (oldMask) oldMask.remove();
+        function next() { goTo(current + 1); }
+        function prev() { goTo(current - 1); }
 
-            var mask = document.createElement('div');
-            mask.id = 'posterPreviewMask';
-            mask.style.cssText =
-                'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:20px;';
-
-            var card = document.createElement('div');
-            card.className = 'poster-preview-card';
-
-            var titleEl = document.createElement('div');
-            titleEl.className = 'preview-title';
-            titleEl.textContent = '📸 ' + (title || '活动海报');
-
-            var img = document.createElement('img');
-            img.src = imgData;
-            img.alt = '活动海报';
-
-            var btnGroup = document.createElement('div');
-            btnGroup.className = 'btn-group';
-
-            var saveBtn = document.createElement('button');
-            saveBtn.className = 'btn-save';
-            saveBtn.textContent = '💾 保存图片';
-            saveBtn.onclick = function() {
-                var link = document.createElement('a');
-                link.download = (title || '活动海报') + '.png';
-                link.href = imgData;
-                link.click();
-            };
-
-            var shareBtn = document.createElement('button');
-            shareBtn.className = 'btn-share-poster';
-            shareBtn.textContent = '📤 分享海报';
-            shareBtn.onclick = function() {
-                if (navigator.share) {
-                    fetch(imgData)
-                        .then(function(res) { return res.blob(); })
-                        .then(function(blob) {
-                            var file = new File([blob], (title || '海报') + '.png', { type: 'image/png' });
-                            navigator.share({
-                                title: title || '活动海报',
-                                files: [file]
-                            }).catch(function() {});
-                        })
-                        .catch(function() {
-                            var text = '🎁 ' + title + '，扫码领福利！更多活动👉' + window.location.href;
-                            if (navigator.share) {
-                                navigator.share({ title: title, text: text });
-                            } else {
-                                copyText2(text);
-                            }
-                        });
-                } else {
-                    var text = '🎁 ' + title + '，扫码领福利！更多活动👉' + window.location.href;
-                    copyText2(text);
-                }
-            };
-
-            var closeBtn = document.createElement('button');
-            closeBtn.className = 'btn-close-preview';
-            closeBtn.textContent = '✕ 关闭';
-            closeBtn.onclick = function() {
-                mask.remove();
-                document.body.classList.remove('poster-generating');
-            };
-
-            btnGroup.appendChild(saveBtn);
-            btnGroup.appendChild(shareBtn);
-            btnGroup.appendChild(closeBtn);
-            card.appendChild(titleEl);
-            card.appendChild(img);
-            card.appendChild(btnGroup);
-            mask.appendChild(card);
-
-            mask.addEventListener('click', function(e) {
-                if (e.target === mask) {
-                    mask.remove();
-                    document.body.classList.remove('poster-generating');
+        slides.forEach(function(slide) {
+            slide.addEventListener('click', function(e) {
+                var link = this.dataset.link;
+                if (link && !e.target.closest('.arrow') && !e.target.closest('.dots')) {
+                    if (e.target.closest('iframe')) return;
+                    window.open(link, '_blank');
                 }
             });
-
-            document.body.appendChild(mask);
-        }
-
-        function copyText2(text) {
-            var dummy = document.createElement('textarea');
-            dummy.value = text;
-            dummy.style.cssText = 'position:fixed;top:-1000px;left:-1000px;opacity:0;';
-            document.body.appendChild(dummy);
-            dummy.select();
-            try {
-                document.execCommand('copy');
-                showCustomToast('✅ 已复制分享文案', '快去分享给好友吧');
-            } catch (e) {
-                showCustomToast('📋 请手动复制', text);
-            }
-            document.body.removeChild(dummy);
-        }
-
-        // ============================================================
-        //  活动详情弹窗（含广告轮播 iframe）
-        // ============================================================
-        var detailMask = document.getElementById('detailMask');
-        var detailCloseBtn = document.getElementById('detailCloseBtn');
-
-        function openActivityDetail(item) {
-            if (!item) return;
-            document.getElementById('detailTitle').textContent = item.title || '活动标题';
-            document.getElementById('detailDesc').textContent = item.desc || '活动描述';
-            document.getElementById('detailDate').textContent = '🕒 有效期：' + (item.startTime || '--') + ' ~ ' + (item
-                .endTime || '--');
-            document.getElementById('detailOperator').textContent = '📡 运营商：' + (item.operator || '--');
-
-            var remarkEl = document.getElementById('detailRemark');
-            if (item.remark) {
-                remarkEl.textContent = '📌 备注：' + item.remark;
-                remarkEl.style.display = 'block';
-            } else {
-                remarkEl.style.display = 'none';
-            }
-
-            var badgesEl = document.getElementById('detailBadges');
-            var badges = [];
-            if (item.operator) badges.push('<span class="detail-badge ' + getOpClass(item.operator) + '">' + item
-                .operator + '</span>');
-            if (item.mainType) badges.push('<span class="detail-badge tag-main">' + item.mainType + '</span>');
-            if (item.province && item.city) badges.push(
-                '<span class="detail-badge tag-region">' + item.province + ' ' + item.city + '</span>');
-            if (item.canShare) badges.push('<span class="detail-badge tag-earn">💰 分享赚佣金</span>');
-            if (item.isAd) badges.push('<span class="detail-badge tag-ad">📢 推荐</span>');
-            if (item.isTop) badges.push('<span class="detail-badge tag-top">⭐ 置顶</span>');
-            if (item.needWechat) badges.push('<span class="detail-badge tag-wechat">💬 私域专享</span>');
-            badgesEl.innerHTML = badges.join('');
-
-            var qrArea = document.getElementById('detailQrArea');
-            var qrImg = document.getElementById('detailQrImg');
-            if (item.qrCode) {
-                qrArea.style.display = 'block';
-                qrImg.src = item.qrCode;
-            } else if (item.link) {
-                var qrData = generateQRDataURL(item.link, 200);
-                qrArea.style.display = 'block';
-                qrImg.src = qrData;
-            } else {
-                qrArea.style.display = 'none';
-            }
-
-            var linkBtn = document.getElementById('detailLinkBtn');
-            if (item.link) {
-                linkBtn.href = item.link;
-                linkBtn.textContent = '🚀 直达链接';
-                linkBtn.classList.remove('disabled');
-                linkBtn.target = '_blank';
-            } else {
-                linkBtn.href = '#';
-                linkBtn.textContent = '📱 暂无直达链接';
-                linkBtn.classList.add('disabled');
-                linkBtn.target = '';
-            }
-
-            // ---- 设置广告轮播 iframe（使用 srcdoc 直接注入） ----
-            var adIframe = document.getElementById('detailAdIframe');
-            if (adIframe) {
-                adIframe.srcdoc = createAdCarouselHTML();
-            }
-
-            detailMask.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeDetail() {
-            detailMask.classList.remove('active');
-            document.body.style.overflow = '';
-            var adIframe = document.getElementById('detailAdIframe');
-            if (adIframe) adIframe.srcdoc = '';
-        }
-
-        detailCloseBtn.addEventListener('click', closeDetail);
-        detailMask.addEventListener('click', function(e) {
-            if (e.target === detailMask) closeDetail();
         });
 
-        // ============================================================
-        //  获取运营商标识类
-        // ============================================================
-        function getOpClass(op) {
-            var map = {
-                '移动': 'op-移动',
-                '联通': 'op-联通',
-                '电信': 'op-电信',
-                '广电': 'op-广电',
-                '银行': 'op-银行',
-                '百度': 'op-百度',
-                '阿里': 'op-阿里',
-                '京东': 'op-京东',
-                '腾讯': 'op-腾讯',
-                '拼多多': 'op-拼多多',
-                '美团': 'op-美团',
-                '滴滴': 'op-滴滴',
-                '饿了么': 'op-饿了么'
-            };
-            return map[op] || 'op-其他';
+        dots.forEach(function(dot, i) {
+            dot.addEventListener('click', function(e) {
+                e.stopPropagation();
+                goTo(i);
+                resetInterval();
+            });
+        });
+
+        document.getElementById('prevBtn').addEventListener('click', function(e) {
+            e.stopPropagation();
+            prev();
+            resetInterval();
+        });
+        document.getElementById('nextBtn').addEventListener('click', function(e) {
+            e.stopPropagation();
+            next();
+            resetInterval();
+        });
+
+        function startInterval() {
+            if (interval) clearInterval(interval);
+            interval = setInterval(next, 6000);
+        }
+        function resetInterval() {
+            if (interval) clearInterval(interval);
+            startInterval();
         }
 
-        // ============================================================
-        //  核心渲染函数 buildActivityUI（使用事件委托）
-        // ============================================================
-        function buildActivityUI() {
-            if (activityInitDone) return;
+        goTo(0);
+        startInterval();
 
-            var list = window.activityList || [];
-            var mainTypeEnum = window.mainTypeEnum || [];
-            var subTypeMap = window.subTypeMap || {};
-
-            var regularList = list.filter(function(item) { return !item.isAd; });
-            var adPool = list.filter(function(item) { return item.isAd; });
-
-            var tabsEl = document.getElementById('atTabs');
-            var searchEl = document.getElementById('atSearch');
-            var opSelect = document.getElementById('atOpSelect');
-            var provinceSelect = document.getElementById('atProvinceSelect');
-            var mainTypeSelect = document.getElementById('atMainTypeSelect');
-            var subTypeSelect = document.getElementById('atSubTypeSelect');
-            var resetBtn = document.getElementById('atResetBtn');
-            var gridEl = document.getElementById('atGrid');
-            var tipEl = document.getElementById('atTip');
-            var emptyStateEl = document.getElementById('atEmptyState');
-            var resultAreaEl = document.getElementById('atResultArea');
-            var emptyResultEl = document.getElementById('atEmptyResult');
-            var paginationEl = document.getElementById('atPagination');
-            var prevPageBtn = document.getElementById('atPrevPage');
-            var nextPageBtn = document.getElementById('atNextPage');
-            var pageInfoEl = document.getElementById('atPageInfo');
-            var filterToggle = document.getElementById('atFilterToggle');
-            var filterPanel = document.getElementById('atFilterPanel');
-            var filterBadge = document.getElementById('atFilterBadge');
-
-            var today = new Date();
-            var activeMainTab = '';
-            var currentPage = 1;
-            var pageSize = 10;
-            var isFilterOpen = false;
-            var lastCacheKey = '';
-            var lastFilteredData = [];
-            var currentPageItems = [];
-
-            var validTypes = mainTypeEnum.filter(function(item) { return item.value && item.value !== ''; });
-
-            function isExpired(endDateStr) { var end = new Date(endDateStr); return end < today; }
-
-            function isSoonExpire(endDateStr) {
-                var end = new Date(endDateStr);
-                var diff = (end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
-                return diff >= 0 && diff <= 7;
-            }
-
-            function matchSubType(itemSub, selectSub) {
-                if (!selectSub) return true;
-                if (Array.isArray(itemSub)) { return itemSub.indexOf(selectSub) !== -1; } else { return itemSub === selectSub; }
-            }
-
-            function hasFilter() {
-                var kw = searchEl.value.trim();
-                var op = opSelect.value;
-                var pro = provinceSelect.value;
-                var main = mainTypeSelect.value || activeMainTab;
-                var sub = subTypeSelect.value;
-                return !!(kw || op || pro || main || sub);
-            }
-
-            function updateFilterBadge() {
-                var count = 0;
-                if (opSelect.value) count++;
-                if (provinceSelect.value) count++;
-                if (mainTypeSelect.value || activeMainTab) count++;
-                if (subTypeSelect.value) count++;
-                if (count > 0) {
-                    filterBadge.textContent = count;
-                    filterBadge.classList.add('show');
-                } else {
-                    filterBadge.classList.remove('show');
-                }
-            }
-
-            function renderTabs() {
-                tabsEl.innerHTML = '';
-                validTypes.forEach(function(item) {
-                    var span = document.createElement('span');
-                    span.className = 'at-tab' + (activeMainTab === item.value ? ' active' : '');
-                    span.innerText = item.label;
-                    span.dataset.value = item.value;
-                    span.addEventListener('click', function() {
-                        activeMainTab = (activeMainTab === this.dataset.value) ? '' : this.dataset.value;
-                        mainTypeSelect.value = activeMainTab;
-                        currentPage = 1;
-                        renderTabs();
-                        populateSubTypeSelect(activeMainTab);
-                        updateFilterBadge();
-                        render();
-                    });
-                    tabsEl.appendChild(span);
-                });
-            }
-
-            function populateMainTypeSelect() {
-                mainTypeSelect.innerHTML = '<option value="">全部</option>';
-                validTypes.forEach(function(item) {
-                    var opt = document.createElement('option');
-                    opt.value = item.value;
-                    opt.textContent = item.label;
-                    mainTypeSelect.appendChild(opt);
-                });
-            }
-
-            function populateSubTypeSelect(mainValue) {
-                subTypeSelect.innerHTML = '<option value="">全部</option>';
-                if (mainValue && subTypeMap[mainValue]) {
-                    subTypeMap[mainValue].forEach(function(tag) {
-                        var opt = document.createElement('option');
-                        opt.value = tag;
-                        opt.textContent = tag;
-                        subTypeSelect.appendChild(opt);
-                    });
-                }
-            }
-
-            function updatePagination(totalPages) {
-                if (totalPages <= 1) { paginationEl.style.display = 'none'; return; }
-                paginationEl.style.display = 'flex';
-                pageInfoEl.textContent = currentPage + '/' + totalPages;
-                prevPageBtn.disabled = (currentPage <= 1);
-                nextPageBtn.disabled = (currentPage >= totalPages);
-            }
-
-            // 滚动到顶部（分页用）
-            function scrollToTop() {
-                var wrapper = document.querySelector('.iframe-wrapper.active');
-                if (wrapper) wrapper.scrollTop = 0;
-            }
-
-            function render() {
-                updateFilterBadge();
-
-                if (!hasFilter()) {
-                    emptyStateEl.style.display = 'flex';
-                    resultAreaEl.classList.remove('active');
-                    currentPage = 1;
-                    paginationEl.style.display = 'none';
-                    tipEl.innerText = '';
-                    gridEl.innerHTML = '';
-                    emptyResultEl.classList.remove('show');
-                    currentPageItems = [];
-                    return;
-                }
-
-                emptyStateEl.style.display = 'none';
-                resultAreaEl.classList.add('active');
-
-                var cacheKey = searchEl.value + '|' + opSelect.value + '|' + provinceSelect.value + '|' +
-                    (mainTypeSelect.value || activeMainTab) + '|' + subTypeSelect.value;
-
-                var validRegular = regularList.filter(function(item) { return !isExpired(item.endTime); });
-                var filteredRegular;
-
-                if (cacheKey === lastCacheKey && lastFilteredData.length) {
-                    filteredRegular = lastFilteredData;
-                } else {
-                    var kw = searchEl.value.trim().toLowerCase();
-                    var opVal = opSelect.value;
-                    var proVal = provinceSelect.value;
-                    var mainVal = mainTypeSelect.value || activeMainTab;
-                    var subVal = subTypeSelect.value;
-
-                    filteredRegular = validRegular.filter(function(item) {
-                        if (kw) {
-                            var subText = Array.isArray(item.subType) ? item.subType.join(' ') : item.subType;
-                            var text = (item.title + ' ' + item.city + ' ' + item.province + ' ' + item.remark +
-                                ' ' + subText).toLowerCase();
-                            if (text.indexOf(kw) === -1) return false;
-                        }
-                        if (opVal && item.operator !== opVal) return false;
-                        if (proVal && item.province !== proVal) return false;
-                        if (mainVal && item.mainType !== mainVal) return false;
-                        if (subVal && !matchSubType(item.subType, subVal)) return false;
-                        return true;
-                    });
-                    lastCacheKey = cacheKey;
-                    lastFilteredData = filteredRegular;
-                }
-
-                var totalItems = filteredRegular.length;
-                var totalPages = Math.ceil(totalItems / pageSize) || 1;
-
-                if (currentPage > totalPages) currentPage = totalPages;
-                if (currentPage < 1) currentPage = 1;
-
-                var start = (currentPage - 1) * pageSize;
-                var end = Math.min(start + pageSize, totalItems);
-                var pageRegular = filteredRegular.slice(start, end);
-
-                var pageItems = [];
-                if (pageRegular.length > 0) {
-                    pageItems = pageRegular.slice();
-                    if (adPool.length > 0) {
-                        var randomAd = adPool[Math.floor(Math.random() * adPool.length)];
-                        var insertIdx = Math.floor(Math.random() * (pageItems.length + 1));
-                        pageItems.splice(insertIdx, 0, randomAd);
-                    }
-                }
-                currentPageItems = pageItems;
-
-                pageItems.forEach(function(item) {
-                    if (item.link && !item.qrCode) {
-                        item.qrCode = generateQRDataURL(item.link, 200);
-                    }
-                });
-
-                var displayStart = start + 1;
-                tipEl.innerText = '找到 ' + totalItems + ' 个匹配活动，第 ' + displayStart + ' - ' + end + ' 条';
-                gridEl.innerHTML = '';
-
-                if (pageItems.length === 0) {
-                    emptyResultEl.classList.add('show');
-                    gridEl.appendChild(emptyResultEl);
-                } else {
-                    emptyResultEl.classList.remove('show');
-                }
-
-                pageItems.forEach(function(item, idx) {
-                    var card = document.createElement('div');
-                    var cardClass = 'at-card';
-                    if (isSoonExpire(item.endTime)) cardClass += ' warn-soon';
-                    if (item.isAd) cardClass += ' at-ad-card';
-                    if (item.isTop) cardClass += ' at-top-card';
-                    card.className = cardClass;
-                    card.dataset.index = idx;
-
-                    var subs = Array.isArray(item.subType) ? item.subType : [item.subType];
-                    var subTagsHtml = subs.map(function(t) { return '<span class="at-subtag">' + t + '</span>'; }).join('');
-
-                    var opBadge = '<span class="at-badge ' + getOpClass(item.operator) + '">' + item.operator + '</span>';
-                    var mainBadge = '<span class="at-badge tag-main">' + item.mainType + '</span>';
-                    var regionBadge = '<span class="at-badge tag-region">' + item.province + ' ' + item.city + '</span>';
-                    var soonBadge = isSoonExpire(item.endTime) ? '<span class="at-badge tag-soon">即将到期</span>' : '';
-                    var earnBadge = item.canShare ? '<span class="at-badge tag-earn">💰 分享赚佣金</span>' : '';
-                    var adBadge = item.isAd ? '<span class="at-badge tag-ad">📢 推荐</span>' : '';
-                    var topBadge = item.isTop ? '<span class="at-badge tag-top">⭐ 置顶</span>' : '';
-                    var wechatBadge2 = item.needWechat ? '<span class="at-badge tag-wechat">💬 私域专享</span>' : '';
-
-                    var shareHtml = '';
-                    if (item.canShare) {
-                        shareHtml = '<button class="share-earn-btn" data-title="' + item.title +
-                            '" data-link="' + (item.link || window.location.href) +
-                            '">💰 分享</button>';
-                    }
-
-                    var posterBtnHtml = '';
-                    if (item.qrCode) {
-                        var safeTitle = (item.title || '').replace(/"/g, '&quot;');
-                        var safeDesc = (item.desc || '').replace(/"/g, '&quot;');
-                        var safeSource = (item.source || '').replace(/"/g, '&quot;');
-                        var safeSourceQr = (item.sourceQr || '').replace(/"/g, '&quot;');
-                        posterBtnHtml = '<button class="poster-gen-btn" ' +
-                            'data-title="' + safeTitle + '" ' +
-                            'data-desc="' + safeDesc + '" ' +
-                            'data-qr="' + (item.qrCode || '') + '" ' +
-                            'data-start="' + (item.startTime || '') + '" ' +
-                            'data-end="' + (item.endTime || '') + '" ' +
-                            'data-operator="' + (item.operator || '') + '" ' +
-                            'data-source="' + safeSource + '" ' +
-                            'data-sourceqr="' + safeSourceQr + '" ' +
-                            'aria-label="生成海报">🖼️</button>';
-                    }
-
-                    card.innerHTML =
-                        '<div class="at-badges">' + opBadge + mainBadge + regionBadge + soonBadge + earnBadge +
-                        adBadge + topBadge + wechatBadge2 + '</div>' +
-                        '<div class="at-subtags">' + subTagsHtml + '</div>' +
-                        '<div class="at-card-title">' + item.title + '</div>' +
-                        '<div class="at-card-date">有效期：' + item.startTime + ' ~ ' + item.endTime + '</div>' +
-                        '<div class="at-card-desc">' + item.desc + '</div>' +
-                        (item.remark ? '<div class="at-card-remark">备注：' + item.remark + '</div>' : '') +
-                        shareHtml + posterBtnHtml;
-
-                    // 分享按钮
-                    var shareBtnEl = card.querySelector('.share-earn-btn');
-                    if (shareBtnEl) {
-                        shareBtnEl.addEventListener('click', function(e) {
-                            e.stopPropagation();
-                            var title = this.dataset.title;
-                            var link = this.dataset.link;
-
-                            var userRef = localStorage.getItem('userRef');
-                            if (!userRef) {
-                                userRef = Math.random().toString(36).substr(2, 6);
-                                localStorage.setItem('userRef', userRef);
-                            }
-                            var baseUrl = window.location.href.split('?')[0];
-                            var currentParams = new URLSearchParams(window.location.search);
-                            currentParams.set('ref', userRef);
-                            var inviteLink = baseUrl + '?' + currentParams.toString();
-
-                            var shareText = '🎁 发现一个超值福利：' + title + '，一起领福利赚佣金！' + link +
-                                '\n\n更多福利活动👉' + inviteLink;
-
-                            if (typeof LA !== 'undefined' && LA.track) {
-                                LA.track('分享点击', {
-                                    activity_title: title,
-                                    user_ref: userRef,
-                                    activity_link: link
-                                });
-                            }
-
-                            if (navigator.share) {
-                                navigator.share({ title: title, text: shareText, url: link }).catch(function() {});
-                            } else {
-                                var dummy = document.createElement('textarea');
-                                dummy.value = shareText;
-                                dummy.style.cssText = 'position:fixed;top:-1000px;left:-1000px;opacity:0;';
-                                document.body.appendChild(dummy);
-                                dummy.select();
-                                try {
-                                    document.execCommand('copy');
-                                    showCustomToast('✅ 已复制分享链接', '分享给好友，TA参与你赚佣金');
-                                } catch (e) {
-                                    showCustomToast('📋 请手动复制链接', shareText);
-                                }
-                                document.body.removeChild(dummy);
-                            }
-                        });
-                    }
-
-                    // 海报按钮
-                    var posterBtn = card.querySelector('.poster-gen-btn');
-                    if (posterBtn) {
-                        posterBtn.addEventListener('click', function(e) {
-                            e.stopPropagation();
-                            var title = this.dataset.title;
-                            var desc = this.dataset.desc;
-                            var qr = this.dataset.qr;
-                            var start = this.dataset.start;
-                            var end = this.dataset.end;
-                            var operator = this.dataset.operator;
-                            var source = this.dataset.source;
-                            var sourceQr = this.dataset.sourceqr;
-                            if (!qr) {
-                                showToast('❌ 该活动暂无二维码');
-                                return;
-                            }
-                            showToast('⏳ 正在生成海报...');
-                            generatePoster(title, desc, qr, start, end, operator, source, sourceQr);
-                        });
-                    }
-
-                    gridEl.appendChild(card);
-                });
-
-                updatePagination(totalPages);
-            }
-
-            // 事件委托：卡片点击
-            gridEl.addEventListener('click', function(e) {
-                var card = e.target.closest('.at-card');
-                if (!card) return;
-                if (e.target.closest('.share-earn-btn') || e.target.closest('.poster-gen-btn')) return;
-                var index = parseInt(card.dataset.index, 10);
-                if (!isNaN(index) && currentPageItems[index]) {
-                    openActivityDetail(currentPageItems[index]);
+        // ✅ FIX 6：为每个广告位主动发一次 1px 图片打点
+        //           防止 iframe 被浏览器/插件拦截时完全丢计费
+        try {
+            slides.forEach(function (s) {
+                var link = s.dataset.link;
+                if (link && link !== '#' && link.indexOf('http') === 0) {
+                    var beacon = new Image();
+                    beacon.referrerPolicy = 'no-referrer-when-downgrade';
+                    beacon.src = link + (link.indexOf('?') > -1 ? '&' : '?') + '_beacon=' + Date.now();
                 }
             });
+        } catch (e) { /* 静默 */ }
 
-            // 搜索、筛选等
-            var searchTimer = null;
-            searchEl.addEventListener('input', function() {
-                clearTimeout(searchTimer);
-                searchTimer = setTimeout(function() { currentPage = 1; render(); }, 300);
+        var wrapper = document.querySelector('.carousel-wrapper');
+        wrapper.addEventListener('mouseenter', function() {
+            if (interval) clearInterval(interval);
+        });
+        wrapper.addEventListener('mouseleave', function() {
+            startInterval();
+        });
+    })();
+<\/script>
+</body>
+</html>
+    `;
+}
+
+// ============================================================
+//  4. 活动工具箱（含事件委托、分页回顶、海报加载动画）
+// ============================================================
+var activityLoadTimer = null;
+var dataLoadAttempts = 0;
+var MAX_LOAD_ATTEMPTS = 12;
+
+function clearActivityTimers() {
+    if (activityLoadTimer) { clearInterval(activityLoadTimer); activityLoadTimer = null; }
+}
+
+function initActivityToolbox() {
+    if (activityInitDone) {
+        if (typeof window.__refreshActivityRender === 'function') window.__refreshActivityRender();
+        if (typeof window.refreshMarquee === 'function') window.refreshMarquee();
+        return;
+    }
+    if (typeof window.activityList === 'undefined' || window.activityList.length === 0) {
+        var tip = document.getElementById('atTip');
+        if (tip) tip.innerText = '⏳ 数据加载中...';
+        clearActivityTimers();
+        dataLoadAttempts = 0;
+        activityLoadTimer = setInterval(function() {
+            dataLoadAttempts++;
+            if (typeof window.activityList !== 'undefined' && window.activityList.length > 0) {
+                clearActivityTimers();
+                buildActivityUI();
+            } else if (dataLoadAttempts >= MAX_LOAD_ATTEMPTS) {
+                clearActivityTimers();
+                var tip2 = document.getElementById('atTip');
+                if (tip2) {
+                    tip2.innerText = '⏳ 数据加载超时，请刷新页面重试';
+                    tip2.style.color = '#f59e0b';
+                }
+                var emptyState = document.getElementById('atEmptyState');
+                if (emptyState) emptyState.style.display = 'flex';
+            }
+        }, 200);
+        return;
+    }
+    buildActivityUI();
+}
+
+// ============================================================
+//  本地生成二维码
+// ============================================================
+function generateQRDataURL(text, size) {
+    size = size || 200;
+    try {
+        if (typeof qrcode !== 'function') {
+            throw new Error('qrcode library not ready');
+        }
+        var typeNumber = 4;
+        var errorCorrectionLevel = 'L';
+        var qr = qrcode(typeNumber, errorCorrectionLevel);
+        qr.addData(text);
+        qr.make();
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        var moduleCount = qr.getModuleCount();
+        var cellSize = size / moduleCount;
+        canvas.width = size;
+        canvas.height = size;
+        for (var row = 0; row < moduleCount; row++) {
+            for (var col = 0; col < moduleCount; col++) {
+                ctx.fillStyle = qr.isDark(row, col) ? '#000' : '#fff';
+                ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+            }
+        }
+        return canvas.toDataURL('image/png');
+    } catch (e) {
+        return 'https://api.qrserver.com/v1/create-qr-code/?size=' + size + 'x' + size + '&data=' + encodeURIComponent(text);
+    }
+}
+
+// ============================================================
+//  海报生成（带加载动画，遮罩完全不透明）
+// ============================================================
+var _posterGenerating = false;
+
+function generatePoster(title, desc, qrCode, startTime, endTime, operator, source, sourceQr) {
+    if (_posterGenerating) {
+        showToast('⏳ 正在生成中，请稍候');
+        return;
+    }
+    _posterGenerating = true;
+    document.body.classList.add('poster-generating');
+
+    var loadingMask = document.createElement('div');
+    loadingMask.className = 'poster-loading-mask';
+    loadingMask.innerHTML = '<div class="spinner"></div><div class="loading-text">海报生成中...</div><div class="loading-sub">请稍候</div>';
+    document.body.appendChild(loadingMask);
+
+    var userRef = localStorage.getItem('userRef');
+    if (!userRef) {
+        userRef = Math.random().toString(36).substr(2, 6);
+        localStorage.setItem('userRef', userRef);
+    }
+
+    document.getElementById('posterTitle').textContent = title || '超值福利活动';
+    document.getElementById('posterDesc').textContent = desc || '扫码立即参与';
+    document.getElementById('posterQrImage').src = qrCode || '';
+    document.getElementById('posterDate').textContent = '有效期：' + (startTime || '') + ' ~ ' + (endTime || '');
+    document.getElementById('posterInviter').textContent = '推荐人：' + userRef;
+
+    var opColors = {
+        '移动': '#1a73e8',
+        '联通': '#e60012',
+        '电信': '#0055aa',
+        '广电': '#00b050',
+        '银行': '#2d6a4f',
+        '京东': '#c71622',
+        '美团': '#ffc300',
+        '饿了么': '#0088ff'
+    };
+    var opColor = opColors[operator] || '#3A6FF8';
+    var opTag = document.getElementById('posterOperator');
+    opTag.textContent = operator || '福利活动';
+    opTag.style.background = opColor;
+
+    var sourceContainer = document.getElementById('posterSource');
+    if (sourceQr) {
+        sourceContainer.innerHTML = '<img src="' + sourceQr + '" alt="来源二维码" style="width:60px;height:60px;border-radius:8px;border:1px solid #eee;">';
+    } else if (source) {
+        sourceContainer.textContent = '来源：' + source;
+    } else {
+        sourceContainer.textContent = '来源：未来福利社';
+    }
+
+    var container = document.getElementById('posterContainer');
+    container.style.left = '0';
+    container.style.top = '0';
+    container.style.position = 'fixed';
+    container.style.zIndex = '9999';
+    container.style.background = '#fff';
+
+    if (typeof html2canvas === 'undefined') {
+        showToast('❌ 海报库未加载，请刷新');
+        resetPosterContainer();
+        _posterGenerating = false;
+        document.body.classList.remove('poster-generating');
+        if (loadingMask.parentNode) loadingMask.remove();
+        return;
+    }
+
+    html2canvas(container, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: false,
+        backgroundColor: '#ffffff',
+        width: 600,
+        height: container.scrollHeight,
+        logging: false
+    }).then(function(canvas) {
+        var imgData = canvas.toDataURL('image/png');
+        showPosterPreview(imgData, title);
+    }).catch(function(err) {
+        console.error('海报生成失败:', err);
+        showToast('❌ 海报生成失败，请重试');
+    }).finally(function() {
+        resetPosterContainer();
+        _posterGenerating = false;
+        document.body.classList.remove('poster-generating');
+        if (loadingMask.parentNode) loadingMask.remove();
+    });
+
+    function resetPosterContainer() {
+        container.style.left = '-9999px';
+        container.style.position = 'fixed';
+        container.style.zIndex = '-1';
+    }
+}
+
+// ============================================================
+//  海报预览弹窗
+// ============================================================
+function showPosterPreview(imgData, title) {
+    var oldMask = document.getElementById('posterPreviewMask');
+    if (oldMask) oldMask.remove();
+
+    var mask = document.createElement('div');
+    mask.id = 'posterPreviewMask';
+    mask.style.cssText =
+        'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:20px;';
+
+    var card = document.createElement('div');
+    card.className = 'poster-preview-card';
+
+    var titleEl = document.createElement('div');
+    titleEl.className = 'preview-title';
+    titleEl.textContent = '📸 ' + (title || '活动海报');
+
+    var img = document.createElement('img');
+    img.src = imgData;
+    img.alt = '活动海报';
+
+    var btnGroup = document.createElement('div');
+    btnGroup.className = 'btn-group';
+
+    var saveBtn = document.createElement('button');
+    saveBtn.className = 'btn-save';
+    saveBtn.textContent = '💾 保存图片';
+    saveBtn.onclick = function() {
+        var link = document.createElement('a');
+        link.download = (title || '活动海报') + '.png';
+        link.href = imgData;
+        link.click();
+    };
+
+    var shareBtn = document.createElement('button');
+    shareBtn.className = 'btn-share-poster';
+    shareBtn.textContent = '📤 分享海报';
+    shareBtn.onclick = function() {
+        if (navigator.share) {
+            fetch(imgData)
+                .then(function(res) { return res.blob(); })
+                .then(function(blob) {
+                    var file = new File([blob], (title || '海报') + '.png', { type: 'image/png' });
+                    navigator.share({
+                        title: title || '活动海报',
+                        files: [file]
+                    }).catch(function() {});
+                })
+                .catch(function() {
+                    var text = '🎁 ' + title + '，扫码领福利！更多活动👉' + window.location.href;
+                    if (navigator.share) {
+                        navigator.share({ title: title, text: text });
+                    } else {
+                        copyText2(text);
+                    }
+                });
+        } else {
+            var text = '🎁 ' + title + '，扫码领福利！更多活动👉' + window.location.href;
+            copyText2(text);
+        }
+    };
+
+    var closeBtn = document.createElement('button');
+    closeBtn.className = 'btn-close-preview';
+    closeBtn.textContent = '✕ 关闭';
+    closeBtn.onclick = function() {
+        mask.remove();
+        document.body.classList.remove('poster-generating');
+    };
+
+    btnGroup.appendChild(saveBtn);
+    btnGroup.appendChild(shareBtn);
+    btnGroup.appendChild(closeBtn);
+    card.appendChild(titleEl);
+    card.appendChild(img);
+    card.appendChild(btnGroup);
+    mask.appendChild(card);
+
+    mask.addEventListener('click', function(e) {
+        if (e.target === mask) {
+            mask.remove();
+            document.body.classList.remove('poster-generating');
+        }
+    });
+
+    document.body.appendChild(mask);
+}
+
+function copyText2(text) {
+    var dummy = document.createElement('textarea');
+    dummy.value = text;
+    dummy.style.cssText = 'position:fixed;top:-1000px;left:-1000px;opacity:0;';
+    document.body.appendChild(dummy);
+    dummy.select();
+    try {
+        document.execCommand('copy');
+        showCustomToast('✅ 已复制分享文案', '快去分享给好友吧');
+    } catch (e) {
+        showCustomToast('📋 请手动复制', text);
+    }
+    document.body.removeChild(dummy);
+}
+
+// ============================================================
+//  活动详情弹窗（含广告轮播 iframe）
+// ============================================================
+var detailMask = document.getElementById('detailMask');
+var detailCloseBtn = document.getElementById('detailCloseBtn');
+
+function openActivityDetail(item) {
+    if (!item) return;
+    document.getElementById('detailTitle').textContent = item.title || '活动标题';
+    document.getElementById('detailDesc').textContent = item.desc || '活动描述';
+    document.getElementById('detailDate').textContent = '🕒 有效期：' + (item.startTime || '--') + ' ~ ' + (item.endTime || '--');
+    document.getElementById('detailOperator').textContent = '📡 运营商：' + (item.operator || '--');
+
+    var remarkEl = document.getElementById('detailRemark');
+    if (item.remark) {
+        remarkEl.textContent = '📌 备注：' + item.remark;
+        remarkEl.style.display = 'block';
+    } else {
+        remarkEl.style.display = 'none';
+    }
+
+    var badgesEl = document.getElementById('detailBadges');
+    var badges = [];
+    if (item.operator) badges.push('<span class="detail-badge ' + getOpClass(item.operator) + '">' + item.operator + '</span>');
+    if (item.mainType) badges.push('<span class="detail-badge tag-main">' + item.mainType + '</span>');
+    if (item.province && item.city) badges.push('<span class="detail-badge tag-region">' + item.province + ' ' + item.city + '</span>');
+    if (item.canShare) badges.push('<span class="detail-badge tag-earn">💰 分享赚佣金</span>');
+    if (item.isAd) badges.push('<span class="detail-badge tag-ad">📢 推荐</span>');
+    if (item.isTop) badges.push('<span class="detail-badge tag-top">⭐ 置顶</span>');
+    if (item.needWechat) badges.push('<span class="detail-badge tag-wechat">💬 私域专享</span>');
+    badgesEl.innerHTML = badges.join('');
+
+    var qrArea = document.getElementById('detailQrArea');
+    var qrImg = document.getElementById('detailQrImg');
+    if (item.qrCode) {
+        qrArea.style.display = 'block';
+        qrImg.src = item.qrCode;
+    } else if (item.link) {
+        var qrData = generateQRDataURL(item.link, 200);
+        qrArea.style.display = 'block';
+        qrImg.src = qrData;
+    } else {
+        qrArea.style.display = 'none';
+    }
+
+    var linkBtn = document.getElementById('detailLinkBtn');
+    if (item.link) {
+        linkBtn.href = item.link;
+        linkBtn.textContent = '🚀 直达链接';
+        linkBtn.classList.remove('disabled');
+        linkBtn.target = '_blank';
+    } else {
+        linkBtn.href = '#';
+        linkBtn.textContent = '📱 暂无直达链接';
+        linkBtn.classList.add('disabled');
+        linkBtn.target = '';
+    }
+
+    // ---- ✅ FIX 7：设置广告轮播 iframe ----
+    //      先清空为 about:blank，再下一帧注入 srcdoc。
+    //      避免复用旧文档导致浏览器不重新发请求 / 不重新计 UV。
+    var adIframe = document.getElementById('detailAdIframe');
+    if (adIframe) {
+        adIframe.removeAttribute('srcdoc');
+        adIframe.src = 'about:blank';
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+                adIframe.srcdoc = createAdCarouselHTML();
             });
+        });
+    }
 
-            opSelect.addEventListener('change', function() { currentPage = 1; render(); });
-            provinceSelect.addEventListener('change', function() { currentPage = 1; render(); });
-            mainTypeSelect.addEventListener('change', function() {
-                activeMainTab = this.value;
+    // ---- ✅ FIX 8（可选）：详情打开时主动打一次计费信标 ----
+    if (item.link && /^https?:/.test(item.link)) {
+        try {
+            var _b = new Image();
+            _b.referrerPolicy = 'no-referrer-when-downgrade';
+            _b.src = item.link + (item.link.indexOf('?') > -1 ? '&' : '?') + '_src=detail&_t=' + Date.now();
+        } catch (e) {}
+    }
+
+    detailMask.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeDetail() {
+    detailMask.classList.remove('active');
+    document.body.style.overflow = '';
+    // ✅ FIX 9：彻底清空 iframe，避免复用旧文档或内存泄漏
+    var adIframe = document.getElementById('detailAdIframe');
+    if (adIframe) {
+        adIframe.removeAttribute('srcdoc');
+        adIframe.src = 'about:blank';
+    }
+}
+
+detailCloseBtn.addEventListener('click', closeDetail);
+detailMask.addEventListener('click', function(e) {
+    if (e.target === detailMask) closeDetail();
+});
+
+// ============================================================
+//  获取运营商标识类
+// ============================================================
+function getOpClass(op) {
+    var map = {
+        '移动': 'op-移动',
+        '联通': 'op-联通',
+        '电信': 'op-电信',
+        '广电': 'op-广电',
+        '银行': 'op-银行',
+        '百度': 'op-百度',
+        '阿里': 'op-阿里',
+        '京东': 'op-京东',
+        '腾讯': 'op-腾讯',
+        '拼多多': 'op-拼多多',
+        '美团': 'op-美团',
+        '滴滴': 'op-滴滴',
+        '饿了么': 'op-饿了么'
+    };
+    return map[op] || 'op-其他';
+}
+
+// ============================================================
+//  核心渲染函数 buildActivityUI（使用事件委托）
+// ============================================================
+function buildActivityUI() {
+    if (activityInitDone) return;
+
+    var list = window.activityList || [];
+    var mainTypeEnum = window.mainTypeEnum || [];
+    var subTypeMap = window.subTypeMap || {};
+
+    var regularList = list.filter(function(item) { return !item.isAd; });
+    var adPool = list.filter(function(item) { return item.isAd; });
+
+    var tabsEl = document.getElementById('atTabs');
+    var searchEl = document.getElementById('atSearch');
+    var opSelect = document.getElementById('atOpSelect');
+    var provinceSelect = document.getElementById('atProvinceSelect');
+    var mainTypeSelect = document.getElementById('atMainTypeSelect');
+    var subTypeSelect = document.getElementById('atSubTypeSelect');
+    var resetBtn = document.getElementById('atResetBtn');
+    var gridEl = document.getElementById('atGrid');
+    var tipEl = document.getElementById('atTip');
+    var emptyStateEl = document.getElementById('atEmptyState');
+    var resultAreaEl = document.getElementById('atResultArea');
+    var emptyResultEl = document.getElementById('atEmptyResult');
+    var paginationEl = document.getElementById('atPagination');
+    var prevPageBtn = document.getElementById('atPrevPage');
+    var nextPageBtn = document.getElementById('atNextPage');
+    var pageInfoEl = document.getElementById('atPageInfo');
+    var filterToggle = document.getElementById('atFilterToggle');
+    var filterPanel = document.getElementById('atFilterPanel');
+    var filterBadge = document.getElementById('atFilterBadge');
+
+    var today = new Date();
+    var activeMainTab = '';
+    var currentPage = 1;
+    var pageSize = 10;
+    var isFilterOpen = false;
+    var lastCacheKey = '';
+    var lastFilteredData = [];
+    var currentPageItems = [];
+
+    var validTypes = mainTypeEnum.filter(function(item) { return item.value && item.value !== ''; });
+
+    function isExpired(endDateStr) { var end = new Date(endDateStr); return end < today; }
+
+    function isSoonExpire(endDateStr) {
+        var end = new Date(endDateStr);
+        var diff = (end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+        return diff >= 0 && diff <= 7;
+    }
+
+    function matchSubType(itemSub, selectSub) {
+        if (!selectSub) return true;
+        if (Array.isArray(itemSub)) { return itemSub.indexOf(selectSub) !== -1; } else { return itemSub === selectSub; }
+    }
+
+    function hasFilter() {
+        var kw = searchEl.value.trim();
+        var op = opSelect.value;
+        var pro = provinceSelect.value;
+        var main = mainTypeSelect.value || activeMainTab;
+        var sub = subTypeSelect.value;
+        return !!(kw || op || pro || main || sub);
+    }
+
+    function updateFilterBadge() {
+        var count = 0;
+        if (opSelect.value) count++;
+        if (provinceSelect.value) count++;
+        if (mainTypeSelect.value || activeMainTab) count++;
+        if (subTypeSelect.value) count++;
+        if (count > 0) {
+            filterBadge.textContent = count;
+            filterBadge.classList.add('show');
+        } else {
+            filterBadge.classList.remove('show');
+        }
+    }
+
+    function renderTabs() {
+        tabsEl.innerHTML = '';
+        validTypes.forEach(function(item) {
+            var span = document.createElement('span');
+            span.className = 'at-tab' + (activeMainTab === item.value ? ' active' : '');
+            span.innerText = item.label;
+            span.dataset.value = item.value;
+            span.addEventListener('click', function() {
+                activeMainTab = (activeMainTab === this.dataset.value) ? '' : this.dataset.value;
+                mainTypeSelect.value = activeMainTab;
                 currentPage = 1;
                 renderTabs();
-                populateSubTypeSelect(this.value);
+                populateSubTypeSelect(activeMainTab);
                 updateFilterBadge();
                 render();
             });
-            subTypeSelect.addEventListener('change', function() { currentPage = 1; render(); });
-            resetBtn.addEventListener('click', function() {
-                searchEl.value = '';
-                opSelect.value = '';
-                provinceSelect.value = '';
-                mainTypeSelect.value = '';
-                subTypeSelect.value = '';
-                activeMainTab = '';
-                currentPage = 1;
-                lastCacheKey = '';
-                lastFilteredData = [];
-                currentPageItems = [];
-                renderTabs();
-                populateSubTypeSelect('');
-                updateFilterBadge();
-                emptyStateEl.style.display = 'flex';
-                resultAreaEl.classList.remove('active');
-                tipEl.innerText = '';
-                gridEl.innerHTML = '';
-                emptyResultEl.classList.remove('show');
-                paginationEl.style.display = 'none';
-                isFilterOpen = false;
-                filterToggle.classList.remove('active');
-                filterPanel.classList.remove('open');
-            });
+            tabsEl.appendChild(span);
+        });
+    }
 
-            // 分页 + 回顶
-            prevPageBtn.addEventListener('click', function() {
-                if (currentPage > 1) {
-                    currentPage--;
-                    render();
-                    requestAnimationFrame(scrollToTop);
-                }
+    function populateMainTypeSelect() {
+        mainTypeSelect.innerHTML = '<option value="">全部</option>';
+        validTypes.forEach(function(item) {
+            var opt = document.createElement('option');
+            opt.value = item.value;
+            opt.textContent = item.label;
+            mainTypeSelect.appendChild(opt);
+        });
+    }
+
+    function populateSubTypeSelect(mainValue) {
+        subTypeSelect.innerHTML = '<option value="">全部</option>';
+        if (mainValue && subTypeMap[mainValue]) {
+            subTypeMap[mainValue].forEach(function(tag) {
+                var opt = document.createElement('option');
+                opt.value = tag;
+                opt.textContent = tag;
+                subTypeSelect.appendChild(opt);
             });
-            nextPageBtn.addEventListener('click', function() {
-                var validRegular = regularList.filter(function(item) { return !isExpired(item.endTime); });
-                var cacheKey = searchEl.value + '|' + opSelect.value + '|' + provinceSelect.value + '|' +
-                    (mainTypeSelect.value || activeMainTab) + '|' + subTypeSelect.value;
-                var filteredRegular;
-                if (cacheKey === lastCacheKey && lastFilteredData.length) {
-                    filteredRegular = lastFilteredData;
-                } else {
-                    var kw = searchEl.value.trim().toLowerCase();
-                    var opVal = opSelect.value;
-                    var proVal = provinceSelect.value;
-                    var mainVal = mainTypeSelect.value || activeMainTab;
-                    var subVal = subTypeSelect.value;
-                    filteredRegular = validRegular.filter(function(item) {
-                        if (kw) {
-                            var subText = Array.isArray(item.subType) ? item.subType.join(' ') : item.subType;
-                            var text = (item.title + ' ' + item.city + ' ' + item.province + ' ' + item.remark +
-                                ' ' + subText).toLowerCase();
-                            if (text.indexOf(kw) === -1) return false;
+        }
+    }
+
+    function updatePagination(totalPages) {
+        if (totalPages <= 1) { paginationEl.style.display = 'none'; return; }
+        paginationEl.style.display = 'flex';
+        pageInfoEl.textContent = currentPage + '/' + totalPages;
+        prevPageBtn.disabled = (currentPage <= 1);
+        nextPageBtn.disabled = (currentPage >= totalPages);
+    }
+
+    function scrollToTop() {
+        var wrapper = document.querySelector('.iframe-wrapper.active');
+        if (wrapper) wrapper.scrollTop = 0;
+    }
+
+    function render() {
+        updateFilterBadge();
+
+        if (!hasFilter()) {
+            emptyStateEl.style.display = 'flex';
+            resultAreaEl.classList.remove('active');
+            currentPage = 1;
+            paginationEl.style.display = 'none';
+            tipEl.innerText = '';
+            gridEl.innerHTML = '';
+            emptyResultEl.classList.remove('show');
+            currentPageItems = [];
+            return;
+        }
+
+        emptyStateEl.style.display = 'none';
+        resultAreaEl.classList.add('active');
+
+        var cacheKey = searchEl.value + '|' + opSelect.value + '|' + provinceSelect.value + '|' +
+            (mainTypeSelect.value || activeMainTab) + '|' + subTypeSelect.value;
+
+        var validRegular = regularList.filter(function(item) { return !isExpired(item.endTime); });
+        var filteredRegular;
+
+        if (cacheKey === lastCacheKey && lastFilteredData.length) {
+            filteredRegular = lastFilteredData;
+        } else {
+            var kw = searchEl.value.trim().toLowerCase();
+            var opVal = opSelect.value;
+            var proVal = provinceSelect.value;
+            var mainVal = mainTypeSelect.value || activeMainTab;
+            var subVal = subTypeSelect.value;
+
+            filteredRegular = validRegular.filter(function(item) {
+                if (kw) {
+                    var subText = Array.isArray(item.subType) ? item.subType.join(' ') : item.subType;
+                    var text = (item.title + ' ' + item.city + ' ' + item.province + ' ' + item.remark + ' ' + subText).toLowerCase();
+                    if (text.indexOf(kw) === -1) return false;
+                }
+                if (opVal && item.operator !== opVal) return false;
+                if (proVal && item.province !== proVal) return false;
+                if (mainVal && item.mainType !== mainVal) return false;
+                if (subVal && !matchSubType(item.subType, subVal)) return false;
+                return true;
+            });
+            lastCacheKey = cacheKey;
+            lastFilteredData = filteredRegular;
+        }
+
+        var totalItems = filteredRegular.length;
+        var totalPages = Math.ceil(totalItems / pageSize) || 1;
+
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+
+        var start = (currentPage - 1) * pageSize;
+        var end = Math.min(start + pageSize, totalItems);
+        var pageRegular = filteredRegular.slice(start, end);
+
+        var pageItems = [];
+        if (pageRegular.length > 0) {
+            pageItems = pageRegular.slice();
+            if (adPool.length > 0) {
+                var randomAd = adPool[Math.floor(Math.random() * adPool.length)];
+                var insertIdx = Math.floor(Math.random() * (pageItems.length + 1));
+                pageItems.splice(insertIdx, 0, randomAd);
+            }
+        }
+        currentPageItems = pageItems;
+
+        pageItems.forEach(function(item) {
+            if (item.link && !item.qrCode) {
+                item.qrCode = generateQRDataURL(item.link, 200);
+            }
+        });
+
+        var displayStart = start + 1;
+        tipEl.innerText = '找到 ' + totalItems + ' 个匹配活动，第 ' + displayStart + ' - ' + end + ' 条';
+        gridEl.innerHTML = '';
+
+        if (pageItems.length === 0) {
+            emptyResultEl.classList.add('show');
+            gridEl.appendChild(emptyResultEl);
+        } else {
+            emptyResultEl.classList.remove('show');
+        }
+
+        pageItems.forEach(function(item, idx) {
+            var card = document.createElement('div');
+            var cardClass = 'at-card';
+            if (isSoonExpire(item.endTime)) cardClass += ' warn-soon';
+            if (item.isAd) cardClass += ' at-ad-card';
+            if (item.isTop) cardClass += ' at-top-card';
+            card.className = cardClass;
+            card.dataset.index = idx;
+
+            var subs = Array.isArray(item.subType) ? item.subType : [item.subType];
+            var subTagsHtml = subs.map(function(t) { return '<span class="at-subtag">' + t + '</span>'; }).join('');
+
+            var opBadge = '<span class="at-badge ' + getOpClass(item.operator) + '">' + item.operator + '</span>';
+            var mainBadge = '<span class="at-badge tag-main">' + item.mainType + '</span>';
+            var regionBadge = '<span class="at-badge tag-region">' + item.province + ' ' + item.city + '</span>';
+            var soonBadge = isSoonExpire(item.endTime) ? '<span class="at-badge tag-soon">即将到期</span>' : '';
+            var earnBadge = item.canShare ? '<span class="at-badge tag-earn">💰 分享赚佣金</span>' : '';
+            var adBadge = item.isAd ? '<span class="at-badge tag-ad">📢 推荐</span>' : '';
+            var topBadge = item.isTop ? '<span class="at-badge tag-top">⭐ 置顶</span>' : '';
+            var wechatBadge2 = item.needWechat ? '<span class="at-badge tag-wechat">💬 私域专享</span>' : '';
+
+            var shareHtml = '';
+            if (item.canShare) {
+                shareHtml = '<button class="share-earn-btn" data-title="' + item.title +
+                    '" data-link="' + (item.link || window.location.href) +
+                    '">💰 分享</button>';
+            }
+
+            var posterBtnHtml = '';
+            if (item.qrCode) {
+                var safeTitle = (item.title || '').replace(/"/g, '&quot;');
+                var safeDesc = (item.desc || '').replace(/"/g, '&quot;');
+                var safeSource = (item.source || '').replace(/"/g, '&quot;');
+                var safeSourceQr = (item.sourceQr || '').replace(/"/g, '&quot;');
+                posterBtnHtml = '<button class="poster-gen-btn" ' +
+                    'data-title="' + safeTitle + '" ' +
+                    'data-desc="' + safeDesc + '" ' +
+                    'data-qr="' + (item.qrCode || '') + '" ' +
+                    'data-start="' + (item.startTime || '') + '" ' +
+                    'data-end="' + (item.endTime || '') + '" ' +
+                    'data-operator="' + (item.operator || '') + '" ' +
+                    'data-source="' + safeSource + '" ' +
+                    'data-sourceqr="' + safeSourceQr + '" ' +
+                    'aria-label="生成海报">🖼️</button>';
+            }
+
+            card.innerHTML =
+                '<div class="at-badges">' + opBadge + mainBadge + regionBadge + soonBadge + earnBadge +
+                adBadge + topBadge + wechatBadge2 + '</div>' +
+                '<div class="at-subtags">' + subTagsHtml + '</div>' +
+                '<div class="at-card-title">' + item.title + '</div>' +
+                '<div class="at-card-date">有效期：' + item.startTime + ' ~ ' + item.endTime + '</div>' +
+                '<div class="at-card-desc">' + item.desc + '</div>' +
+                (item.remark ? '<div class="at-card-remark">备注：' + item.remark + '</div>' : '') +
+                shareHtml + posterBtnHtml;
+
+            // 分享按钮
+            var shareBtnEl = card.querySelector('.share-earn-btn');
+            if (shareBtnEl) {
+                shareBtnEl.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    var title = this.dataset.title;
+                    var link = this.dataset.link;
+
+                    var userRef = localStorage.getItem('userRef');
+                    if (!userRef) {
+                        userRef = Math.random().toString(36).substr(2, 6);
+                        localStorage.setItem('userRef', userRef);
+                    }
+                    var baseUrl = window.location.href.split('?')[0];
+                    var currentParams = new URLSearchParams(window.location.search);
+                    currentParams.set('ref', userRef);
+                    var inviteLink = baseUrl + '?' + currentParams.toString();
+
+                    var shareText = '🎁 发现一个超值福利：' + title + '，一起领福利赚佣金！' + link +
+                        '\n\n更多福利活动👉' + inviteLink;
+
+                    if (typeof LA !== 'undefined' && LA.track) {
+                        LA.track('分享点击', {
+                            activity_title: title,
+                            user_ref: userRef,
+                            activity_link: link
+                        });
+                    }
+
+                    if (navigator.share) {
+                        navigator.share({ title: title, text: shareText, url: link }).catch(function() {});
+                    } else {
+                        var dummy = document.createElement('textarea');
+                        dummy.value = shareText;
+                        dummy.style.cssText = 'position:fixed;top:-1000px;left:-1000px;opacity:0;';
+                        document.body.appendChild(dummy);
+                        dummy.select();
+                        try {
+                            document.execCommand('copy');
+                            showCustomToast('✅ 已复制分享链接', '分享给好友，TA参与你赚佣金');
+                        } catch (e) {
+                            showCustomToast('📋 请手动复制链接', shareText);
                         }
-                        if (opVal && item.operator !== opVal) return false;
-                        if (proVal && item.province !== proVal) return false;
-                        if (mainVal && item.mainType !== mainVal) return false;
-                        if (subVal && !matchSubType(item.subType, subVal)) return false;
-                        return true;
-                    });
-                    lastFilteredData = filteredRegular;
-                    lastCacheKey = cacheKey;
-                }
-                var totalPages = Math.ceil(filteredRegular.length / pageSize);
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    render();
-                    requestAnimationFrame(scrollToTop);
-                }
-            });
-
-            filterToggle.addEventListener('click', function() {
-                isFilterOpen = !isFilterOpen;
-                this.classList.toggle('active', isFilterOpen);
-                filterPanel.classList.toggle('open', isFilterOpen);
-            });
-
-            // 跑马灯
-            function buildMarquee() {
-                var track = document.getElementById('marqueeTrack');
-                if (!track) return;
-                var items = regularList.filter(function(item) { return !isExpired(item.endTime); });
-                if (items.length === 0) {
-                    track.innerHTML = '<span class="marquee-item">📢 暂无活动，敬请期待</span>';
-                    return;
-                }
-                var shuffled = items.sort(function() { return 0.5 - Math.random(); });
-                var count = Math.min(shuffled.length, 8);
-                var selected = shuffled.slice(0, count);
-                var html = selected.map(function(item) {
-                    return '<span class="marquee-item"><span class="tag">' + item.operator + '</span>' + item.title + '</span>';
-                }).concat(selected.slice(0, 3).map(function(item) {
-                    return '<span class="marquee-item"><span class="tag">' + item.operator + '</span>' + item.title + '</span>';
-                })).join('');
-                track.style.animation = 'none';
-                track.innerHTML = html;
-                void track.offsetWidth;
-                track.style.animation = 'marquee-scroll 35s linear infinite';
+                        document.body.removeChild(dummy);
+                    }
+                });
             }
 
-            // 初始化
-            populateMainTypeSelect();
-            populateSubTypeSelect('');
-            renderTabs();
-            updateFilterBadge();
-            buildMarquee();
+            // 海报按钮
+            var posterBtn = card.querySelector('.poster-gen-btn');
+            if (posterBtn) {
+                posterBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    var title = this.dataset.title;
+                    var desc = this.dataset.desc;
+                    var qr = this.dataset.qr;
+                    var start = this.dataset.start;
+                    var end = this.dataset.end;
+                    var operator = this.dataset.operator;
+                    var source = this.dataset.source;
+                    var sourceQr = this.dataset.sourceqr;
+                    if (!qr) {
+                        showToast('❌ 该活动暂无二维码');
+                        return;
+                    }
+                    showToast('⏳ 正在生成海报...');
+                    generatePoster(title, desc, qr, start, end, operator, source, sourceQr);
+                });
+            }
+
+            gridEl.appendChild(card);
+        });
+
+        updatePagination(totalPages);
+    }
+
+    // 事件委托：卡片点击
+    gridEl.addEventListener('click', function(e) {
+        var card = e.target.closest('.at-card');
+        if (!card) return;
+        if (e.target.closest('.share-earn-btn') || e.target.closest('.poster-gen-btn')) return;
+        var index = parseInt(card.dataset.index, 10);
+        if (!isNaN(index) && currentPageItems[index]) {
+            openActivityDetail(currentPageItems[index]);
+        }
+    });
+
+    // 搜索、筛选等
+    var searchTimer = null;
+    searchEl.addEventListener('input', function() {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(function() { currentPage = 1; render(); }, 300);
+    });
+
+    opSelect.addEventListener('change', function() { currentPage = 1; render(); });
+    provinceSelect.addEventListener('change', function() { currentPage = 1; render(); });
+    mainTypeSelect.addEventListener('change', function() {
+        activeMainTab = this.value;
+        currentPage = 1;
+        renderTabs();
+        populateSubTypeSelect(this.value);
+        updateFilterBadge();
+        render();
+    });
+    subTypeSelect.addEventListener('change', function() { currentPage = 1; render(); });
+    resetBtn.addEventListener('click', function() {
+        searchEl.value = '';
+        opSelect.value = '';
+        provinceSelect.value = '';
+        mainTypeSelect.value = '';
+        subTypeSelect.value = '';
+        activeMainTab = '';
+        currentPage = 1;
+        lastCacheKey = '';
+        lastFilteredData = [];
+        currentPageItems = [];
+        renderTabs();
+        populateSubTypeSelect('');
+        updateFilterBadge();
+        emptyStateEl.style.display = 'flex';
+        resultAreaEl.classList.remove('active');
+        tipEl.innerText = '';
+        gridEl.innerHTML = '';
+        emptyResultEl.classList.remove('show');
+        paginationEl.style.display = 'none';
+        isFilterOpen = false;
+        filterToggle.classList.remove('active');
+        filterPanel.classList.remove('open');
+    });
+
+    // 分页 + 回顶
+    prevPageBtn.addEventListener('click', function() {
+        if (currentPage > 1) {
+            currentPage--;
             render();
-
-            activityInitDone = true;
-            window.__refreshActivityRender = render;
-            window.refreshMarquee = buildMarquee;
+            requestAnimationFrame(scrollToTop);
         }
-
-        // 页面恢复
-        function handlePageResume() {
-            if (currentContent === 'content5') {
-                if (activityInitDone && typeof window.__refreshActivityRender === 'function') {
-                    setTimeout(function() {
-                        window.__refreshActivityRender();
-                        if (typeof window.refreshMarquee === 'function') window.refreshMarquee();
-                    }, 100);
-                } else { initActivityToolbox(); }
-            }
-        }
-
-        document.addEventListener('visibilitychange', function() { if (!document.hidden) handlePageResume(); });
-        document.addEventListener('pageshow', function(e) { if (e.persisted) handlePageResume(); });
-        window.addEventListener('focus', handlePageResume);
-
-        // 直接进入福利活动页
-        dom.navBar.style.display = 'flex';
-        dom.mainContent.style.display = 'block';
-        dom.tabBar.style.display = 'flex';
-        switchContent('content5');
-        setTimeout(initActivityToolbox, 300);
-
-        // ============================================================
-        //  5. 代理表单
-        // ============================================================
-        var agentForm = document.getElementById('agentApplyForm');
-        if (agentForm) {
-            agentForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                var name = document.getElementById('agentName').value.trim();
-                var phone = document.getElementById('agentPhone').value.trim();
-                if (!name) { showToast('请填写姓名'); return; }
-                if (!phone) { showToast('请填写手机号'); return; }
-                var phoneReg = /^1\d{10}$/;
-                if (!phoneReg.test(phone)) {
-                    showToast('请填写正确的11位手机号');
-                    return;
+    });
+    nextPageBtn.addEventListener('click', function() {
+        var validRegular = regularList.filter(function(item) { return !isExpired(item.endTime); });
+        var cacheKey = searchEl.value + '|' + opSelect.value + '|' + provinceSelect.value + '|' +
+            (mainTypeSelect.value || activeMainTab) + '|' + subTypeSelect.value;
+        var filteredRegular;
+        if (cacheKey === lastCacheKey && lastFilteredData.length) {
+            filteredRegular = lastFilteredData;
+        } else {
+            var kw = searchEl.value.trim().toLowerCase();
+            var opVal = opSelect.value;
+            var proVal = provinceSelect.value;
+            var mainVal = mainTypeSelect.value || activeMainTab;
+            var subVal = subTypeSelect.value;
+            filteredRegular = validRegular.filter(function(item) {
+                if (kw) {
+                    var subText = Array.isArray(item.subType) ? item.subType.join(' ') : item.subType;
+                    var text = (item.title + ' ' + item.city + ' ' + item.province + ' ' + item.remark + ' ' + subText).toLowerCase();
+                    if (text.indexOf(kw) === -1) return false;
                 }
-                showToast('✅ 提交成功！客服将在24小时内联系您');
-                this.reset();
+                if (opVal && item.operator !== opVal) return false;
+                if (proVal && item.province !== proVal) return false;
+                if (mainVal && item.mainType !== mainVal) return false;
+                if (subVal && !matchSubType(item.subType, subVal)) return false;
+                return true;
             });
+            lastFilteredData = filteredRegular;
+            lastCacheKey = cacheKey;
         }
-
-        // ============================================================
-        //  6. 二维码弹窗关闭
-        // ============================================================
-        var qrPopupMask = document.getElementById('activityQrMask');
-        var qrPopupClose = document.getElementById('qrPopupClose');
-
-        if (qrPopupClose) {
-            qrPopupClose.addEventListener('click', function(e) {
-                e.stopPropagation();
-                if (qrPopupMask) {
-                    qrPopupMask.classList.remove('active');
-                    document.body.style.overflow = '';
-                    var img = document.getElementById('qrPopupImage');
-                    if (img) img.src = '';
-                }
-            });
+        var totalPages = Math.ceil(filteredRegular.length / pageSize);
+        if (currentPage < totalPages) {
+            currentPage++;
+            render();
+            requestAnimationFrame(scrollToTop);
         }
+    });
 
+    filterToggle.addEventListener('click', function() {
+        isFilterOpen = !isFilterOpen;
+        this.classList.toggle('active', isFilterOpen);
+        filterPanel.classList.toggle('open', isFilterOpen);
+    });
+
+    // 跑马灯
+    function buildMarquee() {
+        var track = document.getElementById('marqueeTrack');
+        if (!track) return;
+        var items = regularList.filter(function(item) { return !isExpired(item.endTime); });
+        if (items.length === 0) {
+            track.innerHTML = '<span class="marquee-item">📢 暂无活动，敬请期待</span>';
+            return;
+        }
+        var shuffled = items.sort(function() { return 0.5 - Math.random(); });
+        var count = Math.min(shuffled.length, 8);
+        var selected = shuffled.slice(0, count);
+        var html = selected.map(function(item) {
+            return '<span class="marquee-item"><span class="tag">' + item.operator + '</span>' + item.title + '</span>';
+        }).concat(selected.slice(0, 3).map(function(item) {
+            return '<span class="marquee-item"><span class="tag">' + item.operator + '</span>' + item.title + '</span>';
+        })).join('');
+        track.style.animation = 'none';
+        track.innerHTML = html;
+        void track.offsetWidth;
+        track.style.animation = 'marquee-scroll 35s linear infinite';
+    }
+
+    // 初始化
+    populateMainTypeSelect();
+    populateSubTypeSelect('');
+    renderTabs();
+    updateFilterBadge();
+    buildMarquee();
+    render();
+
+    activityInitDone = true;
+    window.__refreshActivityRender = render;
+    window.refreshMarquee = buildMarquee;
+}
+
+// 页面恢复
+function handlePageResume() {
+    if (currentContent === 'content5') {
+        if (activityInitDone && typeof window.__refreshActivityRender === 'function') {
+            setTimeout(function() {
+                window.__refreshActivityRender();
+                if (typeof window.refreshMarquee === 'function') window.refreshMarquee();
+            }, 100);
+        } else { initActivityToolbox(); }
+    }
+}
+
+document.addEventListener('visibilitychange', function() { if (!document.hidden) handlePageResume(); });
+document.addEventListener('pageshow', function(e) { if (e.persisted) handlePageResume(); });
+window.addEventListener('focus', handlePageResume);
+
+// 直接进入福利活动页
+dom.navBar.style.display = 'flex';
+dom.mainContent.style.display = 'block';
+dom.tabBar.style.display = 'flex';
+switchContent('content5');
+setTimeout(initActivityToolbox, 300);
+
+// ============================================================
+//  5. 代理表单
+// ============================================================
+var agentForm = document.getElementById('agentApplyForm');
+if (agentForm) {
+    agentForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var name = document.getElementById('agentName').value.trim();
+        var phone = document.getElementById('agentPhone').value.trim();
+        if (!name) { showToast('请填写姓名'); return; }
+        if (!phone) { showToast('请填写手机号'); return; }
+        var phoneReg = /^1\d{10}$/;
+        if (!phoneReg.test(phone)) {
+            showToast('请填写正确的11位手机号');
+            return;
+        }
+        showToast('✅ 提交成功！客服将在24小时内联系您');
+        this.reset();
+    });
+}
+
+// ============================================================
+//  6. 二维码弹窗关闭
+// ============================================================
+var qrPopupMask = document.getElementById('activityQrMask');
+var qrPopupClose = document.getElementById('qrPopupClose');
+
+if (qrPopupClose) {
+    qrPopupClose.addEventListener('click', function(e) {
+        e.stopPropagation();
         if (qrPopupMask) {
-            qrPopupMask.addEventListener('click', function(e) {
-                if (e.target === this) {
-                    this.classList.remove('active');
-                    document.body.style.overflow = '';
-                    var img = document.getElementById('qrPopupImage');
-                    if (img) img.src = '';
-                }
-            });
+            qrPopupMask.classList.remove('active');
+            document.body.style.overflow = '';
+            var img = document.getElementById('qrPopupImage');
+            if (img) img.src = '';
         }
+    });
+}
 
-        window.showWechatQr = showWechatQr;
-        window.closeQrPopup = function() {
-            var popup = document.getElementById('activityQrMask');
-            if (popup) {
-                popup.classList.remove('active');
-                popup.style.display = '';
-                document.body.style.overflow = '';
-                var img = document.getElementById('qrPopupImage');
-                if (img) img.src = '';
-            }
-        };
+if (qrPopupMask) {
+    qrPopupMask.addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.classList.remove('active');
+            document.body.style.overflow = '';
+            var img = document.getElementById('qrPopupImage');
+            if (img) img.src = '';
+        }
+    });
+}
 
-        console.log('✅ 未来福利社 v3.5 加载完成');
-    </script>
+window.showWechatQr = showWechatQr;
+window.closeQrPopup = function() {
+    var popup = document.getElementById('activityQrMask');
+    if (popup) {
+        popup.classList.remove('active');
+        popup.style.display = '';
+        document.body.style.overflow = '';
+        var img = document.getElementById('qrPopupImage');
+        if (img) img.src = '';
+    }
+};
 
+console.log('✅ 未来福利社 v3.6（广告计费修复版）加载完成');
+</script>
 </body>
 </html>
