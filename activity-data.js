@@ -286,7 +286,7 @@ window.adCarouselList = [
     },
     {
         type: 'iframe',
-        src: 'https://r.rdhzbye.cn/a/Z8YIJi',   // 仅限允许被嵌入的网站
+        src: 'http://di.zxcjk.asia/qV3Ob2722I',   // 仅限允许被嵌入的网站
         link: ''  //跳转链接
     }
 ];
