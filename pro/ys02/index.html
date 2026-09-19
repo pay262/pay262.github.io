@@ -6,7 +6,7 @@
     <title>精选影视App推荐 - 电影侠 & 可可影视</title>
     <style>
         :root {
-            --primary-color: #FF9500; /* 主色调：橙金色 */
+            --primary-color: #FF9500;
             --primary-dark: #E08200;
             --bg-color: #0D0D0D;
             --card-bg: #1A1A1A;
@@ -97,11 +97,9 @@
             background: radial-gradient(circle at top center, #2A1A0A 0%, var(--bg-color) 80%);
         }
 
-        /* Logo 图片容器样式 */
         .logo {
             width: 90px;
             height: 90px;
-            /* 保留背景作为图片加载失败时的备用色 */
             background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
             border-radius: 24px;
             display: flex;
@@ -109,14 +107,13 @@
             justify-content: center;
             margin: 0 auto 20px;
             box-shadow: 0 10px 25px rgba(255, 149, 0, 0.4);
-            overflow: hidden; /* 确保图片不溢出圆角 */
+            overflow: hidden;
         }
 
-        /* WebP 图片自适应填充 */
         .logo img {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* 保持比例填满容器，若图片有留白可改为 contain */
+            object-fit: cover;
             display: block;
         }
 
@@ -429,13 +426,13 @@
             fill: currentColor;
         }
 
-        /* 底部固定下载栏 */
+        /* 底部固定下载栏（优化：静态HTML切换，不依赖JS动态渲染） */
         .sticky-bottom {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
-            background: rgba(26, 26, 26, 0.95);
+            background: rgba(26, 26, 26, 0.98);
             backdrop-filter: blur(10px);
             padding: 12px 20px;
             display: flex;
@@ -457,8 +454,12 @@
         }
 
         .sticky-btn-group {
-            display: flex;
+            display: none;
             gap: 10px;
+        }
+
+        .sticky-btn-group.active {
+            display: flex;
         }
 
         .sticky-btn {
@@ -469,6 +470,7 @@
             text-decoration: none;
             color: #fff;
             text-align: center;
+            white-space: nowrap;
         }
 
         .sticky-btn.ios { background: var(--ios-color); color: #fff; }
@@ -523,7 +525,6 @@
     <!-- ================= 电影侠 区域 ================= -->
     <div id="movie-hero" class="app-content active">
         <header class="hero">
-            <!-- 【替换1】电影侠Logo WebP图片路径 -->
             <div class="logo">
                 <img src="logo_dyx.webp" alt="电影侠Logo">
             </div>
@@ -571,13 +572,11 @@
             <section class="download-section">
                 <h2 class="section-title">选择您的设备下载</h2>
                 <div class="download-buttons">
-                    <!-- 【替换2】电影侠安卓-百度网盘链接 -->
-                    <a href="https://pan.baidu.com/s/1-XmwP5v8ujdr5-v-HGQDNw?pwd=697x" class="btn btn-baidu" target="_blank">
+                    <a href="https://pan.baidu.com/s/1-XmwP5v8ujdr5-v-HGQDNw?pwd=697x" class="btn btn-baidu" target="_blank" rel="noopener">
                         <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-2h2v2zm0-4h-2V7h2v6zm4 4h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
                         百度网盘下载
                     </a>
-                    <!-- 【替换3】电影侠安卓-夸克网盘链接（暂未提供，可后续替换） -->
-                    <a href="#" class="btn btn-quark" target="_blank">
+                    <a href="#" class="btn btn-quark" target="_blank" rel="noopener">
                         <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-2h2v2zm0-4h-2V7h2v6zm4 4h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
                         夸克网盘下载
                     </a>
@@ -590,7 +589,6 @@
     <!-- ================= 可可影视 区域 ================= -->
     <div id="coco-film" class="app-content">
         <header class="hero">
-            <!-- 【替换4】可可影视Logo WebP图片路径 -->
             <div class="logo">
                 <img src="logo_kkys.webp" alt="可可影视Logo">
             </div>
@@ -630,7 +628,6 @@
                 </div>
             </div>
 
-            <!-- 可可影视专属安装教程 -->
             <h2 class="section-title">iOS 变身安装教程</h2>
             <div class="guide-box">
                 <ul class="guide-steps">
@@ -650,13 +647,11 @@
             <section class="download-section">
                 <h2 class="section-title">选择您的设备下载</h2>
                 <div class="download-buttons">
-                    <!-- iOS 下载链接（苹果商店马甲包） -->
-                    <a href="https://apps.apple.com/cn/app/%E8%87%AA%E8%A1%8C%E8%BD%A6%E5%B7%A5%E6%88%BF/id6810998198" class="btn btn-ios" target="_blank">
+                    <a href="https://apps.apple.com/cn/app/%E8%87%AA%E8%A1%8C%E8%BD%A6%E5%B7%A5%E6%88%BF/id6810998198" class="btn btn-ios" target="_blank" rel="noopener">
                         <svg viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.5 1.33-.02 2.58.9 3.29.9.7 0 2.28-1.14 3.83-.98 1.15.05 2.2.41 3.02 1.15-2.57 1.57-2.15 5.18.4 6.4-.35 1.34-1.15 2.54-2.65 3.64zM13.37 4.46c.68-.83 1.15-1.99.99-3.15-1.01.04-2.23.68-2.93 1.5-.63.73-1.19 1.91-1.01 3.05 1.13.09 2.27-.57 2.95-1.4z"/></svg>
                         iOS 版下载 (App Store)
                     </a>
-                    <!-- 【替换5】可可影视安卓网盘链接 -->
-                    <a href="https://pan.baidu.com/s/1hlwZIQyG-G5IN-QKT8uLxQ?pwd=31du" class="btn btn-android" target="_blank">
+                    <a href="https://pan.baidu.com/s/1hlwZIQyG-G5IN-QKT8uLxQ?pwd=31du" class="btn btn-android" target="_blank" rel="noopener">
                         <svg viewBox="0 0 24 24"><path d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993s-.4482.9997-.9993.9997zm-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993s-.4482.9997-.9993.9997zm11.4045-6.02l1.9973-3.4592a.416.416 0 00-.1521-.5676.416.416 0 00-.5676.1521l-2.0223 3.503C15.5902 8.2439 13.8533 7.85 12 7.85s-3.5902.3939-5.1367 1.0866L4.841 5.4338a.416.416 0 00-.5676-.1521.416.416 0 00-.1521.5676l1.9973 3.4592C2.6889 11.1867.3432 14.6589 0 18.761h24c-.3432-4.1021-2.6889-7.5743-6.1185-9.4396z"/></svg>
                         安卓 版下载 (网盘)
                     </a>
@@ -666,14 +661,21 @@
         </main>
     </div>
 
-    <!-- 底部固定下载栏（动态更新） -->
+    <!-- 底部固定下载栏（静态HTML，极速渲染） -->
     <div class="sticky-bottom" id="stickyBar">
         <div class="info">
             <strong id="stickyTitle">电影侠</strong><br>
             极速高清 · 永久免费
         </div>
-        <div class="sticky-btn-group" id="stickyBtns">
-            <!-- JS 动态生成按钮 -->
+        <!-- 电影侠底部按钮组 -->
+        <div class="sticky-btn-group active" id="stickyBtnsMovie">
+            <a href="https://pan.baidu.com/s/1-XmwP5v8ujdr5-v-HGQDNw?pwd=697x" class="sticky-btn baidu" target="_blank" rel="noopener">百度网盘</a>
+            <a href="" class="sticky-btn quark" target="_blank" rel="noopener">夸克网盘</a>
+        </div>
+        <!-- 可可影视底部按钮组 -->
+        <div class="sticky-btn-group" id="stickyBtnsCoco">
+            <a href="https://apps.apple.com/cn/app/%E8%87%AA%E8%A1%8C%E8%BD%A6%E5%B7%A5%E6%88%BF/id6810998198" class="sticky-btn ios" target="_blank" rel="noopener">iOS下载</a>
+            <a href="https://pan.baidu.com/s/1hlwZIQyG-G5IN-QKT8uLxQ?pwd=31du" class="sticky-btn android" target="_blank" rel="noopener">安卓下载</a>
         </div>
     </div>
 
@@ -726,12 +728,10 @@
                 this.updateWidth();
                 this.updateCarousel();
                 
-                // 自动播放
                 this.autoPlay = setInterval(() => this.nextSlide(), 3000);
                 this.container.addEventListener('mouseenter', () => clearInterval(this.autoPlay));
                 this.container.addEventListener('mouseleave', () => this.autoPlay = setInterval(() => this.nextSlide(), 3000));
                 
-                // 触摸滑动
                 let startX = 0;
                 this.track.addEventListener('touchstart', e => startX = e.touches[0].clientX);
                 this.track.addEventListener('touchend', e => {
@@ -759,32 +759,16 @@
                 });
             }
 
-            nextSlide() {
-                this.currentIndex = (this.currentIndex + 1) % this.totalItems;
-                this.updateCarousel();
-            }
-
-            prevSlide() {
-                this.currentIndex = (this.currentIndex - 1 + this.totalItems) % this.totalItems;
-                this.updateCarousel();
-            }
-
-            goToSlide(index) {
-                this.currentIndex = index;
-                this.updateCarousel();
-            }
-            
-            refresh() {
-                this.updateWidth();
-                this.updateCarousel();
-            }
+            nextSlide() { this.currentIndex = (this.currentIndex + 1) % this.totalItems; this.updateCarousel(); }
+            prevSlide() { this.currentIndex = (this.currentIndex - 1 + this.totalItems) % this.totalItems; this.updateCarousel(); }
+            goToSlide(index) { this.currentIndex = index; this.updateCarousel(); }
+            refresh() { this.updateWidth(); this.updateCarousel(); }
         }
 
-        // 初始化两个轮播图
         const carouselMovie = new Carousel('carousel-movie');
         const carouselCoco = new Carousel('carousel-coco');
 
-        // App 切换逻辑
+        // App 切换逻辑（优化：直接切换CSS类，不再动态生成HTML，响应速度极快）
         function switchApp(appId, btn) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
@@ -795,21 +779,18 @@
             document.getElementById(appId).classList.add('active');
 
             const stickyTitle = document.getElementById('stickyTitle');
-            const stickyBtns = document.getElementById('stickyBtns');
+            const btnGroupMovie = document.getElementById('stickyBtnsMovie');
+            const btnGroupCoco = document.getElementById('stickyBtnsCoco');
 
             if (appId === 'movie-hero') {
                 stickyTitle.innerText = '电影侠';
-                stickyBtns.innerHTML = `
-                    <a href="https://pan.baidu.com/s/1-XmwP5v8ujdr5-v-HGQDNw?pwd=697x" class="sticky-btn baidu" target="_blank">百度网盘</a>
-                    <a href="" class="sticky-btn quark" target="_blank">夸克网盘</a>
-                `;
+                btnGroupMovie.classList.add('active');
+                btnGroupCoco.classList.remove('active');
                 setTimeout(() => carouselMovie.refresh(), 50);
             } else {
                 stickyTitle.innerText = '可可影视';
-                stickyBtns.innerHTML = `
-                    <a href="https://apps.apple.com/cn/app/%E8%87%AA%E8%A1%8C%E8%BD%A6%E5%B7%A5%E6%88%BF/id6810998198" class="sticky-btn ios" target="_blank">iOS下载</a>
-                    <a href="https://pan.baidu.com/s/1hlwZIQyG-G5IN-QKT8uLxQ?pwd=31du" class="sticky-btn android" target="_blank">安卓下载</a>
-                `;
+                btnGroupMovie.classList.remove('active');
+                btnGroupCoco.classList.add('active');
                 setTimeout(() => carouselCoco.refresh(), 50);
             }
         }
@@ -833,8 +814,7 @@
             s.parentNode.insertBefore(hm, s);
         })();
     </script>
-    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js">
-    </script>
+    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
     <script>
         LA.init({ id: "3HpUziWJmj6VQUHP", ck: "3HpUziWJmj6VQUHP", autoTrack: true })
     </script>
