@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>精选影视App推荐 - 电影侠 & 可可影视</title>
+    <style>
+        :root {
+            --primary-color: #FF9500; /* 主色调：橙金色 */
+            --primary-dark: #E08200;
+            --bg-color: #0D0D0D;
+            --card-bg: #1A1A1A;
+            --text-main: #FFFFFF;
+            --text-sub: #9E9E9E;
+            --ios-color: #007AFF;
+            --android-color: #3DDC84;
+            --baidu-color: #2932E1;
+            --quark-color: #1B6BFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+            padding-bottom: 80px;
+        }
+
+        /* 顶部 Tab 导航 */
+        .app-tabs {
+            display: flex;
+            background-color: #1A1A1A;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+            border-bottom: 1px solid #333;
+        }
+
+        .tab-btn {
+            flex: 1;
+            text-align: center;
+            padding: 16px 0;
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--text-sub);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 3px;
+            background: var(--primary-color);
+            border-radius: 2px 2px 0 0;
+        }
+
+        /* App 切换容器 */
+        .app-content {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .app-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 顶部宣传区 */
+        .hero {
+            text-align: center;
+            padding: 40px 20px 30px;
+            background: radial-gradient(circle at top center, #2A1A0A 0%, var(--bg-color) 80%);
+        }
+
+        /* Logo 图片容器样式 */
+        .logo {
+            width: 90px;
+            height: 90px;
+            /* 保留背景作为图片加载失败时的备用色 */
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            box-shadow: 0 10px 25px rgba(255, 149, 0, 0.4);
+            overflow: hidden; /* 确保图片不溢出圆角 */
+        }
+
+        /* WebP 图片自适应填充 */
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 保持比例填满容器，若图片有留白可改为 contain */
+            display: block;
+        }
+
+        .hero h1 {
+            font-size: 30px;
+            margin-bottom: 10px;
+            font-weight: 800;
+            background: linear-gradient(to right, #FFF, #FFD700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            color: var(--text-sub);
+            font-size: 15px;
+            max-width: 600px;
+            margin: 0 auto 20px;
+        }
+
+        .tags {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background-color: rgba(255, 149, 0, 0.15);
+            color: var(--primary-color);
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            border: 1px solid rgba(255, 149, 0, 0.3);
+            font-weight: 500;
+        }
+
+        /* 通用容器 */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 22px;
+            margin: 40px 0 20px;
+            font-weight: 700;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 40px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+            margin: 10px auto 0;
+            border-radius: 2px;
+        }
+
+        /* 轮播图 */
+        .carousel-container {
+            position: relative;
+            overflow: hidden;
+            padding: 10px 0;
+        }
+
+        .carousel-track {
+            display: flex;
+            transition: transform 0.4s ease-in-out;
+            gap: 20px;
+            padding-left: calc(50% - 130px);
+            padding-right: calc(50% - 130px);
+        }
+
+        .carousel-item {
+            flex: 0 0 260px;
+            height: 520px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #333;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            opacity: 0.4;
+            background-color: var(--card-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .carousel-item.active {
+            opacity: 1;
+            transform: scale(1.05);
+            border-color: var(--primary-color);
+            box-shadow: 0 15px 30px rgba(255, 149, 0, 0.15);
+            z-index: 2;
+        }
+
+        .carousel-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .carousel-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background-color: #444;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            background-color: var(--primary-color);
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        /* 功能特点 */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .feature-card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid #333;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+
+        .feature-icon {
+            font-size: 26px;
+            margin-bottom: 12px;
+            display: inline-block;
+            background: rgba(255, 149, 0, 0.1);
+            padding: 8px;
+            border-radius: 10px;
+        }
+
+        .feature-card h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+        }
+
+        .feature-card p {
+            font-size: 14px;
+            color: var(--text-sub);
+        }
+
+        /* iOS 安装教程（可可影视专属） */
+        .guide-box {
+            background: linear-gradient(145deg, #1F1A11, #111);
+            border: 1px solid rgba(255, 149, 0, 0.4);
+            border-radius: 20px;
+            padding: 30px 20px;
+            margin: 30px 0;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(255, 149, 0, 0.1);
+        }
+
+        .guide-box::before {
+            content: '⚠️ 重要提示：必看安装教程';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+            color: #000;
+            font-weight: bold;
+            font-size: 14px;
+            padding: 6px 20px;
+            border-radius: 20px;
+            white-space: nowrap;
+            box-shadow: 0 5px 15px rgba(255, 149, 0, 0.3);
+        }
+
+        .guide-steps {
+            list-style: none;
+            counter-reset: step-counter;
+            margin-top: 10px;
+        }
+
+        .guide-steps li {
+            position: relative;
+            padding-left: 45px;
+            margin-bottom: 22px;
+            font-size: 15px;
+            color: #E0E0E0;
+            line-height: 1.5;
+        }
+
+        .guide-steps li:last-child {
+            margin-bottom: 0;
+        }
+
+        .guide-steps li::before {
+            counter-increment: step-counter;
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 28px;
+            height: 28px;
+            background: rgba(255, 149, 0, 0.15);
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .guide-steps li strong {
+            color: var(--primary-color);
+        }
+
+        .code-box {
+            display: inline-flex;
+            align-items: center;
+            background: #000;
+            border: 1px dashed var(--primary-color);
+            padding: 6px 15px;
+            border-radius: 8px;
+            margin: 8px 0;
+            gap: 10px;
+        }
+
+        .code-text {
+            font-family: monospace;
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--primary-color);
+            letter-spacing: 2px;
+        }
+
+        .copy-btn {
+            background: var(--primary-color);
+            color: #000;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:active {
+            transform: scale(0.95);
+            background: var(--primary-dark);
+        }
+
+        /* 下载按钮区 */
+        .download-section {
+            margin-bottom: 40px;
+        }
+
+        .download-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 18px 30px;
+            border-radius: 16px;
+            text-decoration: none;
+            font-size: 17px;
+            font-weight: bold;
+            color: white;
+            transition: all 0.3s ease;
+            min-width: 240px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+        }
+
+        .btn-ios { background: linear-gradient(135deg, #007AFF, #0056b3); }
+        .btn-android { background: linear-gradient(135deg, #3DDC84, #2AA865); color: #000; }
+        .btn-baidu { background: linear-gradient(135deg, #2932E1, #1A21B8); }
+        .btn-quark { background: linear-gradient(135deg, #1B6BFF, #1554CC); }
+
+        .btn:active { transform: scale(0.98); }
+
+        .btn svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        /* 底部固定下载栏 */
+        .sticky-bottom {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
+            z-index: 100;
+            border-top: 1px solid #333;
+        }
+
+        .sticky-bottom .info {
+            font-size: 13px;
+            color: var(--text-sub);
+        }
+
+        .sticky-bottom .info strong {
+            color: var(--primary-color);
+            font-size: 15px;
+        }
+
+        .sticky-btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .sticky-btn {
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            text-decoration: none;
+            color: #fff;
+            text-align: center;
+        }
+
+        .sticky-btn.ios { background: var(--ios-color); color: #fff; }
+        .sticky-btn.android { background: var(--android-color); color: #000; }
+        .sticky-btn.baidu { background: var(--baidu-color); color: #fff; }
+        .sticky-btn.quark { background: var(--quark-color); color: #fff; }
+
+        /* 页脚 */
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: #555;
+            border-top: 1px solid #222;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 26px; }
+            .download-buttons { flex-direction: column; }
+            .btn { width: 100%; min-width: unset; }
+            
+            .carousel-track {
+                padding-left: calc(50% - 110px);
+                padding-right: calc(50% - 110px);
+            }
+            .carousel-item {
+                flex: 0 0 220px;
+                height: 440px;
+            }
+            
+            .sticky-bottom {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px 15px;
+            }
+            .sticky-btn-group { width: 100%; }
+            .sticky-btn { flex: 1; }
+            
+            body { padding-bottom: 100px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 顶部 Tab 切换 -->
+    <nav class="app-tabs">
+        <button class="tab-btn active" onclick="switchApp('movie-hero', this)">电影侠</button>
+        <button class="tab-btn" onclick="switchApp('coco-film', this)">可可影视</button>
+    </nav>
+
+    <!-- ================= 电影侠 区域 ================= -->
+    <div id="movie-hero" class="app-content active">
+        <header class="hero">
+            <!-- 【替换1】电影侠Logo WebP图片路径 -->
+            <div class="logo">
+                <img src="logo_dyx.webp" alt="电影侠Logo">
+            </div>
+            <h1>电影侠</h1>
+            <p>您的专属影视管家，海量高清大片、热播剧集、动漫综艺一网打尽！</p>
+            <div class="tags">
+                <span class="tag">永久免费</span>
+                <span class="tag">无广告</span>
+                <span class="tag">高清秒播</span>
+                <span class="tag">多端同步</span>
+            </div>
+        </header>
+
+        <main class="container">
+            <h2 class="section-title">界面预览</h2>
+            <div class="carousel-container" id="carousel-movie">
+                <div class="carousel-track">
+                    <div class="carousel-item active"><img src="dyx001.jpg" alt="首页"></div>
+                    <div class="carousel-item"><img src="dyx002.jpg" alt="分类"></div>
+                    <div class="carousel-item"><img src="dyx003.jpg" alt="播放"></div>
+                    <div class="carousel-item"><img src="dyx004.jpg" alt="我的"></div>
+                </div>
+                <div class="carousel-dots"></div>
+            </div>
+
+            <h2 class="section-title">为什么选择电影侠？</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">🎬</span>
+                    <h3>海量资源聚合</h3>
+                    <p>豆瓣250、全球新片、美剧、韩剧、日漫、综艺全覆盖，院线大片同步更新。</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">🔥</span>
+                    <h3>实时热播推荐</h3>
+                    <p>独家“实时观看推荐”功能，几万人正在看的热门内容一目了然，紧跟潮流不落伍。</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">⬇️</span>
+                    <h3>全新BT下载功能</h3>
+                    <p>最新v3.5.0版本重磅更新，全面支持BT下载与离线缓存，没有网络也能随时看大片。</p>
+                </div>
+            </div>
+
+            <section class="download-section">
+                <h2 class="section-title">选择您的设备下载</h2>
+                <div class="download-buttons">
+                    <!-- 【替换2】电影侠安卓-百度网盘链接 -->
+                    <a href="https://pan.baidu.com/s/1-XmwP5v8ujdr5-v-HGQDNw?pwd=697x" class="btn btn-baidu" target="_blank">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-2h2v2zm0-4h-2V7h2v6zm4 4h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                        百度网盘下载
+                    </a>
+                    <!-- 【替换3】电影侠安卓-夸克网盘链接 -->
+                    <a href="#" class="btn btn-quark" target="_blank">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-2h2v2zm0-4h-2V7h2v6zm4 4h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                        夸克网盘下载
+                    </a>
+                </div>
+                <p style="text-align: center; color: #666; font-size: 13px; margin-top: 15px;">* 下载后请根据网盘提示安装APK文件</p>
+            </section>
+        </main>
+    </div>
+
+    <!-- ================= 可可影视 区域 ================= -->
+    <div id="coco-film" class="app-content">
+        <header class="hero">
+            <!-- 【替换4】可可影视Logo WebP图片路径 -->
+            <div class="logo">
+                <img src="logo_kkys.webp" alt="可可影视Logo">
+            </div>
+            <h1>可可影视</h1>
+            <p>全网VIP影视免费看，极速秒播无广告，支持多端同步与离线缓存！</p>
+            <div class="tags">
+                <span class="tag">正版官方</span>
+                <span class="tag">高清蓝光</span>
+                <span class="tag">极速下载</span>
+                <span class="tag">每日更新</span>
+            </div>
+        </header>
+
+        <main class="container">
+            <h2 class="section-title">界面预览</h2>
+            <div class="carousel-container" id="carousel-coco">
+                <div class="carousel-track">
+                    <div class="carousel-item active"><img src="kkys001.jpg" alt="首页"></div>
+                    <div class="carousel-item"><img src="kkys002.jpg" alt="分类"></div>
+                    <div class="carousel-item"><img src="kkys003.jpg" alt="播放"></div>
+                    <div class="carousel-item"><img src="kkys004.jpg" alt="我的"></div>
+                </div>
+                <div class="carousel-dots"></div>
+            </div>
+
+            <h2 class="section-title">为什么选择可可影视？</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">👑</span>
+                    <h3>正版官方渠道</h3>
+                    <p>确保从官方渠道跳转下载正版App，安全无毒，保护您的手机隐私。</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">⚡</span>
+                    <h3>极速秒播体验</h3>
+                    <p>采用先进CDN加速技术，点开即播，拖动进度条无缓冲，体验极致流畅。</p>
+                </div>
+            </div>
+
+            <!-- 可可影视专属安装教程 -->
+            <h2 class="section-title">iOS 变身安装教程</h2>
+            <div class="guide-box">
+                <ul class="guide-steps">
+                    <li>确保从本页面跳转下载的是<strong>官方正版APP</strong>，目前暂不支持在应用商店直接搜索安装。</li>
+                    <li>您的手机地区必须设置为<strong>“中国大陆”</strong>（设置 → 通用 → 语言与地区 → 地区）。</li>
+                    <li>
+                        下载并打开App后，进入<strong>【意见反馈】</strong>页面，提交以下暗号：
+                        <div class="code-box">
+                            <span class="code-text" id="secretCode">D22030</span>
+                            <button class="copy-btn" onclick="copyCode()">复制</button>
+                        </div>
+                    </li>
+                    <li>提交暗号后，请<strong>彻底关闭应用</strong>（从后台划掉），等待 <strong>5分钟</strong> 后再次进入应用，即可完成变身！</li>
+                </ul>
+            </div>
+
+            <section class="download-section">
+                <h2 class="section-title">选择您的设备下载</h2>
+                <div class="download-buttons">
+                    <!-- iOS 下载链接（苹果商店马甲包） -->
+                    <a href="https://apps.apple.com/cn/app/%E8%87%AA%E8%A1%8C%E8%BD%A6%E5%B7%A5%E6%88%BF/id6810998198" class="btn btn-ios" target="_blank">
+                        <svg viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.5 1.33-.02 2.58.9 3.29.9.7 0 2.28-1.14 3.83-.98 1.15.05 2.2.41 3.02 1.15-2.57 1.57-2.15 5.18.4 6.4-.35 1.34-1.15 2.54-2.65 3.64zM13.37 4.46c.68-.83 1.15-1.99.99-3.15-1.01.04-2.23.68-2.93 1.5-.63.73-1.19 1.91-1.01 3.05 1.13.09 2.27-.57 2.95-1.4z"/></svg>
+                        iOS 版下载 (App Store)
+                    </a>
+                    <!-- 【替换5】可可影视安卓网盘链接 -->
+                    <a href="https://pan.baidu.com/s/1-XmwP5v8ujdr5-v-HGQDNw?pwd=697x" class="btn btn-android" target="_blank">
+                        <svg viewBox="0 0 24 24"><path d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993s-.4482.9997-.9993.9997zm-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993s-.4482.9997-.9993.9997zm11.4045-6.02l1.9973-3.4592a.416.416 0 00-.1521-.5676.416.416 0 00-.5676.1521l-2.0223 3.503C15.5902 8.2439 13.8533 7.85 12 7.85s-3.5902.3939-5.1367 1.0866L4.841 5.4338a.416.416 0 00-.5676-.1521.416.416 0 00-.1521.5676l1.9973 3.4592C2.6889 11.1867.3432 14.6589 0 18.761h24c-.3432-4.1021-2.6889-7.5743-6.1185-9.4396z"/></svg>
+                        安卓 版下载 (网盘)
+                    </a>
+                </div>
+                <p style="text-align: center; color: #666; font-size: 13px; margin-top: 15px;">* 安卓用户下载后请根据网盘提示安装APK文件</p>
+            </section>
+        </main>
+    </div>
+
+    <!-- 底部固定下载栏（动态更新） -->
+    <div class="sticky-bottom" id="stickyBar">
+        <div class="info">
+            <strong id="stickyTitle">电影侠</strong><br>
+            极速高清 · 永久免费
+        </div>
+        <div class="sticky-btn-group" id="stickyBtns">
+            <!-- JS 动态生成按钮 -->
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 精选影视App推荐. All rights reserved.</p>
+        <p style="margin-top: 5px;">本页面仅供学习交流使用，请勿用于商业用途。</p>
+    </footer>
+
+    <script>
+        // 复制暗号功能
+        function copyCode() {
+            const code = document.getElementById('secretCode').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                const originalText = btn.innerText;
+                btn.innerText = '已复制!';
+                btn.style.background = '#3DDC84';
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.background = 'var(--primary-color)';
+                }, 2000);
+            }).catch(err => {
+                alert('复制失败，请手动长按复制：' + code);
+            });
+        }
+
+        // 轮播图类
+        class Carousel {
+            constructor(containerId) {
+                this.container = document.getElementById(containerId);
+                this.track = this.container.querySelector('.carousel-track');
+                this.items = this.container.querySelectorAll('.carousel-item');
+                this.dotsContainer = this.container.querySelector('.carousel-dots');
+                this.currentIndex = 0;
+                this.totalItems = this.items.length;
+                this.itemWidth = 0;
+                this.init();
+            }
+
+            init() {
+                if (this.items.length === 0) return;
+                this.items.forEach((_, index) => {
+                    const dot = document.createElement('div');
+                    dot.classList.add('dot');
+                    if (index === 0) dot.classList.add('active');
+                    dot.addEventListener('click', () => this.goToSlide(index));
+                    this.dotsContainer.appendChild(dot);
+                });
+                this.dots = this.dotsContainer.querySelectorAll('.dot');
+                this.updateWidth();
+                this.updateCarousel();
+                
+                // 自动播放
+                this.autoPlay = setInterval(() => this.nextSlide(), 3000);
+                this.container.addEventListener('mouseenter', () => clearInterval(this.autoPlay));
+                this.container.addEventListener('mouseleave', () => this.autoPlay = setInterval(() => this.nextSlide(), 3000));
+                
+                // 触摸滑动
+                let startX = 0;
+                this.track.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+                this.track.addEventListener('touchend', e => {
+                    const endX = e.changedTouches[0].clientX;
+                    if (startX - endX > 50) this.nextSlide();
+                    if (endX - startX > 50) this.prevSlide();
+                });
+            }
+
+            updateWidth() {
+                if (this.items.length > 0) {
+                    this.itemWidth = this.items[0].offsetWidth + 20;
+                }
+            }
+
+            updateCarousel() {
+                if (this.itemWidth === 0) this.updateWidth();
+                const offset = -this.currentIndex * this.itemWidth;
+                this.track.style.transform = `translateX(${offset}px)`;
+                this.items.forEach((item, index) => {
+                    item.classList.toggle('active', index === this.currentIndex);
+                });
+                this.dots.forEach((dot, index) => {
+                    dot.classList.toggle('active', index === this.currentIndex);
+                });
+            }
+
+            nextSlide() {
+                this.currentIndex = (this.currentIndex + 1) % this.totalItems;
+                this.updateCarousel();
+            }
+
+            prevSlide() {
+                this.currentIndex = (this.currentIndex - 1 + this.totalItems) % this.totalItems;
+                this.updateCarousel();
+            }
+
+            goToSlide(index) {
+                this.currentIndex = index;
+                this.updateCarousel();
+            }
+            
+            refresh() {
+                this.updateWidth();
+                this.updateCarousel();
+            }
+        }
+
+        // 初始化两个轮播图
+        const carouselMovie = new Carousel('carousel-movie');
+        const carouselCoco = new Carousel('carousel-coco');
+
+        // App 切换逻辑
+        function switchApp(appId, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            document.querySelectorAll('.app-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(appId).classList.add('active');
+
+            const stickyTitle = document.getElementById('stickyTitle');
+            const stickyBtns = document.getElementById('stickyBtns');
+
+            if (appId === 'movie-hero') {
+                stickyTitle.innerText = '电影侠';
+                stickyBtns.innerHTML = `
+                    <a href="#" class="sticky-btn baidu" target="_blank">百度网盘</a>
+                    <a href="#" class="sticky-btn quark" target="_blank">夸克网盘</a>
+                `;
+                setTimeout(() => carouselMovie.refresh(), 50);
+            } else {
+                stickyTitle.innerText = '可可影视';
+                stickyBtns.innerHTML = `
+                    <a href="https://apps.apple.com/cn/app/%E8%87%AA%E8%A1%8C%E8%BD%A6%E5%B7%A5%E6%88%BF/id6810998198" class="sticky-btn ios" target="_blank">iOS下载</a>
+                    <a href="#" class="sticky-btn android" target="_blank">安卓下载</a>
+                `;
+                setTimeout(() => carouselCoco.refresh(), 50);
+            }
+        }
+
+        window.addEventListener('load', () => {
+            switchApp('movie-hero', document.querySelector('.tab-btn.active'));
+        });
+        
+        window.addEventListener('resize', () => {
+            carouselMovie.refresh();
+            carouselCoco.refresh();
+        });
+    </script>
+</body>
+</html>
