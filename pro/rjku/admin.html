@@ -149,41 +149,65 @@ input,select,textarea{font-family:inherit;font-size:14px}
   <input type="file" id="importFile" accept=".json,application/json" style="display:none" onchange="importJson(event)">
 </header>
 
+<!-- Tab 切换栏 -->
+<div style="background:#fff; border-bottom:1px solid var(--border); padding:0 20px; display:flex; gap:20px; font-size:14px; position:sticky; top:60px; z-index:99;">
+  <div id="tabApps" class="tab-btn active" onclick="switchTab('apps')" style="padding:12px 0; cursor:pointer; font-weight:600; color:var(--primary); border-bottom:2px solid var(--primary);">📦 应用管理</div>
+  <div id="tabStats" class="tab-btn" onclick="switchTab('stats')" style="padding:12px 0; cursor:pointer; font-weight:600; color:var(--sub); border-bottom:2px solid transparent;">📊 数据统计</div>
+</div>
+
 <div class="container">
-  <div class="stats-bar">
-    <div class="stat-card"><div class="num" id="statTotal">0</div><div class="lbl">总应用数</div></div>
-    <div class="stat-card"><div class="num" id="statAnd">0</div><div class="lbl">安卓应用</div></div>
-    <div class="stat-card"><div class="num" id="statIos">0</div><div class="lbl">iOS 应用</div></div>
-    <div class="stat-card"><div class="num" id="statNew">0</div><div class="lbl">今日新增</div></div>
+
+  <!-- ==================== 应用管理视图 ==================== -->
+  <div id="appsView">
+    <div class="stats-bar">
+      <div class="stat-card"><div class="num" id="statTotal">0</div><div class="lbl">总应用数</div></div>
+      <div class="stat-card"><div class="num" id="statAnd">0</div><div class="lbl">安卓应用</div></div>
+      <div class="stat-card"><div class="num" id="statIos">0</div><div class="lbl">iOS 应用</div></div>
+      <div class="stat-card"><div class="num" id="statNew">0</div><div class="lbl">今日新增</div></div>
+    </div>
+
+    <div class="control-bar">
+      <div class="filter-group">
+        <input type="text" id="adminSearchInput" placeholder="🔍 搜索名称、分类、ID..." oninput="onAdminSearch()">
+        <select id="adminCategoryFilter" onchange="onAdminCategoryChange()"><option value="">全部分类</option></select>
+        <button class="btn ghost" onclick="clearAdminFilter()" style="padding:6px 10px;font-size:12px;">清空</button>
+        <span class="count-info" id="filterCount">共 0 条结果</span>
+      </div>
+      <div class="batch-group" id="batchGroup" style="display:none;">
+        <span class="count" id="batchCount">已选 0 项</span>
+        <button class="btn-mini danger" onclick="batchDelete()">批量删除</button>
+        <button class="btn-mini primary" onclick="batchSetCategory()">批量改分类</button>
+      </div>
+    </div>
+
+    <section class="smart-panel">
+      <h2>✨ 智能识别（粘贴自动填表）</h2>
+      <div class="hint">粘贴包含<b>网盘链接</b>和 <b>App Store 链接</b>的任意文本，系统会自动识别平台、链接、提取码并填入表单。<br>支持：<code>夸克</code> <code>百度</code> <code>蓝奏云</code> <code>阿里云盘</code> <code>123云盘</code> <code>迅雷</code> <code>115</code> <code>移动云盘</code> <code>天翼云盘</code> <code>微云</code> <code>UC网盘</code></div>
+      <textarea id="smartInput" placeholder="在此粘贴文本，例如：&#10;&#10;小柿子影视 v2.1.9&#10;追剧神器，电影动漫全部高清免费看&#10;&#10;夸克网盘：https://pan.quark.cn/s/abc123&#10;百度网盘：https://pan.baidu.com/s/1xyz 提取码：1234&#10;&#10;App Store：https://apps.apple.com/cn/app/id123456"></textarea>
+      <div class="smart-actions"><button class="btn primary" onclick="smartParse()">🔍 识别并创建应用</button><button class="btn ghost" onclick="document.getElementById('smartInput').value=''">清空</button></div>
+    </section>
+
+    <section>
+      <div id="appListContainer" class="app-list"></div>
+      <div class="admin-pagination" id="adminPagination"></div>
+    </section>
   </div>
 
-  <div class="control-bar">
-    <div class="filter-group">
-      <input type="text" id="adminSearchInput" placeholder="🔍 搜索名称、分类、ID..." oninput="onAdminSearch()">
-      <select id="adminCategoryFilter" onchange="onAdminCategoryChange()"><option value="">全部分类</option></select>
-      <button class="btn ghost" onclick="clearAdminFilter()" style="padding:6px 10px;font-size:12px;">清空</button>
-      <span class="count-info" id="filterCount">共 0 条结果</span>
+  <!-- ==================== 数据统计视图 ==================== -->
+  <div id="statsView" style="display:none;">
+    <div style="background:#fff; border-radius:12px; padding:20px; box-shadow:var(--shadow); margin-bottom:20px;">
+      <h3 style="font-size:15px; margin-bottom:16px;">🔧 数据源配置</h3>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <input type="text" id="statsEndpoint" placeholder="Cloudflare Worker 地址，如 https://xxx.workers.dev" style="flex:1; min-width:240px; padding:9px 12px; border:1px solid var(--border); border-radius:8px; background:#fafbff;">
+        <button class="btn primary" onclick="loadStats()">🔄 加载统计数据</button>
+        <button class="btn" onclick="document.getElementById('statsEndpoint').value=''; localStorage.removeItem('wl_stats_endpoint');">清空</button>
+      </div>
+      <p style="font-size:12px; color:var(--sub); margin-top:10px;">提示：如需查看 51.LA 的事件分析数据，请直接登录 51.LA 后台查看。此页面展示的是自建 Cloudflare Worker 的原始点击日志。</p>
     </div>
-    <div class="batch-group" id="batchGroup" style="display:none;">
-      <span class="count" id="batchCount">已选 0 项</span>
-      <button class="btn-mini danger" onclick="batchDelete()">批量删除</button>
-      <button class="btn-mini primary" onclick="batchSetCategory()">批量改分类</button>
-    </div>
+    <div id="statsContent"></div>
   </div>
 
-  <section class="smart-panel">
-    <h2>✨ 智能识别（粘贴自动填表）</h2>
-    <div class="hint">粘贴包含<b>网盘链接</b>和 <b>App Store 链接</b>的任意文本，系统会自动识别平台、链接、提取码并填入表单。<br>支持：<code>夸克</code> <code>百度</code> <code>蓝奏云</code> <code>阿里云盘</code> <code>123云盘</code> <code>迅雷</code> <code>115</code> <code>移动云盘</code> <code>天翼云盘</code> <code>微云</code> <code>UC网盘</code></div>
-    <textarea id="smartInput" placeholder="在此粘贴文本，例如：&#10;&#10;小柿子影视 v2.1.9&#10;追剧神器，电影动漫全部高清免费看&#10;&#10;夸克网盘：https://pan.quark.cn/s/abc123&#10;百度网盘：https://pan.baidu.com/s/1xyz 提取码：1234&#10;&#10;App Store：https://apps.apple.com/cn/app/id123456"></textarea>
-    <div class="smart-actions"><button class="btn primary" onclick="smartParse()">🔍 识别并创建应用</button><button class="btn ghost" onclick="document.getElementById('smartInput').value=''">清空</button></div>
-  </section>
-
-  <section>
-    <div id="appListContainer" class="app-list"></div>
-    <div class="admin-pagination" id="adminPagination"></div>
-  </section>
-
-  <section class="help">
+  <section class="help" id="helpSection">
     <b>使用说明：</b><br>
     1. 置顶功能：勾选置顶并设定时间后，该应用会在前端强制排在最前面，过期后自动取消。<br>
     2. 编辑内容自动缓存在浏览器本地，新建应用时表单草稿会自动保留，刷新不丢失。<br>
@@ -193,6 +217,7 @@ input,select,textarea{font-family:inherit;font-size:14px}
   </section>
 </div>
 
+<!-- 编辑弹窗 -->
 <div class="modal" id="editorModal">
   <div class="modal-content">
     <div class="modal-header"><h3 id="editorTitle">编辑应用</h3><button class="modal-close" onclick="closeEditor()">✕</button></div>
@@ -203,8 +228,7 @@ input,select,textarea{font-family:inherit;font-size:14px}
       <div class="form-row"><label>分类</label><input id="f_category" list="categoryList" placeholder="工具 / 影视 / 音乐 / 阅读 / 游戏 / 社交"><datalist id="categoryList"></datalist></div>
       <div class="form-row"><label>添加日期（用于新品标识，格式 YYYY-MM-DD）</label><input id="f_addedAt" placeholder="2026-09-21" oninput="validateDate(this)"><div class="error-msg" id="err_addedAt">请输入正确的日期格式</div></div>
       <div class="form-row"><label>描述</label><textarea id="f_desc" rows="2" placeholder="一句话介绍这个应用"></textarea></div>
-      
-      <!-- 置顶设置区块 -->
+
       <div class="section-title" style="margin-top:16px;">📌 置顶设置</div>
       <div class="form-row checkbox-row" style="margin-bottom:8px;">
         <label><input type="checkbox" id="f_isPinned" onchange="togglePinFields()"> 置顶此应用（前端强制排在第一位）</label>
@@ -264,6 +288,148 @@ function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(DB)); }catch(e
 function loadLocal(){ try{ const s=localStorage.getItem(LS_KEY); if(s) return JSON.parse(s); }catch(e){} return null; }
 function isPinned(app) { return app.pinnedUntil && app.pinnedUntil > Date.now(); }
 
+// ==================== Tab 切换逻辑 ====================
+function switchTab(tab) {
+  const tabApps = document.getElementById('tabApps');
+  const tabStats = document.getElementById('tabStats');
+  const appsView = document.getElementById('appsView');
+  const statsView = document.getElementById('statsView');
+  const helpSection = document.getElementById('helpSection');
+  
+  if (tab === 'apps') {
+    appsView.style.display = '';
+    statsView.style.display = 'none';
+    helpSection.style.display = '';
+    tabApps.style.color = 'var(--primary)';
+    tabApps.style.borderBottom = '2px solid var(--primary)';
+    tabStats.style.color = 'var(--sub)';
+    tabStats.style.borderBottom = '2px solid transparent';
+  } else {
+    appsView.style.display = 'none';
+    statsView.style.display = 'block';
+    helpSection.style.display = 'none';
+    tabStats.style.color = 'var(--primary)';
+    tabStats.style.borderBottom = '2px solid var(--primary)';
+    tabApps.style.color = 'var(--sub)';
+    tabApps.style.borderBottom = '2px solid transparent';
+    
+    const saved = localStorage.getItem('wl_stats_endpoint');
+    if (saved && !document.getElementById('statsEndpoint').value) {
+      document.getElementById('statsEndpoint').value = saved;
+      loadStats();
+    }
+  }
+}
+
+// ==================== 数据统计渲染 ====================
+async function loadStats() {
+  const endpoint = document.getElementById('statsEndpoint').value.trim().replace(/\/$/, '');
+  if (!endpoint) { toast('请输入 Worker 地址', 'err'); return; }
+  localStorage.setItem('wl_stats_endpoint', endpoint);
+  
+  const container = document.getElementById('statsContent');
+  container.innerHTML = '<div style="background:#fff; border-radius:12px; padding:30px; text-align:center; color:#888;">加载中...</div>';
+  
+  try {
+    const [statsRes, detailRes] = await Promise.all([
+      fetch(endpoint + '/?action=getStats').then(r => r.json()),
+      fetch(endpoint + '/?action=getDetail').then(r => r.json())
+    ]);
+    
+    renderStatsView(statsRes, detailRes);
+  } catch (e) {
+    container.innerHTML = '<div style="background:#fff; border-radius:12px; padding:30px; text-align:center; color:#e74c3c;">加载失败：' + e.message + '</div>';
+  }
+}
+
+function renderStatsView(stats, details) {
+  const totalClicks = Object.values(stats).reduce((a, b) => a + b, 0);
+  
+  const byApp = {};
+  Object.entries(stats).forEach(([key, count]) => {
+    const parts = key.split(':');
+    const appId = parts[1];
+    const action = parts.slice(2).join(':');
+    if (!byApp[appId]) byApp[appId] = { total: 0, actions: {} };
+    byApp[appId].total += count;
+    byApp[appId].actions[action] = (byApp[appId].actions[action] || 0) + count;
+  });
+  
+  const ranked = Object.entries(byApp).map(([appId, data]) => {
+    const app = DB.apps.find(a => String(a.id) === String(appId));
+    return {
+      id: appId,
+      name: app ? app.name : '已删除应用 #' + appId,
+      icon: app ? (app.icon || '📦') : '❓',
+      total: data.total,
+      actions: data.actions
+    };
+  }).sort((a, b) => b.total - a.total);
+  
+  let html = '';
+  
+  html += `
+    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin-bottom:20px;">
+      <div style="background:#fff; border-radius:10px; padding:16px; text-align:center; box-shadow:var(--shadow);">
+        <div style="font-size:24px; font-weight:700; color:var(--primary);">${totalClicks}</div>
+        <div style="font-size:12px; color:var(--sub); margin-top:4px;">总点击量</div>
+      </div>
+      <div style="background:#fff; border-radius:10px; padding:16px; text-align:center; box-shadow:var(--shadow);">
+        <div style="font-size:24px; font-weight:700; color:var(--success);">${ranked.length}</div>
+        <div style="font-size:12px; color:var(--sub); margin-top:4px;">有下载的应用</div>
+      </div>
+      <div style="background:#fff; border-radius:10px; padding:16px; text-align:center; box-shadow:var(--shadow);">
+        <div style="font-size:24px; font-weight:700; color:var(--warn);">${details.length}</div>
+        <div style="font-size:12px; color:var(--sub); margin-top:4px;">明细记录数</div>
+      </div>
+    </div>
+  `;
+  
+  html += '<div style="background:#fff; border-radius:12px; padding:20px; box-shadow:var(--shadow); margin-bottom:20px;">';
+  html += '<h3 style="font-size:15px; margin-bottom:16px;">🏆 应用下载排行</h3>';
+  if (!ranked.length) {
+    html += '<div style="text-align:center; color:#888; padding:20px;">暂无数据</div>';
+  } else {
+    html += ranked.map((item, idx) => `
+      <div style="display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--border);">
+        <div style="width:24px; text-align:center; font-weight:700; color:${idx === 0 ? '#f0a020' : idx === 1 ? '#999' : idx === 2 ? '#cd7f32' : '#aaa'};">${idx + 1}</div>
+        <div style="font-size:22px;">${item.icon}</div>
+        <div style="flex:1;">
+          <div style="font-weight:600;">${item.name}</div>
+          <div style="font-size:12px; color:var(--sub); margin-top:2px;">
+            ${Object.entries(item.actions).map(([a, c]) => `${a}: ${c}`).join(' · ')}
+          </div>
+        </div>
+        <div style="font-size:18px; font-weight:700; color:var(--primary);">${item.total}</div>
+      </div>
+    `).join('');
+  }
+  html += '</div>';
+  
+  html += '<div style="background:#fff; border-radius:12px; padding:20px; box-shadow:var(--shadow);">';
+  html += '<h3 style="font-size:15px; margin-bottom:16px;">📋 最近 500 条明细</h3>';
+  if (!details.length) {
+    html += '<div style="text-align:center; color:#888; padding:20px;">暂无数据</div>';
+  } else {
+    html += '<div style="max-height:500px; overflow-y:auto;">';
+    html += details.slice(0, 500).map(log => {
+      const d = new Date(log.t);
+      const time = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      return `<div style="display:flex; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); font-size:13px;">
+        <div style="color:var(--muted); width:80px; flex-shrink:0;">${time}</div>
+        <div style="font-weight:600; flex:1;">${log.app || '未知应用'}</div>
+        <div style="color:var(--primary);">${log.action}</div>
+        <div style="color:var(--sub); font-size:11px;">${log.os || ''}</div>
+      </div>`;
+    }).join('');
+    html += '</div>';
+  }
+  html += '</div>';
+  
+  document.getElementById('statsContent').innerHTML = html;
+}
+
+// ==================== 应用管理原有逻辑 ====================
 function initSortable(){
   const el = document.getElementById('appListContainer'); if (!el) return;
   if (sortableInstance) { try { sortableInstance.destroy(); } catch(e){} sortableInstance = null; }
@@ -342,7 +508,6 @@ function render(){
     const elPag = document.getElementById('adminPagination'); if (elPag) elPag.innerHTML = ''; const elBatch = document.getElementById('batchGroup'); if (elBatch) elBatch.style.display = 'none'; return;
   }
   
-  // 后台列表也按置顶优先排序
   currentFilteredApps.sort((a, b) => {
     const aPin = isPinned(a), bPin = isPinned(b);
     if (aPin && !bPin) return -1;
@@ -395,35 +560,9 @@ function deleteApp(id){ const idx = DB.apps.findIndex(a => a.id === id); if (idx
 function showUndoToast(msg, deletedApps) { clearTimeout(undoTimer); undoData = { apps: deletedApps }; toast(msg, 'err', '撤销', () => { if (!undoData) return; undoData.apps.forEach(app => { if (!DB.apps.find(a => a.id === app.id)) DB.apps.push(app); }); undoData = null; save(); render(); toast('已恢复', 'ok'); }); undoTimer = setTimeout(() => { undoData = null; }, 5000); }
 function copyAppJson(id) { const app = DB.apps.find(a => a.id === id); if (!app) return; copyText(JSON.stringify(app, null, 2)).then(() => toast('已复制该应用 JSON', 'ok')).catch(() => toast('复制失败', 'err')); }
 
-// ==================== 置顶核心逻辑 ====================
-function togglePinFields() {
-  const isPinned = document.getElementById('f_isPinned').checked;
-  const fields = document.getElementById('pinFields');
-  if (fields) fields.style.display = isPinned ? 'block' : 'none';
-  if (isPinned) updatePinPreview();
-}
-function updatePinPreview() {
-  const el = document.getElementById('pinPreview');
-  if (!el) return;
-  const val = parseInt(document.getElementById('f_pinDuration').value) || 1;
-  const unit = document.getElementById('f_pinUnit').value;
-  let text = '';
-  if (unit === 'hour') text = `${val} 小时后`;
-  else if (unit === 'day') text = `${val} 天后`;
-  else text = `${val} 个月后（约${val*30}天）`;
-  el.textContent = `预览：保存后将在 ${text} 自动取消置顶`;
-}
-function calculatePinnedUntil() {
-  const isPinned = document.getElementById('f_isPinned').checked;
-  if (!isPinned) return 0;
-  const val = parseInt(document.getElementById('f_pinDuration').value) || 1;
-  const unit = document.getElementById('f_pinUnit').value;
-  const now = Date.now();
-  if (unit === 'hour') return now + val * 60 * 60 * 1000;
-  if (unit === 'day') return now + val * 24 * 60 * 60 * 1000;
-  return now + val * 30 * 24 * 60 * 60 * 1000; // 月按30天算
-}
-// =======================================================
+function togglePinFields() { const isPinned = document.getElementById('f_isPinned').checked; const fields = document.getElementById('pinFields'); if (fields) fields.style.display = isPinned ? 'block' : 'none'; if (isPinned) updatePinPreview(); }
+function updatePinPreview() { const el = document.getElementById('pinPreview'); if (!el) return; const val = parseInt(document.getElementById('f_pinDuration').value) || 1; const unit = document.getElementById('f_pinUnit').value; let text = ''; if (unit === 'hour') text = `${val} 小时后`; else if (unit === 'day') text = `${val} 天后`; else text = `${val} 个月后（约${val*30}天）`; el.textContent = `预览：保存后将在 ${text} 自动取消置顶`; }
+function calculatePinnedUntil() { const isPinned = document.getElementById('f_isPinned').checked; if (!isPinned) return 0; const val = parseInt(document.getElementById('f_pinDuration').value) || 1; const unit = document.getElementById('f_pinUnit').value; const now = Date.now(); if (unit === 'hour') return now + val * 60 * 60 * 1000; if (unit === 'day') return now + val * 24 * 60 * 60 * 1000; return now + val * 30 * 24 * 60 * 60 * 1000; }
 
 function openEditor(id, preset){
   if (id && typeof id === 'number') {
@@ -433,11 +572,7 @@ function openEditor(id, preset){
     document.getElementById('f_iconUrl').value = app.iconUrl || '';
     document.getElementById('f_addedAt').value = app.addedAt || '';
     document.getElementById('f_isPinned').checked = isPinned(app);
-    if (isPinned(app)) {
-      // 反推剩余时间用于展示（这里为了简单，默认显示 1 天，管理员可以重新设定）
-      document.getElementById('f_pinDuration').value = 1;
-      document.getElementById('f_pinUnit').value = 'day';
-    }
+    if (isPinned(app)) { document.getElementById('f_pinDuration').value = 1; document.getElementById('f_pinUnit').value = 'day'; }
     togglePinFields();
   } else {
     const draft = localStorage.getItem(LS_DRAFT);
@@ -499,10 +634,7 @@ function saveEditor(){
   editingApp.addedAt = addedAt || today(); editingApp.desc = document.getElementById('f_desc').value.trim();
   editingApp.iosUrl = document.getElementById('f_iosUrl').value.trim(); editingApp.isTransform = document.getElementById('f_isTransform').checked;
   editingApp.iosType = document.getElementById('f_iosType').value; editingApp.transformTip = document.getElementById('f_transformTip').value.trim();
-  
-  // 置顶计算
   editingApp.pinnedUntil = calculatePinnedUntil();
-
   editingApp.androidLinks = (editingApp.androidLinks||[]).filter(l => l.url && l.url.trim());
   editingApp.historyVersions = (editingApp.historyVersions||[]).filter(v => v.version && v.version.trim()).map(v => ({ version: v.version.trim(), androidLinks: (v.androidLinks||[]).filter(l => l.url && l.url.trim()), iosUrl: (v.iosUrl||'').trim(), isTransform: !!v.isTransform, iosType: v.iosType || 'transform', transformTip: v.transformTip || '' }));
 
@@ -533,19 +665,5 @@ async function copyText(text){ try{ if(navigator.clipboard && window.isSecureCon
 document.querySelectorAll('.modal').forEach(m=>{ m.addEventListener('click', e=>{ if(e.target===m){ if(m.id==='editorModal') closeEditor(); else m.classList.remove('show'); } }); });
 window.addEventListener('load', init);
 </script>
-    <!-- Baidu tongji -->
-    <script>
-        var _hmt = _hmt || [];
-        (function() {
-            var hm = document.createElement("script");
-            hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
-            var s = document.getElementsByTagName("script")[0];
-            s.parentNode.insertBefore(hm, s);
-        })();
-    </script>
-    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
-    <script>
-        LA.init({ id: "3HpUziWJmj6VQUHP", ck: "3HpUziWJmj6VQUHP", autoTrack: true })
-    </script>
 </body>
 </html>

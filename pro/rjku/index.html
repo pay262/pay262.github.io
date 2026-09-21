@@ -30,6 +30,21 @@
   }
 }
 </script>
+    <!-- Baidu tongji -->
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+<!-- ===== 51.LA 基础统计代码（请替换成你自己的） ===== -->
+<script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
+<script>LA.init({id:"3GBQy07pYlIVc3g8",ck:"3GBQy07pYlIVc3g8",autoTrack:true})</script>
+<!-- ============================================== -->
+
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <style>
 :root{ --bg:#f5f6fa; --card:#fff; --text:#222; --sub:#888; --muted:#a0a5b5; --border:#eef0f5; --primary:#5b7bf9; --grad:linear-gradient(135deg,#7b5df9,#5b7bf9); --shadow:0 2px 8px rgba(0,0,0,.05); --icon-bg:#f0f0f0; --ph-bg:#eef0f5; --pwd:#e74c3c; --pwd-bg:#fdf0f0; --skel:#f0f0f0; --new:#e74c3c; --new-bg:#fdecea; --pin:#f0a020; --pin-bg:#fff4e0; }
@@ -38,54 +53,16 @@
 html, body { touch-action: pan-x pan-y; -webkit-text-size-adjust: 100%; }
 body{background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s;padding-bottom:60px}
 
-/* ★ 标题栏：不固定，跟随页面滚动 */
 .header{background:var(--grad);padding:20px 15px 4px;color:#fff}
 .header-title{display:flex;justify-content:space-between;align-items:center;font-size:20px;font-weight:700;margin-bottom:12px}
 .header-title small{font-size:12px;font-weight:400;opacity:.8}
 
-/* ★ 搜索框：固定顶部，一体化胶囊设计 */
-.search-sticky{
-  position:sticky;
-  top:0;
-  z-index:50;
-  background:var(--grad);
-  padding:10px 15px 14px;
-  border-radius:0 0 16px 16px;
-  box-shadow:0 4px 16px rgba(0,0,0,.08);
-  transition:box-shadow .25s;
-}
-.search-box{
-  display:flex;
-  align-items:center;
-  background:#fff;
-  border-radius:24px;
-  padding:4px 6px 4px 14px;
-  box-shadow:0 2px 8px rgba(0,0,0,.06);
-}
+.search-sticky{position:sticky;top:0;z-index:50;background:var(--grad);padding:10px 15px 14px;border-radius:0 0 16px 16px;box-shadow:0 4px 16px rgba(0,0,0,.08);transition:box-shadow .25s;}
+.search-box{display:flex;align-items:center;background:#fff;border-radius:24px;padding:4px 6px 4px 14px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
 .search-icon{font-size:14px;color:#888;margin-right:6px;flex-shrink:0;}
-.search-box input{
-  flex:1;
-  border:none;
-  outline:none;
-  background:transparent;
-  font-size:14px;
-  padding:6px 0;
-  color:#222;
-  min-width:0;
-}
+.search-box input{flex:1;border:none;outline:none;background:transparent;font-size:14px;padding:6px 0;color:#222;min-width:0;}
 .search-box input::placeholder{color:#aaa;}
-.search-box button{
-  background:var(--grad);
-  color:#fff;
-  border:none;
-  padding:7px 16px;
-  border-radius:20px;
-  font-size:13px;
-  font-weight:600;
-  cursor:pointer;
-  flex-shrink:0;
-  transition:.15s;
-}
+.search-box button{background:var(--grad);color:#fff;border:none;padding:7px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;flex-shrink:0;transition:.15s;}
 .search-box button:active{transform:scale(.95);}
 
 .cat-row{display:flex;align-items:center;gap:8px;padding:14px 15px 6px;max-width:820px;margin:0 auto;overflow:hidden;}
@@ -234,12 +211,10 @@ footer .disclaimer{margin-top:10px;opacity:.7}
   </div>
 </div>
 
-<!-- 标题栏（跟随滚动） -->
 <header class="header">
   <h1 class="header-title"><span>📦 WL软件库</span><small id="headerTime"></small></h1>
 </header>
 
-<!-- 搜索框（固定在顶部） -->
 <div class="search-sticky">
   <div class="search-box">
     <span class="search-icon">🔍</span>
@@ -283,7 +258,12 @@ document.addEventListener('touchstart', function (event) {
   if (event.touches.length > 1) event.preventDefault();
 }, { passive: false });
 
-const CONFIG = { trackEndpoint: '', disclaimerVersion: '1.0', PAGE_SIZE: 20, NEW_DAYS: 7 };
+const CONFIG = { 
+  trackEndpoint: '', // 如果有 Cloudflare Worker，请填写到这里，例如 'https://xxx.workers.dev'
+  disclaimerVersion: '1.0', 
+  PAGE_SIZE: 20, 
+  NEW_DAYS: 7 
+};
 let DB = { version: '', updateTime: '', updateLog: '', apps: [] };
 let currentCategory = '全部';
 let currentKeyword = '';
@@ -299,7 +279,36 @@ async function copyText(text){ try{ if(navigator.clipboard && window.isSecureCon
 let toastTimer=null;
 function toast(msg){ const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),2200); }
 function closeModal(id){ document.getElementById(id).classList.remove('show'); }
-function track(appId, action){ try{ const key=`track_${appId}_${action}`; localStorage.setItem(key, parseInt(localStorage.getItem(key)||'0')+1); }catch(e){} if(CONFIG.trackEndpoint){ fetch(`${CONFIG.trackEndpoint}?id=${encodeURIComponent(appId)}&action=${encodeURIComponent(action)}&t=${Date.now()}`,{mode:'no-cors'}).catch(()=>{}); } }
+
+// ★ 核心：追踪点击量（51.LA + Worker 双通道）
+function track(appId, action){
+  // 1. 本地记录
+  try{
+    const key = `track_${appId}_${action}`;
+    localStorage.setItem(key, parseInt(localStorage.getItem(key) || '0') + 1);
+  }catch(e){}
+
+  // 2. 获取应用信息
+  const app = DB.apps.find(a => a.id === appId);
+  const appName = app ? app.name : ('ID:' + appId);
+
+  // 3. 判断系统
+  let os = 'PC';
+  if (/android/i.test(navigator.userAgent)) os = 'Android';
+  else if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) os = 'iOS';
+
+  // 4. 上报到 51.LA（事件分析）
+  // 注意：51.LA 的 API 是 _szc.push(['_trackEvent', 事件分类, 事件动作, 事件标签]);
+  if (typeof _szc !== 'undefined' && typeof _szc.push === 'function') {
+    _szc.push(['_trackEvent', os + '下载', action, appName]);
+  }
+
+  // 5. 上报到自建接口（Cloudflare Workers）
+  if (CONFIG.trackEndpoint){
+    const url = `${CONFIG.trackEndpoint}?id=${encodeURIComponent(appId)}&action=${encodeURIComponent(action)}&app=${encodeURIComponent(appName)}&os=${encodeURIComponent(os)}&t=${Date.now()}`;
+    fetch(url, { mode: 'no-cors' }).catch(()=>{});
+  }
+}
 
 function isPinned(app) { return app.pinnedUntil && app.pinnedUntil > Date.now(); }
 function isNewApp(app) { if (!app.addedAt) return false; const added = new Date(app.addedAt).getTime(); return (Date.now() - added) <= CONFIG.NEW_DAYS * 24 * 60 * 60 * 1000; }
@@ -491,19 +500,5 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') document.que
 window.addEventListener('load', init);
 document.getElementById('searchInput').addEventListener('keyup', e => { if (e.key === 'Enter') doSearch(); });
 </script>
-    <!-- Baidu tongji -->
-    <script>
-        var _hmt = _hmt || [];
-        (function() {
-            var hm = document.createElement("script");
-            hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
-            var s = document.getElementsByTagName("script")[0];
-            s.parentNode.insertBefore(hm, s);
-        })();
-    </script>
-    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
-    <script>
-        LA.init({ id: "3HpUziWJmj6VQUHP", ck: "3HpUziWJmj6VQUHP", autoTrack: true })
-    </script>
 </body>
 </html>
