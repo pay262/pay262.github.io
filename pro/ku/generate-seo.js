@@ -5,7 +5,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const DOMAIN = 'https://pay262.github.io/pro/ku/'; // ⚠️ 改成你的实际地址
+const DOMAIN = 'https://pay262.github.io/pro/ku'; // ⚠️ 改成你的实际地址
 const SITE_NAME = 'WL软件库';
 
 const data = JSON.parse(fs.readFileSync('data.json', 'utf8'));
