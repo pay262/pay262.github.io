@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="auto">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#5b7bf9">
+<title>WL软件库 - 精选优质应用下载平台</title>
+<meta name="description" content="WL软件库为您提供全网最新的安卓和iOS应用下载，包含影视、音乐、工具、阅读、游戏等各类优质软件，每日更新，纯净无广告。">
+<meta name="keywords" content="WL软件库,安卓软件,iOS应用,影视软件,音乐下载">
+<meta name="robots" content="index, follow">
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<style>
+:root{
+  --bg:#f5f6fa; --card:#fff; --text:#222; --sub:#888; --muted:#a0a5b5;
+  --border:#eef0f5; --primary:#5b7bf9; --grad:linear-gradient(135deg,#7b5df9,#5b7bf9);
+  --shadow:0 2px 8px rgba(0,0,0,.05); --icon-bg:#f0f0f0; --ph-bg:#eef0f5;
+  --pwd:#e74c3c; --new:#e74c3c; --pin:#f0a020; --skel:#f0f0f0;
+  --fav:#e74c3c;
+}
+[data-theme="dark"]{
+  --bg:#121212; --card:#1e1e1e; --text:#e6e6e6; --sub:#999; --muted:#666;
+  --border:#2a2a2a; --shadow:0 2px 8px rgba(0,0,0,.3); --icon-bg:#2a2a2a;
+  --ph-bg:#2a2a2a; --skel:#2a2a2a;
+}
+@media (prefers-color-scheme: dark){
+  [data-theme="auto"]{
+    --bg:#121212; --card:#1e1e1e; --text:#e6e6e6; --sub:#999; --muted:#666;
+    --border:#2a2a2a; --shadow:0 2px 8px rgba(0,0,0,.3); --icon-bg:#2a2a2a;
+    --ph-bg:#2a2a2a; --skel:#2a2a2a;
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
+html,body{touch-action:pan-x pan-y;-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s;padding-bottom:60px}
+
+.header{background:var(--grad);padding:20px 15px 4px;color:#fff}
+.header-title{display:flex;justify-content:space-between;align-items:center;font-size:20px;font-weight:700;margin-bottom:12px}
+.header-tools{display:flex;gap:6px}
+.header-tools button{background:rgba(255,255,255,.2);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s}
+.header-tools button:active{transform:scale(.88)}
+
+.search-sticky{position:sticky;top:0;z-index:50;background:var(--grad);padding:10px 15px 14px;border-radius:0 0 16px 16px;box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.search-box{display:flex;align-items:center;background:#fff;border-radius:24px;padding:4px 6px 4px 14px;box-shadow:0 2px 8px rgba(0,0,0,.06);position:relative}
+.search-icon{font-size:14px;color:#888;margin-right:6px}
+.search-box input{flex:1;border:none;outline:none;background:transparent;font-size:14px;padding:6px 0;color:#222;min-width:0}
+.search-box input::placeholder{color:#aaa}
+.search-box button{background:var(--grad);color:#fff;border:none;padding:7px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer}
+.search-history{position:absolute;top:100%;left:0;right:0;background:#fff;border-radius:12px;margin-top:8px;padding:8px;box-shadow:0 8px 24px rgba(0,0,0,.12);display:none;z-index:60;max-height:240px;overflow-y:auto}
+.search-history.show{display:block}
+.sh-title{font-size:11px;color:#999;padding:6px 10px;display:flex;justify-content:space-between}
+.sh-title button{background:none;border:none;color:#5b7bf9;font-size:11px;cursor:pointer;padding:0}
+.sh-item{padding:8px 10px;font-size:14px;border-radius:8px;cursor:pointer;color:#333}
+.sh-item:active{background:#f0f2f7}
+
+.cat-row{display:flex;align-items:center;gap:8px;padding:14px 15px 6px;max-width:820px;margin:0 auto;overflow:hidden}
+.cat-nav{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;flex:1;padding-bottom:2px}
+.cat-nav::-webkit-scrollbar{display:none}
+.cat-btn{flex:0 0 auto;padding:7px 16px;border-radius:16px;border:1px solid var(--border);background:var(--card);color:var(--sub);font-size:13px;cursor:pointer;white-space:nowrap}
+.cat-btn.active{background:var(--grad);color:#fff;border-color:transparent;font-weight:600}
+.sort-btn{flex-shrink:0;padding:7px 14px;border-radius:16px;border:1px solid var(--border);background:var(--card);color:var(--primary);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:4px}
+
+.app-list{padding:10px 15px 6px;display:flex;flex-direction:column;gap:12px;max-width:820px;margin:0 auto}
+/* ★ 卡片改为可点击跳详情页 */
+.app-card{background:var(--card);border-radius:14px;padding:14px;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow);gap:10px;position:relative;overflow:hidden;cursor:pointer;transition:transform .1s}
+.app-card:active{transform:scale(.985)}
+.app-card.pinned{border-left:4px solid var(--pin)}
+.app-info{display:flex;align-items:center;flex:1;overflow:hidden;gap:12px}
+.app-icon{width:52px;height:52px;border-radius:12px;background:var(--icon-bg);display:flex;justify-content:center;align-items:center;font-size:26px;flex-shrink:0;overflow:hidden;position:relative}
+.app-icon img{width:100%;height:100%;object-fit:cover}
+.app-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.app-name{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px;margin:0}
+.version-tag{font-size:10px;color:var(--sub);background:var(--icon-bg);padding:1px 6px;border-radius:6px;font-weight:400}
+.badge-new{font-size:10px;color:#fff;background:var(--new);padding:1px 6px;border-radius:6px;font-weight:700;animation:pulse 2s infinite}
+.badge-pin{font-size:10px;color:#fff;background:var(--pin);padding:1px 6px;border-radius:6px;font-weight:700}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+.app-desc{font-size:12px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.action-area{display:flex;align-items:center;gap:6px;flex-shrink:0}
+/* ★ 小收藏按钮 */
+.fav-btn{background:transparent;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px;line-height:1;transition:.15s}
+.fav-btn:active{transform:scale(.85)}
+.fav-btn.active{color:var(--fav)}
+.btn-download{display:inline-block;border:none;background:var(--grad);color:#fff;padding:8px 14px;border-radius:20px;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer}
+.btn-download:active{transform:scale(.96)}
+.btn-download.ios-btn{background:linear-gradient(135deg,#333,#555)}
+.btn-download.sm{padding:6px 12px;font-size:12px;border-radius:14px}
+.icon-placeholder{width:40px;height:40px;border-radius:10px;background:var(--ph-bg);display:flex;justify-content:center;align-items:center;font-size:20px;color:var(--muted)}
+
+.version-modal-box{max-height:75vh;display:flex;flex-direction:column;padding:16px 20px}
+.version-scroll-area{flex:1;overflow-y:auto;margin:4px 0 10px;padding-right:2px}
+.version-row{display:flex;align-items:flex-start;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);gap:10px;flex-wrap:wrap}
+.version-row:last-child{border-bottom:none}
+.version-row.current{background:linear-gradient(90deg,rgba(91,123,249,.06),transparent);margin:0 -16px;padding:12px 16px;border-radius:8px}
+.version-info{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0}
+.version-head-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.version-num{font-size:15px;font-weight:700}
+.current .version-num{font-size:16px;color:var(--primary)}
+.version-note{font-size:11px;color:var(--sub);line-height:1.5;padding-left:2px}
+.version-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-items:center;flex-shrink:0}
+.badge-latest{font-size:10px;font-weight:700;background:var(--grad);color:#fff;padding:2px 8px;border-radius:10px}
+.badge-old{font-size:10px;background:var(--icon-bg);color:var(--sub);padding:2px 8px;border-radius:10px}
+.version-no-link{font-size:12px;color:var(--muted)}
+.version-group-title{font-size:13px;font-weight:700;color:var(--sub);margin:12px 0 4px}
+.history-toggle-btn{width:100%;padding:10px;background:transparent;border:1px dashed var(--border);color:var(--primary);border-radius:8px;font-size:13px;font-weight:600;margin-top:8px;cursor:pointer}
+
+.empty{text-align:center;padding:60px 20px;color:var(--sub);font-size:14px;line-height:1.8}
+.skeleton{background:var(--card);border-radius:14px;padding:14px;display:flex;gap:12px;align-items:center}
+.sk-icon{width:52px;height:52px;border-radius:12px;background:linear-gradient(90deg,var(--skel) 25%,var(--bg) 50%,var(--skel) 75%);background-size:200% 100%;animation:sk 1.4s infinite}
+.sk-line{height:12px;border-radius:6px;background:linear-gradient(90deg,var(--skel) 25%,var(--bg) 50%,var(--skel) 75%);background-size:200% 100%;animation:sk 1.4s infinite;margin-bottom:8px}
+.sk-line.w60{width:60%}.sk-line.w40{width:40%}
+@keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+.pagination{max-width:820px;margin:8px auto 0;padding:0 15px 10px;display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap}
+.page-btn{min-width:36px;height:36px;padding:0 12px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.page-btn.active{background:var(--grad);color:#fff;border-color:transparent;font-weight:700}
+.page-btn:disabled{opacity:.35;cursor:not-allowed}
+.page-ellipsis{color:var(--sub);padding:0 4px}
+.page-info{width:100%;text-align:center;font-size:12px;color:var(--sub);margin-top:6px}
+
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;justify-content:center;align-items:center;padding:20px}
+.modal-overlay.show{display:flex}
+.modal-box{background:var(--card);width:100%;max-width:400px;border-radius:16px;padding:20px;max-height:85vh;overflow-y:auto}
+.modal-title{font-size:17px;font-weight:700;margin-bottom:14px}
+.modal-content{background:var(--bg);padding:14px;border-radius:10px;font-size:14px;line-height:1.7;margin-bottom:16px;white-space:pre-wrap;word-break:break-all}
+.modal-buttons{display:flex;gap:10px}
+.modal-btn{flex:1;padding:11px;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none;display:inline-block}
+.btn-cancel{background:var(--icon-bg);color:var(--sub)}
+.btn-confirm{background:var(--grad);color:#fff}
+.cert-tip{font-size:12px;color:var(--sub);background:var(--bg);padding:10px 14px;border-radius:10px;line-height:1.7;margin:-6px 0 14px;border-left:3px solid #f0a020}
+
+.wx-mask{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:2000;color:#fff;justify-content:flex-end;padding:20px;flex-direction:column;align-items:flex-end}
+.wx-mask.show{display:flex}
+.wx-arrow{font-size:60px;margin-right:20px;animation:point 1.2s infinite}
+@keyframes point{0%,100%{transform:translate(0,0)}50%{transform:translate(8px,-8px)}}
+.wx-text{background:rgba(255,255,255,.12);padding:18px 22px;border-radius:12px;margin-top:20px;text-align:right;line-height:1.8;max-width:280px}
+
+.link-item{display:flex;justify-content:space-between;align-items:center;width:100%;padding:12px 14px;border:1px solid var(--border);background:var(--card);border-radius:10px;margin-bottom:8px;cursor:pointer;font-size:14px;color:var(--text)}
+.link-provider{font-weight:600}
+.link-pwd{font-size:12px;color:var(--pwd)}
+
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(0,0,0,.82);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;opacity:0;transition:.3s;pointer-events:none;z-index:3000;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+footer{max-width:820px;margin:14px auto;padding:20px 20px 30px;text-align:center;color:var(--sub);font-size:12px;line-height:1.9}
+footer .footer-link{color:var(--primary);cursor:pointer}
+
+.pc-banner{display:none;background:var(--card);border-radius:14px;padding:16px;margin:15px auto 0;max-width:820px;box-shadow:var(--shadow);align-items:center;gap:16px}
+.pc-banner.show{display:flex}
+.pc-banner-qr{background:#fff;padding:6px;border-radius:8px}
+.pc-banner-text{font-size:13px;color:var(--sub);line-height:1.7}
+.pc-banner-text b{color:var(--text);font-size:15px;display:block;margin-bottom:6px}
+
+.back-top{position:fixed;right:16px;bottom:80px;width:42px;height:42px;border-radius:50%;background:var(--grad);color:#fff;border:none;font-size:18px;display:none;justify-content:center;align-items:center;box-shadow:0 4px 12px rgba(91,123,249,.4);cursor:pointer;z-index:90}
+.back-top.show{display:flex}
+
+.stars{display:inline-flex;gap:2px;font-size:13px;user-select:none}
+.star{cursor:pointer;color:#ddd;transition:color .15s}
+.star.on{color:#f0a020}
+</style>
+</head>
+<body>
+<noscript><div style="padding:20px;text-align:center;background:#f5f6fa"><h1>📦 WL软件库</h1><p>本站提供全网最新安卓和 iOS 应用下载，请启用 JavaScript 查看。</p></div></noscript>
+
+<div class="wx-mask" id="wxMask" onclick="this.classList.remove('show')">
+  <div class="wx-arrow">↗</div>
+  <div class="wx-text"><h3>请点击右上角</h3><p>选择「在浏览器中打开」<br>即可正常访问软件库</p></div>
+</div>
+
+<div class="modal-overlay" id="disclaimerModal">
+  <div class="modal-box">
+    <div class="modal-title">⚠️ 免责声明</div>
+    <div class="modal-content">本站所有资源均收集于网络，仅供个人学习和交流使用，请于下载后 24 小时内删除，不得用于任何商业用途。如有侵权，请联系删除。使用本站资源即表示您已阅读并同意本声明。</div>
+    <div class="modal-buttons">
+      <button class="modal-btn btn-cancel" onclick="closeModal('disclaimerModal')">稍后再说</button>
+      <button class="modal-btn btn-confirm" onclick="acceptDisclaimer()">我已知晓</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="transformModal">
+  <div class="modal-box">
+    <div class="modal-title" id="transformTitle">🔮 iOS 变身教程</div>
+    <div class="modal-content" id="transformTipText"></div>
+    <div class="cert-tip">💡 若提示「未受信任的企业级开发者」，请前往 <b>设置 → 通用 → VPN与设备管理</b> 信任证书。</div>
+    <div class="modal-buttons">
+      <button class="modal-btn btn-cancel" onclick="closeModal('transformModal')">取消</button>
+      <button class="modal-btn btn-confirm" id="transformDownloadBtn">去 App Store</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="versionModal">
+  <div class="modal-box version-modal-box">
+    <div class="modal-title" id="versionTitle">📦 选择版本</div>
+    <div class="version-scroll-area" id="versionList"></div>
+    <div class="modal-buttons" style="margin-top:0"><button class="modal-btn btn-cancel" onclick="closeModal('versionModal')">取消</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="updateModal">
+  <div class="modal-box">
+    <div class="modal-title">📝 更新日志</div>
+    <div class="modal-content" id="updateLogContent"></div>
+    <div class="modal-buttons"><button class="modal-btn btn-confirm" onclick="closeModal('updateModal')">关闭</button></div>
+  </div>
+</div>
+
+<header class="header">
+  <h1 class="header-title">
+    <span>📦 WL软件库</span>
+    <div class="header-tools">
+      <button id="shareBtn" onclick="shareSite()" title="分享本站">📤</button>
+      <button id="themeBtn" onclick="cycleTheme()" title="切换主题">🌗</button>
+    </div>
+  </h1>
+</header>
+
+<div class="search-sticky">
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="搜索应用名称或关键词" autocomplete="off">
+    <button onclick="doSearch()">搜索</button>
+    <div class="search-history" id="searchHistory"></div>
+  </div>
+</div>
+
+<div class="pc-banner" id="pcBanner">
+  <div class="pc-banner-qr" id="pcQr"></div>
+  <div class="pc-banner-text"><b>📱 请使用手机扫码访问</b>在手机上可自动识别系统，展示对应的下载按钮。</div>
+</div>
+
+<div class="cat-row">
+  <nav class="cat-nav" id="catNav"></nav>
+  <button class="sort-btn" id="sortBtn" onclick="toggleSort()">🔀 排序</button>
+</div>
+
+<main class="app-list" id="appList">
+  <div class="skeleton"><div class="sk-icon"></div><div style="flex:1"><div class="sk-line w60"></div><div class="sk-line w40"></div></div></div>
+</main>
+<nav class="pagination" id="pagination"></nav>
+
+<footer>
+  <div><a class="footer-link" onclick="showUpdateLog()">📝 v<span id="footerVersion">1.0.0</span> · <span id="footerTime"></span></a></div>
+  <div style="margin-top:8px"><a class="footer-link" href="mailto:your@email.com">📧 意见反馈</a></div>
+  <div style="margin-top:10px;opacity:.7">本站所有资源来自互联网，仅供学习交流，请于 24 小时内删除</div>
+</footer>
+
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ 禁止缩放 ============ */
+let lastTouchEnd = 0;
+document.addEventListener('touchend', e => {
+  const now = Date.now();
+  const clickable = e.target.closest('a') || e.target.closest('button') || e.target.closest('input');
+  if (now - lastTouchEnd <= 300 && !clickable) e.preventDefault();
+  lastTouchEnd = now;
+}, { passive: false });
+document.addEventListener('touchstart', e => { if(e.touches.length > 1) e.preventDefault(); }, { passive: false });
+
+/* ============ 配置 ============ */
+const CONFIG = { trackEndpoint: '', disclaimerVersion: '1.0', PAGE_SIZE: 20, NEW_DAYS: 7 };
+let DB = { version: '', updateTime: '', updateLog: '', apps: [] };
+let currentCategory = '全部';
+let currentKeyword = '';
+let currentPage = 1;
+let currentFilteredList = [];
+let currentVersionApp = null;
+let currentSort = 'default';
+
+/* ============ 工具 ============ */
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function getOS(){ const ua = navigator.userAgent; if(/android/i.test(ua)) return 'Android'; if(/iPad|iPhone|iPod/.test(ua) && !window.MSStream) return 'iOS'; return 'PC'; }
+function isInAppBrowser(){ const ua = navigator.userAgent; return /MicroMessenger/i.test(ua) || (/QQ\/[\d.]+/i.test(ua) && !/MQQBrowser/i.test(ua)) || /Weibo/i.test(ua); }
+async function copyText(text){ try{ if(navigator.clipboard && window.isSecureContext) return await navigator.clipboard.writeText(text); }catch(e){} const ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta); }
+let toastTimer = null;
+function toast(msg){ const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),2200); }
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+function isPinned(app){ return app.pinnedUntil && app.pinnedUntil > Date.now(); }
+function isNewApp(app){ if(!app.addedAt) return false; return (Date.now() - new Date(app.addedAt).getTime()) <= CONFIG.NEW_DAYS * 86400000; }
+
+/* ============ 用户唯一标识 ============ */
+function getUserId(){
+  let uid = localStorage.getItem('wl_uid');
+  if(!uid){
+    uid = 'u' + Date.now().toString(36).slice(-4) + Math.random().toString(36).slice(2, 6);
+    localStorage.setItem('wl_uid', uid);
+  }
+  return uid;
+}
+function checkRef(){
+  try{
+    const params = new URLSearchParams(location.search);
+    const ref = params.get('ref');
+    if(ref && ref !== getUserId()){
+      const existing = localStorage.getItem('wl_ref');
+      if(!existing || existing !== ref){
+        localStorage.setItem('wl_ref', ref);
+      }
+    }
+  }catch(e){}
+}
+
+/* ============ 分享本站 ============ */
+async function shareSite(){
+  const uid = getUserId();
+  const baseUrl = location.origin + location.pathname;
+  const url = baseUrl + '?ref=' + uid;
+  const title = 'WL软件库 - 精选优质应用下载平台';
+  const text = '发现一个超好用的软件库，快来看看！';
+  if(navigator.share){
+    try{ await navigator.share({ title, text, url }); return; }catch(e){ if(e.name === 'AbortError') return; }
+  }
+  await copyText(url);
+  toast('专属分享链接已复制，快发给朋友吧');
+}
+
+/* ============ 收藏 ============ */
+function getFavs(){ try{ return JSON.parse(localStorage.getItem('wl_favs') || '[]'); }catch(e){ return []; } }
+function toggleFav(id){
+  let favs = getFavs();
+  const i = favs.indexOf(id);
+  const app = DB.apps.find(a => a.id === id);
+  const appName = app ? app.name : '';
+  if(i >= 0){
+    favs.splice(i, 1);
+    localStorage.setItem('wl_favs', JSON.stringify(favs));
+    toast(`已取消收藏「${appName}」`);
+  } else {
+    favs.push(id);
+    localStorage.setItem('wl_favs', JSON.stringify(favs));
+    toast(`已收藏「${appName}」 ❤️`);
+  }
+  renderApps();
+}
+
+/* ============ 评分 ============ */
+function getRating(id){ return parseInt(localStorage.getItem('wl_rate_' + id) || '0'); }
+function setRating(id, score){ localStorage.setItem('wl_rate_' + id, score); toast(`已评分 ${score} 星`); renderApps(); }
+
+/* ============ 搜索历史 ============ */
+function getSearchHistory(){ try{ return JSON.parse(localStorage.getItem('wl_search_history') || '[]'); }catch(e){ return []; } }
+function addSearchHistory(kw){
+  if(!kw.trim()) return;
+  let h = getSearchHistory();
+  h = h.filter(x => x !== kw);
+  h.unshift(kw);
+  h = h.slice(0, 8);
+  localStorage.setItem('wl_search_history', JSON.stringify(h));
+}
+function clearSearchHistory(){ localStorage.removeItem('wl_search_history'); renderSearchHistory(); }
+function renderSearchHistory(){
+  const h = getSearchHistory();
+  const el = document.getElementById('searchHistory');
+  if(!h.length){ el.classList.remove('show'); el.innerHTML=''; return; }
+  el.innerHTML = `<div class="sh-title"><span>搜索历史</span><button onclick="clearSearchHistory()">清空</button></div>` +
+    h.map(k => `<div class="sh-item" onclick="quickSearch('${esc(k).replace(/'/g,"\\'")}')">🔍 ${esc(k)}</div>`).join('');
+}
+function quickSearch(kw){
+  document.getElementById('searchInput').value = kw;
+  document.getElementById('searchHistory').classList.remove('show');
+  doSearch();
+}
+
+/* ============ 主题 ============ */
+function applyTheme(){
+  const theme = localStorage.getItem('wl_theme') || 'auto';
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('themeBtn').textContent = theme === 'dark' ? '☀️' : theme === 'light' ? '🌙' : '🌗';
+}
+function cycleTheme(){
+  const cur = localStorage.getItem('wl_theme') || 'auto';
+  const next = cur === 'auto' ? 'light' : cur === 'light' ? 'dark' : 'auto';
+  localStorage.setItem('wl_theme', next);
+  applyTheme();
+  toast(next === 'auto' ? '跟随系统' : next === 'light' ? '浅色模式' : '深色模式');
+}
+applyTheme();
+
+/* ============ 详情页跳转 ============ */
+function goDetail(id){
+  location.href = './app/' + id + '.html';
+}
+
+/* ============ 数据加载 ============ */
+async function init(){
+  checkRef();
+  if(isInAppBrowser()) document.getElementById('wxMask').classList.add('show');
+  if(localStorage.getItem('disclaimer_v') !== CONFIG.disclaimerVersion) document.getElementById('disclaimerModal').classList.add('show');
+  await loadData();
+  if(getOS() === 'PC'){
+    document.getElementById('pcBanner').classList.add('show');
+    if(window.QRCode) new QRCode(document.getElementById('pcQr'), { text: location.href, width: 110, height: 110, colorDark: '#333', colorLight: '#fff' });
+  }
+  window.addEventListener('scroll', () => {
+    const bt = document.getElementById('backTop');
+    if(window.scrollY > 400) bt.classList.add('show'); else bt.classList.remove('show');
+  });
+  const si = document.getElementById('searchInput');
+  si.addEventListener('focus', () => { renderSearchHistory(); document.getElementById('searchHistory').classList.add('show'); });
+  si.addEventListener('keyup', e => { if(e.key === 'Enter') doSearch(); });
+  document.addEventListener('click', e => {
+    if(!e.target.closest('.search-box')) document.getElementById('searchHistory').classList.remove('show');
+  });
+}
+function acceptDisclaimer(){ localStorage.setItem('disclaimer_v', CONFIG.disclaimerVersion); closeModal('disclaimerModal'); }
+
+async function loadData(){
+  const listEl = document.getElementById('appList');
+  try{
+    const res = await fetch('./data.json?t=' + Date.now(), { cache: 'no-store' });
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    const json = JSON.parse(text);
+    DB = {
+      version: json.version || '1.0.0',
+      updateTime: json.updateTime || '',
+      updateLog: json.updateLog || '',
+      apps: Array.isArray(json.apps) ? json.apps : []
+    };
+    renderCategories();
+    renderApps();
+    const vEl = document.getElementById('footerVersion');
+    if(vEl) vEl.textContent = DB.version;
+    const tEl = document.getElementById('footerTime');
+    if(tEl) tEl.textContent = DB.updateTime;
+  }catch(e){
+    console.error('数据加载失败', e);
+    listEl.innerHTML = '<div class="empty">⚠️ 数据加载失败<br>请检查 data.json 是否存在<br><small style="opacity:.6">' + esc(e.message) + '</small></div>';
+  }
+}
+
+/* ============ 分类 ============ */
+function renderCategories(){
+  const cats = ['全部', '❤️ 我的收藏'];
+  if(DB.apps.some(a => isNewApp(a))) cats.push('✨ 上新');
+  DB.apps.forEach(a => { if(a.category && !cats.includes(a.category)) cats.push(a.category); });
+  document.getElementById('catNav').innerHTML = cats.map(c => {
+    const active = c === currentCategory ? 'active' : '';
+    return `<button class="cat-btn ${active}" onclick="switchCategory('${esc(c).replace(/'/g,"\\'")}')">${esc(c)}</button>`;
+  }).join('');
+}
+function switchCategory(cat){ currentCategory = cat; currentPage = 1; renderCategories(); renderApps(); }
+function doSearch(){
+  currentKeyword = document.getElementById('searchInput').value.trim();
+  if(currentKeyword) addSearchHistory(currentKeyword);
+  document.getElementById('searchHistory').classList.remove('show');
+  currentPage = 1;
+  renderApps();
+}
+function toggleSort(){
+  const modes = ['default', 'newest', 'random'];
+  const names = { default: '默认', newest: '最新', random: '随机' };
+  const icons = { default: '🔀', newest: '🆕', random: '🎲' };
+  currentSort = modes[(modes.indexOf(currentSort) + 1) % modes.length];
+  document.getElementById('sortBtn').innerHTML = `${icons[currentSort]} ${names[currentSort]}`;
+  currentPage = 1;
+  renderApps();
+}
+
+/* ============ 列表渲染 ============ */
+function renderApps(){
+  const listEl = document.getElementById('appList');
+  const pagEl = document.getElementById('pagination');
+  const os = getOS();
+  let list = DB.apps.slice();
+
+  if(currentCategory === '❤️ 我的收藏'){
+    const favs = getFavs();
+    list = list.filter(a => favs.includes(a.id));
+  } else if(currentCategory === '✨ 上新'){
+    list = list.filter(a => isNewApp(a));
+  } else if(currentCategory !== '全部'){
+    list = list.filter(a => a.category === currentCategory);
+  }
+  if(currentKeyword){
+    const kw = currentKeyword.toLowerCase();
+    list = list.filter(a => (a.name||'').toLowerCase().includes(kw) || (a.desc||'').toLowerCase().includes(kw));
+  }
+  list.sort((a,b) => {
+    const ap = isPinned(a), bp = isPinned(b);
+    if(ap && !bp) return -1;
+    if(!ap && bp) return 1;
+    if(currentSort === 'newest'){
+      const ta = a.addedAt ? new Date(a.addedAt).getTime() : 0;
+      const tb = b.addedAt ? new Date(b.addedAt).getTime() : 0;
+      return tb - ta;
+    }
+    return 0;
+  });
+  if(currentSort === 'random'){
+    const p = list.filter(a => isPinned(a));
+    const n = list.filter(a => !isPinned(a));
+    for(let i = n.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [n[i], n[j]] = [n[j], n[i]]; }
+    list = [...p, ...n];
+  }
+
+  currentFilteredList = list;
+  if(!list.length){
+    const isEmptyFav = currentCategory === '❤️ 我的收藏';
+    listEl.innerHTML = `<div class="empty">${isEmptyFav ? '💔 还没有收藏任何应用<br>点击卡片右上角 ❤️ 收藏' : '😶 没有找到相关应用<br>试试搜索其他关键词吧'}</div>`;
+    pagEl.innerHTML = '';
+    return;
+  }
+  const total = list.length;
+  const totalPages = Math.ceil(total / CONFIG.PAGE_SIZE);
+  if(currentPage > totalPages) currentPage = totalPages;
+  if(currentPage < 1) currentPage = 1;
+  const start = (currentPage - 1) * CONFIG.PAGE_SIZE;
+  const end = Math.min(start + CONFIG.PAGE_SIZE, total);
+  const pageList = list.slice(start, end);
+  listEl.innerHTML = pageList.map(app => renderCard(app, os)).join('');
+  renderPagination(currentPage, totalPages, start, end, total);
+}
+
+function renderCard(app, os){
+  const versionTag = app.version ? `<span class="version-tag">v${esc(app.version)}</span>` : '';
+  const newTag = isNewApp(app) ? `<span class="badge-new">NEW</span>` : '';
+  const pinTag = isPinned(app) ? `<span class="badge-pin">📌</span>` : '';
+  const isFav = getFavs().includes(app.id);
+  const rating = getRating(app.id);
+  const starsHtml = `<span class="stars">${[1,2,3,4,5].map(n => `<span class="star ${n <= rating ? 'on' : ''}" onclick="event.stopPropagation();setRating(${app.id},${n})">★</span>`).join('')}</span>`;
+
+  let actionHtml = '';
+  if(os === 'Android') actionHtml = renderAndroidAction(app);
+  else if(os === 'iOS') actionHtml = renderIosAction(app);
+  else actionHtml = `<div class="icon-placeholder">💻</div>`;
+
+  const cardClass = isPinned(app) ? 'app-card pinned' : 'app-card';
+
+  return `
+    <div class="${cardClass}" data-id="${app.id}" onclick="goDetail(${app.id})">
+      <div class="app-info">
+        <div class="app-icon">${renderIcon(app)}</div>
+        <div class="app-text">
+          <h2 class="app-name">${esc(app.name)} ${versionTag} ${pinTag} ${newTag}</h2>
+          <div class="app-desc">${esc(app.desc)}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:2px;">
+            ${starsHtml}
+          </div>
+        </div>
+      </div>
+      <div class="action-area">
+        <button class="fav-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation();toggleFav(${app.id})" title="${isFav ? '取消收藏' : '收藏'}">${isFav ? '❤️' : '🤍'}</button>
+        ${actionHtml}
+      </div>
+    </div>
+  `;
+}
+
+function renderIcon(app){
+  if(app.iconUrl){
+    const fb = (app.icon || '📦').replace(/'/g, "\\'");
+    return `<img src="${esc(app.iconUrl)}" alt="${esc(app.name)}" loading="lazy" onerror="this.parentNode.innerHTML='${fb}'">`;
+  }
+  return esc(app.icon || '📦');
+}
+
+function renderPagination(page, totalPages, start, end, total){
+  const el = document.getElementById('pagination');
+  if(totalPages <= 1){ el.innerHTML = `<div class="page-info">共 ${total} 个应用</div>`; return; }
+  let html = '';
+  html += `<button class="page-btn" ${page===1?'disabled':''} onclick="gotoPage(1)">首页</button>`;
+  html += `<button class="page-btn" ${page===1?'disabled':''} onclick="gotoPage(${page-1})">‹</button>`;
+  const nums = [];
+  const left = Math.max(1, page - 2), right = Math.min(totalPages, page + 2);
+  if(left > 1){ nums.push(1); if(left > 2) nums.push('...'); }
+  for(let i = left; i <= right; i++) nums.push(i);
+  if(right < totalPages){ if(right < totalPages - 1) nums.push('...'); nums.push(totalPages); }
+  nums.forEach(p => {
+    if(p === '...') html += `<span class="page-ellipsis">…</span>`;
+    else html += `<button class="page-btn ${p===page?'active':''}" onclick="gotoPage(${p})">${p}</button>`;
+  });
+  html += `<button class="page-btn" ${page===totalPages?'disabled':''} onclick="gotoPage(${page+1})">›</button>`;
+  html += `<button class="page-btn" ${page===totalPages?'disabled':''} onclick="gotoPage(${totalPages})">末页</button>`;
+  html += `<div class="page-info">第 ${page}/${totalPages} 页 · ${start+1}-${end} 共 ${total} 个</div>`;
+  el.innerHTML = html;
+}
+function gotoPage(p){ if(p === currentPage) return; currentPage = p; renderApps(); window.scrollTo(0,0); }
+
+/* ============ 下载按钮 ============ */
+function renderAndroidAction(app){
+  const links = app.androidLinks || [];
+  const hasHistory = app.historyVersions && app.historyVersions.length > 0;
+  if(hasHistory || links.length > 1) return `<button class="btn-download" onclick="event.stopPropagation();showVersionPicker(${app.id})">选择版本</button>`;
+  if(links.length === 1) return `<button class="btn-download" onclick="event.stopPropagation();openAndroidLink(${app.id},0)">${esc(links[0].provider || '下载')}</button>`;
+  return `<div class="icon-placeholder">📱</div>`;
+}
+function renderIosAction(app){
+  const hasHistory = app.historyVersions && app.historyVersions.length > 0;
+  if(hasHistory) return `<button class="btn-download ios-btn" onclick="event.stopPropagation();showVersionPicker(${app.id})">选择版本</button>`;
+  if(!app.iosUrl) return `<div class="icon-placeholder">🍎</div>`;
+  if(app.isTransform){
+    const isClone = app.iosType === 'clone';
+    return `<button class="btn-download ios-btn" onclick="event.stopPropagation();showTransform(${app.id})">${isClone ? '分身安装' : '安装教程'}</button>`;
+  }
+  return `<button class="btn-download ios-btn" onclick="event.stopPropagation();openIosLink(${app.id})">App Store</button>`;
+}
+
+/* ============ 版本弹窗 ============ */
+function showVersionPicker(appId){
+  const app = DB.apps.find(a => a.id === appId); if(!app) return;
+  currentVersionApp = app;
+  const os = getOS();
+  document.getElementById('versionTitle').innerHTML = `📦 ${esc(app.name)}`;
+  const versions = [
+    { version: app.version, note: app.note || '', androidLinks: app.androidLinks || [], iosUrl: app.iosUrl || '', isTransform: !!app.isTransform, iosType: app.iosType || 'transform', transformTip: app.transformTip || '', isLatest: true },
+    ...(app.historyVersions || []).map(v => ({
+      version: v.version || '', note: v.note || '', androidLinks: v.androidLinks || [], iosUrl: v.iosUrl || '', isTransform: !!v.isTransform, iosType: v.iosType || 'transform', transformTip: v.transformTip || '', isLatest: false
+    }))
+  ];
+  let html = `<div class="version-group-title">✨ 当前版本</div>` + renderVersionRow(versions[0], os, 0, true);
+  if(versions.length > 1){
+    html += `<div class="version-group-title">📜 历史版本</div>`;
+    const histories = versions.slice(1);
+    const displayCount = 4;
+    for(let i = 0; i < Math.min(histories.length, displayCount); i++) html += renderVersionRow(histories[i], os, i+1, false);
+    if(histories.length > displayCount){
+      let hidden = '';
+      for(let i = displayCount; i < histories.length; i++) hidden += renderVersionRow(histories[i], os, i+1, false);
+      html += `<div id="hiddenHistory" style="display:none">${hidden}</div>`;
+      html += `<button class="history-toggle-btn" id="historyToggleBtn" onclick="toggleHistory(${histories.length - displayCount})">展开剩余 ${histories.length - displayCount} 个历史版本 ▼</button>`;
+    }
+  }
+  document.getElementById('versionList').innerHTML = html;
+  document.getElementById('versionModal').classList.add('show');
+}
+function renderVersionRow(v, os, idx, isCurrent){
+  let actions = '';
+  if(os === 'Android'){
+    const links = v.androidLinks || [];
+    actions = links.length ? links.map((l,i) => `<button class="btn-download sm" onclick="openVersionAndroidLink(${idx},${i})">${esc(l.provider || '下载')}</button>`).join('') : '<span class="version-no-link">无安卓链接</span>';
+  } else if(os === 'iOS'){
+    if(!v.iosUrl) actions = '<span class="version-no-link">无 iOS 链接</span>';
+    else if(v.isTransform) actions = `<button class="btn-download sm ios-btn" onclick="openVersionIos(${idx})">${v.iosType === 'clone' ? '分身安装' : '安装教程'}</button>`;
+    else actions = `<button class="btn-download sm ios-btn" onclick="openVersionIos(${idx})">App Store</button>`;
+  } else actions = '<span class="version-no-link">💻 PC 端</span>';
+  const badge = isCurrent ? '<span class="badge-latest">最新</span>' : '<span class="badge-old">旧版</span>';
+  const noteHtml = v.note ? `<div class="version-note">${esc(v.note)}</div>` : '';
+  return `<div class="version-row ${isCurrent?'current':''}">
+    <div class="version-info">
+      <div class="version-head-line"><span class="version-num">v${esc(v.version || '未知')}</span>${badge}</div>
+      ${noteHtml}
+    </div>
+    <div class="version-actions">${actions}</div>
+  </div>`;
+}
+function toggleHistory(count){
+  const h = document.getElementById('hiddenHistory');
+  const b = document.getElementById('historyToggleBtn');
+  if(h.style.display === 'none'){ h.style.display = 'block'; b.textContent = '收起历史版本 ▲'; }
+  else { h.style.display = 'none'; b.textContent = `展开剩余 ${count} 个历史版本 ▼`; }
+}
+
+/* ============ 埋点 ============ */
+function track(appId, action){
+  try{ const k = `track_${appId}_${action}`; localStorage.setItem(k, parseInt(localStorage.getItem(k) || '0') + 1); }catch(e){}
+  const app = DB.apps.find(a => a.id === appId);
+  const appName = app ? app.name : ('ID:' + appId);
+  let os = 'PC';
+  if(/android/i.test(navigator.userAgent)) os = 'Android';
+  else if(/iPad|iPhone|iPod/.test(navigator.userAgent)) os = 'iOS';
+  if(typeof _szc !== 'undefined' && typeof _szc.push === 'function') _szc.push(['_trackEvent', os + '下载', action, appName]);
+  if(CONFIG.trackEndpoint){
+    fetch(`${CONFIG.trackEndpoint}?id=${encodeURIComponent(appId)}&action=${encodeURIComponent(action)}&app=${encodeURIComponent(appName)}&os=${encodeURIComponent(os)}&uid=${encodeURIComponent(getUserId())}&t=${Date.now()}`, { mode: 'no-cors' }).catch(()=>{});
+  }
+}
+
+/* ============ 打开链接 ============ */
+function openAndroidLink(appId, index){
+  const app = DB.apps.find(a => a.id === appId);
+  if(!app || !app.androidLinks || !app.androidLinks[index]) return;
+  const link = app.androidLinks[index];
+  track(appId, 'android_' + (link.provider || index));
+  if(link.pwd){
+    copyText(link.pwd).then(() => toast(`提取码 ${link.pwd} 已复制`)).catch(()=>{});
+    setTimeout(() => window.open(link.url, '_blank', 'noopener'), 350);
+  } else window.open(link.url, '_blank', 'noopener');
+}
+function openIosLink(appId){
+  const app = DB.apps.find(a => a.id === appId);
+  if(!app || !app.iosUrl) return;
+  track(appId, 'ios');
+  window.open(app.iosUrl, '_blank', 'noopener');
+}
+function openVersionAndroidLink(versionIdx, linkIdx){
+  const app = currentVersionApp; if(!app) return;
+  const v = versionIdx === 0 ? app : (app.historyVersions || [])[versionIdx - 1];
+  if(!v || !v.androidLinks || !v.androidLinks[linkIdx]) return;
+  const link = v.androidLinks[linkIdx];
+  closeModal('versionModal');
+  track(app.id, 'android_v' + (v.version || '') + '_' + (link.provider || linkIdx));
+  if(link.pwd){
+    copyText(link.pwd).then(() => toast(`提取码 ${link.pwd} 已复制`)).catch(()=>{});
+    setTimeout(() => window.open(link.url, '_blank', 'noopener'), 350);
+  } else window.open(link.url, '_blank', 'noopener');
+}
+function openVersionIos(versionIdx){
+  const app = currentVersionApp; if(!app) return;
+  const v = versionIdx === 0 ? app : (app.historyVersions || [])[versionIdx - 1];
+  if(!v || !v.iosUrl) return;
+  closeModal('versionModal');
+  track(app.id, 'ios_v' + (v.version || ''));
+  if(v.isTransform && v.transformTip){
+    const isClone = v.iosType === 'clone';
+    document.getElementById('transformTitle').textContent = isClone ? '🔮 iOS 分身教程' : '🔮 iOS 变身教程';
+    document.getElementById('transformTipText').textContent = v.transformTip;
+    document.getElementById('transformDownloadBtn').onclick = () => window.open(v.iosUrl, '_blank', 'noopener');
+    document.getElementById('transformModal').classList.add('show');
+  } else window.open(v.iosUrl, '_blank', 'noopener');
+}
+function showTransform(appId){
+  const app = DB.apps.find(a => a.id === appId); if(!app) return;
+  track(appId, 'transform_view');
+  const isClone = app.iosType === 'clone';
+  document.getElementById('transformTitle').textContent = isClone ? '🔮 iOS 分身教程' : '🔮 iOS 变身教程';
+  document.getElementById('transformTipText').textContent = app.transformTip || '暂无教程';
+  document.getElementById('transformDownloadBtn').onclick = () => { track(appId, 'ios'); window.open(app.iosUrl, '_blank', 'noopener'); };
+  document.getElementById('transformModal').classList.add('show');
+}
+function showUpdateLog(){
+  document.getElementById('updateLogContent').textContent = DB.updateLog || '暂无更新日志';
+  document.getElementById('updateModal').classList.add('show');
+}
+
+/* ============ 事件绑定 ============ */
+document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if(e.target === m) m.classList.remove('show'); }));
+document.addEventListener('keydown', e => { if(e.key === 'Escape') document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show')); });
+window.addEventListener('load', init);
+</script>
+</body>
+</html>

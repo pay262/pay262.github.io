@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WL软件库 · 后台管理</title>
+<style>
+:root{ --bg:#f5f6fa; --card:#fff; --text:#222; --sub:#888; --muted:#a0a5b5; --border:#e6e9f2; --primary:#5b7bf9; --grad:linear-gradient(135deg,#7b5df9,#5b7bf9); --success:#22a06b; --danger:#e74c3c; --warn:#f0a020; --shadow:0 2px 8px rgba(0,0,0,.05); --pin:#f0a020; }
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);padding-bottom:80px;font-size:14px;line-height:1.6}
+button{cursor:pointer;font-family:inherit}
+input,select,textarea{font-family:inherit;font-size:14px}
+#globalError{display:none;background:#fdecea;color:#e74c3c;padding:10px 20px;font-size:12px;border-bottom:1px solid #fadbd8;position:sticky;top:0;z-index:9999}
+
+/* ============ 登录遮罩 ============ */
+#authGate{display:none;position:fixed;inset:0;background:linear-gradient(135deg,#7b5df9,#5b7bf9);z-index:99999;justify-content:center;align-items:center;padding:20px;overflow-y:auto}
+.auth-box{background:#fff;border-radius:18px;padding:32px 26px;max-width:380px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.auth-box .icon{font-size:44px;margin-bottom:14px}
+.auth-box h2{margin:0 0 8px;font-size:20px;font-weight:700}
+.auth-box p{color:#888;font-size:13px;margin-bottom:22px;line-height:1.6}
+.auth-box input{width:100%;padding:13px 14px;border:1px solid var(--border);border-radius:10px;font-size:15px;outline:none;transition:.15s}
+.auth-box input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(91,123,249,.12)}
+.auth-box button{width:100%;margin-top:16px;padding:13px;background:var(--grad);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer}
+.auth-box button:active{transform:scale(.98)}
+.auth-box .tip{color:#aaa;font-size:11px;margin-top:16px;line-height:1.6}
+
+/* ============ 主工具栏 ============ */
+.toolbar{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;box-shadow:0 1px 4px rgba(0,0,0,.03)}
+.toolbar h1{font-size:17px;font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.toolbar .stats{font-size:12px;color:var(--sub);font-weight:400}
+.toolbar .actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{padding:8px 14px;border:none;border-radius:8px;font-size:13px;font-weight:600;background:#eef0f5;color:#555;transition:.15s;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--grad);color:#fff}
+.btn.success{background:var(--success);color:#fff}
+.btn.danger{background:var(--danger);color:#fff}
+.btn.ghost{background:transparent;color:var(--sub);border:1px solid var(--border)}
+.btn-mini{padding:4px 10px;font-size:12px;border:none;border-radius:6px;background:#eef0f5;color:#555;font-weight:500}
+.btn-mini.primary{background:var(--primary);color:#fff}
+.btn-mini.danger{background:#fdecea;color:var(--danger)}
+.container{max-width:1000px;margin:20px auto;padding:0 20px}
+
+/* ============ Tab ============ */
+.tab-bar{background:#fff;border-bottom:1px solid var(--border);padding:0 20px;display:flex;gap:24px;font-size:14px;position:sticky;top:56px;z-index:99}
+.tab-btn{padding:12px 0;cursor:pointer;font-weight:600;color:var(--sub);border-bottom:2px solid transparent;transition:.15s}
+.tab-btn.active{color:var(--primary);border-bottom-color:var(--primary)}
+
+/* ============ 统计面板 ============ */
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.stat-card{background:#fff;border-radius:10px;padding:14px;text-align:center;box-shadow:var(--shadow)}
+.stat-card .num{font-size:20px;font-weight:700;color:var(--primary)}
+.stat-card .lbl{font-size:11px;color:var(--sub);margin-top:4px}
+
+/* ============ 搜索/筛选 ============ */
+.control-bar{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+.filter-group{display:flex;gap:8px;flex:1;min-width:280px;background:#fff;padding:8px 12px;border-radius:10px;box-shadow:var(--shadow);align-items:center}
+.filter-group input{flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:#fafbff;outline:none;min-width:100px}
+.filter-group input:focus{border-color:var(--primary)}
+.filter-group select{padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:#fafbff;outline:none;cursor:pointer;max-width:110px}
+.filter-group .count-info{font-size:12px;color:var(--sub);white-space:nowrap;margin-left:auto}
+.batch-group{display:flex;gap:8px;background:#fff;padding:8px 12px;border-radius:10px;box-shadow:var(--shadow);align-items:center}
+.batch-group .count{font-size:12px;color:var(--sub);margin-right:6px}
+
+/* ============ 应用列表 ============ */
+.app-list{display:flex;flex-direction:column;gap:10px}
+.app-item{background:#fff;border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);border:1px solid transparent;transition:.15s;cursor:grab;position:relative}
+.app-item.pinned-item{border-left:4px solid var(--pin)}
+.app-item:active{cursor:grabbing}
+.app-item:hover{border-color:#d0d7e8}
+.app-item.dragging{opacity:.5;background:#f0f2f7}
+.app-item .drag-handle{color:var(--muted);font-size:18px;cursor:grab;padding:0 4px;user-select:none}
+.app-item .checkbox-wrap{display:flex;align-items:center}
+.app-item .checkbox-wrap input{width:18px;height:18px;accent-color:var(--primary);cursor:pointer}
+.app-item .icon{width:46px;height:46px;border-radius:10px;background:#f0f2f7;display:flex;justify-content:center;align-items:center;font-size:24px;flex-shrink:0;overflow:hidden}
+.app-item .icon img{width:100%;height:100%;object-fit:cover}
+.app-item .info{flex:1;min-width:0}
+.app-item .name{font-size:15px;font-weight:600;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.app-item .tag{font-size:10px;padding:2px 7px;border-radius:5px;font-weight:500}
+.tag.id{background:#eef0f5;color:#888;font-family:Menlo,Consolas,monospace;font-weight:600}
+.tag.cat{background:#eef2ff;color:#5b7bf9}
+.tag.ver{background:#f0f2f7;color:var(--sub)}
+.tag.ios-clone{background:#fde8f0;color:#d6336c}
+.tag.ios-transform{background:#fef4e6;color:#e07b00}
+.tag.ios-plain{background:#e8f7ee;color:#22a06b}
+.tag.and{background:#e8f7ee;color:#22a06b}
+.tag.history{background:#fff4e0;color:#f08020}
+.tag.new{background:#fdecea;color:#e74c3c;font-weight:700}
+.tag.pin{background:#fff4e0;color:#f0a020;font-weight:700}
+.app-item .desc{font-size:12px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
+.app-item .ops{display:flex;gap:6px;flex-shrink:0}
+.empty-state{background:#fff;border-radius:12px;padding:60px 20px;text-align:center;color:var(--sub);box-shadow:var(--shadow)}
+.empty-state .em{font-size:50px;margin-bottom:12px}
+
+/* ============ 分页 ============ */
+.admin-pagination{display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap;margin-top:20px;user-select:none}
+.page-btn{min-width:34px;height:34px;padding:0 10px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--text);font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s}
+.page-btn:active{transform:scale(.95)}
+.page-btn.active{background:var(--primary);color:#fff;border-color:transparent;font-weight:700}
+.page-btn:disabled{opacity:.35;cursor:not-allowed}
+.page-ellipsis{color:var(--sub);padding:0 4px;font-size:13px}
+
+/* ============ 智能识别 ============ */
+.smart-panel{background:#fff;border-radius:14px;padding:20px;box-shadow:var(--shadow);margin-bottom:20px;border:2px dashed #d0d7e8}
+.smart-panel h2{font-size:15px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.smart-panel .hint{font-size:12px;color:var(--sub);margin-bottom:12px;line-height:1.7}
+.smart-panel .hint code{background:#f0f2f7;padding:1px 6px;border-radius:4px;font-family:Menlo,Consolas,monospace;font-size:11px;color:#5b7bf9}
+#smartInput{width:100%;min-height:120px;padding:12px 14px;border:1px solid var(--border);border-radius:10px;font-family:Menlo,Consolas,monospace;font-size:13px;line-height:1.7;resize:vertical;background:#fafbff}
+#smartInput:focus{outline:2px solid var(--primary);border-color:transparent;background:#fff}
+.smart-actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+
+/* ============ 弹窗 ============ */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;justify-content:center;align-items:center;padding:20px;overflow-y:auto}
+.modal.show{display:flex}
+.modal-content{background:#fff;width:100%;max-width:680px;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.2);max-height:90vh;display:flex;flex-direction:column;animation:pop .2s ease-out}
+@keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.modal-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.modal-header h3{font-size:16px;font-weight:700}
+.modal-close{background:none;border:none;font-size:22px;color:var(--sub);line-height:1;cursor:pointer;padding:0 4px}
+.modal-body{padding:20px;overflow-y:auto;flex:1}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+.form-row{margin-bottom:14px}
+.form-row label{display:block;font-size:12px;color:var(--sub);font-weight:600;margin-bottom:6px}
+.form-row label .required{color:var(--danger)}
+.form-row input[type="text"],.form-row input[type="url"],.form-row input:not([type]),.form-row input[type="number"],.form-row select,.form-row textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:#fafbff;transition:.15s}
+.form-row input:focus,.form-row select:focus,.form-row textarea:focus{outline:2px solid var(--primary);border-color:transparent;background:#fff}
+.form-row textarea{resize:vertical;min-height:70px;font-family:inherit}
+.form-row.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-row.checkbox-row label{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text);font-weight:500;cursor:pointer}
+.form-row.checkbox-row input[type="checkbox"]{width:18px;height:18px;cursor:pointer;accent-color:var(--primary)}
+.section-title{font-size:13px;font-weight:700;color:var(--text);margin:20px 0 10px;display:flex;justify-content:space-between;align-items:center;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.section-title:first-child{margin-top:0}
+.link-row{display:grid;grid-template-columns:100px 1fr 100px 32px;gap:8px;margin-bottom:8px;align-items:center}
+.link-row input{padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:#fafbff;min-width:0}
+.link-row input:focus{outline:2px solid var(--primary);border-color:transparent;background:#fff}
+.link-row .del-btn{width:32px;height:32px;padding:0;border:none;border-radius:6px;background:#fdecea;color:var(--danger);font-size:14px;display:flex;justify-content:center;align-items:center;cursor:pointer}
+.empty-hint{text-align:center;padding:16px;color:var(--muted);font-size:12px;background:#fafbff;border-radius:8px;border:1px dashed var(--border)}
+.history-item{background:#fafbff;border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px}
+.history-item-head{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.history-item-head input{flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-weight:600;background:#fff}
+.history-item-head .del-btn{width:30px;height:30px;padding:0;border:none;border-radius:6px;background:#fdecea;color:var(--danger);font-size:14px;display:flex;justify-content:center;align-items:center;cursor:pointer;flex-shrink:0}
+.history-item .label{font-size:11px;color:var(--sub);font-weight:600;margin:8px 0 5px;display:block}
+.history-item .form-row{margin-bottom:8px}
+.history-item input[type="text"],.history-item input:not([type]){width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:#fff}
+.history-empty{padding:12px;text-align:center;color:var(--muted);font-size:12px;background:#fafbff;border-radius:8px;border:1px dashed var(--border);margin-bottom:10px}
+.pin-preview{font-size:11px;color:var(--sub);margin-top:4px}
+
+/* ============ Toast ============ */
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(0,0,0,.85);color:#fff;padding:12px 20px;border-radius:12px;font-size:13px;opacity:0;transition:.3s;pointer-events:none;z-index:3000;max-width:90vw;display:flex;align-items:center;gap:10px;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+.toast.ok{background:#22a06b}
+.toast.err{background:#e74c3c}
+.toast button{background:rgba(255,255,255,.25);border:none;color:#fff;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer}
+.toast button:hover{background:rgba(255,255,255,.4)}
+.error-msg{font-size:11px;color:var(--danger);margin-top:3px;display:none}
+.input-error{border-color:var(--danger) !important}
+
+/* ============ 帮助 ============ */
+.help{background:#fff;border-radius:12px;padding:16px 20px;box-shadow:var(--shadow);margin-top:20px;font-size:12px;color:var(--sub);line-height:1.9}
+.help b{color:var(--text)}
+.help code{background:#f0f2f7;padding:1px 6px;border-radius:4px;font-family:Menlo,Consolas,monospace;font-size:11px;color:#5b7bf9}
+
+@media (max-width:600px){
+  .toolbar h1{font-size:15px}
+  .toolbar .actions{width:100%}
+  .toolbar .actions .btn{flex:1;font-size:12px;padding:8px 10px}
+  .stats-bar{grid-template-columns:1fr 1fr}
+  .link-row{grid-template-columns:80px 1fr 80px 30px;gap:6px}
+  .form-row.two-col{grid-template-columns:1fr}
+  .app-item .ops{flex-direction:column;gap:4px}
+  .admin-pagination .page-btn{padding:0 8px;font-size:12px;min-width:30px;height:30px}
+  .filter-group{flex-wrap:wrap}
+  .filter-group input{width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ 登录遮罩 ============ -->
+<div id="authGate">
+  <div class="auth-box">
+    <div class="icon" id="authIcon">🔐</div>
+    <h2 id="authTitle">设置后台密码</h2>
+    <p id="authDesc">首次使用，请设置一个管理密码<br>用于保护你的数据安全</p>
+    <input type="password" id="authPwd" placeholder="请输入密码" onkeyup="if(event.key==='Enter')doAuth()">
+    <input type="password" id="authPwd2" placeholder="再次确认密码" style="margin-top:10px;display:none" onkeyup="if(event.key==='Enter')doAuth()">
+    <button onclick="doAuth()" id="authBtn">确认设置</button>
+    <p class="tip">提示：此密码仅前端遮挡，建议同时用 Nginx HTTP Basic Auth 保护</p>
+  </div>
+</div>
+
+<div id="globalError"></div>
+
+<!-- ============ 工具栏 ============ -->
+<header class="toolbar">
+  <h1>🔧 WL软件库 · 后台管理 <span class="stats" id="statsText">共 0 个应用</span></h1>
+  <div class="actions">
+    <button class="btn ghost" onclick="reloadFromServer()">🔄 重新拉取</button>
+    <button class="btn primary" onclick="openEditor()">➕ 新建应用</button>
+    <button class="btn" onclick="document.getElementById('importFile').click()">📥 导入 JSON</button>
+    <button class="btn" onclick="importCSV()">📊 导入 CSV</button>
+    <button class="btn" onclick="checkLinks()">🩺 链接检查</button>
+    <button class="btn" onclick="showLogs()">📋 操作日志</button>
+    <button class="btn" onclick="clearAll()">🗑 清空数据</button>
+    <button class="btn success" onclick="exportJson()">📤 导出 data.json</button>
+    <button class="btn ghost" onclick="logout()">🚪 退出登录</button>
+  </div>
+  <input type="file" id="importFile" accept=".json,application/json" style="display:none" onchange="importJson(event)">
+  <input type="file" id="csvFile" accept=".csv,text/csv" style="display:none" onchange="handleCSV(event)">
+</header>
+
+<!-- ============ Tab ============ -->
+<div class="tab-bar">
+  <div id="tabApps" class="tab-btn active" onclick="switchTab('apps')">📦 应用管理</div>
+  <div id="tabStats" class="tab-btn" onclick="switchTab('stats')">📊 数据统计</div>
+</div>
+
+<div class="container">
+
+  <!-- ============ 应用管理 ============ -->
+  <div id="appsView">
+    <div class="stats-bar">
+      <div class="stat-card"><div class="num" id="statTotal">0</div><div class="lbl">总应用数</div></div>
+      <div class="stat-card"><div class="num" id="statAnd">0</div><div class="lbl">安卓应用</div></div>
+      <div class="stat-card"><div class="num" id="statIos">0</div><div class="lbl">iOS 应用</div></div>
+      <div class="stat-card"><div class="num" id="statNew">0</div><div class="lbl">今日新增</div></div>
+    </div>
+
+    <div class="control-bar">
+      <div class="filter-group">
+        <input type="text" id="adminSearchInput" placeholder="🔍 搜索名称、分类、ID..." oninput="onAdminSearch()">
+        <select id="adminCategoryFilter" onchange="onAdminCategoryChange()"><option value="">全部分类</option></select>
+        <button class="btn ghost" onclick="clearAdminFilter()" style="padding:6px 10px;font-size:12px">清空</button>
+        <span class="count-info" id="filterCount">共 0 条结果</span>
+      </div>
+      <div class="batch-group" id="batchGroup" style="display:none">
+        <span class="count" id="batchCount">已选 0 项</span>
+        <button class="btn-mini danger" onclick="batchDelete()">批量删除</button>
+        <button class="btn-mini primary" onclick="batchSetCategory()">批量改分类</button>
+      </div>
+    </div>
+
+    <section class="smart-panel">
+      <h2>✨ 智能识别（粘贴自动填表）</h2>
+      <div class="hint">
+        粘贴包含<b>网盘链接</b>和 <b>App Store 链接</b>的任意文本，系统会自动识别平台、链接、提取码并填入表单。<br>
+        支持：<code>夸克</code> <code>百度</code> <code>蓝奏云</code> <code>阿里云盘</code> <code>123云盘</code> <code>迅雷</code> <code>115</code> <code>移动云盘</code> <code>天翼云盘</code> <code>微云</code> <code>UC网盘</code>
+      </div>
+      <textarea id="smartInput" placeholder="在此粘贴文本，例如：&#10;&#10;小柿子影视 v2.1.9&#10;追剧神器，电影动漫全部高清免费看&#10;&#10;夸克网盘：https://pan.quark.cn/s/abc123&#10;百度网盘：https://pan.baidu.com/s/1xyz 提取码：1234&#10;&#10;App Store：https://apps.apple.com/cn/app/id123456"></textarea>
+      <div class="smart-actions">
+        <button class="btn primary" onclick="smartParse()">🔍 识别并创建应用</button>
+        <button class="btn ghost" onclick="document.getElementById('smartInput').value=''">清空</button>
+      </div>
+    </section>
+
+    <section>
+      <div id="appListContainer" class="app-list"></div>
+      <div class="admin-pagination" id="adminPagination"></div>
+    </section>
+  </div>
+
+  <!-- ============ 数据统计 ============ -->
+  <div id="statsView" style="display:none">
+    <div style="background:#fff;border-radius:12px;padding:20px;box-shadow:var(--shadow);margin-bottom:20px">
+      <h3 style="font-size:15px;margin-bottom:16px">🔧 数据源配置</h3>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <input type="text" id="statsEndpoint" placeholder="Cloudflare Worker 地址，如 https://xxx.workers.dev" style="flex:1;min-width:240px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:#fafbff">
+        <button class="btn primary" onclick="loadStats()">🔄 加载统计</button>
+        <button class="btn" onclick="document.getElementById('statsEndpoint').value='';localStorage.removeItem('wl_stats_endpoint')">清空</button>
+      </div>
+      <p style="font-size:12px;color:var(--sub);margin-top:10px">提示：51.LA 事件数据请登录 51.LA 后台查看。此页展示自建 Cloudflare Worker 的原始日志。</p>
+    </div>
+    <div id="statsContent"></div>
+  </div>
+
+  <section class="help" id="helpSection">
+    <b>使用说明：</b><br>
+    1. <b>后台密码</b>：首次使用会引导你设置密码，哈希存本地，建议配合服务器 HTTP Basic Auth。<br>
+    2. <b>置顶</b>：勾选后强制排最前，可设小时/天/月，过期自动取消。<br>
+    3. <b>历史版本特点</b>：在编辑弹窗「📜 历史版本」区填写一行小字描述，前端展示在版本号下方。<br>
+    4. <b>拖拽排序</b>：按住卡片左侧 ☰ 图标拖动。<br>
+    5. <b>撤销</b>：删除后 5 秒内可撤销。<br>
+    6. <b>链接健康检查</b>：批量检测下载链接可达性（no-cors 模式，仅供参考）。<br>
+    7. <b>操作日志</b>：记录最近 200 条增删改记录。<br>
+    8. <b>CSV 导入</b>：支持 name,icon,desc,category,version,androidUrl,pwd,iosUrl,addedAt 字段。<br>
+    9. 快捷键：<code>Ctrl + S</code> 保存正在编辑的表单。<br>
+    <b style="color:#e74c3c">⚠️ 上线后请用难以猜测的文件名替换 admin.html。</b>
+  </section>
+</div>
+
+<!-- ============ 编辑弹窗 ============ -->
+<div class="modal" id="editorModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="editorTitle">编辑应用</h3>
+      <button class="modal-close" onclick="closeEditor()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row two-col">
+        <div><label>图标（Emoji）</label><input id="f_icon" placeholder="🍊" maxlength="8"></div>
+        <div><label>版本号</label><input id="f_version" placeholder="1.0.0"></div>
+      </div>
+      <div class="form-row">
+        <label>图标图片 URL（可选，优先显示图片）</label>
+        <input id="f_iconUrl" placeholder="https://example.com/icon.png" oninput="validateUrl(this)">
+        <div class="error-msg" id="err_iconUrl">请输入合法的图片 URL</div>
+      </div>
+      <div class="form-row"><label>名称 <span class="required">*</span></label><input id="f_name" placeholder="应用名称"></div>
+      <div class="form-row">
+        <label>分类</label>
+        <input id="f_category" list="categoryList" placeholder="工具 / 影视 / 音乐 / 阅读 / 游戏 / 社交">
+        <datalist id="categoryList"></datalist>
+      </div>
+      <div class="form-row">
+        <label>添加日期（YYYY-MM-DD）</label>
+        <input id="f_addedAt" placeholder="2026-09-22" oninput="validateDate(this)">
+        <div class="error-msg" id="err_addedAt">请输入正确的日期格式</div>
+      </div>
+      <div class="form-row"><label>描述</label><textarea id="f_desc" rows="2" placeholder="一句话介绍这个应用"></textarea></div>
+      <div class="form-row"><label>当前版本特点（可选，显示在版本号下方的小字）</label><input id="f_note" placeholder="如：最新稳定版，新增投屏功能"></div>
+
+      <div class="section-title" style="margin-top:16px">📌 置顶设置</div>
+      <div class="form-row checkbox-row" style="margin-bottom:8px">
+        <label><input type="checkbox" id="f_isPinned" onchange="togglePinFields()"> 置顶此应用（前端强制排在第一位）</label>
+      </div>
+      <div id="pinFields" style="display:none;background:#fafbff;padding:12px;border-radius:8px;border:1px solid var(--border);margin-bottom:14px">
+        <div class="form-row two-col" style="margin-bottom:8px">
+          <div><label>置顶时长</label><input type="number" id="f_pinDuration" value="1" min="1" oninput="updatePinPreview()"></div>
+          <div><label>单位</label>
+            <select id="f_pinUnit" onchange="updatePinPreview()">
+              <option value="hour">小时</option>
+              <option value="day">天</option>
+              <option value="month">个月（30天）</option>
+            </select>
+          </div>
+        </div>
+        <div class="pin-preview" id="pinPreview">预览：保存后将在 1 小时后自动取消置顶</div>
+      </div>
+
+      <div class="section-title">
+        <span>📱 安卓下载线路（当前版本）</span>
+        <button class="btn-mini primary" onclick="addLink()">+ 添加线路</button>
+      </div>
+      <div id="linksContainer"></div>
+
+      <div class="section-title">🍎 iOS 设置（当前版本）</div>
+      <div class="form-row"><label>App Store 链接</label><input id="f_iosUrl" placeholder="https://apps.apple.com/cn/app/id123456"></div>
+      <div class="form-row checkbox-row">
+        <label><input type="checkbox" id="f_isTransform" onchange="updateTransformVisibility()"> 需要「变身」或「分身」（伪装上架）</label>
+      </div>
+      <div id="transformFields" style="display:none">
+        <div class="form-row">
+          <label>类型</label>
+          <select id="f_iosType">
+            <option value="transform">🎭 变身（伪装上架）</option>
+            <option value="clone">👥 分身（应用多开）</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>教程（每行一条）</label>
+          <textarea id="f_transformTip" rows="6" placeholder="1. 打开 App&#10;2. 连续点击左上角图标 5 次&#10;3. 强制关闭 App&#10;4. 重新打开即可"></textarea>
+        </div>
+      </div>
+
+      <div class="section-title">
+        <span>📜 历史版本</span>
+        <button class="btn-mini primary" onclick="addHistoryVersion()">+ 添加历史版本</button>
+      </div>
+      <div id="historyVersionsContainer"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeEditor()">取消</button>
+      <button class="btn primary" onclick="saveEditor()">💾 保存 (Ctrl+S)</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ============ Sortable 按需加载（不阻塞主流程） ============ -->
+<script>
+  (function(){
+    var s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js';
+    s.onerror = function(){ console.warn('SortableJS 加载失败，拖拽功能不可用'); };
+    document.head.appendChild(s);
+  })();
+</script>
+
+<script>
+/* ==================== 全局错误捕获 ==================== */
+window.onerror = function(msg, url, line){
+  var el = document.getElementById('globalError');
+  if(el){ el.style.display = 'block'; el.textContent = '⚠️ 脚本异常：' + msg + ' (行 ' + line + ')'; }
+  return false;
+};
+
+/* ==================== 登录/密码 ==================== */
+const LS_AUTH_HASH = 'wl_admin_pwd_hash';
+const SS_AUTH_TOKEN = 'wl_admin_token';
+let authMode = 'setup'; // setup | login
+
+async function sha256(str){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+function initAuth(){
+  const saved = localStorage.getItem(LS_AUTH_HASH);
+  const token = sessionStorage.getItem(SS_AUTH_TOKEN);
+  if(saved && token){ document.getElementById('authGate').style.display = 'none'; return; }
+  authMode = saved ? 'login' : 'setup';
+  document.getElementById('authIcon').textContent = saved ? '🔐' : '🔑';
+  document.getElementById('authTitle').textContent = saved ? '后台登录' : '设置后台密码';
+  document.getElementById('authDesc').innerHTML = saved
+    ? '请输入管理密码以继续<br>（忘记密码可清除浏览器数据）'
+    : '首次使用，请设置一个管理密码<br>用于保护你的数据安全';
+  document.getElementById('authBtn').textContent = saved ? '进入后台' : '确认设置';
+  document.getElementById('authPwd2').style.display = saved ? 'none' : 'block';
+  document.getElementById('authGate').style.display = 'flex';
+  setTimeout(() => document.getElementById('authPwd').focus(), 100);
+}
+
+async function doAuth(){
+  const pwd = document.getElementById('authPwd').value;
+  if(!pwd){ alert('请输入密码'); return; }
+  if(authMode === 'setup'){
+    const pwd2 = document.getElementById('authPwd2').value;
+    if(pwd !== pwd2){ alert('两次输入密码不一致'); return; }
+    if(pwd.length < 4){ alert('密码至少 4 位'); return; }
+    const hash = await sha256(pwd);
+    localStorage.setItem(LS_AUTH_HASH, hash);
+    sessionStorage.setItem(SS_AUTH_TOKEN, '1');
+    document.getElementById('authGate').style.display = 'none';
+    logAction('auth', '首次设置后台密码');
+    return;
+  }
+  const hash = await sha256(pwd);
+  if(hash === localStorage.getItem(LS_AUTH_HASH)){
+    sessionStorage.setItem(SS_AUTH_TOKEN, '1');
+    document.getElementById('authGate').style.display = 'none';
+  } else {
+    alert('密码错误');
+    document.getElementById('authPwd').value = '';
+  }
+}
+
+function logout(){
+  if(!confirm('确定退出登录？')) return;
+  sessionStorage.removeItem(SS_AUTH_TOKEN);
+  location.reload();
+}
+
+/* ==================== 全局状态 ==================== */
+let DB = { version: '1.0.0', updateTime: '', updateLog: '', apps: [] };
+let editingApp = null;
+const LS_KEY = 'wl_admin_db';
+const LS_DRAFT = 'wl_admin_form_draft';
+const LS_LOGS = 'wl_admin_logs';
+let adminPage = 1;
+const ADMIN_PAGE_SIZE = 10;
+let adminKeyword = '';
+let adminCategory = '';
+let currentFilteredApps = [];
+let selectedIds = new Set();
+let sortableInstance = null;
+let undoData = null;
+let undoTimer = null;
+
+/* ==================== 工具函数 ==================== */
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+let toastTimer = null;
+function toast(msg, type, actionText, actionFn){
+  const el = document.getElementById('toast');
+  if(!el) return;
+  el.innerHTML = '';
+  const span = document.createElement('span');
+  span.textContent = msg;
+  el.appendChild(span);
+  if(actionText && actionFn){
+    const btn = document.createElement('button');
+    btn.textContent = actionText;
+    btn.onclick = () => { actionFn(); el.className = 'toast ' + (type||''); };
+    el.appendChild(btn);
+  }
+  el.className = 'toast show ' + (type||'');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.className = 'toast ' + (type||''), actionText ? 5000 : 2200);
+}
+function today(){ return new Date().toISOString().slice(0,10); }
+function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(DB)); }catch(e){} }
+function loadLocal(){ try{ const s = localStorage.getItem(LS_KEY); return s ? JSON.parse(s) : null; }catch(e){ return null; } }
+function isPinned(app){ return app.pinnedUntil && app.pinnedUntil > Date.now(); }
+async function copyText(text){
+  try{ if(navigator.clipboard && window.isSecureContext) return await navigator.clipboard.writeText(text); }catch(e){}
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); }catch(e){}
+  document.body.removeChild(ta);
+}
+
+/* ==================== 操作日志 ==================== */
+function logAction(type, detail){
+  try{
+    let logs = JSON.parse(localStorage.getItem(LS_LOGS) || '[]');
+    logs.unshift({ type, detail, t: Date.now() });
+    logs = logs.slice(0, 200);
+    localStorage.setItem(LS_LOGS, JSON.stringify(logs));
+  }catch(e){}
+}
+function showLogs(){
+  const logs = JSON.parse(localStorage.getItem(LS_LOGS) || '[]');
+  const c = document.getElementById('appListContainer');
+  const colorMap = { delete: '#e74c3c', add: '#22a06b', edit: '#5b7bf9', auth: '#f0a020', import: '#5b7bf9', csv: '#5b7bf9', check: '#f0a020' };
+  c.innerHTML = `<div style="background:#fff;border-radius:12px;padding:20px;box-shadow:var(--shadow)">
+    <h3 style="margin:0 0 16px">📋 操作日志（最近 200 条）</h3>
+    ${logs.length ? logs.map(l => {
+      const d = new Date(l.t);
+      const time = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      const color = colorMap[l.type] || '#5b7bf9';
+      return `<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;display:flex;gap:10px;align-items:flex-start">
+        <span style="color:#888;width:80px;flex-shrink:0">${time}</span>
+        <span style="color:${color};font-weight:600;width:60px;flex-shrink:0">${esc(l.type)}</span>
+        <span style="flex:1;word-break:break-word">${esc(l.detail)}</span>
+      </div>`;
+    }).join('') : '<p style="color:#888">暂无日志</p>'}
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn" onclick="render()">← 返回</button>
+      <button class="btn danger" onclick="if(confirm('确定清空所有日志？')){localStorage.removeItem('${LS_LOGS}');showLogs();}">清空日志</button>
+    </div>
+  </div>`;
+  document.getElementById('adminPagination').innerHTML = '';
+}
+
+/* ==================== 数据加载 ==================== */
+async function fetchWithTimeout(url, timeout = 4000){
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeout);
+  try{
+    const res = await fetch(url, { signal: ctrl.signal });
+    clearTimeout(timer);
+    return res;
+  }catch(err){ clearTimeout(timer); throw err; }
+}
+
+async function init(){
+  const local = loadLocal();
+  if(local && Array.isArray(local.apps)){
+    DB = local;
+    render();
+    toast('已加载本地草稿', 'ok');
+  } else {
+    const elList = document.getElementById('appListContainer');
+    if(elList) elList.innerHTML = '<div style="text-align:center;padding:30px;color:#888">加载中...</div>';
+    try{
+      const res = await fetchWithTimeout('./data.json?t=' + Date.now());
+      if(res.ok){
+        const json = await res.json();
+        if(Array.isArray(json.apps)) DB = json;
+      }
+    }catch(e){
+      console.warn('数据加载失败，使用空数据启动', e);
+    }
+    if(!DB.apps) DB.apps = [];
+    render();
+  }
+  setTimeout(() => {
+    const el = document.getElementById('appListContainer');
+    if(el && (el.innerHTML.includes('加载中') || !el.innerHTML.trim())) render();
+  }, 1000);
+  setInterval(autoSaveDraft, 3000);
+}
+
+async function reloadFromServer(){
+  if(!confirm('将从服务器重新加载 data.json，本地未导出的修改会丢失。继续？')) return;
+  try{
+    const res = await fetchWithTimeout('./data.json?t=' + Date.now(), 5000);
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    if(!Array.isArray(json.apps)) throw new Error('数据格式错误');
+    DB = json; save(); adminPage = 1; selectedIds.clear();
+    render();
+    logAction('import', '从服务器重新加载');
+    toast('已从服务器重新加载', 'ok');
+  }catch(e){ toast('加载失败：' + e.message, 'err'); }
+}
+
+/* ==================== 拖拽排序 ==================== */
+function initSortable(){
+  const el = document.getElementById('appListContainer');
+  if(!el) return;
+  if(sortableInstance){ try{ sortableInstance.destroy(); }catch(e){} sortableInstance = null; }
+  if(typeof Sortable === 'undefined') return;
+  sortableInstance = new Sortable(el, {
+    handle: '.drag-handle',
+    animation: 150,
+    ghostClass: 'dragging',
+    onEnd: function(){
+      try{
+        const pageIds = Array.from(el.querySelectorAll('.app-item')).map(item => parseInt(item.dataset.id));
+        const total = currentFilteredApps.length;
+        const totalPages = Math.ceil(total / ADMIN_PAGE_SIZE);
+        if(adminPage > totalPages) adminPage = totalPages;
+        const start = (adminPage - 1) * ADMIN_PAGE_SIZE;
+        const end = Math.min(start + ADMIN_PAGE_SIZE, total);
+        const pageData = currentFilteredApps.slice(start, end);
+        const indices = pageData.map(app => DB.apps.findIndex(a => a.id === app.id)).sort((a,b) => a-b);
+        const newAppsInPage = pageIds.map(id => DB.apps.find(a => a.id === id));
+        indices.forEach((globalIdx, i) => { DB.apps[globalIdx] = newAppsInPage[i]; });
+        save(); render();
+      }catch(err){ console.error('拖拽排序异常', err); }
+    }
+  });
+}
+
+/* ==================== 搜索/筛选 ==================== */
+let searchTimer = null;
+function onAdminSearch(){
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    adminKeyword = document.getElementById('adminSearchInput').value.trim().toLowerCase();
+    adminPage = 1; selectedIds.clear(); render();
+  }, 300);
+}
+function onAdminCategoryChange(){
+  adminCategory = document.getElementById('adminCategoryFilter').value;
+  adminPage = 1; selectedIds.clear(); render();
+}
+function clearAdminFilter(){
+  document.getElementById('adminSearchInput').value = '';
+  document.getElementById('adminCategoryFilter').value = '';
+  adminKeyword = ''; adminCategory = ''; adminPage = 1; selectedIds.clear();
+  render();
+}
+
+/* ==================== 统计 ==================== */
+function updateStats(){
+  const total = DB.apps.length;
+  const andCount = DB.apps.filter(a => a.androidLinks && a.androidLinks.length > 0).length;
+  const iosCount = DB.apps.filter(a => a.iosUrl).length;
+  const newCount = DB.apps.filter(a => a.addedAt === today()).length;
+  const set = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+  set('statTotal', total); set('statAnd', andCount); set('statIos', iosCount); set('statNew', newCount);
+  set('statsText', `共 ${total} 个应用`);
+}
+function renderCategoryFilterOptions(){
+  const cats = new Set();
+  DB.apps.forEach(a => { if(a.category) cats.add(a.category); });
+  const sel = document.getElementById('adminCategoryFilter');
+  if(!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">全部分类</option>' + [...cats].map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  sel.value = cur;
+}
+
+/* ==================== 分页 ==================== */
+function renderAdminPagination(page, totalPages, total){
+  const el = document.getElementById('adminPagination');
+  if(!el) return;
+  if(totalPages <= 1){ el.innerHTML = ''; return; }
+  let html = '';
+  html += `<button class="page-btn" ${page===1?'disabled':''} onclick="gotoAdminPage(1)">«</button>`;
+  html += `<button class="page-btn" ${page===1?'disabled':''} onclick="gotoAdminPage(${page-1})">‹</button>`;
+  const nums = [];
+  const left = Math.max(1, page - 2), right = Math.min(totalPages, page + 2);
+  if(left > 1){ nums.push(1); if(left > 2) nums.push('...'); }
+  for(let i = left; i <= right; i++) nums.push(i);
+  if(right < totalPages){ if(right < totalPages - 1) nums.push('...'); nums.push(totalPages); }
+  nums.forEach(p => {
+    if(p === '...') html += `<span class="page-ellipsis">…</span>`;
+    else html += `<button class="page-btn ${p===page?'active':''}" onclick="gotoAdminPage(${p})">${p}</button>`;
+  });
+  html += `<button class="page-btn" ${page===totalPages?'disabled':''} onclick="gotoAdminPage(${page+1})">›</button>`;
+  html += `<button class="page-btn" ${page===totalPages?'disabled':''} onclick="gotoAdminPage(${totalPages})">»</button>`;
+  html += `<span style="font-size:12px;color:var(--sub);margin-left:10px">第 ${page}/${totalPages} 页，共 ${total} 条</span>`;
+  el.innerHTML = html;
+}
+function gotoAdminPage(p){
+  if(p === adminPage) return;
+  adminPage = p;
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ==================== 渲染 ==================== */
+function render(){
+  updateStats();
+  renderCategoryFilterOptions();
+  currentFilteredApps = DB.apps;
+  if(adminKeyword){
+    currentFilteredApps = currentFilteredApps.filter(a =>
+      String(a.id).includes(adminKeyword) ||
+      (a.name || '').toLowerCase().includes(adminKeyword) ||
+      (a.category || '').toLowerCase().includes(adminKeyword) ||
+      (a.desc || '').toLowerCase().includes(adminKeyword)
+    );
+  }
+  if(adminCategory){
+    currentFilteredApps = currentFilteredApps.filter(a => a.category === adminCategory);
+  }
+  const elCount = document.getElementById('filterCount');
+  if(elCount) elCount.textContent = `共 ${currentFilteredApps.length} 条结果`;
+  const c = document.getElementById('appListContainer');
+  if(!c) return;
+
+  if(!currentFilteredApps.length){
+    c.innerHTML = `<div class="empty-state">
+      <div class="em">🔍</div>
+      <div>${adminKeyword || adminCategory ? '没有找到匹配的应用' : '暂无应用'}</div>
+      <div style="font-size:12px;margin-top:8px;opacity:.7">
+        ${adminKeyword || adminCategory ? '试试更换搜索词或分类' : '点击右上角「新建应用」或使用「智能识别」开始'}
+      </div>
+    </div>`;
+    document.getElementById('adminPagination').innerHTML = '';
+    document.getElementById('batchGroup').style.display = 'none';
+    return;
+  }
+  currentFilteredApps.sort((a, b) => {
+    const ap = isPinned(a), bp = isPinned(b);
+    if(ap && !bp) return -1;
+    if(!ap && bp) return 1;
+    return 0;
+  });
+  const total = currentFilteredApps.length;
+  const totalPages = Math.ceil(total / ADMIN_PAGE_SIZE);
+  if(adminPage > totalPages) adminPage = totalPages;
+  if(adminPage < 1) adminPage = 1;
+  const start = (adminPage - 1) * ADMIN_PAGE_SIZE;
+  const end = Math.min(start + ADMIN_PAGE_SIZE, total);
+  const pageData = currentFilteredApps.slice(start, end);
+  c.innerHTML = pageData.map(app => renderAppItem(app)).join('');
+  renderAdminPagination(adminPage, totalPages, total);
+  initSortable();
+  const batchGroup = document.getElementById('batchGroup');
+  if(batchGroup){
+    if(selectedIds.size > 0){
+      batchGroup.style.display = 'flex';
+      document.getElementById('batchCount').textContent = `已选 ${selectedIds.size} 项`;
+    } else {
+      batchGroup.style.display = 'none';
+    }
+  }
+}
+
+function renderAppItem(app){
+  const isChecked = selectedIds.has(app.id);
+  const isPin = isPinned(app);
+  const iosTag = app.iosUrl
+    ? (app.isTransform
+        ? (app.iosType === 'clone' ? '<span class="tag ios-clone">👥 分身</span>' : '<span class="tag ios-transform">🎭 变身</span>')
+        : '<span class="tag ios-plain">🍎 App Store</span>')
+    : '<span class="tag" style="background:#f0f2f7;color:#a0a5b5">无 iOS</span>';
+  const andTag = (app.androidLinks && app.androidLinks.length)
+    ? `<span class="tag and">📱 ${app.androidLinks.length} 条线路</span>`
+    : '<span class="tag" style="background:#f0f2f7;color:#a0a5b5">无安卓</span>';
+  const hCount = (app.historyVersions && app.historyVersions.length) || 0;
+  const historyTag = hCount ? `<span class="tag history">📜 ${hCount} 个历史版本</span>` : '';
+  let newTag = '';
+  if(app.addedAt){
+    const added = new Date(app.addedAt).getTime();
+    if(Date.now() - added <= 7 * 86400000) newTag = '<span class="tag new">NEW</span>';
+  }
+  const pinTag = isPin ? '<span class="tag pin">📌 置顶</span>' : '';
+  const iconHtml = app.iconUrl
+    ? `<img src="${esc(app.iconUrl)}" alt="" onerror="this.parentNode.textContent='📦'">`
+    : esc(app.icon || '📦');
+  const cardClass = isPin ? 'app-item pinned-item' : 'app-item';
+  return `
+    <div class="${cardClass}" data-id="${app.id}">
+      <div class="drag-handle" title="拖拽排序">☰</div>
+      <div class="checkbox-wrap"><input type="checkbox" ${isChecked?'checked':''} onchange="toggleSelect(${app.id}, this.checked)"></div>
+      <div class="icon">${iconHtml}</div>
+      <div class="info">
+        <div class="name">
+          <span class="tag id">#${app.id}</span>${esc(app.name)}
+          <span class="tag ver">v${esc(app.version || '?')}</span>
+          <span class="tag cat">${esc(app.category || '未分类')}</span>
+          ${andTag}${iosTag}${historyTag}${pinTag}${newTag}
+        </div>
+        <div class="desc">${esc(app.desc || '')}${app.note ? ' · ' + esc(app.note) : ''}</div>
+      </div>
+      <div class="ops">
+        <button class="btn-mini" onclick="copyAppJson(${app.id})" title="复制 JSON">📋</button>
+        <button class="btn-mini" onclick="moveApp(${app.id}, -1)" title="上移">↑</button>
+        <button class="btn-mini" onclick="moveApp(${app.id}, 1)" title="下移">↓</button>
+        <button class="btn-mini primary" onclick="openEditor(${app.id})">编辑</button>
+        <button class="btn-mini danger" onclick="deleteApp(${app.id})">删除</button>
+      </div>
+    </div>`;
+}
+
+/* ==================== 选择/批量 ==================== */
+function toggleSelect(id, checked){
+  if(checked) selectedIds.add(id); else selectedIds.delete(id);
+  const bg = document.getElementById('batchGroup');
+  if(bg){
+    if(selectedIds.size > 0){
+      bg.style.display = 'flex';
+      document.getElementById('batchCount').textContent = `已选 ${selectedIds.size} 项`;
+    } else bg.style.display = 'none';
+  }
+}
+function batchDelete(){
+  if(!confirm(`确定删除选中的 ${selectedIds.size} 个应用？`)) return;
+  const deletedApps = DB.apps.filter(a => selectedIds.has(a.id));
+  DB.apps = DB.apps.filter(a => !selectedIds.has(a.id));
+  selectedIds.clear(); save(); render();
+  logAction('delete', `批量删除 ${deletedApps.length} 个应用`);
+  showUndoToast(`已删除 ${deletedApps.length} 个应用`, deletedApps);
+}
+function batchSetCategory(){
+  const cat = prompt('请输入要设置的分类（如：工具、影视）：');
+  if(!cat || !cat.trim()) return;
+  const trimmed = cat.trim();
+  const count = selectedIds.size;
+  DB.apps.forEach(a => { if(selectedIds.has(a.id)) a.category = trimmed; });
+  save(); render();
+  logAction('edit', `批量修改 ${count} 个应用分类为「${trimmed}」`);
+  toast(`已将 ${count} 个应用分类改为「${trimmed}」`, 'ok');
+  selectedIds.clear();
+}
+
+/* ==================== 单个操作 ==================== */
+function moveApp(id, dir){
+  const idx = DB.apps.findIndex(a => a.id === id);
+  if(idx === -1) return;
+  const newIndex = idx + dir;
+  if(newIndex < 0 || newIndex >= DB.apps.length){ toast('已经到顶/到底了', 'err'); return; }
+  [DB.apps[idx], DB.apps[newIndex]] = [DB.apps[newIndex], DB.apps[idx]];
+  save(); render();
+}
+function deleteApp(id){
+  const idx = DB.apps.findIndex(a => a.id === id);
+  if(idx === -1) return;
+  const app = DB.apps[idx];
+  if(!confirm(`确定删除「${app.name}」？`)) return;
+  DB.apps.splice(idx, 1);
+  save();
+  const totalAfter = adminKeyword
+    ? DB.apps.filter(a => (a.name || '').toLowerCase().includes(adminKeyword)).length
+    : DB.apps.length;
+  const totalPagesAfter = Math.ceil(totalAfter / ADMIN_PAGE_SIZE) || 1;
+  if(adminPage > totalPagesAfter) adminPage = totalPagesAfter;
+  render();
+  logAction('delete', `删除应用「${app.name}」`);
+  showUndoToast(`已删除「${app.name}」`, [app]);
+}
+function showUndoToast(msg, deletedApps){
+  clearTimeout(undoTimer);
+  undoData = { apps: deletedApps };
+  toast(msg, 'err', '撤销', () => {
+    if(!undoData) return;
+    undoData.apps.forEach(app => {
+      if(!DB.apps.find(a => a.id === app.id)) DB.apps.push(app);
+    });
+    undoData = null; save(); render();
+    logAction('add', `撤销删除，恢复 ${deletedApps.length} 个应用`);
+    toast('已恢复', 'ok');
+  });
+  undoTimer = setTimeout(() => { undoData = null; }, 5000);
+}
+function copyAppJson(id){
+  const app = DB.apps.find(a => a.id === id);
+  if(!app) return;
+  copyText(JSON.stringify(app, null, 2))
+    .then(() => toast('已复制该应用 JSON', 'ok'))
+    .catch(() => toast('复制失败', 'err'));
+}
+function clearAll(){
+  if(!confirm('⚠️ 确定清空所有应用数据？此操作不可恢复！')) return;
+  if(!confirm('再次确认：真的要清空吗？')) return;
+  const backup = JSON.stringify(DB);
+  localStorage.setItem('wl_admin_backup_' + Date.now(), backup);
+  DB.apps = [];
+  save(); render();
+  logAction('delete', '清空所有应用数据（已自动备份到 localStorage）');
+  toast('已清空（原数据已备份）', 'ok');
+}
+
+/* ==================== 置顶 ==================== */
+function togglePinFields(){
+  const isP = document.getElementById('f_isPinned').checked;
+  document.getElementById('pinFields').style.display = isP ? 'block' : 'none';
+  if(isP) updatePinPreview();
+}
+function updatePinPreview(){
+  const el = document.getElementById('pinPreview');
+  if(!el) return;
+  const val = parseInt(document.getElementById('f_pinDuration').value) || 1;
+  const unit = document.getElementById('f_pinUnit').value;
+  let text = '';
+  if(unit === 'hour') text = `${val} 小时后`;
+  else if(unit === 'day') text = `${val} 天后`;
+  else text = `${val} 个月后（约${val*30}天）`;
+  el.textContent = `预览：保存后将在 ${text} 自动取消置顶`;
+}
+function calculatePinnedUntil(){
+  if(!document.getElementById('f_isPinned').checked) return 0;
+  const val = parseInt(document.getElementById('f_pinDuration').value) || 1;
+  const unit = document.getElementById('f_pinUnit').value;
+  const now = Date.now();
+  if(unit === 'hour') return now + val * 3600000;
+  if(unit === 'day') return now + val * 86400000;
+  return now + val * 30 * 86400000;
+}
+
+/* ==================== 编辑弹窗 ==================== */
+function openEditor(id, preset){
+  if(id && typeof id === 'number'){
+    const app = DB.apps.find(a => a.id === id);
+    if(!app) return;
+    editingApp = JSON.parse(JSON.stringify(app));
+    document.getElementById('editorTitle').textContent = '编辑应用 #' + app.id;
+    document.getElementById('f_iconUrl').value = app.iconUrl || '';
+    document.getElementById('f_addedAt').value = app.addedAt || '';
+    document.getElementById('f_note').value = app.note || '';
+    document.getElementById('f_isPinned').checked = isPinned(app);
+    if(isPinned(app)){
+      document.getElementById('f_pinDuration').value = 1;
+      document.getElementById('f_pinUnit').value = 'day';
+    }
+    togglePinFields();
+  } else {
+    const draft = localStorage.getItem(LS_DRAFT);
+    if(draft && !preset){
+      if(confirm('检测到未保存的表单草稿，是否恢复？')){
+        try{ editingApp = JSON.parse(draft); }catch(e){ editingApp = null; }
+      }
+    }
+    if(!editingApp){
+      editingApp = {
+        id: Date.now(), name: '', icon: '📦', iconUrl: '', desc: '', category: '工具',
+        version: '', note: '', addedAt: today(), pinnedUntil: 0,
+        androidLinks: [], iosUrl: '', isTransform: false, iosType: 'transform',
+        transformTip: '', historyVersions: []
+      };
+    }
+    if(preset) Object.assign(editingApp, preset);
+    document.getElementById('editorTitle').textContent = preset ? '智能识别结果' : '新建应用';
+    document.getElementById('f_iconUrl').value = editingApp.iconUrl || '';
+    document.getElementById('f_addedAt').value = editingApp.addedAt || today();
+    document.getElementById('f_note').value = editingApp.note || '';
+    document.getElementById('f_isPinned').checked = false;
+    togglePinFields();
+  }
+  if(!Array.isArray(editingApp.historyVersions)) editingApp.historyVersions = [];
+  document.getElementById('f_icon').value = editingApp.icon || '📦';
+  document.getElementById('f_name').value = editingApp.name || '';
+  document.getElementById('f_version').value = editingApp.version || '';
+  document.getElementById('f_category').value = editingApp.category || '工具';
+  document.getElementById('f_desc').value = editingApp.desc || '';
+  document.getElementById('f_iosUrl').value = editingApp.iosUrl || '';
+  document.getElementById('f_isTransform').checked = !!editingApp.isTransform;
+  document.getElementById('f_iosType').value = editingApp.iosType || 'transform';
+  document.getElementById('f_transformTip').value = editingApp.transformTip || '';
+  document.querySelectorAll('.error-msg').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+  renderLinks();
+  renderHistoryVersions();
+  updateTransformVisibility();
+  document.getElementById('editorModal').classList.add('show');
+}
+function closeEditor(){
+  document.getElementById('editorModal').classList.remove('show');
+  editingApp = null;
+}
+function updateTransformVisibility(){
+  const el = document.getElementById('transformFields');
+  if(el) el.style.display = document.getElementById('f_isTransform').checked ? 'block' : 'none';
+}
+function validateDate(input){
+  const val = input.value.trim();
+  const err = document.getElementById('err_addedAt');
+  const re = /^\d{4}-\d{2}-\d{2}$/;
+  if(val && !re.test(val)){
+    input.classList.add('input-error');
+    if(err) err.style.display = 'block';
+  } else {
+    input.classList.remove('input-error');
+    if(err) err.style.display = 'none';
+  }
+}
+function validateUrl(input){
+  const val = input.value.trim();
+  const err = document.getElementById('err_iconUrl');
+  const re = /^https?:\/\/.+/i;
+  if(val && !re.test(val)){
+    input.classList.add('input-error');
+    if(err) err.style.display = 'block';
+  } else {
+    input.classList.remove('input-error');
+    if(err) err.style.display = 'none';
+  }
+}
+
+/* ==================== 安卓线路 ==================== */
+function renderLinks(){
+  const c = document.getElementById('linksContainer');
+  if(!c) return;
+  if(!editingApp.androidLinks || !editingApp.androidLinks.length){
+    c.innerHTML = '<div class="empty-hint">暂无安卓线路，点击「+ 添加线路」新增</div>';
+    return;
+  }
+  c.innerHTML = editingApp.androidLinks.map((l, i) => `
+    <div class="link-row">
+      <input value="${esc(l.provider || '')}" placeholder="平台" oninput="updateLink(${i},'provider',this.value)">
+      <input value="${esc(l.url || '')}" placeholder="网盘链接" oninput="updateLink(${i},'url',this.value)">
+      <input value="${esc(l.pwd || '')}" placeholder="提取码" oninput="updateLink(${i},'pwd',this.value)">
+      <button class="del-btn" onclick="removeLink(${i})" title="删除">✕</button>
+    </div>`).join('');
+}
+function updateLink(i, key, value){
+  if(editingApp && editingApp.androidLinks[i]) editingApp.androidLinks[i][key] = value;
+}
+function addLink(){
+  if(!editingApp) return;
+  editingApp.androidLinks.push({ provider: '夸克', url: '', pwd: '' });
+  renderLinks();
+}
+function removeLink(i){
+  editingApp.androidLinks.splice(i, 1);
+  renderLinks();
+}
+
+/* ==================== 历史版本 ==================== */
+function renderHistoryVersions(){
+  const c = document.getElementById('historyVersionsContainer');
+  if(!c) return;
+  if(!editingApp.historyVersions || !editingApp.historyVersions.length){
+    c.innerHTML = '<div class="history-empty">暂无历史版本，点击「+ 添加历史版本」新增</div>';
+    return;
+  }
+  c.innerHTML = editingApp.historyVersions.map((v, vi) => `
+    <div class="history-item">
+      <div class="history-item-head">
+        <input value="${esc(v.version || '')}" placeholder="版本号，如 2.1.8" oninput="updateHistory(${vi},'version',this.value)">
+        <button class="del-btn" onclick="removeHistoryVersion(${vi})" title="删除此历史版本">✕</button>
+      </div>
+      <div class="form-row" style="margin-bottom:8px">
+        <input value="${esc(v.note || '')}" placeholder="版本特点（可选），如：修复闪退" oninput="updateHistory(${vi},'note',this.value)">
+      </div>
+      <span class="label">📱 安卓线路</span>
+      <div id="histLinks-${vi}"></div>
+      <button class="btn-mini primary" onclick="addHistoryLink(${vi})" style="margin-top:4px">+ 添加线路</button>
+      <span class="label">🍎 iOS 链接（可选）</span>
+      <div class="form-row">
+        <input value="${esc(v.iosUrl || '')}" placeholder="https://apps.apple.com/..." oninput="updateHistory(${vi},'iosUrl',this.value)">
+      </div>
+      <div class="form-row checkbox-row" style="margin-bottom:5px">
+        <label><input type="checkbox" ${v.isTransform?'checked':''} onchange="updateHistory(${vi},'isTransform',this.checked)"> 需要变身/分身</label>
+      </div>
+      <div class="form-row" style="margin-bottom:5px;display:${v.isTransform?'block':'none'}" id="histTransform-${vi}">
+        <select onchange="updateHistory(${vi},'iosType',this.value)" style="width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:#fff">
+          <option value="transform" ${v.iosType==='transform'?'selected':''}>🎭 变身</option>
+          <option value="clone" ${v.iosType==='clone'?'selected':''}>👥 分身</option>
+        </select>
+        <textarea style="width:100%;margin-top:5px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:#fff;font-family:inherit" rows="3" placeholder="教程" oninput="updateHistory(${vi},'transformTip',this.value)">${esc(v.transformTip || '')}</textarea>
+      </div>
+    </div>`).join('');
+  editingApp.historyVersions.forEach((v, vi) => renderHistoryLinks(vi));
+}
+function renderHistoryLinks(vi){
+  const c = document.getElementById('histLinks-' + vi);
+  if(!c) return;
+  const v = editingApp.historyVersions[vi];
+  if(!Array.isArray(v.androidLinks)) v.androidLinks = [];
+  if(!v.androidLinks.length){
+    c.innerHTML = '<div class="empty-hint" style="padding:8px;font-size:11px">暂无线路</div>';
+    return;
+  }
+  c.innerHTML = v.androidLinks.map((l, li) => `
+    <div class="link-row" style="grid-template-columns:80px 1fr 80px 30px">
+      <input value="${esc(l.provider || '')}" placeholder="平台" oninput="updateHistoryLink(${vi},${li},'provider',this.value)">
+      <input value="${esc(l.url || '')}" placeholder="链接" oninput="updateHistoryLink(${vi},${li},'url',this.value)">
+      <input value="${esc(l.pwd || '')}" placeholder="提取码" oninput="updateHistoryLink(${vi},${li},'pwd',this.value)">
+      <button class="del-btn" style="width:30px;height:30px" onclick="removeHistoryLink(${vi},${li})" title="删除">✕</button>
+    </div>`).join('');
+}
+function updateHistory(vi, key, value){
+  if(!editingApp || !editingApp.historyVersions[vi]) return;
+  editingApp.historyVersions[vi][key] = value;
+  if(key === 'isTransform'){
+    const el = document.getElementById('histTransform-' + vi);
+    if(el) el.style.display = value ? 'block' : 'none';
+  }
+}
+function updateHistoryLink(vi, li, key, value){
+  if(!editingApp || !editingApp.historyVersions[vi] || !editingApp.historyVersions[vi].androidLinks[li]) return;
+  editingApp.historyVersions[vi].androidLinks[li][key] = value;
+}
+function addHistoryVersion(){
+  if(!editingApp) return;
+  editingApp.historyVersions.push({
+    version: '', note: '', androidLinks: [], iosUrl: '',
+    isTransform: false, iosType: 'transform', transformTip: ''
+  });
+  renderHistoryVersions();
+}
+function removeHistoryVersion(vi){
+  if(!confirm('确定删除该历史版本？')) return;
+  editingApp.historyVersions.splice(vi, 1);
+  renderHistoryVersions();
+}
+function addHistoryLink(vi){
+  const v = editingApp.historyVersions[vi];
+  if(!v) return;
+  if(!Array.isArray(v.androidLinks)) v.androidLinks = [];
+  v.androidLinks.push({ provider: '夸克', url: '', pwd: '' });
+  renderHistoryLinks(vi);
+}
+function removeHistoryLink(vi, li){
+  const v = editingApp.historyVersions[vi];
+  if(!v) return;
+  v.androidLinks.splice(li, 1);
+  renderHistoryLinks(vi);
+}
+
+/* ==================== 草稿自动保存 ==================== */
+function autoSaveDraft(){
+  if(!editingApp) return;
+  if(!document.getElementById('editorModal').classList.contains('show')) return;
+  if(editingApp.id && DB.apps.find(a => a.id === editingApp.id)) return;
+  const draft = {
+    name: document.getElementById('f_name').value.trim(),
+    icon: document.getElementById('f_icon').value.trim(),
+    version: document.getElementById('f_version').value.trim(),
+    category: document.getElementById('f_category').value.trim(),
+    addedAt: document.getElementById('f_addedAt').value.trim(),
+    desc: document.getElementById('f_desc').value.trim(),
+    note: document.getElementById('f_note').value.trim(),
+    androidLinks: editingApp.androidLinks,
+    iosUrl: document.getElementById('f_iosUrl').value.trim(),
+    isTransform: document.getElementById('f_isTransform').checked,
+    iosType: document.getElementById('f_iosType').value,
+    transformTip: document.getElementById('f_transformTip').value.trim()
+  };
+  try{ localStorage.setItem(LS_DRAFT, JSON.stringify(draft)); }catch(e){}
+}
+
+/* ==================== 保存 ==================== */
+function saveEditor(){
+  if(!editingApp) return;
+  const name = document.getElementById('f_name').value.trim();
+  if(!name){ toast('请填写应用名称', 'err'); return; }
+  const addedAt = document.getElementById('f_addedAt').value.trim();
+  const iconUrl = document.getElementById('f_iconUrl').value.trim();
+  const dateRe = /^\d{4}-\d{2}-\d{2}$/;
+  const urlRe = /^https?:\/\/.+/i;
+  if(addedAt && !dateRe.test(addedAt)){ toast('日期格式不正确，请使用 YYYY-MM-DD', 'err'); return; }
+  if(iconUrl && !urlRe.test(iconUrl)){ toast('图标 URL 格式不正确', 'err'); return; }
+
+  editingApp.name = name;
+  editingApp.icon = document.getElementById('f_icon').value.trim() || '📦';
+  editingApp.iconUrl = iconUrl;
+  editingApp.version = document.getElementById('f_version').value.trim();
+  editingApp.category = document.getElementById('f_category').value.trim() || '工具';
+  editingApp.note = document.getElementById('f_note').value.trim();
+  editingApp.addedAt = addedAt || today();
+  editingApp.desc = document.getElementById('f_desc').value.trim();
+  editingApp.iosUrl = document.getElementById('f_iosUrl').value.trim();
+  editingApp.isTransform = document.getElementById('f_isTransform').checked;
+  editingApp.iosType = document.getElementById('f_iosType').value;
+  editingApp.transformTip = document.getElementById('f_transformTip').value.trim();
+  editingApp.pinnedUntil = calculatePinnedUntil();
+  editingApp.androidLinks = (editingApp.androidLinks || []).filter(l => l.url && l.url.trim());
+  editingApp.historyVersions = (editingApp.historyVersions || [])
+    .filter(v => v.version && v.version.trim())
+    .map(v => ({
+      version: v.version.trim(),
+      note: (v.note || '').trim(),
+      androidLinks: (v.androidLinks || []).filter(l => l.url && l.url.trim()),
+      iosUrl: (v.iosUrl || '').trim(),
+      isTransform: !!v.isTransform,
+      iosType: v.iosType || 'transform',
+      transformTip: v.transformTip || ''
+    }));
+
+  const idx = DB.apps.findIndex(a => a.id === editingApp.id);
+  if(idx >= 0){
+    DB.apps[idx] = editingApp;
+    logAction('edit', `编辑应用「${editingApp.name}」`);
+  } else {
+    DB.apps.push(editingApp);
+    logAction('add', `新增应用「${editingApp.name}」`);
+  }
+  localStorage.removeItem(LS_DRAFT);
+  save(); render(); closeEditor();
+  toast(idx >= 0 ? '已保存修改' : '已添加新应用', 'ok');
+}
+
+/* ==================== 快捷键 ==================== */
+document.addEventListener('keydown', e => {
+  if((e.ctrlKey || e.metaKey) && e.key === 's'){
+    e.preventDefault();
+    if(document.getElementById('editorModal').classList.contains('show')) saveEditor();
+  }
+  if(e.key === 'Escape'){
+    document.querySelectorAll('.modal.show').forEach(m => {
+      if(m.id === 'editorModal') closeEditor();
+      else m.classList.remove('show');
+    });
+  }
+});
+
+/* ==================== 智能识别 ==================== */
+function smartParse(){
+  const raw = document.getElementById('smartInput').value;
+  if(!raw.trim()){ toast('请先粘贴内容', 'err'); return; }
+  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+  const result = {
+    name: '', icon: '📦', iconUrl: '', desc: '', category: '工具', version: '', note: '',
+    addedAt: today(), pinnedUntil: 0,
+    androidLinks: [], iosUrl: '', isTransform: false, iosType: 'transform', transformTip: ''
+  };
+  const panMap = [
+    { re: /pan\.quark\.cn/i, name: '夸克' },
+    { re: /pan\.baidu\.com/i, name: '百度' },
+    { re: /lanzou[a-z]?\.com/i, name: '蓝奏云' },
+    { re: /(aliyundrive|alipan)\.com/i, name: '阿里云盘' },
+    { re: /123pan\.com/i, name: '123云盘' },
+    { re: /xunlei\.com/i, name: '迅雷' },
+    { re: /(^|[^0-9])115\.com/i, name: '115' },
+    { re: /caiyun\.139\.com/i, name: '移动云盘' },
+    { re: /cloud\.189\.cn/i, name: '天翼云盘' },
+    { re: /weiyun\.com/i, name: '微云' },
+    { re: /drive\.uc\.cn/i, name: 'UC网盘' }
+  ];
+  const urlRe = /(https?:\/\/[^\s，,。;；、"'）)】\]}]+)/g;
+  const pwdRe = /(?:提取码|密码|访问码|访问密码|pwd|code)[\s:：=]*([a-zA-Z0-9]{3,8})/i;
+  lines.forEach(line => {
+    const urls = line.match(urlRe);
+    if(!urls) return;
+    urls.forEach(url => {
+      if(/(apps\.apple\.com|itunes\.apple\.com)/i.test(url)){
+        if(!result.iosUrl) result.iosUrl = url;
+        return;
+      }
+      for(const p of panMap){
+        if(p.re.test(url)){
+          const m = line.match(pwdRe);
+          result.androidLinks.push({ provider: p.name, url, pwd: m ? m[1] : '' });
+          return;
+        }
+      }
+      if(/网盘|下载|盘/i.test(line)){
+        const m = line.match(pwdRe);
+        result.androidLinks.push({ provider: '网盘', url, pwd: m ? m[1] : '' });
+      }
+    });
+  });
+  for(const line of lines){
+    if(/^https?:\/\//.test(line)) continue;
+    if(pwdRe.test(line)) continue;
+    if(/^[【\[（(].+[】\]）)]$/.test(line)) continue;
+    if(/^[📱🍎✨🔥💎⭐️🎁]+/.test(line) && line.length < 10) continue;
+    const m = line.match(/^(.+?)\s+(v?\d+\.\d+(?:\.\d+)*(?:\.\d+)?)\s*$/);
+    if(m){ result.name = m[1].trim(); result.version = m[2].replace(/^v/i, ''); break; }
+    if(line.length <= 20 && !/[：:]/.test(line) && !/^[-=]+$/.test(line)){ result.name = line; break; }
+  }
+  if(!result.name) result.name = '新应用';
+  openEditor(null, result);
+  document.getElementById('smartInput').value = '';
+  toast(`识别完成：${result.androidLinks.length} 条网盘${result.iosUrl ? ' + iOS 链接' : ''}`, 'ok');
+}
+
+/* ==================== 链接健康检查 ==================== */
+async function checkLinks(){
+  if(!confirm('将逐条测试下载链接，可能耗时较长，继续？')) return;
+  const c = document.getElementById('appListContainer');
+  c.innerHTML = '<div style="padding:30px;text-align:center;color:#888">正在检查链接...</div>';
+  document.getElementById('adminPagination').innerHTML = '';
+
+  const results = [];
+  const allLinks = [];
+  DB.apps.forEach(app => {
+    (app.androidLinks || []).forEach(l => {
+      if(l.url) allLinks.push({ app: app.name, url: l.url, provider: l.provider || '网盘', type: 'android' });
+    });
+    if(app.iosUrl) allLinks.push({ app: app.name, url: app.iosUrl, provider: 'App Store', type: 'ios' });
+  });
+
+  let done = 0;
+  for(const link of allLinks){
+    let ok = false, reason = '';
+    try{
+      const ctrl = new AbortController();
+      const tid = setTimeout(() => ctrl.abort(), 6000);
+      await fetch(link.url, { method: 'GET', mode: 'no-cors', signal: ctrl.signal });
+      clearTimeout(tid);
+      ok = true;
+    }catch(e){
+      ok = false;
+      reason = e.name === 'AbortError' ? '超时' : '网络错误';
+    }
+    results.push({ ...link, ok, reason });
+    done++;
+    c.innerHTML = `<div style="padding:30px;text-align:center;color:#888">
+      正在检查链接... ${done}/${allLinks.length}
+      <div style="margin-top:10px;font-size:12px;color:#aaa">当前：${esc(link.app)} · ${esc(link.provider)}</div>
+    </div>`;
+  }
+
+  const failed = results.filter(r => !r.ok);
+  c.innerHTML = `<div style="background:#fff;border-radius:12px;padding:20px;box-shadow:var(--shadow)">
+    <h3 style="margin:0 0 12px">🩺 链接健康检查结果</h3>
+    <p style="color:#666;font-size:13px;margin-bottom:16px">
+      共检查 <b>${results.length}</b> 条链接，<span style="color:#e74c3c;font-weight:600">${failed.length}</span> 条可能失效（no-cors 模式，仅供参考，部分平台会误报）
+    </p>
+    ${failed.length ? failed.map(f => `
+      <div style="padding:10px 0;border-bottom:1px solid var(--border);font-size:13px">
+        <b>${esc(f.app)}</b> · ${esc(f.provider)} · ${f.type === 'ios' ? '🍎 iOS' : '📱 安卓'}
+        <span style="color:#e74c3c;font-weight:600">⚠️ ${esc(f.reason || '可能失效')}</span>
+        <div style="color:#888;font-size:11px;margin-top:2px;word-break:break-all">${esc(f.url)}</div>
+      </div>
+    `).join('') : '<p style="color:#22a06b">✅ 未检测到失效链接</p>'}
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn primary" onclick="render()">← 返回</button>
+    </div>
+  </div>`;
+  logAction('check', `链接检查完成，${results.length} 条中 ${failed.length} 条可能失效`);
+}
+
+/* ==================== CSV 导入 ==================== */
+function importCSV(){ document.getElementById('csvFile').click(); }
+function handleCSV(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try{
+      const lines = ev.target.result.split('\n').filter(l => l.trim());
+      if(lines.length < 2) throw new Error('CSV 至少需要表头 + 1 行数据');
+      const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+      const requiredCols = ['name'];
+      if(!requiredCols.every(c => headers.includes(c))) throw new Error('缺少必需列：name');
+
+      const newApps = [];
+      for(let i = 1; i < lines.length; i++){
+        const vals = parseCSVLine(lines[i]);
+        const row = {};
+        headers.forEach((h, idx) => row[h] = (vals[idx] || '').trim());
+        if(!row.name) continue;
+        newApps.push({
+          id: Date.now() + i + Math.floor(Math.random() * 1000),
+          name: row.name,
+          icon: row.icon || '📦',
+          iconUrl: row.iconurl || '',
+          desc: row.desc || '',
+          category: row.category || '工具',
+          version: row.version || '1.0.0',
+          note: row.note || '',
+          addedAt: row.addedat || today(),
+          pinnedUntil: 0,
+          androidLinks: row.androidurl ? [{ provider: row.provider || '网盘', url: row.androidurl, pwd: row.pwd || '' }] : [],
+          iosUrl: row.iosurl || '',
+          isTransform: false,
+          iosType: 'transform',
+          transformTip: '',
+          historyVersions: []
+        });
+      }
+      if(!newApps.length) throw new Error('没有有效数据');
+      if(!confirm(`解析到 ${newApps.length} 个应用，确认导入？`)) return;
+      DB.apps.push(...newApps);
+      save(); render();
+      logAction('csv', `CSV 导入 ${newApps.length} 个应用`);
+      toast(`成功导入 ${newApps.length} 个应用`, 'ok');
+    }catch(err){
+      toast('导入失败：' + err.message, 'err');
+    }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+}
+function parseCSVLine(line){
+  const result = [];
+  let cur = '', inQuote = false;
+  for(let i = 0; i < line.length; i++){
+    const c = line[i];
+    if(c === '"'){
+      if(inQuote && line[i+1] === '"'){ cur += '"'; i++; }
+      else inQuote = !inQuote;
+    } else if(c === ',' && !inQuote){
+      result.push(cur); cur = '';
+    } else cur += c;
+  }
+  result.push(cur);
+  return result;
+}
+
+/* ==================== 导出 ==================== */
+function checkDuplicateLinks(){
+  const urlMap = {};
+  let hasDup = false;
+  DB.apps.forEach(app => {
+    (app.androidLinks || []).forEach(l => {
+      if(l.url){
+        if(urlMap[l.url]) hasDup = true;
+        urlMap[l.url] = app.name;
+      }
+    });
+    if(app.iosUrl){
+      if(urlMap[app.iosUrl]) hasDup = true;
+      urlMap[app.iosUrl] = app.name;
+    }
+  });
+  return hasDup;
+}
+function exportJson(){
+  if(checkDuplicateLinks()){
+    if(!confirm('⚠️ 检测到有重复的链接，是否继续导出？')) return;
+  }
+  DB.version = DB.version || '1.0.0';
+  DB.updateTime = today();
+  const blob = new Blob([JSON.stringify(DB, null, 2)], { type: 'application/json;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'data.json';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  logAction('import', '导出 data.json');
+  toast('已下载 data.json，请上传覆盖服务器文件', 'ok');
+}
+function importJson(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try{
+      const data = JSON.parse(e.target.result);
+      if(!Array.isArray(data.apps)) throw new Error('缺少 apps 数组');
+      if(!confirm(`解析到 ${data.apps.length} 个应用，确认替换当前数据？`)) return;
+      DB = data;
+      save();
+      adminPage = 1;
+      selectedIds.clear();
+      render();
+      logAction('import', `导入 JSON，共 ${data.apps.length} 个应用`);
+      toast(`成功导入 ${data.apps.length} 个应用`, 'ok');
+    }catch(err){
+      toast('导入失败：' + err.message, 'err');
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+/* ==================== Tab 切换 ==================== */
+function switchTab(tab){
+  const tabApps = document.getElementById('tabApps');
+  const tabStats = document.getElementById('tabStats');
+  const appsView = document.getElementById('appsView');
+  const statsView = document.getElementById('statsView');
+  const helpSection = document.getElementById('helpSection');
+  if(tab === 'apps'){
+    appsView.style.display = '';
+    statsView.style.display = 'none';
+    helpSection.style.display = '';
+    tabApps.classList.add('active');
+    tabStats.classList.remove('active');
+  } else {
+    appsView.style.display = 'none';
+    statsView.style.display = 'block';
+    helpSection.style.display = 'none';
+    tabStats.classList.add('active');
+    tabApps.classList.remove('active');
+    const saved = localStorage.getItem('wl_stats_endpoint');
+    if(saved && !document.getElementById('statsEndpoint').value){
+      document.getElementById('statsEndpoint').value = saved;
+      loadStats();
+    }
+  }
+}
+
+/* ==================== 数据统计 ==================== */
+async function loadStats(){
+  const endpoint = document.getElementById('statsEndpoint').value.trim().replace(/\/$/, '');
+  if(!endpoint){ toast('请输入 Worker 地址', 'err'); return; }
+  localStorage.setItem('wl_stats_endpoint', endpoint);
+  const container = document.getElementById('statsContent');
+  container.innerHTML = '<div style="background:#fff;border-radius:12px;padding:30px;text-align:center;color:#888">加载中...</div>';
+  try{
+    const [statsRes, detailRes] = await Promise.all([
+      fetch(endpoint + '/?action=getStats').then(r => r.json()),
+      fetch(endpoint + '/?action=getDetail').then(r => r.json())
+    ]);
+    renderStatsView(statsRes, detailRes);
+  }catch(e){
+    container.innerHTML = '<div style="background:#fff;border-radius:12px;padding:30px;text-align:center;color:#e74c3c">加载失败：' + esc(e.message) + '</div>';
+  }
+}
+function renderStatsView(stats, details){
+  const totalClicks = Object.values(stats).reduce((a, b) => a + b, 0);
+  const byApp = {};
+  Object.entries(stats).forEach(([key, count]) => {
+    const parts = key.split(':');
+    const appId = parts[1];
+    const action = parts.slice(2).join(':');
+    if(!byApp[appId]) byApp[appId] = { total: 0, actions: {} };
+    byApp[appId].total += count;
+    byApp[appId].actions[action] = (byApp[appId].actions[action] || 0) + count;
+  });
+  const ranked = Object.entries(byApp).map(([appId, data]) => {
+    const app = DB.apps.find(a => String(a.id) === String(appId));
+    return {
+      id: appId,
+      name: app ? app.name : '已删除应用 #' + appId,
+      icon: app ? (app.icon || '📦') : '❓',
+      total: data.total,
+      actions: data.actions
+    };
+  }).sort((a, b) => b.total - a.total);
+
+  let html = '';
+  html += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px">
+    <div style="background:#fff;border-radius:10px;padding:16px;text-align:center;box-shadow:var(--shadow)">
+      <div style="font-size:24px;font-weight:700;color:var(--primary)">${totalClicks}</div>
+      <div style="font-size:12px;color:var(--sub);margin-top:4px">总点击量</div>
+    </div>
+    <div style="background:#fff;border-radius:10px;padding:16px;text-align:center;box-shadow:var(--shadow)">
+      <div style="font-size:24px;font-weight:700;color:var(--success)">${ranked.length}</div>
+      <div style="font-size:12px;color:var(--sub);margin-top:4px">有下载的应用</div>
+    </div>
+    <div style="background:#fff;border-radius:10px;padding:16px;text-align:center;box-shadow:var(--shadow)">
+      <div style="font-size:24px;font-weight:700;color:var(--warn)">${details.length}</div>
+      <div style="font-size:12px;color:var(--sub);margin-top:4px">明细记录数</div>
+    </div>
+  </div>`;
+
+  html += '<div style="background:#fff;border-radius:12px;padding:20px;box-shadow:var(--shadow);margin-bottom:20px">';
+  html += '<h3 style="font-size:15px;margin-bottom:16px">🏆 应用下载排行</h3>';
+  if(!ranked.length){
+    html += '<div style="text-align:center;color:#888;padding:20px">暂无数据</div>';
+  } else {
+    html += ranked.map((item, idx) => `
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="width:24px;text-align:center;font-weight:700;color:${idx === 0 ? '#f0a020' : idx === 1 ? '#999' : idx === 2 ? '#cd7f32' : '#aaa'}">${idx + 1}</div>
+        <div style="font-size:22px">${item.icon}</div>
+        <div style="flex:1">
+          <div style="font-weight:600">${esc(item.name)}</div>
+          <div style="font-size:12px;color:var(--sub);margin-top:2px">
+            ${Object.entries(item.actions).map(([a, c]) => esc(a) + ': ' + c).join(' · ')}
+          </div>
+        </div>
+        <div style="font-size:18px;font-weight:700;color:var(--primary)">${item.total}</div>
+      </div>`).join('');
+  }
+  html += '</div>';
+
+  html += '<div style="background:#fff;border-radius:12px;padding:20px;box-shadow:var(--shadow)">';
+  html += '<h3 style="font-size:15px;margin-bottom:16px">📋 最近 500 条明细</h3>';
+  if(!details.length){
+    html += '<div style="text-align:center;color:#888;padding:20px">暂无数据</div>';
+  } else {
+    html += '<div style="max-height:500px;overflow-y:auto">';
+    html += details.slice(0, 500).map(log => {
+      const d = new Date(log.t);
+      const time = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      return `<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
+        <div style="color:var(--muted);width:80px;flex-shrink:0">${time}</div>
+        <div style="font-weight:600;flex:1">${esc(log.app || '未知应用')}</div>
+        <div style="color:var(--primary)">${esc(log.action || '')}</div>
+        <div style="color:var(--sub);font-size:11px">${esc(log.os || '')}</div>
+      </div>`;
+    }).join('');
+    html += '</div>';
+  }
+  html += '</div>';
+
+  document.getElementById('statsContent').innerHTML = html;
+}
+
+/* ==================== 弹窗遮罩关闭 ==================== */
+document.querySelectorAll('.modal').forEach(m => {
+  m.addEventListener('click', e => {
+    if(e.target === m){
+      if(m.id === 'editorModal') closeEditor();
+      else m.classList.remove('show');
+    }
+  });
+});
+
+/* ==================== 启动 ==================== */
+window.addEventListener('load', function(){
+  initAuth();
+  init();
+});
+</script>
+</body>
+</html>

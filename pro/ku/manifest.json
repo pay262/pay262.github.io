@@ -1,0 +1,13 @@
+{
+  "name": "WL软件库",
+  "short_name": "WL软件库",
+  "description": "精选优质应用下载平台",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f6fa",
+  "theme_color": "#5b7bf9",
+  "icons": [
+    { "src": "/logo-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/logo-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

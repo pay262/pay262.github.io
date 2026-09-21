@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /admin
+
+Sitemap: https://pay262.github.io/pro/ku/sitemap.xml
