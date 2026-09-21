@@ -7,9 +7,7 @@
 <title>WL软件库 - 精选优质应用下载平台</title>
 <meta name="description" content="WL软件库为您提供全网最新的安卓和iOS应用下载，包含影视、音乐、工具、阅读、游戏等各类优质软件，每日更新，纯净无广告。">
 <meta name="keywords" content="WL软件库,安卓软件,iOS应用,影视软件,音乐下载,应用下载,网盘下载">
-<meta name="author" content="WL Software">
 <meta name="robots" content="index, follow">
-<meta name="googlebot" content="index, follow">
 <meta property="og:title" content="WL软件库 - 精选优质应用下载平台">
 <meta property="og:description" content="全网最新安卓与iOS应用，每日更新，纯净下载。">
 <meta property="og:type" content="website">
@@ -40,9 +38,9 @@
             s.parentNode.insertBefore(hm, s);
         })();
     </script>
-<!-- ===== 51.LA 基础统计代码（请替换成你自己的） ===== -->
-<script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
-<script>LA.init({id:"3GBQy07pYlIVc3g8",ck:"3GBQy07pYlIVc3g8",autoTrack:true})</script>
+    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
+    <script>LA.init({id:"3GBQy07pYlIVc3g8",ck:"3GBQy07pYlIVc3g8",autoTrack:true})
+    </script>
 <!-- ============================================== -->
 
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
@@ -93,13 +91,18 @@ body{background:var(--bg);color:var(--text);min-height:100vh;transition:backgrou
 .icon-placeholder{width:40px;height:40px;border-radius:10px;background:var(--ph-bg);display:flex;justify-content:center;align-items:center;font-size:20px;color:var(--muted)}
 .version-modal-box { max-height: 75vh; display: flex; flex-direction: column; padding: 16px 20px; }
 .version-scroll-area { flex: 1; overflow-y: auto; margin: 4px 0 10px; padding-right: 2px; }
-.version-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); gap: 10px; flex-wrap: wrap; }
+
+/* ★ 版本行：支持小字描述 */
+.version-row { display: flex; align-items: flex-start; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); gap: 10px; flex-wrap: wrap; }
 .version-row:last-child { border-bottom: none; }
 .version-row.current { background: linear-gradient(90deg, rgba(91,123,249,.06), transparent); margin: 0 -16px; padding: 12px 16px; border-bottom: 1px solid rgba(91,123,249,.2); border-radius: 8px; }
-.version-info { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.version-info { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+.version-head-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .version-num { font-size: 15px; font-weight: 700; color: var(--text); }
 .current .version-num { font-size: 16px; color: var(--primary); }
-.version-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.version-note { font-size: 11px; color: var(--sub); line-height: 1.5; padding-left: 2px; }
+.version-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; align-items: center; flex-shrink: 0; }
+
 .badge-latest { font-size: 10px; font-weight: 700; background: var(--grad); color: #fff; padding: 2px 8px; border-radius: 10px; }
 .badge-old { font-size: 10px; font-weight: 500; background: var(--icon-bg); color: var(--sub); padding: 2px 8px; border-radius: 10px; }
 .version-no-link { font-size: 12px; color: var(--muted); }
@@ -107,6 +110,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;transition:backgrou
 .version-group-title:first-child { margin-top: 0; }
 .history-toggle-btn { width: 100%; padding: 10px; background: transparent; border: 1px dashed var(--border); color: var(--primary); border-radius: 8px; font-size: 13px; font-weight: 600; margin-top: 8px; cursor: pointer; transition: .2s; }
 .history-toggle-btn:active { background: var(--bg); }
+
 .empty{text-align:center;padding:60px 20px;color:var(--sub);font-size:14px;line-height:1.8}
 .skeleton{background:var(--card);border-radius:14px;padding:14px;display:flex;gap:12px;align-items:center}
 .sk-icon{width:52px;height:52px;border-radius:12px;background:linear-gradient(90deg,var(--skel) 25%,var(--bg) 50%,var(--skel) 75%);background-size:200% 100%;animation:sk 1.4s infinite}
@@ -259,7 +263,7 @@ document.addEventListener('touchstart', function (event) {
 }, { passive: false });
 
 const CONFIG = { 
-  trackEndpoint: '', // 如果有 Cloudflare Worker，请填写到这里，例如 'https://xxx.workers.dev'
+  trackEndpoint: '',
   disclaimerVersion: '1.0', 
   PAGE_SIZE: 20, 
   NEW_DAYS: 7 
@@ -280,30 +284,16 @@ let toastTimer=null;
 function toast(msg){ const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),2200); }
 function closeModal(id){ document.getElementById(id).classList.remove('show'); }
 
-// ★ 核心：追踪点击量（51.LA + Worker 双通道）
 function track(appId, action){
-  // 1. 本地记录
-  try{
-    const key = `track_${appId}_${action}`;
-    localStorage.setItem(key, parseInt(localStorage.getItem(key) || '0') + 1);
-  }catch(e){}
-
-  // 2. 获取应用信息
+  try{ const key = `track_${appId}_${action}`; localStorage.setItem(key, parseInt(localStorage.getItem(key) || '0') + 1); }catch(e){}
   const app = DB.apps.find(a => a.id === appId);
   const appName = app ? app.name : ('ID:' + appId);
-
-  // 3. 判断系统
   let os = 'PC';
   if (/android/i.test(navigator.userAgent)) os = 'Android';
   else if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) os = 'iOS';
-
-  // 4. 上报到 51.LA（事件分析）
-  // 注意：51.LA 的 API 是 _szc.push(['_trackEvent', 事件分类, 事件动作, 事件标签]);
   if (typeof _szc !== 'undefined' && typeof _szc.push === 'function') {
     _szc.push(['_trackEvent', os + '下载', action, appName]);
   }
-
-  // 5. 上报到自建接口（Cloudflare Workers）
   if (CONFIG.trackEndpoint){
     const url = `${CONFIG.trackEndpoint}?id=${encodeURIComponent(appId)}&action=${encodeURIComponent(action)}&app=${encodeURIComponent(appName)}&os=${encodeURIComponent(os)}&t=${Date.now()}`;
     fetch(url, { mode: 'no-cors' }).catch(()=>{});
@@ -460,7 +450,20 @@ function showVersionPicker(appId){
   const app = DB.apps.find(a => a.id === appId); if (!app) return;
   currentVersionApp = app; const os = getOS();
   document.getElementById('versionTitle').innerHTML = `📦 ${esc(app.name)}`;
-  const versions = [ { version: app.version, androidLinks: app.androidLinks || [], iosUrl: app.iosUrl || '', isTransform: !!app.isTransform, iosType: app.iosType || 'transform', transformTip: app.transformTip || '', isLatest: true }, ...(app.historyVersions || []).map(v => ({ version: v.version || '', androidLinks: v.androidLinks || [], iosUrl: v.iosUrl || '', isTransform: !!v.isTransform, iosType: v.iosType || 'transform', transformTip: v.transformTip || '', isLatest: false })) ];
+  // ★ 收集 note 字段
+  const versions = [ 
+    { version: app.version, note: app.note || '', androidLinks: app.androidLinks || [], iosUrl: app.iosUrl || '', isTransform: !!app.isTransform, iosType: app.iosType || 'transform', transformTip: app.transformTip || '', isLatest: true }, 
+    ...(app.historyVersions || []).map(v => ({ 
+      version: v.version || '', 
+      note: v.note || '',
+      androidLinks: v.androidLinks || [], 
+      iosUrl: v.iosUrl || '', 
+      isTransform: !!v.isTransform, 
+      iosType: v.iosType || 'transform', 
+      transformTip: v.transformTip || '', 
+      isLatest: false 
+    })) 
+  ];
   let html = '';
   html += `<div class="version-group-title">✨ 当前版本</div>`;
   html += renderVersionRow(versions[0], os, 0, true);
@@ -479,13 +482,24 @@ function showVersionPicker(appId){
   document.getElementById('versionModal').classList.add('show');
 }
 
+// ★ 核心：渲染带 note 的版本行
 function renderVersionRow(v, os, idx, isCurrent){
   let actions = '';
   if (os === 'Android') { const links = v.androidLinks || []; if (!links.length) actions = '<span class="version-no-link">无安卓链接</span>'; else actions = links.map((l, i) => `<button class="btn-download sm" onclick="openVersionAndroidLink(${idx}, ${i})">${esc(l.provider || '下载')}</button>`).join(''); }
   else if (os === 'iOS') { if (!v.iosUrl) actions = '<span class="version-no-link">无 iOS 链接</span>'; else if (v.isTransform) actions = `<button class="btn-download sm ios-btn" onclick="openVersionIos(${idx})">${v.iosType === 'clone' ? '分身安装' : '安装教程'}</button>`; else actions = `<button class="btn-download sm ios-btn" onclick="openVersionIos(${idx})">App Store</button>`; }
   else actions = '<span class="version-no-link">💻 PC 端</span>';
   const badge = isCurrent ? '<span class="badge-latest">最新</span>' : '<span class="badge-old">旧版</span>';
-  return `<div class="version-row ${isCurrent?'current':''}"><div class="version-info"><span class="version-num">v${esc(v.version || '未知')}</span>${badge}</div><div class="version-actions">${actions}</div></div>`;
+  const noteHtml = v.note ? `<div class="version-note">${esc(v.note)}</div>` : '';
+  return `<div class="version-row ${isCurrent?'current':''}">
+    <div class="version-info">
+      <div class="version-head-line">
+        <span class="version-num">v${esc(v.version || '未知')}</span>
+        ${badge}
+      </div>
+      ${noteHtml}
+    </div>
+    <div class="version-actions">${actions}</div>
+  </div>`;
 }
 function toggleHistory(count){ const hiddenDiv = document.getElementById('hiddenHistory'); const btn = document.getElementById('historyToggleBtn'); if (hiddenDiv.style.display === 'none') { hiddenDiv.style.display = 'block'; btn.textContent = `收起历史版本 ▲`; } else { hiddenDiv.style.display = 'none'; btn.textContent = `展开剩余 ${count} 个历史版本 ▼`; } }
 function openVersionAndroidLink(versionIdx, linkIdx){ const app = currentVersionApp; if (!app) return; const version = versionIdx === 0 ? app : (app.historyVersions || [])[versionIdx - 1]; if (!version || !version.androidLinks || !version.androidLinks[linkIdx]) return; const link = version.androidLinks[linkIdx]; closeModal('versionModal'); track(app.id, 'android_v' + (version.version || '') + '_' + (link.provider || linkIdx)); if (link.pwd) { copyText(link.pwd).then(() => toast(`提取码 ${link.pwd} 已复制`)).catch(() => {}); setTimeout(() => window.open(link.url, '_blank', 'noopener'), 350); } else window.open(link.url, '_blank', 'noopener'); }

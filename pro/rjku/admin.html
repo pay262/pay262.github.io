@@ -210,7 +210,7 @@ input,select,textarea{font-family:inherit;font-size:14px}
   <section class="help" id="helpSection">
     <b>使用说明：</b><br>
     1. 置顶功能：勾选置顶并设定时间后，该应用会在前端强制排在最前面，过期后自动取消。<br>
-    2. 编辑内容自动缓存在浏览器本地，新建应用时表单草稿会自动保留，刷新不丢失。<br>
+    2. 历史版本特点：在编辑弹窗「📜 历史版本」区块，可给每个旧版本填写一行小字描述（如"修复闪退"、"最后一个支持 Android 5.0 的版本"），前端会显示在版本号下方。<br>
     3. 拖拽卡片左侧的“☰”图标可进行排序，导出后前端会按此顺序展示。<br>
     4. 按 <code>Ctrl + S</code>（Mac 为 <code>Cmd + S</code>）可快速保存正在编辑的表单。<br>
     <b style="color:#e74c3c">⚠️ 上线后请删除或改名 admin.html，不要让别人访问到。</b>
@@ -228,6 +228,9 @@ input,select,textarea{font-family:inherit;font-size:14px}
       <div class="form-row"><label>分类</label><input id="f_category" list="categoryList" placeholder="工具 / 影视 / 音乐 / 阅读 / 游戏 / 社交"><datalist id="categoryList"></datalist></div>
       <div class="form-row"><label>添加日期（用于新品标识，格式 YYYY-MM-DD）</label><input id="f_addedAt" placeholder="2026-09-21" oninput="validateDate(this)"><div class="error-msg" id="err_addedAt">请输入正确的日期格式</div></div>
       <div class="form-row"><label>描述</label><textarea id="f_desc" rows="2" placeholder="一句话介绍这个应用"></textarea></div>
+
+      <!-- ★ 当前版本特点描述 -->
+      <div class="form-row"><label>当前版本特点（可选，显示在版本号下方的小字）</label><input id="f_note" placeholder="如：最新稳定版，新增投屏功能"></div>
 
       <div class="section-title" style="margin-top:16px;">📌 置顶设置</div>
       <div class="form-row checkbox-row" style="margin-bottom:8px;">
@@ -288,31 +291,21 @@ function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(DB)); }catch(e
 function loadLocal(){ try{ const s=localStorage.getItem(LS_KEY); if(s) return JSON.parse(s); }catch(e){} return null; }
 function isPinned(app) { return app.pinnedUntil && app.pinnedUntil > Date.now(); }
 
-// ==================== Tab 切换逻辑 ====================
+// ==================== Tab 切换 ====================
 function switchTab(tab) {
   const tabApps = document.getElementById('tabApps');
   const tabStats = document.getElementById('tabStats');
   const appsView = document.getElementById('appsView');
   const statsView = document.getElementById('statsView');
   const helpSection = document.getElementById('helpSection');
-  
   if (tab === 'apps') {
-    appsView.style.display = '';
-    statsView.style.display = 'none';
-    helpSection.style.display = '';
-    tabApps.style.color = 'var(--primary)';
-    tabApps.style.borderBottom = '2px solid var(--primary)';
-    tabStats.style.color = 'var(--sub)';
-    tabStats.style.borderBottom = '2px solid transparent';
+    appsView.style.display = ''; statsView.style.display = 'none'; helpSection.style.display = '';
+    tabApps.style.color = 'var(--primary)'; tabApps.style.borderBottom = '2px solid var(--primary)';
+    tabStats.style.color = 'var(--sub)'; tabStats.style.borderBottom = '2px solid transparent';
   } else {
-    appsView.style.display = 'none';
-    statsView.style.display = 'block';
-    helpSection.style.display = 'none';
-    tabStats.style.color = 'var(--primary)';
-    tabStats.style.borderBottom = '2px solid var(--primary)';
-    tabApps.style.color = 'var(--sub)';
-    tabApps.style.borderBottom = '2px solid transparent';
-    
+    appsView.style.display = 'none'; statsView.style.display = 'block'; helpSection.style.display = 'none';
+    tabStats.style.color = 'var(--primary)'; tabStats.style.borderBottom = '2px solid var(--primary)';
+    tabApps.style.color = 'var(--sub)'; tabApps.style.borderBottom = '2px solid transparent';
     const saved = localStorage.getItem('wl_stats_endpoint');
     if (saved && !document.getElementById('statsEndpoint').value) {
       document.getElementById('statsEndpoint').value = saved;
@@ -321,21 +314,18 @@ function switchTab(tab) {
   }
 }
 
-// ==================== 数据统计渲染 ====================
+// ==================== 数据统计 ====================
 async function loadStats() {
   const endpoint = document.getElementById('statsEndpoint').value.trim().replace(/\/$/, '');
   if (!endpoint) { toast('请输入 Worker 地址', 'err'); return; }
   localStorage.setItem('wl_stats_endpoint', endpoint);
-  
   const container = document.getElementById('statsContent');
   container.innerHTML = '<div style="background:#fff; border-radius:12px; padding:30px; text-align:center; color:#888;">加载中...</div>';
-  
   try {
     const [statsRes, detailRes] = await Promise.all([
       fetch(endpoint + '/?action=getStats').then(r => r.json()),
       fetch(endpoint + '/?action=getDetail').then(r => r.json())
     ]);
-    
     renderStatsView(statsRes, detailRes);
   } catch (e) {
     container.innerHTML = '<div style="background:#fff; border-radius:12px; padding:30px; text-align:center; color:#e74c3c;">加载失败：' + e.message + '</div>';
@@ -344,7 +334,6 @@ async function loadStats() {
 
 function renderStatsView(stats, details) {
   const totalClicks = Object.values(stats).reduce((a, b) => a + b, 0);
-  
   const byApp = {};
   Object.entries(stats).forEach(([key, count]) => {
     const parts = key.split(':');
@@ -354,82 +343,48 @@ function renderStatsView(stats, details) {
     byApp[appId].total += count;
     byApp[appId].actions[action] = (byApp[appId].actions[action] || 0) + count;
   });
-  
   const ranked = Object.entries(byApp).map(([appId, data]) => {
     const app = DB.apps.find(a => String(a.id) === String(appId));
-    return {
-      id: appId,
-      name: app ? app.name : '已删除应用 #' + appId,
-      icon: app ? (app.icon || '📦') : '❓',
-      total: data.total,
-      actions: data.actions
-    };
+    return { id: appId, name: app ? app.name : '已删除应用 #' + appId, icon: app ? (app.icon || '📦') : '❓', total: data.total, actions: data.actions };
   }).sort((a, b) => b.total - a.total);
   
   let html = '';
-  
-  html += `
-    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin-bottom:20px;">
-      <div style="background:#fff; border-radius:10px; padding:16px; text-align:center; box-shadow:var(--shadow);">
-        <div style="font-size:24px; font-weight:700; color:var(--primary);">${totalClicks}</div>
-        <div style="font-size:12px; color:var(--sub); margin-top:4px;">总点击量</div>
-      </div>
-      <div style="background:#fff; border-radius:10px; padding:16px; text-align:center; box-shadow:var(--shadow);">
-        <div style="font-size:24px; font-weight:700; color:var(--success);">${ranked.length}</div>
-        <div style="font-size:12px; color:var(--sub); margin-top:4px;">有下载的应用</div>
-      </div>
-      <div style="background:#fff; border-radius:10px; padding:16px; text-align:center; box-shadow:var(--shadow);">
-        <div style="font-size:24px; font-weight:700; color:var(--warn);">${details.length}</div>
-        <div style="font-size:12px; color:var(--sub); margin-top:4px;">明细记录数</div>
-      </div>
-    </div>
-  `;
-  
+  html += `<div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin-bottom:20px;">
+    <div style="background:#fff; border-radius:10px; padding:16px; text-align:center; box-shadow:var(--shadow);"><div style="font-size:24px; font-weight:700; color:var(--primary);">${totalClicks}</div><div style="font-size:12px; color:var(--sub); margin-top:4px;">总点击量</div></div>
+    <div style="background:#fff; border-radius:10px; padding:16px; text-align:center; box-shadow:var(--shadow);"><div style="font-size:24px; font-weight:700; color:var(--success);">${ranked.length}</div><div style="font-size:12px; color:var(--sub); margin-top:4px;">有下载的应用</div></div>
+    <div style="background:#fff; border-radius:10px; padding:16px; text-align:center; box-shadow:var(--shadow);"><div style="font-size:24px; font-weight:700; color:var(--warn);">${details.length}</div><div style="font-size:12px; color:var(--sub); margin-top:4px;">明细记录数</div></div>
+  </div>`;
   html += '<div style="background:#fff; border-radius:12px; padding:20px; box-shadow:var(--shadow); margin-bottom:20px;">';
   html += '<h3 style="font-size:15px; margin-bottom:16px;">🏆 应用下载排行</h3>';
-  if (!ranked.length) {
-    html += '<div style="text-align:center; color:#888; padding:20px;">暂无数据</div>';
-  } else {
+  if (!ranked.length) { html += '<div style="text-align:center; color:#888; padding:20px;">暂无数据</div>'; }
+  else {
     html += ranked.map((item, idx) => `
       <div style="display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--border);">
         <div style="width:24px; text-align:center; font-weight:700; color:${idx === 0 ? '#f0a020' : idx === 1 ? '#999' : idx === 2 ? '#cd7f32' : '#aaa'};">${idx + 1}</div>
         <div style="font-size:22px;">${item.icon}</div>
-        <div style="flex:1;">
-          <div style="font-weight:600;">${item.name}</div>
-          <div style="font-size:12px; color:var(--sub); margin-top:2px;">
-            ${Object.entries(item.actions).map(([a, c]) => `${a}: ${c}`).join(' · ')}
-          </div>
-        </div>
+        <div style="flex:1;"><div style="font-weight:600;">${item.name}</div><div style="font-size:12px; color:var(--sub); margin-top:2px;">${Object.entries(item.actions).map(([a, c]) => `${a}: ${c}`).join(' · ')}</div></div>
         <div style="font-size:18px; font-weight:700; color:var(--primary);">${item.total}</div>
       </div>
     `).join('');
   }
   html += '</div>';
-  
   html += '<div style="background:#fff; border-radius:12px; padding:20px; box-shadow:var(--shadow);">';
   html += '<h3 style="font-size:15px; margin-bottom:16px;">📋 最近 500 条明细</h3>';
-  if (!details.length) {
-    html += '<div style="text-align:center; color:#888; padding:20px;">暂无数据</div>';
-  } else {
+  if (!details.length) { html += '<div style="text-align:center; color:#888; padding:20px;">暂无数据</div>'; }
+  else {
     html += '<div style="max-height:500px; overflow-y:auto;">';
     html += details.slice(0, 500).map(log => {
       const d = new Date(log.t);
       const time = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-      return `<div style="display:flex; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); font-size:13px;">
-        <div style="color:var(--muted); width:80px; flex-shrink:0;">${time}</div>
-        <div style="font-weight:600; flex:1;">${log.app || '未知应用'}</div>
-        <div style="color:var(--primary);">${log.action}</div>
-        <div style="color:var(--sub); font-size:11px;">${log.os || ''}</div>
-      </div>`;
+      return `<div style="display:flex; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); font-size:13px;"><div style="color:var(--muted); width:80px; flex-shrink:0;">${time}</div><div style="font-weight:600; flex:1;">${log.app || '未知应用'}</div><div style="color:var(--primary);">${log.action}</div><div style="color:var(--sub); font-size:11px;">${log.os || ''}</div></div>`;
     }).join('');
     html += '</div>';
   }
   html += '</div>';
-  
   document.getElementById('statsContent').innerHTML = html;
 }
 
-// ==================== 应用管理原有逻辑 ====================
+// ==================== 应用管理 ====================
 function initSortable(){
   const el = document.getElementById('appListContainer'); if (!el) return;
   if (sortableInstance) { try { sortableInstance.destroy(); } catch(e){} sortableInstance = null; }
@@ -507,14 +462,12 @@ function render(){
     c.innerHTML = `<div class="empty-state"><div class="em">🔍</div><div>${adminKeyword || adminCategory ? '没有找到匹配的应用' : '暂无应用'}</div><div style="font-size:12px;margin-top:8px;opacity:.7">${adminKeyword || adminCategory ? '试试更换搜索词或分类' : '点击右上角「新建应用」或使用「智能识别」开始'}</div></div>`;
     const elPag = document.getElementById('adminPagination'); if (elPag) elPag.innerHTML = ''; const elBatch = document.getElementById('batchGroup'); if (elBatch) elBatch.style.display = 'none'; return;
   }
-  
   currentFilteredApps.sort((a, b) => {
     const aPin = isPinned(a), bPin = isPinned(b);
     if (aPin && !bPin) return -1;
     if (!aPin && bPin) return 1;
     return 0;
   });
-
   const total = currentFilteredApps.length; const totalPages = Math.ceil(total / ADMIN_PAGE_SIZE);
   if (adminPage > totalPages) adminPage = totalPages; if (adminPage < 1) adminPage = 1;
   const start = (adminPage - 1) * ADMIN_PAGE_SIZE, end = Math.min(start + ADMIN_PAGE_SIZE, total);
@@ -540,7 +493,7 @@ function renderAppItem(app){
       <div class="icon">${iconHtml}</div>
       <div class="info">
         <div class="name"><span class="tag id">#${app.id}</span>${esc(app.name)}<span class="tag ver">v${esc(app.version||'?')}</span><span class="tag cat">${esc(app.category||'未分类')}</span>${andTag}${iosTag}${historyTag}${pinTag}${newTag}</div>
-        <div class="desc">${esc(app.desc||'')}</div>
+        <div class="desc">${esc(app.desc||'')}${app.note ? ' · ' + esc(app.note) : ''}</div>
       </div>
       <div class="ops">
         <button class="btn-mini" onclick="copyAppJson(${app.id})" title="复制 JSON">📋</button>
@@ -571,17 +524,19 @@ function openEditor(id, preset){
     document.getElementById('editorTitle').textContent = '编辑应用 #' + app.id;
     document.getElementById('f_iconUrl').value = app.iconUrl || '';
     document.getElementById('f_addedAt').value = app.addedAt || '';
+    document.getElementById('f_note').value = app.note || '';
     document.getElementById('f_isPinned').checked = isPinned(app);
     if (isPinned(app)) { document.getElementById('f_pinDuration').value = 1; document.getElementById('f_pinUnit').value = 'day'; }
     togglePinFields();
   } else {
     const draft = localStorage.getItem(LS_DRAFT);
     if (draft && !preset) { if (confirm('检测到未保存的表单草稿，是否恢复？')) { try { editingApp = JSON.parse(draft); } catch(e) { editingApp = null; } } }
-    if (!editingApp) { editingApp = { id: Date.now(), name:'', icon:'📦', iconUrl:'', desc:'', category:'工具', version:'', addedAt: today(), pinnedUntil: 0, androidLinks: [], iosUrl:'', isTransform:false, iosType:'transform', transformTip:'', historyVersions: [] }; }
+    if (!editingApp) { editingApp = { id: Date.now(), name:'', icon:'📦', iconUrl:'', desc:'', category:'工具', version:'', note:'', addedAt: today(), pinnedUntil: 0, androidLinks: [], iosUrl:'', isTransform:false, iosType:'transform', transformTip:'', historyVersions: [] }; }
     if(preset) Object.assign(editingApp, preset);
     document.getElementById('editorTitle').textContent = preset ? '智能识别结果' : '新建应用';
     document.getElementById('f_iconUrl').value = editingApp.iconUrl || '';
     document.getElementById('f_addedAt').value = editingApp.addedAt || today();
+    document.getElementById('f_note').value = editingApp.note || '';
     document.getElementById('f_isPinned').checked = false;
     togglePinFields();
   }
@@ -611,16 +566,47 @@ function updateLink(i,key,value){ if(editingApp && editingApp.androidLinks[i]) e
 function addLink(){ if(!editingApp) return; editingApp.androidLinks.push({provider:'夸克',url:'',pwd:''}); renderLinks(); }
 function removeLink(i){ editingApp.androidLinks.splice(i,1); renderLinks(); }
 
-function renderHistoryVersions(){ const c = document.getElementById('historyVersionsContainer'); if(!c) return; if(!editingApp.historyVersions || !editingApp.historyVersions.length){ c.innerHTML = '<div class="history-empty">暂无历史版本，点击「+ 添加历史版本」新增</div>'; return; } c.innerHTML = editingApp.historyVersions.map((v,vi)=>`<div class="history-item"><div class="history-item-head"><input value="${esc(v.version||'')}" placeholder="版本号，如 2.1.8" oninput="updateHistory(${vi},'version',this.value)"><button class="del-btn" onclick="removeHistoryVersion(${vi})" title="删除此历史版本">✕</button></div><span class="label">📱 安卓线路</span><div id="histLinks-${vi}"></div><button class="btn-mini primary" onclick="addHistoryLink(${vi})" style="margin-top:4px">+ 添加线路</button><span class="label">🍎 iOS 链接（可选）</span><div class="form-row"><input value="${esc(v.iosUrl||'')}" placeholder="https://apps.apple.com/..." oninput="updateHistory(${vi},'iosUrl',this.value)"></div><div class="form-row checkbox-row" style="margin-bottom:5px"><label><input type="checkbox" ${v.isTransform?'checked':''} onchange="updateHistory(${vi},'isTransform',this.checked)"> 需要变身/分身</label></div><div class="form-row" style="margin-bottom:5px; display:${v.isTransform?'block':'none'}" id="histTransform-${vi}"><select onchange="updateHistory(${vi},'iosType',this.value)" style="width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:#fff"><option value="transform" ${v.iosType==='transform'?'selected':''}>🎭 变身</option><option value="clone" ${v.iosType==='clone'?'selected':''}>👥 分身</option></select><textarea style="width:100%;margin-top:5px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:#fff;font-family:inherit" rows="3" placeholder="教程" oninput="updateHistory(${vi},'transformTip',this.value)">${esc(v.transformTip||'')}</textarea></div></div>`).join(''); editingApp.historyVersions.forEach((v,vi)=>renderHistoryLinks(vi)); }
+// ★ 历史版本区块：新增 note 输入框
+function renderHistoryVersions(){ 
+  const c = document.getElementById('historyVersionsContainer'); if(!c) return; 
+  if(!editingApp.historyVersions || !editingApp.historyVersions.length){ c.innerHTML = '<div class="history-empty">暂无历史版本，点击「+ 添加历史版本」新增</div>'; return; } 
+  c.innerHTML = editingApp.historyVersions.map((v,vi)=>`
+    <div class="history-item">
+      <div class="history-item-head">
+        <input value="${esc(v.version||'')}" placeholder="版本号，如 2.1.8" oninput="updateHistory(${vi},'version',this.value)">
+        <button class="del-btn" onclick="removeHistoryVersion(${vi})" title="删除此历史版本">✕</button>
+      </div>
+      <div class="form-row" style="margin-bottom:8px;">
+        <input value="${esc(v.note||'')}" placeholder="版本特点（可选），如：修复闪退、优化启动速度" oninput="updateHistory(${vi},'note',this.value)">
+      </div>
+      <span class="label">📱 安卓线路</span>
+      <div id="histLinks-${vi}"></div>
+      <button class="btn-mini primary" onclick="addHistoryLink(${vi})" style="margin-top:4px">+ 添加线路</button>
+      <span class="label">🍎 iOS 链接（可选）</span>
+      <div class="form-row"><input value="${esc(v.iosUrl||'')}" placeholder="https://apps.apple.com/..." oninput="updateHistory(${vi},'iosUrl',this.value)"></div>
+      <div class="form-row checkbox-row" style="margin-bottom:5px">
+        <label><input type="checkbox" ${v.isTransform?'checked':''} onchange="updateHistory(${vi},'isTransform',this.checked)"> 需要变身/分身</label>
+      </div>
+      <div class="form-row" style="margin-bottom:5px; display:${v.isTransform?'block':'none'}" id="histTransform-${vi}">
+        <select onchange="updateHistory(${vi},'iosType',this.value)" style="width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:#fff">
+          <option value="transform" ${v.iosType==='transform'?'selected':''}>🎭 变身</option>
+          <option value="clone" ${v.iosType==='clone'?'selected':''}>👥 分身</option>
+        </select>
+        <textarea style="width:100%;margin-top:5px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:#fff;font-family:inherit" rows="3" placeholder="教程" oninput="updateHistory(${vi},'transformTip',this.value)">${esc(v.transformTip||'')}</textarea>
+      </div>
+    </div>
+  `).join(''); 
+  editingApp.historyVersions.forEach((v,vi)=>renderHistoryLinks(vi)); 
+}
 function renderHistoryLinks(vi){ const c = document.getElementById('histLinks-'+vi); if(!c) return; const v = editingApp.historyVersions[vi]; if(!Array.isArray(v.androidLinks)) v.androidLinks = []; if(!v.androidLinks.length){ c.innerHTML = '<div class="empty-hint" style="padding:8px;font-size:11px">暂无线路</div>'; return; } c.innerHTML = v.androidLinks.map((l,li)=>`<div class="link-row" style="grid-template-columns:80px 1fr 80px 30px"><input value="${esc(l.provider||'')}" placeholder="平台" oninput="updateHistoryLink(${vi},${li},'provider',this.value)"><input value="${esc(l.url||'')}" placeholder="链接" oninput="updateHistoryLink(${vi},${li},'url',this.value)"><input value="${esc(l.pwd||'')}" placeholder="提取码" oninput="updateHistoryLink(${vi},${li},'pwd',this.value)"><button class="del-btn" style="width:30px;height:30px" onclick="removeHistoryLink(${vi},${li})" title="删除">✕</button></div>`).join(''); }
 function updateHistory(vi, key, value){ if(!editingApp || !editingApp.historyVersions[vi]) return; editingApp.historyVersions[vi][key] = value; if (key === 'isTransform') { const el = document.getElementById('histTransform-' + vi); if (el) el.style.display = value ? 'block' : 'none'; } }
 function updateHistoryLink(vi, li, key, value){ if(!editingApp || !editingApp.historyVersions[vi] || !editingApp.historyVersions[vi].androidLinks[li]) return; editingApp.historyVersions[vi].androidLinks[li][key] = value; }
-function addHistoryVersion(){ if(!editingApp) return; editingApp.historyVersions.push({ version:'', androidLinks:[], iosUrl:'', isTransform:false, iosType:'transform', transformTip:'' }); renderHistoryVersions(); }
+function addHistoryVersion(){ if(!editingApp) return; editingApp.historyVersions.push({ version:'', note:'', androidLinks:[], iosUrl:'', isTransform:false, iosType:'transform', transformTip:'' }); renderHistoryVersions(); }
 function removeHistoryVersion(vi){ if(!confirm('确定删除该历史版本？')) return; editingApp.historyVersions.splice(vi,1); renderHistoryVersions(); }
 function addHistoryLink(vi){ const v = editingApp.historyVersions[vi]; if(!v) return; if(!Array.isArray(v.androidLinks)) v.androidLinks = []; v.androidLinks.push({provider:'夸克',url:'',pwd:''}); renderHistoryLinks(vi); }
 function removeHistoryLink(vi, li){ const v = editingApp.historyVersions[vi]; if(!v) return; v.androidLinks.splice(li,1); renderHistoryLinks(vi); }
 
-function autoSaveDraft() { if (!editingApp || !document.getElementById('editorModal').classList.contains('show')) return; if (editingApp.id && DB.apps.find(a => a.id === editingApp.id)) return; const draft = { name: document.getElementById('f_name').value.trim(), icon: document.getElementById('f_icon').value.trim(), version: document.getElementById('f_version').value.trim(), category: document.getElementById('f_category').value.trim(), addedAt: document.getElementById('f_addedAt').value.trim(), desc: document.getElementById('f_desc').value.trim(), androidLinks: editingApp.androidLinks, iosUrl: document.getElementById('f_iosUrl').value.trim(), isTransform: document.getElementById('f_isTransform').checked, iosType: document.getElementById('f_iosType').value, transformTip: document.getElementById('f_transformTip').value.trim() }; try { localStorage.setItem(LS_DRAFT, JSON.stringify(draft)); } catch(e){} }
+function autoSaveDraft() { if (!editingApp || !document.getElementById('editorModal').classList.contains('show')) return; if (editingApp.id && DB.apps.find(a => a.id === editingApp.id)) return; const draft = { name: document.getElementById('f_name').value.trim(), icon: document.getElementById('f_icon').value.trim(), version: document.getElementById('f_version').value.trim(), category: document.getElementById('f_category').value.trim(), addedAt: document.getElementById('f_addedAt').value.trim(), desc: document.getElementById('f_desc').value.trim(), note: document.getElementById('f_note').value.trim(), androidLinks: editingApp.androidLinks, iosUrl: document.getElementById('f_iosUrl').value.trim(), isTransform: document.getElementById('f_isTransform').checked, iosType: document.getElementById('f_iosType').value, transformTip: document.getElementById('f_transformTip').value.trim() }; try { localStorage.setItem(LS_DRAFT, JSON.stringify(draft)); } catch(e){} }
 setInterval(autoSaveDraft, 3000);
 
 function saveEditor(){
@@ -631,12 +617,22 @@ function saveEditor(){
 
   editingApp.name = name; editingApp.icon = document.getElementById('f_icon').value.trim() || '📦'; editingApp.iconUrl = iconUrl;
   editingApp.version = document.getElementById('f_version').value.trim(); editingApp.category = document.getElementById('f_category').value.trim() || '工具';
+  editingApp.note = document.getElementById('f_note').value.trim();
   editingApp.addedAt = addedAt || today(); editingApp.desc = document.getElementById('f_desc').value.trim();
   editingApp.iosUrl = document.getElementById('f_iosUrl').value.trim(); editingApp.isTransform = document.getElementById('f_isTransform').checked;
   editingApp.iosType = document.getElementById('f_iosType').value; editingApp.transformTip = document.getElementById('f_transformTip').value.trim();
   editingApp.pinnedUntil = calculatePinnedUntil();
   editingApp.androidLinks = (editingApp.androidLinks||[]).filter(l => l.url && l.url.trim());
-  editingApp.historyVersions = (editingApp.historyVersions||[]).filter(v => v.version && v.version.trim()).map(v => ({ version: v.version.trim(), androidLinks: (v.androidLinks||[]).filter(l => l.url && l.url.trim()), iosUrl: (v.iosUrl||'').trim(), isTransform: !!v.isTransform, iosType: v.iosType || 'transform', transformTip: v.transformTip || '' }));
+  // ★ 保存历史版本时保留 note 字段
+  editingApp.historyVersions = (editingApp.historyVersions||[]).filter(v => v.version && v.version.trim()).map(v => ({ 
+    version: v.version.trim(), 
+    note: (v.note || '').trim(),
+    androidLinks: (v.androidLinks||[]).filter(l => l.url && l.url.trim()), 
+    iosUrl: (v.iosUrl||'').trim(), 
+    isTransform: !!v.isTransform, 
+    iosType: v.iosType || 'transform', 
+    transformTip: v.transformTip || '' 
+  }));
 
   const idx = DB.apps.findIndex(a => a.id === editingApp.id);
   if(idx >= 0) DB.apps[idx] = editingApp; else DB.apps.push(editingApp);
@@ -649,7 +645,7 @@ document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.ke
 function smartParse(){
   const raw = document.getElementById('smartInput').value; if(!raw.trim()){ toast('请先粘贴内容','err'); return; }
   const lines = raw.split('\n').map(l=>l.trim()).filter(Boolean);
-  const result = { name:'', icon:'📦', iconUrl:'', desc:'', category:'工具', version:'', addedAt: today(), pinnedUntil: 0, androidLinks:[], iosUrl:'', isTransform:false, iosType:'transform', transformTip:'' };
+  const result = { name:'', icon:'📦', iconUrl:'', desc:'', category:'工具', version:'', note:'', addedAt: today(), pinnedUntil: 0, androidLinks:[], iosUrl:'', isTransform:false, iosType:'transform', transformTip:'' };
   const panMap = [ { re:/pan\.quark\.cn/i, name:'夸克' }, { re:/pan\.baidu\.com/i, name:'百度' }, { re:/lanzou[a-z]?\.com/i, name:'蓝奏云' }, { re:/(aliyundrive|alipan)\.com/i, name:'阿里云盘' }, { re:/123pan\.com/i, name:'123云盘' }, { re:/xunlei\.com/i, name:'迅雷' }, { re:/(^|[^0-9])115\.com/i, name:'115' }, { re:/caiyun\.139\.com/i, name:'移动云盘' }, { re:/cloud\.189\.cn/i, name:'天翼云盘' }, { re:/weiyun\.com/i, name:'微云' }, { re:/drive\.uc\.cn/i, name:'UC网盘' } ];
   const urlRe = /(https?:\/\/[^\s，,。;；、"'）)】\]}]+)/g; const pwdRe = /(?:提取码|密码|访问码|访问密码|pwd|code)[\s:：=]*([a-zA-Z0-9]{3,8})/i;
   lines.forEach(line=>{ const urls = line.match(urlRe); if(!urls) return; urls.forEach(url=>{ if(/(apps\.apple\.com|itunes\.apple\.com)/i.test(url)){ if(!result.iosUrl) result.iosUrl = url; return; } for(const p of panMap){ if(p.re.test(url)){ const m = line.match(pwdRe); result.androidLinks.push({ provider:p.name, url, pwd: m?m[1]:'' }); return; } } if(/网盘|下载|盘/i.test(line)){ const m = line.match(pwdRe); result.androidLinks.push({ provider:'网盘', url, pwd: m?m[1]:'' }); } }); });
