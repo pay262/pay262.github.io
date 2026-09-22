@@ -2861,6 +2861,162 @@
     <!-- ============================================================ -->
 <script>
 // ============================================================
+//  0. 通用工具：健壮复制 / 手动复制弹窗 / 图片下载 / 环境判断
+// ============================================================
+function isIOSDevice() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+function isWechatBrowser() {
+    return /MicroMessenger/i.test(navigator.userAgent);
+}
+
+// 同步兜底复制（必须由用户手势直接触发）
+function _execCopyFallback(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText =
+        'position:fixed;top:0;left:0;width:1px;height:1px;padding:0;border:0;' +
+        'outline:none;box-shadow:none;background:transparent;color:transparent;' +
+        'font-size:16px;opacity:0.01;z-index:99999;';
+    document.body.appendChild(ta);
+    var ok = false;
+    try {
+        ta.focus();
+        ta.select();
+        ta.setSelectionRange(0, ta.value.length);
+        ok = document.execCommand('copy');
+    } catch (e) { ok = false; }
+    try { ta.remove(); } catch (e) {}
+    return ok;
+}
+
+// 健壮复制：Clipboard API → execCommand 兜底
+function copyTextRobust(text) {
+    return new Promise(function(resolve) {
+        if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
+            navigator.clipboard.writeText(text)
+                .then(function() { resolve(true); })
+                .catch(function() { resolve(_execCopyFallback(text)); });
+        } else {
+            resolve(_execCopyFallback(text));
+        }
+    });
+}
+
+// 复制失败兜底：弹窗显示文本供手动复制
+function showManualCopyDialog(text, title) {
+    var old = document.getElementById('manualCopyMask');
+    if (old && old.parentNode) old.parentNode.removeChild(old);
+
+    var mask = document.createElement('div');
+    mask.id = 'manualCopyMask';
+    mask.style.cssText =
+        'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);' +
+        'z-index:999999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
+
+    var card = document.createElement('div');
+    card.style.cssText =
+        'background:#fff;border-radius:14px;padding:20px;max-width:400px;width:100%;box-sizing:border-box;';
+
+    var titleEl = document.createElement('div');
+    titleEl.textContent = title || '请长按下方文本复制';
+    titleEl.style.cssText = 'font-size:16px;font-weight:600;color:#1f2937;margin-bottom:12px;text-align:center;';
+
+    var ta = document.createElement('textarea');
+    ta.readOnly = true;
+    ta.value = text;
+    ta.style.cssText =
+        'width:100%;height:130px;padding:10px;border:1px solid #e5e7eb;border-radius:8px;' +
+        'font-size:13px;line-height:1.5;resize:none;box-sizing:border-box;color:#374151;' +
+        'background:#f9fafb;outline:none;font-family:inherit;';
+
+    var btn = document.createElement('button');
+    btn.textContent = '关闭';
+    btn.style.cssText =
+        'width:100%;height:44px;margin-top:12px;border:none;border-radius:10px;' +
+        'background:#3A6FF8;color:#fff;font-size:15px;font-weight:600;cursor:pointer;';
+    btn.onclick = function() { mask.remove(); };
+
+    card.appendChild(titleEl);
+    card.appendChild(ta);
+    card.appendChild(btn);
+    mask.appendChild(card);
+    mask.addEventListener('click', function(e) { if (e.target === mask) mask.remove(); });
+    document.body.appendChild(mask);
+
+    setTimeout(function() {
+        try { ta.focus(); ta.select(); ta.setSelectionRange(0, ta.value.length); } catch (e) {}
+    }, 80);
+}
+
+// dataURL → Blob
+function dataURLToBlob(dataUrl) {
+    var parts = dataUrl.split(',');
+    var mime = (parts[0].match(/:(.*?);/) || [])[1] || 'image/png';
+    var bstr = atob(parts[1]);
+    var n = bstr.length;
+    var u8 = new Uint8Array(n);
+    while (n--) { u8[n] = bstr.charCodeAt(n); }
+    return new Blob([u8], { type: mime });
+}
+
+// 图片下载：iOS/微信提示长按保存；其他端用 Blob + a[download]
+function downloadImage(dataUrl, filename) {
+    if (isIOSDevice() || isWechatBrowser()) {
+        showCustomToast('📱 请长按图片保存到相册', '微信/iOS 不支持自动下载');
+        return false;
+    }
+    try {
+        var blob = dataURLToBlob(dataUrl);
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = filename || 'poster.png';
+        a.rel = 'noopener';
+        a.style.cssText = 'position:fixed;left:-9999px;top:0;';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function() {
+            try { a.remove(); } catch (e) {}
+            try { URL.revokeObjectURL(url); } catch (e) {}
+        }, 800);
+        showCustomToast('✅ 已触发下载', '若未自动保存，请长按图片保存');
+        return true;
+    } catch (e) {
+        console.error('下载失败：', e);
+        showCustomToast('📱 请长按图片保存到相册', '');
+        return false;
+    }
+}
+
+// 分享/复制统一入口：原生分享 → 复制 → 手动弹窗
+function shareOrCopy(shareData, copyText, copyHint) {
+    if (navigator.share) {
+        navigator.share(shareData).then(function() {
+            // 用户完成分享，不必再打扰
+        }).catch(function(err) {
+            if (err && err.name === 'AbortError') return; // 用户主动取消
+            console.warn('原生分享失败，降级为复制：', err);
+            _copyWithToast(copyText, copyHint);
+        });
+        return;
+    }
+    _copyWithToast(copyText, copyHint);
+}
+
+function _copyWithToast(text, hint) {
+    copyTextRobust(text).then(function(ok) {
+        if (ok) {
+            showCustomToast('✅ 已复制到剪贴板', hint || '可粘贴给好友');
+        } else {
+            showManualCopyDialog(text, '复制失败，请长按文本手动复制');
+        }
+    });
+}
+
+// ============================================================
 //  1. 页面切换
 // ============================================================
 const pageTitleMap = {
@@ -2962,21 +3118,14 @@ var copyBtn = document.getElementById('copy5gaLink');
 if (copyBtn) {
     copyBtn.addEventListener('click', function() {
         var link = 'https://shopnew.sz189.cn/eshop/five5GAdl/index';
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(link).then(function() { showToast('✅ 链接已复制'); })['catch'](function() { fallbackCopy(link); });
-        } else { fallbackCopy(link); }
+        copyTextRobust(link).then(function(ok) {
+            if (ok) {
+                showToast('✅ 链接已复制');
+            } else {
+                showManualCopyDialog(link, '复制失败，请长按文本手动复制');
+            }
+        });
     });
-}
-
-function fallbackCopy(text) {
-    var input = document.createElement('input');
-    input.value = text;
-    input.style.cssText = 'position:fixed;opacity:0;';
-    document.body.appendChild(input);
-    input.select();
-    document.execCommand('copy');
-    document.body.removeChild(input);
-    showToast('✅ 链接已复制');
 }
 
 // ===== 切换内容 =====
@@ -3013,68 +3162,31 @@ dom.tabItems.forEach(function(i) {
 window.switchContent = switchContent;
 
 // ============================================================
-//  2. 分享/邀请
+//  2. 分享/邀请（修复版）
 // ============================================================
 function inviteFriend() {
-    var newRef = Math.random().toString(36).substr(2, 6);
+    var userRef = localStorage.getItem('userRef');
+    if (!userRef) {
+        userRef = Math.random().toString(36).substr(2, 6);
+        localStorage.setItem('userRef', userRef);
+    }
     var baseUrl = window.location.href.split('?')[0];
-    var currentParams = new URLSearchParams(window.location.search);
-    currentParams.set('ref', newRef);
-    var inviteLink = baseUrl + '?' + currentParams.toString();
+    var params = new URLSearchParams(window.location.search);
+    params.set('ref', userRef);
+    var inviteLink = baseUrl + '?' + params.toString();
     var shareText = '🎁 我在未来福利社赚佣金，快来一起领福利！' + inviteLink;
 
-    if (navigator.share) {
-        navigator.share({
-            title: '邀请好友赚佣金',
-            text: shareText,
-            url: inviteLink
-        }).catch(function(err) {
-            if (err.name !== 'AbortError') {
-                console.warn('分享取消或失败:', err);
-                fallbackCopy2(shareText);
-            }
-        });
-        return;
-    }
-    fallbackCopy2(shareText);
-}
-
-function fallbackCopy2(text) {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text)
-            .then(function() { showCustomToast('✅ 邀请链接已复制', '分享给好友，TA参与你赚佣金'); })
-            .catch(function(err) {
-                console.warn('Clipboard API 失败，降级到 execCommand:', err);
-                execCopy2(text);
-            });
-    } else { execCopy2(text); }
-}
-
-function execCopy2(text) {
-    var input = document.createElement('input');
-    input.value = text;
-    input.style.cssText = 'position:fixed;top:-1000px;left:-1000px;opacity:0;';
-    document.body.appendChild(input);
-    input.select();
-    input.setSelectionRange(0, text.length);
-    try {
-        var success = document.execCommand('copy');
-        if (success) { showCustomToast('✅ 邀请链接已复制', '分享给好友，TA参与你赚佣金'); }
-        else { showCustomToast('📋 请手动复制链接', text); }
-    } catch (e) { showCustomToast('📋 请手动复制链接', text); }
-    document.body.removeChild(input);
+    shareOrCopy(
+        { title: '邀请好友赚佣金', text: shareText, url: inviteLink },
+        shareText,
+        '分享给好友，TA参与你赚佣金'
+    );
 }
 
 // ============================================================
-//  3. 广告轮播 HTML 生成函数（✅ 已修复计费问题）
+//  3. 广告轮播 HTML 生成函数
 // ============================================================
 function createAdCarouselHTML() {
-    // ============================================================
-    //  广告数据读取优先级：
-    //  1. window.adCarouselList（专用广告数据源）
-    //  2. window.activityList 中 isCarouselAd: true 的条目
-    //  3. 默认后备数据（确保不报错）
-    // ============================================================
     let ads = [];
 
     if (typeof window.adCarouselList !== 'undefined' && Array.isArray(window.adCarouselList) && window.adCarouselList.length > 0) {
@@ -3100,18 +3212,12 @@ function createAdCarouselHTML() {
         ];
     }
 
-    // ============================================================
-    //  生成轮播 HTML
-    // ============================================================
     const slidesHtml = ads.map((ad) => {
         let content = '';
         if (ad.type === 'image') {
             const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="${ad.color || '#3A6FF8'}"/><text x="200" y="150" text-anchor="middle" dy=".3em" fill="#fff" font-size="24" font-family="sans-serif">${ad.label || '广告'}</text></svg>`;
             content = `<img src="data:image/svg+xml,${encodeURIComponent(svg)}" alt="${ad.label || '广告'}" style="width:100%;height:100%;object-fit:cover;">`;
         } else if (ad.type === 'iframe') {
-            // ✅ FIX 1：去掉 sandbox（恢复 cookie/storage，广告联盟能识别访客）
-            // ✅ FIX 2：去掉 loading="lazy"（确保真实发起请求，不是 about:blank）
-            // ✅ FIX 3：加 referrerpolicy（广告平台可识别来源）+ allow（富媒体广告兼容）
             content = `<iframe
                 src="${ad.src || 'https://example.com'}"
                 allowfullscreen
@@ -3154,7 +3260,6 @@ body { background:#f0f0f0; display:flex; align-items:center; justify-content:cen
     width:100%;
     height:100%;
     transition: transform 0.4s ease;
-    /* ✅ FIX 4：contain:none，避免浏览器把离屏 slide 当成"懒加载区" */
     contain: none;
 }
 .slide {
@@ -3176,7 +3281,6 @@ body { background:#f0f0f0; display:flex; align-items:center; justify-content:cen
 }
 .slide iframe {
     min-height:280px;
-    /* ✅ FIX 5：显式 eager，强制所有广告 iframe 真实加载 */
     loading: eager;
 }
 .dots {
@@ -3296,8 +3400,6 @@ body { background:#f0f0f0; display:flex; align-items:center; justify-content:cen
         goTo(0);
         startInterval();
 
-        // ✅ FIX 6：为每个广告位主动发一次 1px 图片打点
-        //           防止 iframe 被浏览器/插件拦截时完全丢计费
         try {
             slides.forEach(function (s) {
                 var link = s.dataset.link;
@@ -3307,7 +3409,7 @@ body { background:#f0f0f0; display:flex; align-items:center; justify-content:cen
                     beacon.src = link + (link.indexOf('?') > -1 ? '&' : '?') + '_beacon=' + Date.now();
                 }
             });
-        } catch (e) { /* 静默 */ }
+        } catch (e) { }
 
         var wrapper = document.querySelector('.carousel-wrapper');
         wrapper.addEventListener('mouseenter', function() {
@@ -3497,7 +3599,7 @@ function generatePoster(title, desc, qrCode, startTime, endTime, operator, sourc
 }
 
 // ============================================================
-//  海报预览弹窗
+//  海报预览弹窗（修复保存/分享）
 // ============================================================
 function showPosterPreview(imgData, title) {
     var oldMask = document.getElementById('posterPreviewMask');
@@ -3522,42 +3624,49 @@ function showPosterPreview(imgData, title) {
     var btnGroup = document.createElement('div');
     btnGroup.className = 'btn-group';
 
+    // -------- 保存图片 --------
     var saveBtn = document.createElement('button');
     saveBtn.className = 'btn-save';
     saveBtn.textContent = '💾 保存图片';
     saveBtn.onclick = function() {
-        var link = document.createElement('a');
-        link.download = (title || '活动海报') + '.png';
-        link.href = imgData;
-        link.click();
+        var filename = (title || '活动海报') + '.png';
+        if (isIOSDevice() || isWechatBrowser()) {
+            showCustomToast('📱 请长按上方图片保存到相册', 'iOS / 微信不支持自动下载');
+            return;
+        }
+        downloadImage(imgData, filename);
     };
 
+    // -------- 分享海报 --------
     var shareBtn = document.createElement('button');
     shareBtn.className = 'btn-share-poster';
     shareBtn.textContent = '📤 分享海报';
     shareBtn.onclick = function() {
-        if (navigator.share) {
-            fetch(imgData)
-                .then(function(res) { return res.blob(); })
-                .then(function(blob) {
-                    var file = new File([blob], (title || '海报') + '.png', { type: 'image/png' });
+        var shareText = '🎁 ' + (title || '超值福利活动') +
+            '，扫码领福利！更多活动👉' + window.location.href;
+
+        if (navigator.share && navigator.canShare) {
+            try {
+                var blob = dataURLToBlob(imgData);
+                var file = new File([blob], (title || '海报') + '.png', { type: 'image/png' });
+                if (navigator.canShare({ files: [file] })) {
                     navigator.share({
+                        files: [file],
                         title: title || '活动海报',
-                        files: [file]
-                    }).catch(function() {});
-                })
-                .catch(function() {
-                    var text = '🎁 ' + title + '，扫码领福利！更多活动👉' + window.location.href;
-                    if (navigator.share) {
-                        navigator.share({ title: title, text: text });
-                    } else {
-                        copyText2(text);
-                    }
-                });
-        } else {
-            var text = '🎁 ' + title + '，扫码领福利！更多活动👉' + window.location.href;
-            copyText2(text);
+                        text: shareText
+                    }).catch(function(err) {
+                        if (err && err.name === 'AbortError') return;
+                        console.warn('图片分享失败，降级为文字：', err);
+                        _copyWithToast(shareText, '可粘贴给好友');
+                    });
+                    return;
+                }
+            } catch (e) {
+                console.warn('构建分享文件失败：', e);
+            }
         }
+
+        _copyWithToast(shareText, '可粘贴给好友');
     };
 
     var closeBtn = document.createElement('button');
@@ -3587,18 +3696,13 @@ function showPosterPreview(imgData, title) {
 }
 
 function copyText2(text) {
-    var dummy = document.createElement('textarea');
-    dummy.value = text;
-    dummy.style.cssText = 'position:fixed;top:-1000px;left:-1000px;opacity:0;';
-    document.body.appendChild(dummy);
-    dummy.select();
-    try {
-        document.execCommand('copy');
-        showCustomToast('✅ 已复制分享文案', '快去分享给好友吧');
-    } catch (e) {
-        showCustomToast('📋 请手动复制', text);
-    }
-    document.body.removeChild(dummy);
+    copyTextRobust(text).then(function(ok) {
+        if (ok) {
+            showCustomToast('✅ 已复制分享文案', '快去分享给好友吧');
+        } else {
+            showManualCopyDialog(text, '复制失败，请长按文本手动复制');
+        }
+    });
 }
 
 // ============================================================
@@ -3659,9 +3763,7 @@ function openActivityDetail(item) {
         linkBtn.target = '';
     }
 
-    // ---- ✅ FIX 7：设置广告轮播 iframe ----
-    //      先清空为 about:blank，再下一帧注入 srcdoc。
-    //      避免复用旧文档导致浏览器不重新发请求 / 不重新计 UV。
+    // 广告轮播 iframe：先清空再注入，避免复用旧文档
     var adIframe = document.getElementById('detailAdIframe');
     if (adIframe) {
         adIframe.removeAttribute('srcdoc');
@@ -3673,7 +3775,7 @@ function openActivityDetail(item) {
         });
     }
 
-    // ---- ✅ FIX 8（可选）：详情打开时主动打一次计费信标 ----
+    // 详情打开时主动打一次计费信标
     if (item.link && /^https?:/.test(item.link)) {
         try {
             var _b = new Image();
@@ -3689,7 +3791,6 @@ function openActivityDetail(item) {
 function closeDetail() {
     detailMask.classList.remove('active');
     document.body.style.overflow = '';
-    // ✅ FIX 9：彻底清空 iframe，避免复用旧文档或内存泄漏
     var adIframe = document.getElementById('detailAdIframe');
     if (adIframe) {
         adIframe.removeAttribute('srcdoc');
@@ -4002,13 +4103,13 @@ function buildActivityUI() {
                 (item.remark ? '<div class="at-card-remark">备注：' + item.remark + '</div>' : '') +
                 shareHtml + posterBtnHtml;
 
-            // 分享按钮
+            // -------- 分享按钮（修复版）--------
             var shareBtnEl = card.querySelector('.share-earn-btn');
             if (shareBtnEl) {
                 shareBtnEl.addEventListener('click', function(e) {
                     e.stopPropagation();
                     var title = this.dataset.title;
-                    var link = this.dataset.link;
+                    var link  = this.dataset.link;
 
                     var userRef = localStorage.getItem('userRef');
                     if (!userRef) {
@@ -4016,9 +4117,9 @@ function buildActivityUI() {
                         localStorage.setItem('userRef', userRef);
                     }
                     var baseUrl = window.location.href.split('?')[0];
-                    var currentParams = new URLSearchParams(window.location.search);
-                    currentParams.set('ref', userRef);
-                    var inviteLink = baseUrl + '?' + currentParams.toString();
+                    var params = new URLSearchParams(window.location.search);
+                    params.set('ref', userRef);
+                    var inviteLink = baseUrl + '?' + params.toString();
 
                     var shareText = '🎁 发现一个超值福利：' + title + '，一起领福利赚佣金！' + link +
                         '\n\n更多福利活动👉' + inviteLink;
@@ -4031,26 +4132,15 @@ function buildActivityUI() {
                         });
                     }
 
-                    if (navigator.share) {
-                        navigator.share({ title: title, text: shareText, url: link }).catch(function() {});
-                    } else {
-                        var dummy = document.createElement('textarea');
-                        dummy.value = shareText;
-                        dummy.style.cssText = 'position:fixed;top:-1000px;left:-1000px;opacity:0;';
-                        document.body.appendChild(dummy);
-                        dummy.select();
-                        try {
-                            document.execCommand('copy');
-                            showCustomToast('✅ 已复制分享链接', '分享给好友，TA参与你赚佣金');
-                        } catch (e) {
-                            showCustomToast('📋 请手动复制链接', shareText);
-                        }
-                        document.body.removeChild(dummy);
-                    }
+                    shareOrCopy(
+                        { title: title, text: shareText, url: link },
+                        shareText,
+                        '分享给好友，TA参与你赚佣金'
+                    );
                 });
             }
 
-            // 海报按钮
+            // -------- 海报按钮 --------
             var posterBtn = card.querySelector('.poster-gen-btn');
             if (posterBtn) {
                 posterBtn.addEventListener('click', function(e) {
@@ -4303,7 +4393,7 @@ window.closeQrPopup = function() {
     }
 };
 
-console.log('✅ 未来福利社 v3.6（广告计费修复版）加载完成');
+console.log('✅ 未来福利社 v3.7（海报下载 + 分享修复版）加载完成');
 </script>
 </body>
 </html>
