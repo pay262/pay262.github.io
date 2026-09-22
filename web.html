@@ -2871,11 +2871,27 @@ function isWechatBrowser() {
     return /MicroMessenger/i.test(navigator.userAgent);
 }
 
+// HTML 属性 / 文本转义
+function escapeAttr(s) {
+    return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+function escapeHtml(s) {
+    return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
 // 同步兜底复制（必须由用户手势直接触发）
+// ⚠️ iOS Safari 关键点：textarea 不能设 readonly，否则 select() 静默失败
 function _execCopyFallback(text) {
     var ta = document.createElement('textarea');
     ta.value = text;
-    ta.setAttribute('readonly', '');
+    ta.contentEditable = 'true';
     ta.style.cssText =
         'position:fixed;top:0;left:0;width:1px;height:1px;padding:0;border:0;' +
         'outline:none;box-shadow:none;background:transparent;color:transparent;' +
@@ -2991,13 +3007,15 @@ function downloadImage(dataUrl, filename) {
     }
 }
 
-// 分享/复制统一入口：原生分享 → 复制 → 手动弹窗
+// 分享/复制统一入口
+// 说明：navigator.share / clipboard 的同步性限制无法绕过，
+//       分享失败时会走「复制 → 手动弹窗」链路
 function shareOrCopy(shareData, copyText, copyHint) {
     if (navigator.share) {
         navigator.share(shareData).then(function() {
-            // 用户完成分享，不必再打扰
+            // 用户完成分享
         }).catch(function(err) {
-            if (err && err.name === 'AbortError') return; // 用户主动取消
+            if (err && err.name === 'AbortError') return;
             console.warn('原生分享失败，降级为复制：', err);
             _copyWithToast(copyText, copyHint);
         });
@@ -3162,7 +3180,7 @@ dom.tabItems.forEach(function(i) {
 window.switchContent = switchContent;
 
 // ============================================================
-//  2. 分享/邀请（修复版）
+//  2. 分享/邀请
 // ============================================================
 function inviteFriend() {
     var userRef = localStorage.getItem('userRef');
@@ -3215,11 +3233,14 @@ function createAdCarouselHTML() {
     const slidesHtml = ads.map((ad) => {
         let content = '';
         if (ad.type === 'image') {
-            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="${ad.color || '#3A6FF8'}"/><text x="200" y="150" text-anchor="middle" dy=".3em" fill="#fff" font-size="24" font-family="sans-serif">${ad.label || '广告'}</text></svg>`;
-            content = `<img src="data:image/svg+xml,${encodeURIComponent(svg)}" alt="${ad.label || '广告'}" style="width:100%;height:100%;object-fit:cover;">`;
+            const safeLabel = escapeHtml(ad.label || '广告');
+            const safeColor = /^#[0-9a-fA-F]{3,8}$/.test(ad.color || '') ? ad.color : '#3A6FF8';
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="${safeColor}"/><text x="200" y="150" text-anchor="middle" dy=".3em" fill="#fff" font-size="24" font-family="sans-serif">${safeLabel}</text></svg>`;
+            content = `<img src="data:image/svg+xml,${encodeURIComponent(svg)}" alt="${safeLabel}" style="width:100%;height:100%;object-fit:cover;">`;
         } else if (ad.type === 'iframe') {
+            const safeSrc = escapeAttr(ad.src || 'https://example.com');
             content = `<iframe
-                src="${ad.src || 'https://example.com'}"
+                src="${safeSrc}"
                 allowfullscreen
                 referrerpolicy="no-referrer-when-downgrade"
                 allow="autoplay; fullscreen; encrypted-media; clipboard-write; geolocation"
@@ -3227,7 +3248,7 @@ function createAdCarouselHTML() {
             </iframe>`;
         }
         return `
-            <div class="slide" data-link="${ad.link || '#'}" style="width:100%;height:100%;flex-shrink:0;cursor:pointer;position:relative;overflow:hidden;background:#f5f5f5;">
+            <div class="slide" data-link="${escapeAttr(ad.link || '#')}" style="width:100%;height:100%;flex-shrink:0;cursor:pointer;position:relative;overflow:hidden;background:#f5f5f5;">
                 ${content}
                 <div style="position:absolute;bottom:8px;right:12px;background:rgba(0,0,0,0.5);color:#fff;padding:2px 12px;border-radius:12px;font-size:12px;z-index:5;pointer-events:none;">点击查看</div>
             </div>
@@ -3279,10 +3300,7 @@ body { background:#f0f0f0; display:flex; align-items:center; justify-content:cen
     border:none;
     display:block;
 }
-.slide iframe {
-    min-height:280px;
-    loading: eager;
-}
+.slide iframe { min-height:280px; }
 .dots {
     position:absolute;
     bottom:10px;
@@ -3362,9 +3380,9 @@ body { background:#f0f0f0; display:flex; align-items:center; justify-content:cen
         slides.forEach(function(slide) {
             slide.addEventListener('click', function(e) {
                 var link = this.dataset.link;
-                if (link && !e.target.closest('.arrow') && !e.target.closest('.dots')) {
+                if (link && link !== '#' && !e.target.closest('.arrow') && !e.target.closest('.dots')) {
                     if (e.target.closest('iframe')) return;
-                    window.open(link, '_blank');
+                    window.open(link, '_blank', 'noopener,noreferrer');
                 }
             });
         });
@@ -3399,17 +3417,6 @@ body { background:#f0f0f0; display:flex; align-items:center; justify-content:cen
 
         goTo(0);
         startInterval();
-
-        try {
-            slides.forEach(function (s) {
-                var link = s.dataset.link;
-                if (link && link !== '#' && link.indexOf('http') === 0) {
-                    var beacon = new Image();
-                    beacon.referrerPolicy = 'no-referrer-when-downgrade';
-                    beacon.src = link + (link.indexOf('?') > -1 ? '&' : '?') + '_beacon=' + Date.now();
-                }
-            });
-        } catch (e) { }
 
         var wrapper = document.querySelector('.carousel-wrapper');
         wrapper.addEventListener('mouseenter', function() {
@@ -3501,7 +3508,7 @@ function generateQRDataURL(text, size) {
 }
 
 // ============================================================
-//  海报生成（带加载动画，遮罩完全不透明）
+//  海报生成（带加载动画）
 // ============================================================
 var _posterGenerating = false;
 
@@ -3526,7 +3533,6 @@ function generatePoster(title, desc, qrCode, startTime, endTime, operator, sourc
 
     document.getElementById('posterTitle').textContent = title || '超值福利活动';
     document.getElementById('posterDesc').textContent = desc || '扫码立即参与';
-    document.getElementById('posterQrImage').src = qrCode || '';
     document.getElementById('posterDate').textContent = '有效期：' + (startTime || '') + ' ~ ' + (endTime || '');
     document.getElementById('posterInviter').textContent = '推荐人：' + userRef;
 
@@ -3547,7 +3553,7 @@ function generatePoster(title, desc, qrCode, startTime, endTime, operator, sourc
 
     var sourceContainer = document.getElementById('posterSource');
     if (sourceQr) {
-        sourceContainer.innerHTML = '<img src="' + sourceQr + '" alt="来源二维码" style="width:60px;height:60px;border-radius:8px;border:1px solid #eee;">';
+        sourceContainer.innerHTML = '<img src="' + escapeAttr(sourceQr) + '" alt="来源二维码" style="width:60px;height:60px;border-radius:8px;border:1px solid #eee;">';
     } else if (source) {
         sourceContainer.textContent = '来源：' + source;
     } else {
@@ -3570,14 +3576,39 @@ function generatePoster(title, desc, qrCode, startTime, endTime, operator, sourc
         return;
     }
 
-    html2canvas(container, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: false,
-        backgroundColor: '#ffffff',
-        width: 600,
-        height: container.scrollHeight,
-        logging: false
+    // ⚠️ 关键修复：等待二维码图片真正 onload 再截图，避免海报中央空白
+    var qrImgEl = document.getElementById('posterQrImage');
+    var qrReadyPromise = new Promise(function(resolve) {
+        if (!qrCode) {
+            qrImgEl.removeAttribute('src');
+            resolve();
+            return;
+        }
+        var pre = new Image();
+        var settled = false;
+        function done() {
+            if (settled) return;
+            settled = true;
+            qrImgEl.src = qrCode;
+            resolve();
+        }
+        pre.onload = done;
+        pre.onerror = done;
+        pre.src = qrCode;
+        // 3s 兜底，避免极端情况下永久 pending
+        setTimeout(done, 3000);
+    });
+
+    qrReadyPromise.then(function() {
+        return html2canvas(container, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: false,
+            backgroundColor: '#ffffff',
+            width: 600,
+            height: container.scrollHeight,
+            logging: false
+        });
     }).then(function(canvas) {
         var imgData = canvas.toDataURL('image/png');
         showPosterPreview(imgData, title);
@@ -3728,9 +3759,9 @@ function openActivityDetail(item) {
 
     var badgesEl = document.getElementById('detailBadges');
     var badges = [];
-    if (item.operator) badges.push('<span class="detail-badge ' + getOpClass(item.operator) + '">' + item.operator + '</span>');
-    if (item.mainType) badges.push('<span class="detail-badge tag-main">' + item.mainType + '</span>');
-    if (item.province && item.city) badges.push('<span class="detail-badge tag-region">' + item.province + ' ' + item.city + '</span>');
+    if (item.operator) badges.push('<span class="detail-badge ' + getOpClass(item.operator) + '">' + escapeHtml(item.operator) + '</span>');
+    if (item.mainType) badges.push('<span class="detail-badge tag-main">' + escapeHtml(item.mainType) + '</span>');
+    if (item.province && item.city) badges.push('<span class="detail-badge tag-region">' + escapeHtml(item.province + ' ' + item.city) + '</span>');
     if (item.canShare) badges.push('<span class="detail-badge tag-earn">💰 分享赚佣金</span>');
     if (item.isAd) badges.push('<span class="detail-badge tag-ad">📢 推荐</span>');
     if (item.isTop) badges.push('<span class="detail-badge tag-top">⭐ 置顶</span>');
@@ -3756,6 +3787,7 @@ function openActivityDetail(item) {
         linkBtn.textContent = '🚀 直达链接';
         linkBtn.classList.remove('disabled');
         linkBtn.target = '_blank';
+        linkBtn.rel = 'noopener noreferrer';
     } else {
         linkBtn.href = '#';
         linkBtn.textContent = '📱 暂无直达链接';
@@ -3773,15 +3805,6 @@ function openActivityDetail(item) {
                 adIframe.srcdoc = createAdCarouselHTML();
             });
         });
-    }
-
-    // 详情打开时主动打一次计费信标
-    if (item.link && /^https?:/.test(item.link)) {
-        try {
-            var _b = new Image();
-            _b.referrerPolicy = 'no-referrer-when-downgrade';
-            _b.src = item.link + (item.link.indexOf('?') > -1 ? '&' : '?') + '_src=detail&_t=' + Date.now();
-        } catch (e) {}
     }
 
     detailMask.classList.add('active');
@@ -4057,11 +4080,11 @@ function buildActivityUI() {
             card.dataset.index = idx;
 
             var subs = Array.isArray(item.subType) ? item.subType : [item.subType];
-            var subTagsHtml = subs.map(function(t) { return '<span class="at-subtag">' + t + '</span>'; }).join('');
+            var subTagsHtml = subs.map(function(t) { return '<span class="at-subtag">' + escapeHtml(t) + '</span>'; }).join('');
 
-            var opBadge = '<span class="at-badge ' + getOpClass(item.operator) + '">' + item.operator + '</span>';
-            var mainBadge = '<span class="at-badge tag-main">' + item.mainType + '</span>';
-            var regionBadge = '<span class="at-badge tag-region">' + item.province + ' ' + item.city + '</span>';
+            var opBadge = '<span class="at-badge ' + getOpClass(item.operator) + '">' + escapeHtml(item.operator) + '</span>';
+            var mainBadge = '<span class="at-badge tag-main">' + escapeHtml(item.mainType) + '</span>';
+            var regionBadge = '<span class="at-badge tag-region">' + escapeHtml(item.province + ' ' + item.city) + '</span>';
             var soonBadge = isSoonExpire(item.endTime) ? '<span class="at-badge tag-soon">即将到期</span>' : '';
             var earnBadge = item.canShare ? '<span class="at-badge tag-earn">💰 分享赚佣金</span>' : '';
             var adBadge = item.isAd ? '<span class="at-badge tag-ad">📢 推荐</span>' : '';
@@ -4070,26 +4093,22 @@ function buildActivityUI() {
 
             var shareHtml = '';
             if (item.canShare) {
-                shareHtml = '<button class="share-earn-btn" data-title="' + item.title +
-                    '" data-link="' + (item.link || window.location.href) +
-                    '">💰 分享</button>';
+                shareHtml = '<button class="share-earn-btn" ' +
+                    'data-title="' + escapeAttr(item.title) + '" ' +
+                    'data-link="' + escapeAttr(item.link || window.location.href) + '">💰 分享</button>';
             }
 
             var posterBtnHtml = '';
             if (item.qrCode) {
-                var safeTitle = (item.title || '').replace(/"/g, '&quot;');
-                var safeDesc = (item.desc || '').replace(/"/g, '&quot;');
-                var safeSource = (item.source || '').replace(/"/g, '&quot;');
-                var safeSourceQr = (item.sourceQr || '').replace(/"/g, '&quot;');
                 posterBtnHtml = '<button class="poster-gen-btn" ' +
-                    'data-title="' + safeTitle + '" ' +
-                    'data-desc="' + safeDesc + '" ' +
-                    'data-qr="' + (item.qrCode || '') + '" ' +
-                    'data-start="' + (item.startTime || '') + '" ' +
-                    'data-end="' + (item.endTime || '') + '" ' +
-                    'data-operator="' + (item.operator || '') + '" ' +
-                    'data-source="' + safeSource + '" ' +
-                    'data-sourceqr="' + safeSourceQr + '" ' +
+                    'data-title="' + escapeAttr(item.title) + '" ' +
+                    'data-desc="' + escapeAttr(item.desc) + '" ' +
+                    'data-qr="' + escapeAttr(item.qrCode) + '" ' +
+                    'data-start="' + escapeAttr(item.startTime) + '" ' +
+                    'data-end="' + escapeAttr(item.endTime) + '" ' +
+                    'data-operator="' + escapeAttr(item.operator) + '" ' +
+                    'data-source="' + escapeAttr(item.source) + '" ' +
+                    'data-sourceqr="' + escapeAttr(item.sourceQr) + '" ' +
                     'aria-label="生成海报">🖼️</button>';
             }
 
@@ -4097,13 +4116,13 @@ function buildActivityUI() {
                 '<div class="at-badges">' + opBadge + mainBadge + regionBadge + soonBadge + earnBadge +
                 adBadge + topBadge + wechatBadge2 + '</div>' +
                 '<div class="at-subtags">' + subTagsHtml + '</div>' +
-                '<div class="at-card-title">' + item.title + '</div>' +
-                '<div class="at-card-date">有效期：' + item.startTime + ' ~ ' + item.endTime + '</div>' +
-                '<div class="at-card-desc">' + item.desc + '</div>' +
-                (item.remark ? '<div class="at-card-remark">备注：' + item.remark + '</div>' : '') +
+                '<div class="at-card-title">' + escapeHtml(item.title) + '</div>' +
+                '<div class="at-card-date">有效期：' + escapeHtml(item.startTime) + ' ~ ' + escapeHtml(item.endTime) + '</div>' +
+                '<div class="at-card-desc">' + escapeHtml(item.desc) + '</div>' +
+                (item.remark ? '<div class="at-card-remark">备注：' + escapeHtml(item.remark) + '</div>' : '') +
                 shareHtml + posterBtnHtml;
 
-            // -------- 分享按钮（修复版）--------
+            // -------- 分享按钮 --------
             var shareBtnEl = card.querySelector('.share-earn-btn');
             if (shareBtnEl) {
                 shareBtnEl.addEventListener('click', function(e) {
@@ -4272,7 +4291,7 @@ function buildActivityUI() {
         filterPanel.classList.toggle('open', isFilterOpen);
     });
 
-    // 跑马灯
+    // 跑马灯（修复：完整两份，保证 -50% 无缝衔接）
     function buildMarquee() {
         var track = document.getElementById('marqueeTrack');
         if (!track) return;
@@ -4281,14 +4300,16 @@ function buildActivityUI() {
             track.innerHTML = '<span class="marquee-item">📢 暂无活动，敬请期待</span>';
             return;
         }
-        var shuffled = items.sort(function() { return 0.5 - Math.random(); });
-        var count = Math.min(shuffled.length, 8);
-        var selected = shuffled.slice(0, count);
-        var html = selected.map(function(item) {
-            return '<span class="marquee-item"><span class="tag">' + item.operator + '</span>' + item.title + '</span>';
-        }).concat(selected.slice(0, 3).map(function(item) {
-            return '<span class="marquee-item"><span class="tag">' + item.operator + '</span>' + item.title + '</span>';
-        })).join('');
+        var shuffled = items.slice().sort(function() { return 0.5 - Math.random(); });
+        var selected = shuffled.slice(0, Math.min(shuffled.length, 8));
+
+        function renderOnePass() {
+            return selected.map(function(item) {
+                return '<span class="marquee-item"><span class="tag">' + escapeHtml(item.operator) + '</span>' + escapeHtml(item.title) + '</span>';
+            }).join('');
+        }
+        var html = renderOnePass() + renderOnePass();
+
         track.style.animation = 'none';
         track.innerHTML = html;
         void track.offsetWidth;
@@ -4393,7 +4414,7 @@ window.closeQrPopup = function() {
     }
 };
 
-console.log('✅ 未来福利社 v3.7（海报下载 + 分享修复版）加载完成');
+console.log('✅ 未来福利社 v3.8（深度修复版）加载完成');
 </script>
 </body>
 </html>
