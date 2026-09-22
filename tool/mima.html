@@ -1,498 +1,653 @@
 <!DOCTYPE html>
-<html lang="zh-hans">
+<html lang="zh-CN">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+<title>密码生成器 · Password Generator</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
 
-    <title>密码生成器丨Secure Password Generator</title>
-    <style>
-        :root {
-            --primary: #2A5C82;
-            --primary-hover: #1E4561;
-            --secondary: #F0F4F8;
-            --text: #2D3748;
-            --background: #ffffff;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --toggle-width: 50px;
-            --toggle-height: 28px;
-            --weak: #e74c3c;
-            --medium: #f1c40f;
-            --strong: #2ecc71;
-            --success: #2ecc71; /* 新增成功颜色 */
-        }
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
 
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: var(--text);
-            line-height: 1.6;
-        }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                 "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    color: #e8eefc;
+    background-color: #070b14;
+    background-image:
+      radial-gradient(900px 600px at 12% -10%, rgba(76, 201, 240, .16), transparent 60%),
+      radial-gradient(800px 600px at 100% 110%, rgba(123, 97, 255, .18), transparent 60%);
+    background-attachment: fixed;
+    touch-action: manipulation;      /* 禁用双击缩放 */
+    -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
+  }
 
-        .generator-container {
-            background: var(--background);
-            border-radius: 16px;
-            padding: 2rem;
-            box-shadow: var(--shadow);
-            width: 90%;
-            max-width: 480px;
-            position: relative;
-        }
+  .app {
+    width: 100%;
+    max-width: 540px;
+    background: rgba(255, 255, 255, .045);
+    border: 1px solid rgba(255, 255, 255, .09);
+    border-radius: 24px;
+    padding: 26px 22px 22px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .5),
+                inset 0 1px 0 rgba(255, 255, 255, .06);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
 
-        h1 {
-            color: var(--primary);
-            text-align: center;
-            margin: 0 0 1.5rem;
-            font-size: 1.6rem;
-            font-weight: 700;
-        }
+  h1 {
+    margin: 0 0 5px;
+    font-size: 19px;
+    letter-spacing: .5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  h1 .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: linear-gradient(135deg, #4cc9f0, #7b61ff);
+    box-shadow: 0 0 12px #4cc9f0;
+  }
+  .sub {
+    margin: 0 0 20px;
+    font-size: 12.5px;
+    color: #8b98b4;
+  }
 
-        .settings-group {
-            margin: 1.5rem 0;
-        }
+  /* ---------- 输出区 ---------- */
+  .output {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 76px;
+    padding: 14px 14px 14px 16px;
+    background: rgba(0, 0, 0, .42);
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 16px;
+  }
 
-        .slider-container {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            margin: 1rem 0;
-        }
+  .pwd {
+    flex: 1;
+    min-width: 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace;
+    font-size: clamp(15px, 4.4vw, 20px);
+    line-height: 1.5;
+    letter-spacing: .6px;
+    word-break: break-all;
+    user-select: text;
+    -webkit-user-select: text;
+  }
+  .pwd .placeholder {
+    font-size: 14px;
+    color: #6b7893;
+    font-family: inherit;
+  }
 
-        input[type="range"] {
-            -webkit-appearance: none;
-            width: 100%;
-            height: 6px;
-            background: #e2e8f0;
-            border-radius: 3px;
-        }
+  .c-upper  { color: #4cc9f0; }
+  .c-lower  { color: #cfd9ec; }
+  .c-digit  { color: #ffc857; }
+  .c-symbol { color: #ff6b9d; }
 
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
-            background: var(--primary);
-            border-radius: 50%;
-            cursor: pointer;
-            transition: 0.2s;
-        }
+  .icon-btn {
+    flex: 0 0 auto;
+    width: 42px; height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, .10);
+    background: rgba(255, 255, 255, .05);
+    color: #b9c6dd;
+    cursor: pointer;
+    transition: .18s;
+  }
+  .icon-btn:hover { background: rgba(255, 255, 255, .11); color: #fff; }
+  .icon-btn:active { transform: scale(.92); }
+  .icon-btn svg { width: 19px; height: 19px; }
 
-        .length-display {
-            text-align: center;
-            color: var(--primary);
-            font-weight: 600;
-        }
+  /* ---------- 强度条 ---------- */
+  .strength {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 14px 2px 22px;
+  }
+  .bars { display: flex; gap: 5px; flex: 1; }
+  .bar {
+    flex: 1;
+    height: 5px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, .10);
+    transition: background .25s, box-shadow .25s;
+  }
+  .bar.on {
+    background: var(--c);
+    box-shadow: 0 0 10px -1px var(--c);
+  }
+  .strength-label {
+    font-size: 12px;
+    color: #8b98b4;
+    white-space: nowrap;
+  }
+  .strength-label b { color: var(--sc, #8b98b4); font-weight: 600; }
 
-        .options {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            margin: 1.5rem 0;
-        }
+  /* ---------- 长度 ---------- */
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .row .label { font-size: 13px; color: #8b98b4; white-space: nowrap; }
 
-        .toggle-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: var(--secondary);
-            padding: 0.8rem 1rem;
-            border-radius: 8px;
-        }
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    flex: 1;
+    min-width: 0;
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, .12);
+    outline: none;
+    cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4cc9f0, #7b61ff);
+    border: 2px solid #0a0e1a;
+    box-shadow: 0 0 0 1px rgba(76, 201, 240, .45);
+    cursor: pointer;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4cc9f0, #7b61ff);
+    border: 2px solid #0a0e1a;
+    cursor: pointer;
+  }
 
-        .toggle-switch {
-            position: relative;
-            width: var(--toggle-width);
-            height: var(--toggle-height);
-        }
+  .len-val {
+    min-width: 2.4em;
+    text-align: right;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: #4cc9f0;
+  }
 
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
+  /* ---------- 选项 ---------- */
+  .group-title {
+    margin: 0 0 8px 2px;
+    font-size: 11px;
+    letter-spacing: 1.2px;
+    color: #6b7893;
+    text-transform: uppercase;
+  }
 
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: #ccc;
-            transition: .4s;
-            border-radius: var(--toggle-height);
-        }
+  .options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+    margin-bottom: 18px;
+  }
+  .options:last-of-type { margin-bottom: 0; }
 
-        .toggle-slider:before {
-            content: "";
-            position: absolute;
-            height: 22px;
-            width: 22px;
-            left: 3px;
-            bottom: 3px;
-            background: white;
-            transition: .4s;
-            border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
+  .chip {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, .09);
+    background: rgba(255, 255, 255, .03);
+    font-size: 13px;
+    color: #8b98b4;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: .18s;
+  }
+  .chip input {
+    position: absolute;
+    left: 0; top: 0;
+    width: 1px; height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .chip .box {
+    position: relative;
+    flex: 0 0 auto;
+    width: 16px; height: 16px;
+    border-radius: 5px;
+    border: 1.5px solid rgba(255, 255, 255, .25);
+    transition: .18s;
+  }
+  .chip input:checked ~ .box {
+    background: linear-gradient(135deg, #4cc9f0, #7b61ff);
+    border-color: transparent;
+  }
+  .chip input:checked ~ .box::after {
+    content: '';
+    position: absolute;
+    left: 4.5px; top: 1px;
+    width: 4px; height: 8px;
+    border: solid #06121c;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  .chip.active {
+    border-color: rgba(76, 201, 240, .5);
+    background: rgba(76, 201, 240, .10);
+    color: #e8eefc;
+  }
+  .chip:active { transform: scale(.98); }
 
-        input:checked + .toggle-slider {
-            background: var(--primary);
-        }
+  /* ---------- 主按钮 ---------- */
+  .primary {
+    width: 100%;
+    margin-top: 20px;
+    padding: 15px;
+    border: none;
+    border-radius: 14px;
+    font-size: 15.5px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    font-family: inherit;
+    color: #04121c;
+    background: linear-gradient(135deg, #4cc9f0, #7b61ff);
+    box-shadow: 0 10px 26px -10px rgba(76, 201, 240, .8);
+    cursor: pointer;
+    transition: transform .15s, box-shadow .2s, filter .2s;
+  }
+  .primary:hover { filter: brightness(1.06); }
+  .primary:active {
+    transform: scale(.985);
+    box-shadow: 0 6px 16px -10px rgba(76, 201, 240, .8);
+  }
 
-        input:checked + .toggle-slider:before {
-            transform: translateX(22px);
-        }
+  .foot {
+    margin: 14px 0 0;
+    text-align: center;
+    font-size: 11.5px;
+    color: #55627d;
+  }
 
-        .password-display {
-            background: var(--secondary);
-            padding: 1.2rem;
-            border-radius: 8px;
-            font-size: 1.2rem;
-            text-align: center;
-            margin: 1.5rem 0;
-            word-break: break-all;
-        }
+  /* ---------- Toast ---------- */
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 34px;
+    transform: translate(-50%, 16px);
+    padding: 10px 20px;
+    border-radius: 12px;
+    background: rgba(18, 26, 42, .96);
+    border: 1px solid rgba(76, 201, 240, .35);
+    color: #dff3fb;
+    font-size: 13.5px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s, transform .25s;
+    z-index: 99;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-        .button-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
-        button {
-            padding: 0.8rem;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .copy-btn {
-            background: var(--primary);
-            color: white;
-            transition: 0.2s background, 0.2s transform; /* 添加过渡效果 */
-        }
-
-        .copy-btn:hover {
-            background: var(--primary-hover);
-        }
-		/* 添加成功状态 */
-		.copy-btn.copy-success {
-			background: var(--success) !important;
-		}
-        .refresh-btn {
-            background: white;
-            border: 2px solid #e2e8f0;
-        }
-
-        .strength-indicator {
-            height: 4px;
-            border-radius: 2px;
-            margin: 0.5rem 0;
-            transition: 0.3s;
-            width: 100%;
-        }
-
-        .strength-text {
-            font-size: 0.9rem;
-            text-align: center;
-            margin-bottom: 1rem;
-        }
-
-        .lang-switcher {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .lang-btn {
-            padding: 0.25rem 0.5rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            cursor: pointer;
-            background: white;
-        }
-
-        .share-section {
-            margin-top: 1.5rem;
-            border-top: 1px solid #eee;
-            padding-top: 1rem;
-        }
-
-        .share-btn {
-            background: #3498db;
-            color: white;
-            width: 100%;
-            padding: 0.8rem;
-        }
-
-        @media (max-width: 480px) {
-            .generator-container {
-                padding: 1.5rem;
-            }
-            
-            .options {
-                gap: 0.8rem;
-            }
-            .toggle-container {
-                padding: 0.8rem;
-            }
-        }
-
-
-		.lang-switcher {
-			position: absolute;
-			top: 0.5rem;  /* 减少顶部间距 */
-			right: 0.5rem;
-			display: flex;
-			gap: 0.3rem;  /* 缩小按钮间距 */
-		}
-
-		h1 {
-			margin-top: 2rem;  /* 为标题增加顶部空间 */
-		}
-
-		@media (max-width: 480px) {
-			.generator-container {
-				padding-top: 2.5rem;  /* 增加容器顶部内边距 */
-			}
-			
-			.lang-switcher {
-				top: 0.8rem;
-				right: 0.8rem;
-			}
-			
-			.lang-btn {
-				padding: 0.2rem 0.4rem;  /* 缩小按钮尺寸 */
-				font-size: 0.85rem;
-			}
-			
-			h1 {
-				font-size: 1.4rem;
-				margin-top: 1.5rem;  /* 调整标题间距 */
-				padding: 0 1rem;  /* 增加水平内边距 */
-			}
-		}
-
-		@media (max-width: 360px) {
-			.lang-switcher {
-				flex-direction: column;  /* 超小屏幕垂直排列 */
-				gap: 0.2rem;
-			}
-			
-			.lang-btn {
-				padding: 0.15rem 0.3rem;
-			}
-		}
-
-    </style>
+  @media (max-width: 380px) {
+    .options { grid-template-columns: 1fr; }
+    .app { padding: 22px 16px 18px; border-radius: 20px; }
+  }
+</style>
 </head>
 <body>
-    <div class="generator-container">
-        <div class="lang-switcher">
-            <button class="lang-btn" data-lang="en">EN</button>
-            <button class="lang-btn" data-lang="zh">中文</button>
-        </div>
-        
-        <h1 data-key="title">🔐 密码生成器</h1>
-        
-        <div class="settings-group">
-            <div class="slider-container">
-                <input type="range" id="length" min="6" max="50" value="8">
-                <div class="length-display" data-key="length">长度：<span id="length-value">8</span></div>
-            </div>
-        </div>
 
-        <div class="options">
-            <div class="toggle-container">
-                <span data-key="numbers">数字</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="numbers" checked>
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-            
-            <div class="toggle-container">
-                <span data-key="symbols">符号</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="symbols">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-        </div>
+<main class="app">
+  <h1><span class="dot"></span>密码生成器</h1>
+  <p class="sub">本地加密级随机 · 不联网 · 不上传</p>
 
-        <div class="password-display" id="password-display"></div>
+  <!-- 输出 -->
+  <div class="output">
+    <div class="pwd" id="pwd"></div>
+    <button class="icon-btn" id="btnCopy" title="复制密码" aria-label="复制密码">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+           stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="12" height="12" rx="2.5"/>
+        <path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/>
+      </svg>
+    </button>
+  </div>
 
-        <div class="strength-indicator" id="strength-bar"></div>
-        <div class="strength-text" id="strength-text" data-key="strength">强度：中等</div>
-
-        <div class="button-group">
-            <button class="copy-btn" onclick="copyPassword()" data-key="copy">📋 复制密码</button>
-            <button class="refresh-btn" onclick="generatePassword()" data-key="refresh">🔄 刷新密码</button>
-        </div>
-
-        <div class="share-section">
-            <button class="share-btn" onclick="shareConfig()" data-key="share">分享配置</button>
-        </div>
+  <!-- 强度 -->
+  <div class="strength">
+    <div class="bars">
+      <div class="bar" data-i="1"></div>
+      <div class="bar" data-i="2"></div>
+      <div class="bar" data-i="3"></div>
+      <div class="bar" data-i="4"></div>
     </div>
+    <span class="strength-label" id="strengthLabel">强度：<b>—</b></span>
+  </div>
 
+  <!-- 长度 -->
+  <div class="row">
+    <span class="label">长度</span>
+    <input type="range" id="len" min="8" max="64" step="1" value="16" aria-label="密码长度">
+    <span class="len-val" id="lenVal">16</span>
+  </div>
+
+  <!-- 字符类型 -->
+  <div class="group-title">字符类型</div>
+  <div class="options">
+    <label class="chip">
+      <input type="checkbox" id="optUpper" checked>
+      <span class="box"></span>
+      <span class="txt">大写字母 A-Z</span>
+    </label>
+    <label class="chip">
+      <input type="checkbox" id="optLower" checked>
+      <span class="box"></span>
+      <span class="txt">小写字母 a-z</span>
+    </label>
+    <label class="chip">
+      <input type="checkbox" id="optDigit" checked>
+      <span class="box"></span>
+      <span class="txt">数字 0-9</span>
+    </label>
+    <label class="chip">
+      <input type="checkbox" id="optSymbol" checked>
+      <span class="box"></span>
+      <span class="txt">符号 !@#$</span>
+    </label>
+  </div>
+
+  <!-- 规则 -->
+  <div class="group-title">规则</div>
+  <div class="options">
+    <label class="chip">
+      <input type="checkbox" id="optCapital" checked>
+      <span class="box"></span>
+      <span class="txt">首字母大写</span>
+    </label>
+    <label class="chip">
+      <input type="checkbox" id="optAmb" checked>
+      <span class="box"></span>
+      <span class="txt">排除易混淆字符</span>
+    </label>
+  </div>
+
+  <button class="primary" id="btnGen">重新生成密码</button>
+  <p class="foot">至少 8 位 · 必含大写 / 数字 / 符号</p>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ================= 禁止缩放（多手段兜底） ================= */
+  // iOS Safari 手势事件
+  ['gesturestart', 'gesturechange', 'gestureend'].forEach(function (type) {
+    document.addEventListener(type, function (e) { e.preventDefault(); }, { passive: false });
+  });
+  // 双指触摸
+  document.addEventListener('touchstart', function (e) {
+    if (e.touches.length > 1) e.preventDefault();
+  }, { passive: false });
+  document.addEventListener('touchmove', function (e) {
+    if (e.touches.length > 1) e.preventDefault();
+  }, { passive: false });
+  // Ctrl / Cmd + 滚轮缩放
+  window.addEventListener('wheel', function (e) {
+    if (e.ctrlKey || e.metaKey) e.preventDefault();
+  }, { passive: false });
+  // Ctrl / Cmd + +/-/0 键盘缩放
+  window.addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && ['+', '-', '=', '0'].indexOf(e.key) > -1) {
+      e.preventDefault();
+    }
+  });
+
+  /* ================= 字符集 ================= */
+  var CHARSETS = {
+    upper:  'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+    lower:  'abcdefghijklmnopqrstuvwxyz',
+    digit:  '0123456789',
+    symbol: '!@#$%^&*()-_=+[]{}<>?,.:;'
+  };
+  // 易混淆字符：数字 0/1、字母 O/o/l/I、竖线、引号
+  var AMBIGUOUS_RE = /[0Oo1lI|`'"]/g;
+
+  /* ================= 元素 ================= */
+  var els = {
+    pwd:           document.getElementById('pwd'),
+    btnCopy:       document.getElementById('btnCopy'),
+    btnGen:        document.getElementById('btnGen'),
+    len:           document.getElementById('len'),
+    lenVal:        document.getElementById('lenVal'),
+    optUpper:      document.getElementById('optUpper'),
+    optLower:      document.getElementById('optLower'),
+    optDigit:      document.getElementById('optDigit'),
+    optSymbol:     document.getElementById('optSymbol'),
+    optCapital:    document.getElementById('optCapital'),
+    optAmb:        document.getElementById('optAmb'),
+    strengthLabel: document.getElementById('strengthLabel'),
+    bars:          Array.prototype.slice.call(document.querySelectorAll('.bar')),
+    toast:         document.getElementById('toast')
+  };
+
+  /* ================= 加密级随机 ================= */
+  function randomInt(max) {
+    if (max <= 1) return 0;
+    var c = window.crypto || window.msCrypto;
+    if (!c || !c.getRandomValues) {
+      return Math.floor(Math.random() * max); // 极老旧浏览器兜底
+    }
+    var limit = Math.floor(4294967296 / max) * max; // 拒绝采样，消除取模偏差
+    var buf = new Uint32Array(1);
+    var v;
+    do { c.getRandomValues(buf); v = buf[0]; } while (v >= limit);
+    return v % max;
+  }
+
+  function pick(str) { return str.charAt(randomInt(str.length)); }
+
+  function shuffle(arr) {
+    for (var i = arr.length - 1; i > 0; i--) {
+      var j = randomInt(i + 1);
+      var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+    }
+    return arr;
+  }
+
+  /* ================= 生成 ================= */
+  function generate() {
+    var len = parseInt(els.len.value, 10) || 16;
+
+    var flags = {
+      upper:  els.optUpper.checked,
+      lower:  els.optLower.checked,
+      digit:  els.optDigit.checked,
+      symbol: els.optSymbol.checked
+    };
+    var excludeAmb = els.optAmb.checked;
+
+    var pools = {};
+    Object.keys(CHARSETS).forEach(function (k) {
+      pools[k] = excludeAmb ? CHARSETS[k].replace(AMBIGUOUS_RE, '') : CHARSETS[k];
+    });
+
+    var active = Object.keys(flags).filter(function (k) {
+      return flags[k] && pools[k].length > 0;
+    });
+
+    if (active.length === 0) {
+      els.pwd.innerHTML = '<span class="placeholder">请至少选择一种字符类型</span>';
+      setStrength(0);
+      return;
+    }
+
+    var chars = [];
+
+    // ① 每一类至少一个（硬性保证：大写 + 数字 + 符号）
+    active.forEach(function (k) { chars.push(pick(pools[k])); });
+
+    // ② 剩余位随机填充
+    var fullPool = active.map(function (k) { return pools[k]; }).join('');
+    while (chars.length < len) chars.push(pick(fullPool));
+
+    // ③ 洗牌打散位置
+    shuffle(chars);
+
+    // ④ 首字母强制为大写
+    if (els.optCapital.checked && pools.upper.length && chars.length) {
+      if (pools.upper.indexOf(chars[0]) === -1) {
+        for (var i = 1; i < chars.length; i++) {
+          if (pools.upper.indexOf(chars[i]) > -1) {
+            var t = chars[0]; chars[0] = chars[i]; chars[i] = t;
+            break;
+          }
+        }
+      }
+    }
+
+    var pwd = chars.slice(0, len).join('');
+    render(pwd);
+    setStrength(entropy(pwd.length, fullPool.length));
+  }
+
+  /* 信息熵（bit） */
+  function entropy(length, poolSize) {
+    if (!poolSize) return 0;
+    return length * (Math.log(poolSize) / Math.LN2);
+  }
+
+  /* ================= 渲染（带语法高亮） ================= */
+  function render(pwd) {
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < pwd.length; i++) {
+      var ch = pwd.charAt(i);
+      var span = document.createElement('span');
+      span.textContent = ch;
+      if (ch >= 'A' && ch <= 'Z')       span.className = 'c-upper';
+      else if (ch >= 'a' && ch <= 'z')  span.className = 'c-lower';
+      else if (ch >= '0' && ch <= '9')  span.className = 'c-digit';
+      else                              span.className = 'c-symbol';
+      frag.appendChild(span);
+    }
+    els.pwd.replaceChildren(frag);
+  }
+
+  /* ================= 强度显示 ================= */
+  function setStrength(bits) {
+    var level, label, color;
+
+    if (bits === 0)      { level = 0; label = '—';    color = '#8b98b4'; }
+    else if (bits < 40)  { level = 1; label = '弱';   color = '#ff5c7a'; }
+    else if (bits < 60)  { level = 2; label = '中等'; color = '#ffb340'; }
+    else if (bits < 80)  { level = 3; label = '强';   color = '#4cc9f0'; }
+    else                 { level = 4; label = '极强'; color = '#3ddc97'; }
+
+    els.bars.forEach(function (bar, idx) {
+      var on = idx < level;
+      bar.classList.toggle('on', on);
+      bar.style.setProperty('--c', color);
+    });
+
+    els.strengthLabel.style.setProperty('--sc', color);
+    els.strengthLabel.innerHTML = '强度：<b>' + label + '</b>' +
+      (bits > 0 ? ' · ' + Math.round(bits) + ' bit' : '');
+  }
+
+  /* ================= 复制 ================= */
+  function copyPassword() {
+    var text = els.pwd.textContent || '';
+    if (!text || els.pwd.querySelector('.placeholder')) return;
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        toast('已复制到剪贴板');
+      }).catch(function () {
+        fallbackCopy(text);
+      });
+    } else {
+      fallbackCopy(text);
+    }
+  }
+
+  function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '-1000px';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    try { document.execCommand('copy'); toast('已复制到剪贴板'); }
+    catch (err) { toast('复制失败，请手动选择'); }
+    document.body.removeChild(ta);
+  }
+
+  /* ================= Toast ================= */
+  var toastTimer = null;
+  function toast(msg) {
+    els.toast.textContent = msg;
+    els.toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () {
+      els.toast.classList.remove('show');
+    }, 1600);
+  }
+
+  /* ================= 事件绑定 ================= */
+  els.len.addEventListener('input', function () {
+    els.lenVal.textContent = els.len.value;
+    generate();
+  });
+
+  els.btnGen.addEventListener('click', generate);
+  els.btnCopy.addEventListener('click', copyPassword);
+
+  // chip 选中态样式
+  Array.prototype.forEach.call(document.querySelectorAll('.chip input'), function (input) {
+    var chip = input.closest('.chip');
+    var sync = function () { chip.classList.toggle('active', input.checked); };
+    input.addEventListener('change', sync);
+    sync();
+  });
+
+  /* ================= 初始化 ================= */
+  els.lenVal.textContent = els.len.value;
+  generate();
+})();
+</script>
+    <!-- Baidu tongji -->
     <script>
-        const translations = {
-            en: {
-                title: "🔐 Password Generator",
-                length: "Length: ",
-                numbers: "Numbers",
-                symbols: "Symbols",
-                copy: "Copy Password",
-                copied: "✔️Copied",
-                refresh: "Generate New",
-                strength: "Strength: ",
-                share: "Share Settings",
-                weak: "Weak",
-                medium: "Medium",
-                strong: "Strong",
-                shareAlert: "Configuration link copied to clipboard!"
-            },
-            zh: {
-                title: "🔐 密码生成器",
-                length: "长度：",
-                numbers: "数字",
-                symbols: "符号",
-                copy: "复制密码",
-                copied: "✔️已复制",
-                refresh: "重新生成",
-                strength: "强度：",
-                share: "分享配置",
-                weak: "弱",
-                medium: "中",
-                strong: "强",
-                shareAlert: "配置链接已复制到剪贴板！"
-            }
-        };
-
-        let currentLang = localStorage.getItem('lang') || 'zh';
-
-        function generatePassword() {
-            let chars = '';
-            chars += 'abcdefghijklmnopqrstuvwxyz';
-            chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            if (document.getElementById('numbers').checked) chars += '0123456789';
-            if (document.getElementById('symbols').checked) chars += '!@#$%^&*()_+-=[]{}|;:,.<>?';
-
-            const length = document.getElementById('length').value;
-            document.getElementById('length-value').textContent = length; // 修复长度显示
-            
-            const array = new Uint32Array(length);
-            window.crypto.getRandomValues(array);
-            
-            let password = '';
-            for (let i = 0; i < length; i++) {
-                password += chars[array[i] % chars.length];
-            }
-
-            document.getElementById('password-display').textContent = password;
-            updateStrengthIndicator(password); // 修复强度提示
-        }
-
-		function copyPassword() {
-			const password = document.getElementById('password-display').textContent;
-			navigator.clipboard.writeText(password).then(() => {
-				const btn = document.querySelector('.copy-btn');
-				// 添加成功状态
-				btn.classList.add('copy-success');
-				btn.textContent = translations[currentLang].copied;
-				setTimeout(() => {
-					btn.classList.remove('copy-success');
-					btn.textContent = translations[currentLang].copy;
-				}, 1500);
-			});
-		}
-
-        function updateStrengthIndicator(password) {
-            const bar = document.getElementById('strength-bar');
-            const text = document.getElementById('strength-text');
-            let score = 0;
-
-            // 评分规则
-            if (password.length >= 12) score += 2;
-            if (/\d/.test(password)) score += 1;
-            if (/[A-Z]/.test(password)) score += 1;
-            if (/[\W_]/.test(password)) score += 2;
-
-            if (score < 2) {
-                bar.style.backgroundColor = 'var(--weak)';
-                text.textContent = translations[currentLang].strength + translations[currentLang].weak;
-            } else if (score < 4) {
-                bar.style.backgroundColor = 'var(--medium)';
-                text.textContent = translations[currentLang].strength + translations[currentLang].medium;
-            } else {
-                bar.style.backgroundColor = 'var(--strong)';
-                text.textContent = translations[currentLang].strength + translations[currentLang].strong;
-            }
-        }
-
-        function setLanguage(lang) {
-            currentLang = lang;
-            localStorage.setItem('lang', lang);
-            document.querySelectorAll('[data-key]').forEach(el => {
-                const key = el.dataset.key;
-                const translationsObj = translations[lang];
-                
-                if (key === 'length') {
-                    const lengthValue = document.getElementById('length-value').textContent;
-                    el.innerHTML = translationsObj[key] + `<span id="length-value">${lengthValue}</span>`;
-                } else if (translationsObj[key]) {
-                    el.textContent = translationsObj[key];
-                }
-            });
-        }
-
-        function shareConfig() {
-            const config = {
-                length: document.getElementById('length').value,
-                numbers: document.getElementById('numbers').checked,
-                symbols: document.getElementById('symbols').checked
-            };
-            
-            const params = new URLSearchParams(config).toString();
-            const url = `${window.location.origin}${window.location.pathname}?${params}`;
-            
-            navigator.clipboard.writeText(url).then(() => {
-                alert(translations[currentLang].copied + '\n' + translations[currentLang].shareAlert);
-            });
-        }
-
-        // 初始化事件监听
-        document.getElementById('length').addEventListener('input', generatePassword);
-        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-            checkbox.addEventListener('change', generatePassword);
-        });
-
-        document.querySelectorAll('.lang-btn').forEach(btn => {
-            btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
-        });
-
-        // 解析URL参数
-        const params = new URLSearchParams(window.location.search);
-        if(params.has('length')) {
-            document.getElementById('length').value = params.get('length');
-            document.getElementById('numbers').checked = params.get('numbers') === 'true';
-            document.getElementById('symbols').checked = params.get('symbols') === 'true';
-        }
-
-        setLanguage(currentLang);
-        generatePassword();
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
+    <script>LA.init({id:"3GBQy07pYlIVc3g8",ck:"3GBQy07pYlIVc3g8",autoTrack:true})
     </script>
 </body>
-    <script src="https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058"></script>  
-    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
-    <script>LA.init({id:"3GBQy07pYlIVc3g8",ck:"3GBQy07pYlIVc3g8"})</script>    
-
 </html>
