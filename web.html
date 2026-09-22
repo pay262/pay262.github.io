@@ -2861,6 +2861,41 @@
     <!-- ============================================================ -->
 <script>
 // ============================================================
+//  Apple 设备禁止缩放（Safari 会忽略 meta 标签）
+// ============================================================
+(function() {
+    // 1. 阻止 iOS 特有的双指缩放事件 (gesturestart)
+    document.addEventListener('gesturestart', function(e) {
+        e.preventDefault();
+    });
+    
+    document.addEventListener('gesturechange', function(e) {
+        e.preventDefault();
+    });
+    
+    document.addEventListener('gestureend', function(e) {
+        e.preventDefault();
+    });
+
+    // 2. 阻止多指触摸（双指及以上），防止 pinch-zoom
+    // 注意：必须加 { passive: false } 才能 preventDefault
+    document.addEventListener('touchstart', function(e) {
+        if (e.touches.length > 1) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+
+    // 3. 阻止双击缩放
+    var lastTouchEnd = 0;
+    document.addEventListener('touchend', function(e) {
+        var now = (new Date()).getTime();
+        if (now - lastTouchEnd <= 300) {
+            e.preventDefault();
+        }
+        lastTouchEnd = now;
+    }, false);
+})();
+// ============================================================
 //  0. 通用工具：健壮复制 / 手动复制弹窗 / 图片下载 / 环境判断
 // ============================================================
 function isIOSDevice() {
