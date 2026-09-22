@@ -2861,11 +2861,7 @@
     <!-- ============================================================ -->
 <script>
 // ============================================================
-//  未来福利社 v4.1（多CDN海报加载 + Canvas兜底 + 小米浏览器复制修复）
-// ============================================================
-
-// ============================================================
-//  0. 通用工具：环境判断 / 复制 / 下载 / 分享
+//  0. 通用工具：健壮复制 / 手动复制弹窗 / 图片下载 / 环境判断
 // ============================================================
 function isIOSDevice() {
     return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
@@ -2874,12 +2870,8 @@ function isIOSDevice() {
 function isWechatBrowser() {
     return /MicroMessenger/i.test(navigator.userAgent);
 }
-// 小米系浏览器（MiuiBrowser / XiaoMi / Xiaomi / MiBrowser）
-function isMiBrowser() {
-    var ua = navigator.userAgent || '';
-    return /MiuiBrowser|XiaoMi|Xiaomi|MiBrowser/i.test(ua);
-}
 
+// HTML 属性 / 文本转义
 function escapeAttr(s) {
     return String(s == null ? '' : s)
         .replace(/&/g, '&amp;')
@@ -2894,41 +2886,31 @@ function escapeHtml(s) {
         .replace(/>/g, '&gt;');
 }
 
-// ⚠️ v4.1 关键：textarea 必须放在视口内（position:absolute + left:0 top:0），
-//             小米浏览器才会允许 execCommand；用 readonly 防键盘
+// 同步兜底复制（必须由用户手势直接触发）
+// ⚠️ iOS Safari 关键点：textarea 不能设 readonly，否则 select() 静默失败
 function _execCopyFallback(text) {
     var ta = document.createElement('textarea');
     ta.value = text;
-    ta.setAttribute('readonly', '');
-    ta.setAttribute('aria-hidden', 'true');
+    ta.contentEditable = 'true';
     ta.style.cssText =
-        'position:absolute;left:0;top:0;width:1px;height:1px;' +
-        'padding:0;border:none;outline:none;box-shadow:none;' +
-        'background:transparent;color:transparent;font-size:16px;' +
-        'opacity:0;z-index:99999;pointer-events:none;';
+        'position:fixed;top:0;left:0;width:1px;height:1px;padding:0;border:0;' +
+        'outline:none;box-shadow:none;background:transparent;color:transparent;' +
+        'font-size:16px;opacity:0.01;z-index:99999;';
     document.body.appendChild(ta);
     var ok = false;
     try {
-        if (ta.focus) { try { ta.focus({ preventScroll: true }); } catch (e) { ta.focus(); } }
-        if (ta.setSelectionRange) { ta.setSelectionRange(0, text.length); }
-        else if (ta.select) { ta.select(); }
+        ta.focus();
+        ta.select();
+        ta.setSelectionRange(0, ta.value.length);
         ok = document.execCommand('copy');
     } catch (e) { ok = false; }
     try { ta.remove(); } catch (e) {}
     return ok;
 }
 
-// ⚠️ v4.1 关键：小米浏览器 Clipboard API "假成功"，强制走 execCommand
+// 健壮复制：Clipboard API → execCommand 兜底
 function copyTextRobust(text) {
     return new Promise(function(resolve) {
-        // ① 小米系浏览器：跳过 clipboard API
-        if (isMiBrowser()) {
-            var ok = _execCopyFallback(text);
-            if (!ok) console.warn('[复制] 小米浏览器 execCommand 失败，走手动弹窗');
-            resolve(ok);
-            return;
-        }
-        // ② 其他浏览器
         if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
             navigator.clipboard.writeText(text)
                 .then(function() { resolve(true); })
@@ -2939,6 +2921,7 @@ function copyTextRobust(text) {
     });
 }
 
+// 复制失败兜底：弹窗显示文本供手动复制
 function showManualCopyDialog(text, title) {
     var old = document.getElementById('manualCopyMask');
     if (old && old.parentNode) old.parentNode.removeChild(old);
@@ -2984,6 +2967,7 @@ function showManualCopyDialog(text, title) {
     }, 80);
 }
 
+// dataURL → Blob
 function dataURLToBlob(dataUrl) {
     var parts = dataUrl.split(',');
     var mime = (parts[0].match(/:(.*?);/) || [])[1] || 'image/png';
@@ -2994,6 +2978,7 @@ function dataURLToBlob(dataUrl) {
     return new Blob([u8], { type: mime });
 }
 
+// 图片下载：iOS/微信提示长按保存；其他端用 Blob + a[download]
 function downloadImage(dataUrl, filename) {
     if (isIOSDevice() || isWechatBrowser()) {
         showCustomToast('📱 请长按图片保存到相册', '微信/iOS 不支持自动下载');
@@ -3022,10 +3007,13 @@ function downloadImage(dataUrl, filename) {
     }
 }
 
+// 分享/复制统一入口
+// 说明：navigator.share / clipboard 的同步性限制无法绕过，
+//       分享失败时会走「复制 → 手动弹窗」链路
 function shareOrCopy(shareData, copyText, copyHint) {
     if (navigator.share) {
         navigator.share(shareData).then(function() {
-            // 分享成功
+            // 用户完成分享
         }).catch(function(err) {
             if (err && err.name === 'AbortError') return;
             console.warn('原生分享失败，降级为复制：', err);
@@ -3047,253 +3035,18 @@ function _copyWithToast(text, hint) {
 }
 
 // ============================================================
-//  0.1 v4.0：多 CDN 依赖加载 + Canvas 手绘海报兜底
-// ============================================================
-function loadScriptOnce(url, timeoutMs) {
-    timeoutMs = timeoutMs || 8000;
-    return new Promise(function(resolve, reject) {
-        var s = document.createElement('script');
-        s.src = url;
-        s.async = true;
-        var timer = setTimeout(function() {
-            try { s.remove(); } catch (e) {}
-            reject(new Error('timeout: ' + url));
-        }, timeoutMs);
-        s.onload = function() { clearTimeout(timer); resolve(); };
-        s.onerror = function() { clearTimeout(timer); reject(new Error('error: ' + url)); };
-        document.head.appendChild(s);
-    });
-}
-
-var HTML2CANVAS_CDNS = [
-    'https://cdn.bootcdn.net/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
-    'https://lib.baomitu.com/html2canvas/1.4.1/html2canvas.min.js',
-    'https://cdn.staticfile.org/html2canvas/1.4.1/html2canvas.min.js',
-    'https://npm.elemecdn.com/html2canvas@1.4.1/dist/html2canvas.min.js',
-    'https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js',
-    'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js'
-];
-var _html2canvasLoadingPromise = null;
-function ensureHtml2Canvas() {
-    if (typeof window.html2canvas !== 'undefined') return Promise.resolve(true);
-    if (_html2canvasLoadingPromise) return _html2canvasLoadingPromise;
-    _html2canvasLoadingPromise = (function() {
-        var i = 0;
-        function tryNext() {
-            if (i >= HTML2CANVAS_CDNS.length) return Promise.resolve(false);
-            var url = HTML2CANVAS_CDNS[i++];
-            console.log('[海报] 尝试加载 html2canvas:', url);
-            return loadScriptOnce(url).then(function() {
-                if (typeof window.html2canvas !== 'undefined') {
-                    console.log('[海报] html2canvas 加载成功:', url);
-                    return true;
-                }
-                return tryNext();
-            }).catch(function() { return tryNext(); });
-        }
-        return tryNext();
-    })();
-    return _html2canvasLoadingPromise.then(function(ok) {
-        if (!ok) {
-            console.warn('[海报] html2canvas 全部 CDN 加载失败，将使用 Canvas 手绘兜底');
-            _html2canvasLoadingPromise = null;
-        }
-        return ok;
-    });
-}
-
-var QRCODE_CDNS = [
-    'https://cdn.bootcdn.net/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js',
-    'https://lib.baomitu.com/qrcode-generator/1.4.4/qrcode.min.js',
-    'https://cdn.staticfile.org/qrcode-generator/1.4.4/qrcode.min.js',
-    'https://npm.elemecdn.com/qrcode-generator@1.4.4/qrcode.js',
-    'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js'
-];
-var _qrcodeLoadingPromise = null;
-function ensureQRCodeLib() {
-    if (typeof window.qrcode === 'function') return Promise.resolve(true);
-    if (_qrcodeLoadingPromise) return _qrcodeLoadingPromise;
-    _qrcodeLoadingPromise = (function() {
-        var i = 0;
-        function tryNext() {
-            if (i >= QRCODE_CDNS.length) return Promise.resolve(false);
-            var url = QRCODE_CDNS[i++];
-            return loadScriptOnce(url).then(function() {
-                if (typeof window.qrcode === 'function') return true;
-                return tryNext();
-            }).catch(function() { return tryNext(); });
-        }
-        return tryNext();
-    })();
-    return _qrcodeLoadingPromise;
-}
-
-// ---------- Canvas 手绘海报（零依赖兜底） ----------
-function _roundRectPath(ctx, x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.arcTo(x + w, y, x + w, y + h, r);
-    ctx.arcTo(x + w, y + h, x, y + h, r);
-    ctx.arcTo(x, y + h, x, y, r);
-    ctx.arcTo(x, y, x + w, y, r);
-    ctx.closePath();
-}
-
-function _wrapTextLines(ctx, text, maxWidth, maxLines) {
-    maxLines = maxLines || 3;
-    var lines = [], cur = '';
-    text = String(text || '');
-    for (var i = 0; i < text.length; i++) {
-        var ch = text[i];
-        if (ch === '\n') {
-            lines.push(cur); cur = '';
-            if (lines.length >= maxLines) return lines;
-            continue;
-        }
-        if (ctx.measureText(cur + ch).width > maxWidth && cur) {
-            lines.push(cur); cur = ch;
-            if (lines.length >= maxLines) return lines;
-        } else {
-            cur += ch;
-        }
-    }
-    if (cur && lines.length < maxLines) lines.push(cur);
-    return lines;
-}
-
-function generateSimplePoster(title, desc, qrCode, startTime, endTime, operator, userRef) {
-    return new Promise(function(resolve) {
-        var W = 600, H = 900, dpr = 2;
-        var canvas = document.createElement('canvas');
-        canvas.width = W * dpr;
-        canvas.height = H * dpr;
-        var ctx = canvas.getContext('2d');
-        ctx.scale(dpr, dpr);
-
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, W, H);
-
-        var grad = ctx.createLinearGradient(0, 0, W, 0);
-        grad.addColorStop(0, '#3A6FF8');
-        grad.addColorStop(1, '#5280FF');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, W, 8);
-
-        var opColors = {
-            '移动':'#1a73e8','联通':'#e60012','电信':'#0055aa','广电':'#00b050',
-            '银行':'#2d6a4f','京东':'#c71622','美团':'#ffc300','饿了么':'#0088ff'
-        };
-        var opColor = opColors[operator] || '#3A6FF8';
-        var opText = operator || '福利活动';
-        ctx.font = 'bold 26px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
-        var opTextW = ctx.measureText(opText).width;
-        var tagW = opTextW + 48;
-        var tagH = 52;
-        var tagX = (W - tagW) / 2;
-        ctx.fillStyle = opColor;
-        _roundRectPath(ctx, tagX, 50, tagW, tagH, 26);
-        ctx.fill();
-        ctx.fillStyle = '#fff';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(opText, W / 2, 50 + tagH / 2);
-
-        ctx.fillStyle = '#1a1a2e';
-        ctx.font = 'bold 34px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
-        var titleLines = _wrapTextLines(ctx, title || '超值福利活动', W - 80, 3);
-        var y = 130;
-        titleLines.forEach(function(line) {
-            ctx.fillText(line, W / 2, y);
-            y += 46;
-        });
-
-        ctx.fillStyle = '#555';
-        ctx.font = '20px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
-        var descLines = _wrapTextLines(ctx, desc || '扫码立即参与', W - 100, 2);
-        y += 6;
-        descLines.forEach(function(line) {
-            ctx.fillText(line, W / 2, y);
-            y += 30;
-        });
-
-        var qrSize = 240;
-        var qrPad = 20;
-        var qrBoxW = qrSize + qrPad * 2;
-        var qrBoxX = (W - qrBoxW) / 2;
-        y += 24;
-        var qrBoxY = y;
-
-        ctx.fillStyle = '#f8fafc';
-        _roundRectPath(ctx, qrBoxX, qrBoxY, qrBoxW, qrBoxW, 16);
-        ctx.fill();
-        ctx.setLineDash([6, 6]);
-        ctx.strokeStyle = '#d0d7de';
-        ctx.lineWidth = 1;
-        _roundRectPath(ctx, qrBoxX, qrBoxY, qrBoxW, qrBoxW, 16);
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        var qrImg = new Image();
-        qrImg.crossOrigin = 'anonymous';
-        qrImg.onload = function() {
-            ctx.drawImage(qrImg, qrBoxX + qrPad, qrBoxY + qrPad, qrSize, qrSize);
-            finish();
-        };
-        qrImg.onerror = function() {
-            ctx.fillStyle = '#e5e7eb';
-            ctx.fillRect(qrBoxX + qrPad, qrBoxY + qrPad, qrSize, qrSize);
-            ctx.fillStyle = '#9ca3af';
-            ctx.font = '16px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('二维码加载失败', W / 2, qrBoxY + qrPad + qrSize / 2);
-            finish();
-        };
-        qrImg.src = qrCode || '';
-
-        function finish() {
-            y = qrBoxY + qrBoxW + 30;
-
-            ctx.fillStyle = '#888';
-            ctx.font = '18px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'top';
-            ctx.fillText('有效期：' + (startTime || '') + ' ~ ' + (endTime || ''), W / 2, y);
-            y += 40;
-
-            ctx.strokeStyle = '#f0f2f5';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(60, y);
-            ctx.lineTo(W - 60, y);
-            ctx.stroke();
-            y += 28;
-
-            ctx.fillStyle = '#3A6FF8';
-            ctx.font = 'bold 24px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
-            ctx.fillText('📱 未来福利社 · 扫码领福利', W / 2, y);
-            y += 36;
-
-            if (userRef) {
-                ctx.fillStyle = '#aaa';
-                ctx.font = '16px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
-                ctx.fillText('推荐人：' + userRef, W / 2, y);
-            }
-
-            resolve(canvas.toDataURL('image/png'));
-        }
-    });
-}
-
-// ============================================================
 //  1. 页面切换
 // ============================================================
 const pageTitleMap = {
-    content1: "宽带套餐", content2: "号卡套餐", content3: "精选影视",
-    content4: "随身WiFi", content5: "未来福利社", content6: "官方查询",
-    content7: "5G专区", content8: "常见问题", content9: "代理招募"
+    content1: "宽带套餐",
+    content2: "号卡套餐",
+    content3: "精选影视",
+    content4: "随身WiFi",
+    content5: "未来福利社",
+    content6: "官方查询",
+    content7: "5G专区",
+    content8: "常见问题",
+    content9: "代理招募"
 };
 
 var dom = {
@@ -3331,6 +3084,7 @@ function showToast(text, delay) {
     dom.toastTip.classList.add('show');
     setTimeout(function() { dom.toastTip.classList.remove('show'); }, delay);
 }
+
 function showCustomToast(msg, sub) {
     var toast = document.getElementById('customToast');
     document.getElementById('toastMessage').textContent = msg;
@@ -3339,6 +3093,7 @@ function showCustomToast(msg, sub) {
     clearTimeout(toast._timer);
     toast._timer = setTimeout(function() { toast.classList.remove('show'); }, 3000);
 }
+
 function toggleDrawer(open) { document.body.classList.toggle('drawer-open', open); }
 function toggleQr(open) { document.body.classList.toggle('qr-open', open); }
 function togglePrivacy(open) { document.body.classList.toggle('privacy-open', open); }
@@ -3353,11 +3108,13 @@ if (dom.openFaqQrBtn) dom.openFaqQrBtn.addEventListener('click', function() { to
 if (dom.agentQrBtn) dom.agentQrBtn.addEventListener('click', function() { toggleQr(true); });
 if (dom.drawerWechat) dom.drawerWechat.addEventListener('click', function() { toggleDrawer(false); toggleQr(true); });
 if (dom.floatWechatBtn) dom.floatWechatBtn.addEventListener('click', function() { toggleQr(true); });
+
 if (dom.navEarnBtn) dom.navEarnBtn.addEventListener('click', function() { inviteFriend(); });
 dom.openPrivacy.addEventListener('click', function() { toggleDrawer(false); togglePrivacy(true); });
 dom.privacyClose.addEventListener('click', function() { togglePrivacy(false); });
 dom.privacyMask.addEventListener('click', function(e) { if (e.target === dom.privacyMask) togglePrivacy(false); });
 
+// FAQ折叠
 dom.faqItems.forEach(function(item) {
     var q = item.querySelector('.faq-question');
     var a = item.querySelector('.faq-answer');
@@ -3374,17 +3131,22 @@ dom.faqItems.forEach(function(item) {
     });
 });
 
+// 复制5G链接
 var copyBtn = document.getElementById('copy5gaLink');
 if (copyBtn) {
     copyBtn.addEventListener('click', function() {
         var link = 'https://shopnew.sz189.cn/eshop/five5GAdl/index';
         copyTextRobust(link).then(function(ok) {
-            if (ok) showToast('✅ 链接已复制');
-            else showManualCopyDialog(link, '复制失败，请长按文本手动复制');
+            if (ok) {
+                showToast('✅ 链接已复制');
+            } else {
+                showManualCopyDialog(link, '复制失败，请长按文本手动复制');
+            }
         });
     });
 }
 
+// ===== 切换内容 =====
 function switchContent(contentId) {
     var wrapper = document.querySelector('.iframe-wrapper[data-content="' + contentId + '"]');
     if (!wrapper) return;
@@ -3414,6 +3176,7 @@ dom.drawerItems.forEach(function(i) {
 dom.tabItems.forEach(function(i) {
     i.addEventListener('click', function() { if (i.dataset.content) switchContent(i.dataset.content); });
 });
+
 window.switchContent = switchContent;
 
 // ============================================================
@@ -3430,6 +3193,7 @@ function inviteFriend() {
     params.set('ref', userRef);
     var inviteLink = baseUrl + '?' + params.toString();
     var shareText = '🎁 我在未来福利社赚佣金，快来一起领福利！' + inviteLink;
+
     shareOrCopy(
         { title: '邀请好友赚佣金', text: shareText, url: inviteLink },
         shareText,
@@ -3438,10 +3202,11 @@ function inviteFriend() {
 }
 
 // ============================================================
-//  3. 广告轮播 HTML
+//  3. 广告轮播 HTML 生成函数
 // ============================================================
 function createAdCarouselHTML() {
     let ads = [];
+
     if (typeof window.adCarouselList !== 'undefined' && Array.isArray(window.adCarouselList) && window.adCarouselList.length > 0) {
         ads = window.adCarouselList;
     } else if (typeof window.activityList !== 'undefined' && Array.isArray(window.activityList)) {
@@ -3456,6 +3221,7 @@ function createAdCarouselHTML() {
             }));
         }
     }
+
     if (ads.length === 0) {
         ads = [
             { type: 'image', label: '福利1', color: '#3A6FF8', link: 'https://example.com/ad1' },
@@ -3473,80 +3239,201 @@ function createAdCarouselHTML() {
             content = `<img src="data:image/svg+xml,${encodeURIComponent(svg)}" alt="${safeLabel}" style="width:100%;height:100%;object-fit:cover;">`;
         } else if (ad.type === 'iframe') {
             const safeSrc = escapeAttr(ad.src || 'https://example.com');
-            content = `<iframe src="${safeSrc}" allowfullscreen referrerpolicy="no-referrer-when-downgrade" allow="autoplay; fullscreen; encrypted-media; clipboard-write; geolocation" style="width:100%;height:100%;border:none;min-height:280px;display:block;"></iframe>`;
+            content = `<iframe
+                src="${safeSrc}"
+                allowfullscreen
+                referrerpolicy="no-referrer-when-downgrade"
+                allow="autoplay; fullscreen; encrypted-media; clipboard-write; geolocation"
+                style="width:100%;height:100%;border:none;min-height:280px;display:block;">
+            </iframe>`;
         }
-        return `<div class="slide" data-link="${escapeAttr(ad.link || '#')}" style="width:100%;height:100%;flex-shrink:0;cursor:pointer;position:relative;overflow:hidden;background:#f5f5f5;">
-            ${content}
-            <div style="position:absolute;bottom:8px;right:12px;background:rgba(0,0,0,0.5);color:#fff;padding:2px 12px;border-radius:12px;font-size:12px;z-index:5;pointer-events:none;">点击查看</div>
-        </div>`;
+        return `
+            <div class="slide" data-link="${escapeAttr(ad.link || '#')}" style="width:100%;height:100%;flex-shrink:0;cursor:pointer;position:relative;overflow:hidden;background:#f5f5f5;">
+                ${content}
+                <div style="position:absolute;bottom:8px;right:12px;background:rgba(0,0,0,0.5);color:#fff;padding:2px 12px;border-radius:12px;font-size:12px;z-index:5;pointer-events:none;">点击查看</div>
+            </div>
+        `;
     }).join('');
 
     const dotsHtml = ads.map((_, i) => `<span class="dot" data-index="${i}"></span>`).join('');
 
-    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    return `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:#f0f0f0; display:flex; align-items:center; justify-content:center; height:100vh; overflow:hidden; }
-.carousel-wrapper { position:relative; width:100%; max-width:500px; height:320px; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.1); }
-.slides-container { display:flex; width:100%; height:100%; transition: transform 0.4s ease; contain:none; }
-.slide { width:100%; height:100%; flex-shrink:0; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; background:#f5f5f5; }
-.slide img, .slide iframe { width:100%; height:100%; border:none; display:block; }
+.carousel-wrapper {
+    position:relative;
+    width:100%;
+    max-width:500px;
+    height:320px;
+    background:#fff;
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 4px 12px rgba(0,0,0,0.1);
+}
+.slides-container {
+    display:flex;
+    width:100%;
+    height:100%;
+    transition: transform 0.4s ease;
+    contain: none;
+}
+.slide {
+    width:100%;
+    height:100%;
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    position:relative;
+    background:#f5f5f5;
+}
+.slide img, .slide iframe {
+    width:100%;
+    height:100%;
+    border:none;
+    display:block;
+}
 .slide iframe { min-height:280px; }
-.dots { position:absolute; bottom:10px; left:50%; transform:translateX(-50%); display:flex; gap:8px; z-index:10; }
-.dot { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.5); transition:background 0.3s; cursor:pointer; }
-.dot.active { background:#fff; box-shadow:0 0 6px rgba(0,0,0,0.3); }
-.arrow { position:absolute; top:50%; transform:translateY(-50%); background:rgba(0,0,0,0.3); color:#fff; border:none; border-radius:50%; width:32px; height:32px; font-size:18px; cursor:pointer; z-index:10; display:flex; align-items:center; justify-content:center; }
+.dots {
+    position:absolute;
+    bottom:10px;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    gap:8px;
+    z-index:10;
+}
+.dot {
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.5);
+    transition:background 0.3s;
+    cursor:pointer;
+}
+.dot.active {
+    background:#fff;
+    box-shadow:0 0 6px rgba(0,0,0,0.3);
+}
+.arrow {
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    background:rgba(0,0,0,0.3);
+    color:#fff;
+    border:none;
+    border-radius:50%;
+    width:32px;
+    height:32px;
+    font-size:18px;
+    cursor:pointer;
+    z-index:10;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:background 0.2s;
+}
 .arrow:hover { background:rgba(0,0,0,0.6); }
-.arrow-left { left:8px; } .arrow-right { right:8px; }
-@media (max-width:480px) { .carousel-wrapper { border-radius:8px; height:260px; } }
-</style></head><body>
+.arrow-left { left:8px; }
+.arrow-right { right:8px; }
+@media (max-width:480px) {
+    .carousel-wrapper { border-radius:8px; height:260px; }
+}
+</style>
+</head>
+<body>
 <div class="carousel-wrapper">
-    <div class="slides-container" id="slidesContainer">${slidesHtml}</div>
+    <div class="slides-container" id="slidesContainer">
+        ${slidesHtml}
+    </div>
     <div class="dots">${dotsHtml}</div>
     <button class="arrow arrow-left" id="prevBtn">‹</button>
     <button class="arrow arrow-right" id="nextBtn">›</button>
 </div>
 <script>
-(function(){
-    var container = document.getElementById('slidesContainer');
-    var slides = container.querySelectorAll('.slide');
-    var dots = document.querySelectorAll('.dot');
-    var current = 0, total = slides.length, interval = null;
-    function goTo(index) {
-        if (index < 0) index = total - 1;
-        if (index >= total) index = 0;
-        current = index;
-        container.style.transform = 'translateX(-' + (current * 100) + '%)';
-        dots.forEach(function(dot, i) { dot.classList.toggle('active', i === current); });
-    }
-    function next() { goTo(current + 1); }
-    function prev() { goTo(current - 1); }
-    slides.forEach(function(slide) {
-        slide.addEventListener('click', function(e) {
-            var link = this.dataset.link;
-            if (link && link !== '#' && !e.target.closest('.arrow') && !e.target.closest('.dots')) {
-                if (e.target.closest('iframe')) return;
-                window.open(link, '_blank', 'noopener,noreferrer');
-            }
+    (function(){
+        var container = document.getElementById('slidesContainer');
+        var slides = container.querySelectorAll('.slide');
+        var dots = document.querySelectorAll('.dot');
+        var current = 0, total = slides.length, interval = null;
+
+        function goTo(index) {
+            if (index < 0) index = total - 1;
+            if (index >= total) index = 0;
+            current = index;
+            container.style.transform = 'translateX(-' + (current * 100) + '%)';
+            dots.forEach(function(dot, i) {
+                dot.classList.toggle('active', i === current);
+            });
+        }
+
+        function next() { goTo(current + 1); }
+        function prev() { goTo(current - 1); }
+
+        slides.forEach(function(slide) {
+            slide.addEventListener('click', function(e) {
+                var link = this.dataset.link;
+                if (link && link !== '#' && !e.target.closest('.arrow') && !e.target.closest('.dots')) {
+                    if (e.target.closest('iframe')) return;
+                    window.open(link, '_blank', 'noopener,noreferrer');
+                }
+            });
         });
-    });
-    dots.forEach(function(dot, i) {
-        dot.addEventListener('click', function(e) { e.stopPropagation(); goTo(i); resetInterval(); });
-    });
-    document.getElementById('prevBtn').addEventListener('click', function(e) { e.stopPropagation(); prev(); resetInterval(); });
-    document.getElementById('nextBtn').addEventListener('click', function(e) { e.stopPropagation(); next(); resetInterval(); });
-    function startInterval() { if (interval) clearInterval(interval); interval = setInterval(next, 6000); }
-    function resetInterval() { if (interval) clearInterval(interval); startInterval(); }
-    goTo(0); startInterval();
-    var wrapper = document.querySelector('.carousel-wrapper');
-    wrapper.addEventListener('mouseenter', function() { if (interval) clearInterval(interval); });
-    wrapper.addEventListener('mouseleave', function() { startInterval(); });
-})();
-<\/script></body></html>`;
+
+        dots.forEach(function(dot, i) {
+            dot.addEventListener('click', function(e) {
+                e.stopPropagation();
+                goTo(i);
+                resetInterval();
+            });
+        });
+
+        document.getElementById('prevBtn').addEventListener('click', function(e) {
+            e.stopPropagation();
+            prev();
+            resetInterval();
+        });
+        document.getElementById('nextBtn').addEventListener('click', function(e) {
+            e.stopPropagation();
+            next();
+            resetInterval();
+        });
+
+        function startInterval() {
+            if (interval) clearInterval(interval);
+            interval = setInterval(next, 6000);
+        }
+        function resetInterval() {
+            if (interval) clearInterval(interval);
+            startInterval();
+        }
+
+        goTo(0);
+        startInterval();
+
+        var wrapper = document.querySelector('.carousel-wrapper');
+        wrapper.addEventListener('mouseenter', function() {
+            if (interval) clearInterval(interval);
+        });
+        wrapper.addEventListener('mouseleave', function() {
+            startInterval();
+        });
+    })();
+<\/script>
+</body>
+</html>
+    `;
 }
 
 // ============================================================
-//  4. 活动工具箱
+//  4. 活动工具箱（含事件委托、分页回顶、海报加载动画）
 // ============================================================
 var activityLoadTimer = null;
 var dataLoadAttempts = 0;
@@ -3575,7 +3462,10 @@ function initActivityToolbox() {
             } else if (dataLoadAttempts >= MAX_LOAD_ATTEMPTS) {
                 clearActivityTimers();
                 var tip2 = document.getElementById('atTip');
-                if (tip2) { tip2.innerText = '⏳ 数据加载超时，请刷新页面重试'; tip2.style.color = '#f59e0b'; }
+                if (tip2) {
+                    tip2.innerText = '⏳ 数据加载超时，请刷新页面重试';
+                    tip2.style.color = '#f59e0b';
+                }
                 var emptyState = document.getElementById('atEmptyState');
                 if (emptyState) emptyState.style.display = 'flex';
             }
@@ -3585,11 +3475,18 @@ function initActivityToolbox() {
     buildActivityUI();
 }
 
+// ============================================================
+//  本地生成二维码
+// ============================================================
 function generateQRDataURL(text, size) {
     size = size || 200;
     try {
-        if (typeof qrcode !== 'function') throw new Error('qrcode library not ready');
-        var qr = qrcode(4, 'L');
+        if (typeof qrcode !== 'function') {
+            throw new Error('qrcode library not ready');
+        }
+        var typeNumber = 4;
+        var errorCorrectionLevel = 'L';
+        var qr = qrcode(typeNumber, errorCorrectionLevel);
         qr.addData(text);
         qr.make();
         var canvas = document.createElement('canvas');
@@ -3611,12 +3508,15 @@ function generateQRDataURL(text, size) {
 }
 
 // ============================================================
-//  5. 海报生成（v4.1：多CDN + Canvas兜底）
+//  海报生成（带加载动画）
 // ============================================================
 var _posterGenerating = false;
 
 function generatePoster(title, desc, qrCode, startTime, endTime, operator, source, sourceQr) {
-    if (_posterGenerating) { showToast('⏳ 正在生成中，请稍候'); return; }
+    if (_posterGenerating) {
+        showToast('⏳ 正在生成中，请稍候');
+        return;
+    }
     _posterGenerating = true;
     document.body.classList.add('poster-generating');
 
@@ -3631,99 +3531,115 @@ function generatePoster(title, desc, qrCode, startTime, endTime, operator, sourc
         localStorage.setItem('userRef', userRef);
     }
 
-    function cleanup() {
+    document.getElementById('posterTitle').textContent = title || '超值福利活动';
+    document.getElementById('posterDesc').textContent = desc || '扫码立即参与';
+    document.getElementById('posterDate').textContent = '有效期：' + (startTime || '') + ' ~ ' + (endTime || '');
+    document.getElementById('posterInviter').textContent = '推荐人：' + userRef;
+
+    var opColors = {
+        '移动': '#1a73e8',
+        '联通': '#e60012',
+        '电信': '#0055aa',
+        '广电': '#00b050',
+        '银行': '#2d6a4f',
+        '京东': '#c71622',
+        '美团': '#ffc300',
+        '饿了么': '#0088ff'
+    };
+    var opColor = opColors[operator] || '#3A6FF8';
+    var opTag = document.getElementById('posterOperator');
+    opTag.textContent = operator || '福利活动';
+    opTag.style.background = opColor;
+
+    var sourceContainer = document.getElementById('posterSource');
+    if (sourceQr) {
+        sourceContainer.innerHTML = '<img src="' + escapeAttr(sourceQr) + '" alt="来源二维码" style="width:60px;height:60px;border-radius:8px;border:1px solid #eee;">';
+    } else if (source) {
+        sourceContainer.textContent = '来源：' + source;
+    } else {
+        sourceContainer.textContent = '来源：未来福利社';
+    }
+
+    var container = document.getElementById('posterContainer');
+    container.style.left = '0';
+    container.style.top = '0';
+    container.style.position = 'fixed';
+    container.style.zIndex = '9999';
+    container.style.background = '#fff';
+
+    if (typeof html2canvas === 'undefined') {
+        showToast('❌ 海报库未加载，请刷新');
+        resetPosterContainer();
         _posterGenerating = false;
         document.body.classList.remove('poster-generating');
         if (loadingMask.parentNode) loadingMask.remove();
-    }
-    function finish(imgData) {
-        cleanup();
-        showPosterPreview(imgData, title);
-    }
-    function resetContainer() {
-        var c = document.getElementById('posterContainer');
-        if (c) {
-            c.style.left = '-9999px';
-            c.style.position = 'fixed';
-            c.style.zIndex = '-1';
-        }
+        return;
     }
 
-    ensureHtml2Canvas().then(function(hasLib) {
-        // 全部 CDN 失败 → Canvas 手绘
-        if (!hasLib) {
-            console.warn('[海报] html2canvas 加载失败，使用 Canvas 手绘兜底');
-            return generateSimplePoster(title, desc, qrCode, startTime, endTime, operator, userRef)
-                .then(finish);
+    // ⚠️ 关键修复：等待二维码图片真正 onload 再截图，避免海报中央空白
+    var qrImgEl = document.getElementById('posterQrImage');
+    var qrReadyPromise = new Promise(function(resolve) {
+        if (!qrCode) {
+            qrImgEl.removeAttribute('src');
+            resolve();
+            return;
         }
-
-        document.getElementById('posterTitle').textContent = title || '超值福利活动';
-        document.getElementById('posterDesc').textContent = desc || '扫码立即参与';
-        document.getElementById('posterDate').textContent = '有效期：' + (startTime || '') + ' ~ ' + (endTime || '');
-        document.getElementById('posterInviter').textContent = '推荐人：' + userRef;
-
-        var opColors = {
-            '移动':'#1a73e8','联通':'#e60012','电信':'#0055aa','广电':'#00b050',
-            '银行':'#2d6a4f','京东':'#c71622','美团':'#ffc300','饿了么':'#0088ff'
-        };
-        var opColor = opColors[operator] || '#3A6FF8';
-        var opTag = document.getElementById('posterOperator');
-        opTag.textContent = operator || '福利活动';
-        opTag.style.background = opColor;
-
-        var sourceContainer = document.getElementById('posterSource');
-        if (sourceQr) {
-            sourceContainer.innerHTML = '<img src="' + escapeAttr(sourceQr) + '" alt="来源二维码" style="width:60px;height:60px;border-radius:8px;border:1px solid #eee;">';
-        } else if (source) {
-            sourceContainer.textContent = '来源：' + source;
-        } else {
-            sourceContainer.textContent = '来源：未来福利社';
+        var pre = new Image();
+        var settled = false;
+        function done() {
+            if (settled) return;
+            settled = true;
+            qrImgEl.src = qrCode;
+            resolve();
         }
-
-        var container = document.getElementById('posterContainer');
-        container.style.left = '0';
-        container.style.top = '0';
-        container.style.position = 'fixed';
-        container.style.zIndex = '9999';
-        container.style.background = '#fff';
-
-        var qrImgEl = document.getElementById('posterQrImage');
-        return new Promise(function(resolve) {
-            if (!qrCode) { qrImgEl.removeAttribute('src'); resolve(); return; }
-            var pre = new Image();
-            var settled = false;
-            function done() { if (settled) return; settled = true; qrImgEl.src = qrCode; resolve(); }
-            pre.onload = done; pre.onerror = done; pre.src = qrCode;
-            setTimeout(done, 3000);
-        }).then(function() {
-            return html2canvas(container, {
-                scale: 2, useCORS: true, allowTaint: false,
-                backgroundColor: '#ffffff', width: 600,
-                height: container.scrollHeight, logging: false
-            });
-        }).then(function(canvas) {
-            resetContainer();
-            return canvas.toDataURL('image/png');
-        }).then(finish).catch(function(err) {
-            console.warn('[海报] html2canvas 执行失败，降级 Canvas 手绘：', err);
-            resetContainer();
-            return generateSimplePoster(title, desc, qrCode, startTime, endTime, operator, userRef)
-                .then(finish);
-        });
-    }).catch(function(err) {
-        console.error('[海报] 生成失败：', err);
-        cleanup();
-        showToast('❌ 海报生成失败，请重试');
+        pre.onload = done;
+        pre.onerror = done;
+        pre.src = qrCode;
+        // 3s 兜底，避免极端情况下永久 pending
+        setTimeout(done, 3000);
     });
+
+    qrReadyPromise.then(function() {
+        return html2canvas(container, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: false,
+            backgroundColor: '#ffffff',
+            width: 600,
+            height: container.scrollHeight,
+            logging: false
+        });
+    }).then(function(canvas) {
+        var imgData = canvas.toDataURL('image/png');
+        showPosterPreview(imgData, title);
+    }).catch(function(err) {
+        console.error('海报生成失败:', err);
+        showToast('❌ 海报生成失败，请重试');
+    }).finally(function() {
+        resetPosterContainer();
+        _posterGenerating = false;
+        document.body.classList.remove('poster-generating');
+        if (loadingMask.parentNode) loadingMask.remove();
+    });
+
+    function resetPosterContainer() {
+        container.style.left = '-9999px';
+        container.style.position = 'fixed';
+        container.style.zIndex = '-1';
+    }
 }
 
+// ============================================================
+//  海报预览弹窗（修复保存/分享）
+// ============================================================
 function showPosterPreview(imgData, title) {
     var oldMask = document.getElementById('posterPreviewMask');
     if (oldMask) oldMask.remove();
 
     var mask = document.createElement('div');
     mask.id = 'posterPreviewMask';
-    mask.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:20px;';
+    mask.style.cssText =
+        'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:20px;';
 
     var card = document.createElement('div');
     card.className = 'poster-preview-card';
@@ -3739,6 +3655,7 @@ function showPosterPreview(imgData, title) {
     var btnGroup = document.createElement('div');
     btnGroup.className = 'btn-group';
 
+    // -------- 保存图片 --------
     var saveBtn = document.createElement('button');
     saveBtn.className = 'btn-save';
     saveBtn.textContent = '💾 保存图片';
@@ -3751,32 +3668,45 @@ function showPosterPreview(imgData, title) {
         downloadImage(imgData, filename);
     };
 
+    // -------- 分享海报 --------
     var shareBtn = document.createElement('button');
     shareBtn.className = 'btn-share-poster';
     shareBtn.textContent = '📤 分享海报';
     shareBtn.onclick = function() {
-        var shareText = '🎁 ' + (title || '超值福利活动') + '，扫码领福利！更多活动👉' + window.location.href;
+        var shareText = '🎁 ' + (title || '超值福利活动') +
+            '，扫码领福利！更多活动👉' + window.location.href;
+
         if (navigator.share && navigator.canShare) {
             try {
                 var blob = dataURLToBlob(imgData);
                 var file = new File([blob], (title || '海报') + '.png', { type: 'image/png' });
                 if (navigator.canShare({ files: [file] })) {
-                    navigator.share({ files: [file], title: title || '活动海报', text: shareText })
-                        .catch(function(err) {
-                            if (err && err.name === 'AbortError') return;
-                            _copyWithToast(shareText, '可粘贴给好友');
-                        });
+                    navigator.share({
+                        files: [file],
+                        title: title || '活动海报',
+                        text: shareText
+                    }).catch(function(err) {
+                        if (err && err.name === 'AbortError') return;
+                        console.warn('图片分享失败，降级为文字：', err);
+                        _copyWithToast(shareText, '可粘贴给好友');
+                    });
                     return;
                 }
-            } catch (e) { console.warn('构建分享文件失败：', e); }
+            } catch (e) {
+                console.warn('构建分享文件失败：', e);
+            }
         }
+
         _copyWithToast(shareText, '可粘贴给好友');
     };
 
     var closeBtn = document.createElement('button');
     closeBtn.className = 'btn-close-preview';
     closeBtn.textContent = '✕ 关闭';
-    closeBtn.onclick = function() { mask.remove(); document.body.classList.remove('poster-generating'); };
+    closeBtn.onclick = function() {
+        mask.remove();
+        document.body.classList.remove('poster-generating');
+    };
 
     btnGroup.appendChild(saveBtn);
     btnGroup.appendChild(shareBtn);
@@ -3785,21 +3715,29 @@ function showPosterPreview(imgData, title) {
     card.appendChild(img);
     card.appendChild(btnGroup);
     mask.appendChild(card);
+
     mask.addEventListener('click', function(e) {
-        if (e.target === mask) { mask.remove(); document.body.classList.remove('poster-generating'); }
+        if (e.target === mask) {
+            mask.remove();
+            document.body.classList.remove('poster-generating');
+        }
     });
+
     document.body.appendChild(mask);
 }
 
 function copyText2(text) {
     copyTextRobust(text).then(function(ok) {
-        if (ok) showCustomToast('✅ 已复制分享文案', '快去分享给好友吧');
-        else showManualCopyDialog(text, '复制失败，请长按文本手动复制');
+        if (ok) {
+            showCustomToast('✅ 已复制分享文案', '快去分享给好友吧');
+        } else {
+            showManualCopyDialog(text, '复制失败，请长按文本手动复制');
+        }
     });
 }
 
 // ============================================================
-//  6. 活动详情弹窗
+//  活动详情弹窗（含广告轮播 iframe）
 // ============================================================
 var detailMask = document.getElementById('detailMask');
 var detailCloseBtn = document.getElementById('detailCloseBtn');
@@ -3812,8 +3750,12 @@ function openActivityDetail(item) {
     document.getElementById('detailOperator').textContent = '📡 运营商：' + (item.operator || '--');
 
     var remarkEl = document.getElementById('detailRemark');
-    if (item.remark) { remarkEl.textContent = '📌 备注：' + item.remark; remarkEl.style.display = 'block'; }
-    else { remarkEl.style.display = 'none'; }
+    if (item.remark) {
+        remarkEl.textContent = '📌 备注：' + item.remark;
+        remarkEl.style.display = 'block';
+    } else {
+        remarkEl.style.display = 'none';
+    }
 
     var badgesEl = document.getElementById('detailBadges');
     var badges = [];
@@ -3828,9 +3770,16 @@ function openActivityDetail(item) {
 
     var qrArea = document.getElementById('detailQrArea');
     var qrImg = document.getElementById('detailQrImg');
-    if (item.qrCode) { qrArea.style.display = 'block'; qrImg.src = item.qrCode; }
-    else if (item.link) { qrArea.style.display = 'block'; qrImg.src = generateQRDataURL(item.link, 200); }
-    else { qrArea.style.display = 'none'; }
+    if (item.qrCode) {
+        qrArea.style.display = 'block';
+        qrImg.src = item.qrCode;
+    } else if (item.link) {
+        var qrData = generateQRDataURL(item.link, 200);
+        qrArea.style.display = 'block';
+        qrImg.src = qrData;
+    } else {
+        qrArea.style.display = 'none';
+    }
 
     var linkBtn = document.getElementById('detailLinkBtn');
     if (item.link) {
@@ -3846,12 +3795,15 @@ function openActivityDetail(item) {
         linkBtn.target = '';
     }
 
+    // 广告轮播 iframe：先清空再注入，避免复用旧文档
     var adIframe = document.getElementById('detailAdIframe');
     if (adIframe) {
         adIframe.removeAttribute('srcdoc');
         adIframe.src = 'about:blank';
         requestAnimationFrame(function () {
-            requestAnimationFrame(function () { adIframe.srcdoc = createAdCarouselHTML(); });
+            requestAnimationFrame(function () {
+                adIframe.srcdoc = createAdCarouselHTML();
+            });
         });
     }
 
@@ -3868,28 +3820,36 @@ function closeDetail() {
         adIframe.src = 'about:blank';
     }
 }
-detailCloseBtn.addEventListener('click', closeDetail);
-detailMask.addEventListener('click', function(e) { if (e.target === detailMask) closeDetail(); });
 
+detailCloseBtn.addEventListener('click', closeDetail);
+detailMask.addEventListener('click', function(e) {
+    if (e.target === detailMask) closeDetail();
+});
+
+// ============================================================
+//  获取运营商标识类
+// ============================================================
 function getOpClass(op) {
-    var map = {'移动':'op-移动','联通':'op-联通','电信':'op-电信','广电':'op-广电','银行':'op-银行','百度':'op-百度','阿里':'op-阿里','京东':'op-京东','腾讯':'op-腾讯','拼多多':'op-拼多多','美团':'op-美团','滴滴':'op-滴滴','饿了么':'op-饿了么'};
+    var map = {
+        '移动': 'op-移动',
+        '联通': 'op-联通',
+        '电信': 'op-电信',
+        '广电': 'op-广电',
+        '银行': 'op-银行',
+        '百度': 'op-百度',
+        '阿里': 'op-阿里',
+        '京东': 'op-京东',
+        '腾讯': 'op-腾讯',
+        '拼多多': 'op-拼多多',
+        '美团': 'op-美团',
+        '滴滴': 'op-滴滴',
+        '饿了么': 'op-饿了么'
+    };
     return map[op] || 'op-其他';
 }
 
-// 跑马灯修复样式
-function ensureMarqueeStyle() {
-    if (document.getElementById('__marqueeFixStyle')) return;
-    var style = document.createElement('style');
-    style.id = '__marqueeFixStyle';
-    style.textContent =
-        '.marquee-track{padding-left:0 !important;display:flex !important;width:max-content !important;will-change:transform;}' +
-        '.marquee-track .marquee-item{display:inline-flex !important;align-items:center;flex-shrink:0 !important;white-space:nowrap !important;margin-right:50px;}' +
-        '.marquee-track:hover{animation-play-state:paused !important;}';
-    document.head.appendChild(style);
-}
-
 // ============================================================
-//  7. 核心渲染函数 buildActivityUI
+//  核心渲染函数 buildActivityUI（使用事件委托）
 // ============================================================
 function buildActivityUI() {
     if (activityInitDone) return;
@@ -3932,28 +3892,42 @@ function buildActivityUI() {
 
     var validTypes = mainTypeEnum.filter(function(item) { return item.value && item.value !== ''; });
 
-    function isExpired(endDateStr) { return new Date(endDateStr) < today; }
+    function isExpired(endDateStr) { var end = new Date(endDateStr); return end < today; }
+
     function isSoonExpire(endDateStr) {
-        var diff = (new Date(endDateStr).getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+        var end = new Date(endDateStr);
+        var diff = (end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
         return diff >= 0 && diff <= 7;
     }
+
     function matchSubType(itemSub, selectSub) {
         if (!selectSub) return true;
-        return Array.isArray(itemSub) ? itemSub.indexOf(selectSub) !== -1 : itemSub === selectSub;
+        if (Array.isArray(itemSub)) { return itemSub.indexOf(selectSub) !== -1; } else { return itemSub === selectSub; }
     }
+
     function hasFilter() {
-        return !!(searchEl.value.trim() || opSelect.value || provinceSelect.value ||
-            (mainTypeSelect.value || activeMainTab) || subTypeSelect.value);
+        var kw = searchEl.value.trim();
+        var op = opSelect.value;
+        var pro = provinceSelect.value;
+        var main = mainTypeSelect.value || activeMainTab;
+        var sub = subTypeSelect.value;
+        return !!(kw || op || pro || main || sub);
     }
+
     function updateFilterBadge() {
         var count = 0;
         if (opSelect.value) count++;
         if (provinceSelect.value) count++;
         if (mainTypeSelect.value || activeMainTab) count++;
         if (subTypeSelect.value) count++;
-        if (count > 0) { filterBadge.textContent = count; filterBadge.classList.add('show'); }
-        else filterBadge.classList.remove('show');
+        if (count > 0) {
+            filterBadge.textContent = count;
+            filterBadge.classList.add('show');
+        } else {
+            filterBadge.classList.remove('show');
+        }
     }
+
     function renderTabs() {
         tabsEl.innerHTML = '';
         validTypes.forEach(function(item) {
@@ -3973,6 +3947,7 @@ function buildActivityUI() {
             tabsEl.appendChild(span);
         });
     }
+
     function populateMainTypeSelect() {
         mainTypeSelect.innerHTML = '<option value="">全部</option>';
         validTypes.forEach(function(item) {
@@ -3982,6 +3957,7 @@ function buildActivityUI() {
             mainTypeSelect.appendChild(opt);
         });
     }
+
     function populateSubTypeSelect(mainValue) {
         subTypeSelect.innerHTML = '<option value="">全部</option>';
         if (mainValue && subTypeMap[mainValue]) {
@@ -3993,6 +3969,7 @@ function buildActivityUI() {
             });
         }
     }
+
     function updatePagination(totalPages) {
         if (totalPages <= 1) { paginationEl.style.display = 'none'; return; }
         paginationEl.style.display = 'flex';
@@ -4000,38 +3977,15 @@ function buildActivityUI() {
         prevPageBtn.disabled = (currentPage <= 1);
         nextPageBtn.disabled = (currentPage >= totalPages);
     }
+
     function scrollToTop() {
         var wrapper = document.querySelector('.iframe-wrapper.active');
         if (wrapper) wrapper.scrollTop = 0;
     }
-    function getFiltered() {
-        var cacheKey = searchEl.value + '|' + opSelect.value + '|' + provinceSelect.value + '|' +
-            (mainTypeSelect.value || activeMainTab) + '|' + subTypeSelect.value;
-        if (cacheKey === lastCacheKey && lastFilteredData.length) return lastFilteredData;
-        var validRegular = regularList.filter(function(item) { return !isExpired(item.endTime); });
-        var kw = searchEl.value.trim().toLowerCase();
-        var opVal = opSelect.value, proVal = provinceSelect.value;
-        var mainVal = mainTypeSelect.value || activeMainTab;
-        var subVal = subTypeSelect.value;
-        var result = validRegular.filter(function(item) {
-            if (kw) {
-                var subText = Array.isArray(item.subType) ? item.subType.join(' ') : item.subType;
-                var text = (item.title + ' ' + item.city + ' ' + item.province + ' ' + item.remark + ' ' + subText).toLowerCase();
-                if (text.indexOf(kw) === -1) return false;
-            }
-            if (opVal && item.operator !== opVal) return false;
-            if (proVal && item.province !== proVal) return false;
-            if (mainVal && item.mainType !== mainVal) return false;
-            if (subVal && !matchSubType(item.subType, subVal)) return false;
-            return true;
-        });
-        lastCacheKey = cacheKey;
-        lastFilteredData = result;
-        return result;
-    }
 
     function render() {
         updateFilterBadge();
+
         if (!hasFilter()) {
             emptyStateEl.style.display = 'flex';
             resultAreaEl.classList.remove('active');
@@ -4043,12 +3997,44 @@ function buildActivityUI() {
             currentPageItems = [];
             return;
         }
+
         emptyStateEl.style.display = 'none';
         resultAreaEl.classList.add('active');
 
-        var filteredRegular = getFiltered();
+        var cacheKey = searchEl.value + '|' + opSelect.value + '|' + provinceSelect.value + '|' +
+            (mainTypeSelect.value || activeMainTab) + '|' + subTypeSelect.value;
+
+        var validRegular = regularList.filter(function(item) { return !isExpired(item.endTime); });
+        var filteredRegular;
+
+        if (cacheKey === lastCacheKey && lastFilteredData.length) {
+            filteredRegular = lastFilteredData;
+        } else {
+            var kw = searchEl.value.trim().toLowerCase();
+            var opVal = opSelect.value;
+            var proVal = provinceSelect.value;
+            var mainVal = mainTypeSelect.value || activeMainTab;
+            var subVal = subTypeSelect.value;
+
+            filteredRegular = validRegular.filter(function(item) {
+                if (kw) {
+                    var subText = Array.isArray(item.subType) ? item.subType.join(' ') : item.subType;
+                    var text = (item.title + ' ' + item.city + ' ' + item.province + ' ' + item.remark + ' ' + subText).toLowerCase();
+                    if (text.indexOf(kw) === -1) return false;
+                }
+                if (opVal && item.operator !== opVal) return false;
+                if (proVal && item.province !== proVal) return false;
+                if (mainVal && item.mainType !== mainVal) return false;
+                if (subVal && !matchSubType(item.subType, subVal)) return false;
+                return true;
+            });
+            lastCacheKey = cacheKey;
+            lastFilteredData = filteredRegular;
+        }
+
         var totalItems = filteredRegular.length;
         var totalPages = Math.ceil(totalItems / pageSize) || 1;
+
         if (currentPage > totalPages) currentPage = totalPages;
         if (currentPage < 1) currentPage = 1;
 
@@ -4061,17 +4047,20 @@ function buildActivityUI() {
             pageItems = pageRegular.slice();
             if (adPool.length > 0) {
                 var randomAd = adPool[Math.floor(Math.random() * adPool.length)];
-                pageItems.splice(Math.floor(Math.random() * (pageItems.length + 1)), 0, randomAd);
+                var insertIdx = Math.floor(Math.random() * (pageItems.length + 1));
+                pageItems.splice(insertIdx, 0, randomAd);
             }
         }
         currentPageItems = pageItems;
 
-        // 惰性生成二维码（需要 qrcode 库）
         pageItems.forEach(function(item) {
-            if (item.link && !item.qrCode) item.qrCode = generateQRDataURL(item.link, 200);
+            if (item.link && !item.qrCode) {
+                item.qrCode = generateQRDataURL(item.link, 200);
+            }
         });
 
-        tipEl.innerText = '找到 ' + totalItems + ' 个匹配活动，第 ' + (start + 1) + ' - ' + end + ' 条';
+        var displayStart = start + 1;
+        tipEl.innerText = '找到 ' + totalItems + ' 个匹配活动，第 ' + displayStart + ' - ' + end + ' 条';
         gridEl.innerHTML = '';
 
         if (pageItems.length === 0) {
@@ -4092,6 +4081,7 @@ function buildActivityUI() {
 
             var subs = Array.isArray(item.subType) ? item.subType : [item.subType];
             var subTagsHtml = subs.map(function(t) { return '<span class="at-subtag">' + escapeHtml(t) + '</span>'; }).join('');
+
             var opBadge = '<span class="at-badge ' + getOpClass(item.operator) + '">' + escapeHtml(item.operator) + '</span>';
             var mainBadge = '<span class="at-badge tag-main">' + escapeHtml(item.mainType) + '</span>';
             var regionBadge = '<span class="at-badge tag-region">' + escapeHtml(item.province + ' ' + item.city) + '</span>';
@@ -4103,15 +4093,28 @@ function buildActivityUI() {
 
             var shareHtml = '';
             if (item.canShare) {
-                shareHtml = '<button class="share-earn-btn" data-title="' + escapeAttr(item.title) + '" data-link="' + escapeAttr(item.link || window.location.href) + '">💰 分享</button>';
+                shareHtml = '<button class="share-earn-btn" ' +
+                    'data-title="' + escapeAttr(item.title) + '" ' +
+                    'data-link="' + escapeAttr(item.link || window.location.href) + '">💰 分享</button>';
             }
+
             var posterBtnHtml = '';
             if (item.qrCode) {
-                posterBtnHtml = '<button class="poster-gen-btn" data-title="' + escapeAttr(item.title) + '" data-desc="' + escapeAttr(item.desc) + '" data-qr="' + escapeAttr(item.qrCode) + '" data-start="' + escapeAttr(item.startTime) + '" data-end="' + escapeAttr(item.endTime) + '" data-operator="' + escapeAttr(item.operator) + '" data-source="' + escapeAttr(item.source) + '" data-sourceqr="' + escapeAttr(item.sourceQr) + '" aria-label="生成海报">🖼️</button>';
+                posterBtnHtml = '<button class="poster-gen-btn" ' +
+                    'data-title="' + escapeAttr(item.title) + '" ' +
+                    'data-desc="' + escapeAttr(item.desc) + '" ' +
+                    'data-qr="' + escapeAttr(item.qrCode) + '" ' +
+                    'data-start="' + escapeAttr(item.startTime) + '" ' +
+                    'data-end="' + escapeAttr(item.endTime) + '" ' +
+                    'data-operator="' + escapeAttr(item.operator) + '" ' +
+                    'data-source="' + escapeAttr(item.source) + '" ' +
+                    'data-sourceqr="' + escapeAttr(item.sourceQr) + '" ' +
+                    'aria-label="生成海报">🖼️</button>';
             }
 
             card.innerHTML =
-                '<div class="at-badges">' + opBadge + mainBadge + regionBadge + soonBadge + earnBadge + adBadge + topBadge + wechatBadge2 + '</div>' +
+                '<div class="at-badges">' + opBadge + mainBadge + regionBadge + soonBadge + earnBadge +
+                adBadge + topBadge + wechatBadge2 + '</div>' +
                 '<div class="at-subtags">' + subTagsHtml + '</div>' +
                 '<div class="at-card-title">' + escapeHtml(item.title) + '</div>' +
                 '<div class="at-card-date">有效期：' + escapeHtml(item.startTime) + ' ~ ' + escapeHtml(item.endTime) + '</div>' +
@@ -4119,58 +4122,89 @@ function buildActivityUI() {
                 (item.remark ? '<div class="at-card-remark">备注：' + escapeHtml(item.remark) + '</div>' : '') +
                 shareHtml + posterBtnHtml;
 
-            // 分享按钮
+            // -------- 分享按钮 --------
             var shareBtnEl = card.querySelector('.share-earn-btn');
             if (shareBtnEl) {
                 shareBtnEl.addEventListener('click', function(e) {
                     e.stopPropagation();
                     var title = this.dataset.title;
-                    var link = this.dataset.link;
+                    var link  = this.dataset.link;
+
                     var userRef = localStorage.getItem('userRef');
-                    if (!userRef) { userRef = Math.random().toString(36).substr(2, 6); localStorage.setItem('userRef', userRef); }
+                    if (!userRef) {
+                        userRef = Math.random().toString(36).substr(2, 6);
+                        localStorage.setItem('userRef', userRef);
+                    }
                     var baseUrl = window.location.href.split('?')[0];
                     var params = new URLSearchParams(window.location.search);
                     params.set('ref', userRef);
                     var inviteLink = baseUrl + '?' + params.toString();
-                    var shareText = '🎁 发现一个超值福利：' + title + '，一起领福利赚佣金！' + link + '\n\n更多福利活动👉' + inviteLink;
+
+                    var shareText = '🎁 发现一个超值福利：' + title + '，一起领福利赚佣金！' + link +
+                        '\n\n更多福利活动👉' + inviteLink;
+
                     if (typeof LA !== 'undefined' && LA.track) {
-                        LA.track('分享点击', { activity_title: title, user_ref: userRef, activity_link: link });
+                        LA.track('分享点击', {
+                            activity_title: title,
+                            user_ref: userRef,
+                            activity_link: link
+                        });
                     }
-                    shareOrCopy({ title: title, text: shareText, url: link }, shareText, '分享给好友，TA参与你赚佣金');
+
+                    shareOrCopy(
+                        { title: title, text: shareText, url: link },
+                        shareText,
+                        '分享给好友，TA参与你赚佣金'
+                    );
                 });
             }
 
-            // 海报按钮
+            // -------- 海报按钮 --------
             var posterBtn = card.querySelector('.poster-gen-btn');
             if (posterBtn) {
                 posterBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
-                    var d = this.dataset;
-                    if (!d.qr) { showToast('❌ 该活动暂无二维码'); return; }
+                    var title = this.dataset.title;
+                    var desc = this.dataset.desc;
+                    var qr = this.dataset.qr;
+                    var start = this.dataset.start;
+                    var end = this.dataset.end;
+                    var operator = this.dataset.operator;
+                    var source = this.dataset.source;
+                    var sourceQr = this.dataset.sourceqr;
+                    if (!qr) {
+                        showToast('❌ 该活动暂无二维码');
+                        return;
+                    }
                     showToast('⏳ 正在生成海报...');
-                    generatePoster(d.title, d.desc, d.qr, d.start, d.end, d.operator, d.source, d.sourceqr);
+                    generatePoster(title, desc, qr, start, end, operator, source, sourceQr);
                 });
             }
 
             gridEl.appendChild(card);
         });
+
         updatePagination(totalPages);
     }
 
-    // 事件委托
+    // 事件委托：卡片点击
     gridEl.addEventListener('click', function(e) {
         var card = e.target.closest('.at-card');
         if (!card) return;
         if (e.target.closest('.share-earn-btn') || e.target.closest('.poster-gen-btn')) return;
         var index = parseInt(card.dataset.index, 10);
-        if (!isNaN(index) && currentPageItems[index]) openActivityDetail(currentPageItems[index]);
+        if (!isNaN(index) && currentPageItems[index]) {
+            openActivityDetail(currentPageItems[index]);
+        }
     });
 
+    // 搜索、筛选等
     var searchTimer = null;
     searchEl.addEventListener('input', function() {
         clearTimeout(searchTimer);
         searchTimer = setTimeout(function() { currentPage = 1; render(); }, 300);
     });
+
     opSelect.addEventListener('change', function() { currentPage = 1; render(); });
     provinceSelect.addEventListener('change', function() { currentPage = 1; render(); });
     mainTypeSelect.addEventListener('change', function() {
@@ -4183,10 +4217,16 @@ function buildActivityUI() {
     });
     subTypeSelect.addEventListener('change', function() { currentPage = 1; render(); });
     resetBtn.addEventListener('click', function() {
-        searchEl.value = ''; opSelect.value = ''; provinceSelect.value = '';
-        mainTypeSelect.value = ''; subTypeSelect.value = ''; activeMainTab = '';
+        searchEl.value = '';
+        opSelect.value = '';
+        provinceSelect.value = '';
+        mainTypeSelect.value = '';
+        subTypeSelect.value = '';
+        activeMainTab = '';
         currentPage = 1;
-        lastCacheKey = ''; lastFilteredData = []; currentPageItems = [];
+        lastCacheKey = '';
+        lastFilteredData = [];
+        currentPageItems = [];
         renderTabs();
         populateSubTypeSelect('');
         updateFilterBadge();
@@ -4201,25 +4241,60 @@ function buildActivityUI() {
         filterPanel.classList.remove('open');
     });
 
+    // 分页 + 回顶
     prevPageBtn.addEventListener('click', function() {
-        if (currentPage > 1) { currentPage--; render(); requestAnimationFrame(scrollToTop); }
+        if (currentPage > 1) {
+            currentPage--;
+            render();
+            requestAnimationFrame(scrollToTop);
+        }
     });
     nextPageBtn.addEventListener('click', function() {
-        var filteredRegular = getFiltered();
+        var validRegular = regularList.filter(function(item) { return !isExpired(item.endTime); });
+        var cacheKey = searchEl.value + '|' + opSelect.value + '|' + provinceSelect.value + '|' +
+            (mainTypeSelect.value || activeMainTab) + '|' + subTypeSelect.value;
+        var filteredRegular;
+        if (cacheKey === lastCacheKey && lastFilteredData.length) {
+            filteredRegular = lastFilteredData;
+        } else {
+            var kw = searchEl.value.trim().toLowerCase();
+            var opVal = opSelect.value;
+            var proVal = provinceSelect.value;
+            var mainVal = mainTypeSelect.value || activeMainTab;
+            var subVal = subTypeSelect.value;
+            filteredRegular = validRegular.filter(function(item) {
+                if (kw) {
+                    var subText = Array.isArray(item.subType) ? item.subType.join(' ') : item.subType;
+                    var text = (item.title + ' ' + item.city + ' ' + item.province + ' ' + item.remark + ' ' + subText).toLowerCase();
+                    if (text.indexOf(kw) === -1) return false;
+                }
+                if (opVal && item.operator !== opVal) return false;
+                if (proVal && item.province !== proVal) return false;
+                if (mainVal && item.mainType !== mainVal) return false;
+                if (subVal && !matchSubType(item.subType, subVal)) return false;
+                return true;
+            });
+            lastFilteredData = filteredRegular;
+            lastCacheKey = cacheKey;
+        }
         var totalPages = Math.ceil(filteredRegular.length / pageSize);
-        if (currentPage < totalPages) { currentPage++; render(); requestAnimationFrame(scrollToTop); }
+        if (currentPage < totalPages) {
+            currentPage++;
+            render();
+            requestAnimationFrame(scrollToTop);
+        }
     });
+
     filterToggle.addEventListener('click', function() {
         isFilterOpen = !isFilterOpen;
         this.classList.toggle('active', isFilterOpen);
         filterPanel.classList.toggle('open', isFilterOpen);
     });
 
-    // 跑马灯
+    // 跑马灯（修复：完整两份，保证 -50% 无缝衔接）
     function buildMarquee() {
         var track = document.getElementById('marqueeTrack');
         if (!track) return;
-        ensureMarqueeStyle();
         var items = regularList.filter(function(item) { return !isExpired(item.endTime); });
         if (items.length === 0) {
             track.innerHTML = '<span class="marquee-item">📢 暂无活动，敬请期待</span>';
@@ -4227,18 +4302,21 @@ function buildActivityUI() {
         }
         var shuffled = items.slice().sort(function() { return 0.5 - Math.random(); });
         var selected = shuffled.slice(0, Math.min(shuffled.length, 8));
+
         function renderOnePass() {
             return selected.map(function(item) {
                 return '<span class="marquee-item"><span class="tag">' + escapeHtml(item.operator) + '</span>' + escapeHtml(item.title) + '</span>';
             }).join('');
         }
         var html = renderOnePass() + renderOnePass();
+
         track.style.animation = 'none';
         track.innerHTML = html;
         void track.offsetWidth;
         track.style.animation = 'marquee-scroll 35s linear infinite';
     }
 
+    // 初始化
     populateMainTypeSelect();
     populateSubTypeSelect('');
     renderTabs();
@@ -4251,6 +4329,7 @@ function buildActivityUI() {
     window.refreshMarquee = buildMarquee;
 }
 
+// 页面恢复
 function handlePageResume() {
     if (currentContent === 'content5') {
         if (activityInitDone && typeof window.__refreshActivityRender === 'function') {
@@ -4261,26 +4340,20 @@ function handlePageResume() {
         } else { initActivityToolbox(); }
     }
 }
+
 document.addEventListener('visibilitychange', function() { if (!document.hidden) handlePageResume(); });
 document.addEventListener('pageshow', function(e) { if (e.persisted) handlePageResume(); });
 window.addEventListener('focus', handlePageResume);
 
-// ============================================================
-//  8. 启动
-// ============================================================
+// 直接进入福利活动页
 dom.navBar.style.display = 'flex';
 dom.mainContent.style.display = 'block';
 dom.tabBar.style.display = 'flex';
-
-// 预热海报依赖（静默后台加载，不阻塞页面）
-ensureHtml2Canvas();
-ensureQRCodeLib();
-
 switchContent('content5');
 setTimeout(initActivityToolbox, 300);
 
 // ============================================================
-//  9. 代理表单
+//  5. 代理表单
 // ============================================================
 var agentForm = document.getElementById('agentApplyForm');
 if (agentForm) {
@@ -4290,17 +4363,22 @@ if (agentForm) {
         var phone = document.getElementById('agentPhone').value.trim();
         if (!name) { showToast('请填写姓名'); return; }
         if (!phone) { showToast('请填写手机号'); return; }
-        if (!/^1\d{10}$/.test(phone)) { showToast('请填写正确的11位手机号'); return; }
+        var phoneReg = /^1\d{10}$/;
+        if (!phoneReg.test(phone)) {
+            showToast('请填写正确的11位手机号');
+            return;
+        }
         showToast('✅ 提交成功！客服将在24小时内联系您');
         this.reset();
     });
 }
 
 // ============================================================
-//  10. 二维码弹窗关闭
+//  6. 二维码弹窗关闭
 // ============================================================
 var qrPopupMask = document.getElementById('activityQrMask');
 var qrPopupClose = document.getElementById('qrPopupClose');
+
 if (qrPopupClose) {
     qrPopupClose.addEventListener('click', function(e) {
         e.stopPropagation();
@@ -4312,6 +4390,7 @@ if (qrPopupClose) {
         }
     });
 }
+
 if (qrPopupMask) {
     qrPopupMask.addEventListener('click', function(e) {
         if (e.target === this) {
@@ -4322,6 +4401,7 @@ if (qrPopupMask) {
         }
     });
 }
+
 window.showWechatQr = showWechatQr;
 window.closeQrPopup = function() {
     var popup = document.getElementById('activityQrMask');
@@ -4334,7 +4414,7 @@ window.closeQrPopup = function() {
     }
 };
 
-console.log('✅ 未来福利社 v4.1 加载完成');
+console.log('✅ 未来福利社 v3.8（深度修复版）加载完成');
 </script>
 </body>
 </html>
