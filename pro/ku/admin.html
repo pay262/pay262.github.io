@@ -24,58 +24,81 @@ input,select,textarea{font-family:inherit;font-size:14px}
 .auth-box button:active{transform:scale(.98)}
 .auth-box .tip{color:#aaa;font-size:11px;margin-top:16px;line-height:1.6}
 
-/* ============ 主工具栏 ============ */
-.toolbar{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;box-shadow:0 1px 4px rgba(0,0,0,.03)}
-.toolbar h1{font-size:17px;font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.toolbar .stats{font-size:12px;color:var(--sub);font-weight:400}
-.toolbar .actions{display:flex;gap:8px;flex-wrap:wrap}
-.btn{padding:8px 14px;border:none;border-radius:8px;font-size:13px;font-weight:600;background:#eef0f5;color:#555;transition:.15s;white-space:nowrap}
+/* ============ 顶部工具栏（精简版） ============ */
+.toolbar{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid var(--border);padding:10px 15px;box-shadow:0 1px 4px rgba(0,0,0,.03)}
+.toolbar-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.toolbar h1{font-size:15px;font-weight:700;display:flex;align-items:center;gap:6px}
+.toolbar h1 .stats{font-size:11px;color:var(--sub);font-weight:400}
+.toolbar-actions{display:flex;gap:6px;flex-shrink:0}
+.btn{padding:7px 12px;border:none;border-radius:8px;font-size:12px;font-weight:600;background:#eef0f5;color:#555;transition:.15s;white-space:nowrap}
 .btn:active{transform:scale(.97)}
 .btn.primary{background:var(--grad);color:#fff}
 .btn.success{background:var(--success);color:#fff}
 .btn.danger{background:var(--danger);color:#fff}
 .btn.ghost{background:transparent;color:var(--sub);border:1px solid var(--border)}
+.btn.icon-only{padding:7px 10px;font-size:14px}
 .btn-mini{padding:4px 10px;font-size:12px;border:none;border-radius:6px;background:#eef0f5;color:#555;font-weight:500}
 .btn-mini.primary{background:var(--primary);color:#fff}
 .btn-mini.danger{background:#fdecea;color:var(--danger)}
-.container{max-width:1000px;margin:20px auto;padding:0 20px}
+
+/* 更多菜单 */
+.more-menu{position:relative}
+.more-dropdown{display:none;position:absolute;top:calc(100% + 6px);right:0;background:#fff;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.15);padding:6px;min-width:150px;z-index:200}
+.more-dropdown.show{display:block}
+.more-dropdown button{display:block;width:100%;text-align:left;padding:9px 12px;border:none;background:transparent;font-size:13px;color:var(--text);border-radius:6px;cursor:pointer;font-family:inherit}
+.more-dropdown button:hover{background:var(--bg)}
+.more-dropdown button.danger{color:var(--danger)}
+
+.container{max-width:1000px;margin:12px auto;padding:0 15px}
 
 /* ============ Tab ============ */
-.tab-bar{background:#fff;border-bottom:1px solid var(--border);padding:0 20px;display:flex;gap:24px;font-size:14px;position:sticky;top:56px;z-index:99}
-.tab-btn{padding:12px 0;cursor:pointer;font-weight:600;color:var(--sub);border-bottom:2px solid transparent;transition:.15s}
+.tab-bar{background:#fff;border-bottom:1px solid var(--border);padding:0 15px;display:flex;gap:20px;font-size:13px;position:sticky;top:52px;z-index:99}
+.tab-btn{padding:10px 0;cursor:pointer;font-weight:600;color:var(--sub);border-bottom:2px solid transparent;transition:.15s}
 .tab-btn.active{color:var(--primary);border-bottom-color:var(--primary)}
 
-/* ============ 统计面板 ============ */
-.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
-.stat-card{background:#fff;border-radius:10px;padding:14px;text-align:center;box-shadow:var(--shadow)}
-.stat-card .num{font-size:20px;font-weight:700;color:var(--primary)}
-.stat-card .lbl{font-size:11px;color:var(--sub);margin-top:4px}
+/* ============ 紧凑统计栏 ============ */
+.stats-strip{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.stat-badge{background:#fff;border-radius:8px;padding:6px 12px;display:flex;align-items:center;gap:6px;font-size:12px;box-shadow:var(--shadow)}
+.stat-badge .num{font-size:14px;font-weight:700;color:var(--primary)}
+.stat-badge .lbl{color:var(--sub)}
 
 /* ============ 搜索/筛选 ============ */
-.control-bar{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
-.filter-group{display:flex;gap:8px;flex:1;min-width:280px;background:#fff;padding:8px 12px;border-radius:10px;box-shadow:var(--shadow);align-items:center}
-.filter-group input{flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:#fafbff;outline:none;min-width:100px}
+.control-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.filter-group{display:flex;gap:6px;flex:1;min-width:240px;background:#fff;padding:6px 10px;border-radius:10px;box-shadow:var(--shadow);align-items:center}
+.filter-group input{flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:#fafbff;outline:none;min-width:80px;font-size:13px}
 .filter-group input:focus{border-color:var(--primary)}
-.filter-group select{padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:#fafbff;outline:none;cursor:pointer;max-width:110px}
-.filter-group .count-info{font-size:12px;color:var(--sub);white-space:nowrap;margin-left:auto}
-.batch-group{display:flex;gap:8px;background:#fff;padding:8px 12px;border-radius:10px;box-shadow:var(--shadow);align-items:center}
-.batch-group .count{font-size:12px;color:var(--sub);margin-right:6px}
+.filter-group select{padding:7px 8px;border:1px solid var(--border);border-radius:8px;background:#fafbff;outline:none;cursor:pointer;max-width:100px;font-size:13px}
+.filter-group .count-info{font-size:11px;color:var(--sub);white-space:nowrap;margin-left:auto}
+.batch-group{display:flex;gap:6px;background:#fff;padding:6px 10px;border-radius:10px;box-shadow:var(--shadow);align-items:center}
+.batch-group .count{font-size:11px;color:var(--sub);margin-right:4px}
+
+/* ============ 折叠式智能识别 ============ */
+.smart-toggle{background:#fff;border-radius:10px;box-shadow:var(--shadow);padding:10px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;font-size:13px;font-weight:600}
+.smart-toggle .arrow{color:var(--sub);font-size:12px;transition:transform .2s}
+.smart-toggle.expanded .arrow{transform:rotate(180deg)}
+.smart-panel{background:#fff;border-radius:12px;padding:16px;box-shadow:var(--shadow);margin-bottom:12px;border:2px dashed #d0d7e8;display:none}
+.smart-panel.show{display:block}
+.smart-panel .hint{font-size:11px;color:var(--sub);margin-bottom:10px;line-height:1.6}
+.smart-panel .hint code{background:#f0f2f7;padding:1px 5px;border-radius:4px;font-family:Menlo,Consolas,monospace;font-size:10px;color:#5b7bf9}
+#smartInput{width:100%;min-height:90px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-family:Menlo,Consolas,monospace;font-size:12px;line-height:1.6;resize:vertical;background:#fafbff}
+#smartInput:focus{outline:2px solid var(--primary);border-color:transparent;background:#fff}
+.smart-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
 
 /* ============ 应用列表 ============ */
-.app-list{display:flex;flex-direction:column;gap:10px}
-.app-item{background:#fff;border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);border:1px solid transparent;transition:.15s;cursor:grab;position:relative}
+.app-list{display:flex;flex-direction:column;gap:8px}
+.app-item{background:#fff;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow);border:1px solid transparent;transition:.15s;cursor:grab;position:relative}
 .app-item.pinned-item{border-left:4px solid var(--pin)}
 .app-item:active{cursor:grabbing}
 .app-item:hover{border-color:#d0d7e8}
 .app-item.dragging{opacity:.5;background:#f0f2f7}
-.app-item .drag-handle{color:var(--muted);font-size:18px;cursor:grab;padding:0 4px;user-select:none}
+.app-item .drag-handle{color:var(--muted);font-size:16px;cursor:grab;padding:0 2px;user-select:none}
 .app-item .checkbox-wrap{display:flex;align-items:center}
-.app-item .checkbox-wrap input{width:18px;height:18px;accent-color:var(--primary);cursor:pointer}
-.app-item .icon{width:46px;height:46px;border-radius:10px;background:#f0f2f7;display:flex;justify-content:center;align-items:center;font-size:24px;flex-shrink:0;overflow:hidden}
+.app-item .checkbox-wrap input{width:16px;height:16px;accent-color:var(--primary);cursor:pointer}
+.app-item .icon{width:42px;height:42px;border-radius:10px;background:#f0f2f7;display:flex;justify-content:center;align-items:center;font-size:22px;flex-shrink:0;overflow:hidden}
 .app-item .icon img{width:100%;height:100%;object-fit:cover}
-.app-item .info{flex:1;min-width:0}
-.app-item .name{font-size:15px;font-weight:600;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.app-item .tag{font-size:10px;padding:2px 7px;border-radius:5px;font-weight:500}
+.app-item .info{flex:1;min-width:0;overflow:hidden}
+.app-item .name{font-size:14px;font-weight:600;display:flex;align-items:center;gap:5px;flex-wrap:wrap;line-height:1.4;word-break:break-word;overflow-wrap:anywhere}
+.app-item .tag{font-size:9px;padding:1px 6px;border-radius:4px;font-weight:500}
 .tag.id{background:#eef0f5;color:#888;font-family:Menlo,Consolas,monospace;font-weight:600}
 .tag.cat{background:#eef2ff;color:#5b7bf9}
 .tag.ver{background:#f0f2f7;color:var(--sub)}
@@ -86,27 +109,22 @@ input,select,textarea{font-family:inherit;font-size:14px}
 .tag.history{background:#fff4e0;color:#f08020}
 .tag.new{background:#fdecea;color:#e74c3c;font-weight:700}
 .tag.pin{background:#fff4e0;color:#f0a020;font-weight:700}
-.app-item .desc{font-size:12px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
-.app-item .ops{display:flex;gap:6px;flex-shrink:0}
-.empty-state{background:#fff;border-radius:12px;padding:60px 20px;text-align:center;color:var(--sub);box-shadow:var(--shadow)}
-.empty-state .em{font-size:50px;margin-bottom:12px}
+.tag.license-low{background:#e8f7ee;color:#22a06b}
+.tag.license-mid{background:#fff4e0;color:#f0a020}
+.tag.license-high{background:#fdecea;color:#e74c3c}
+.app-item .desc{font-size:11px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.app-item .ops{display:flex;gap:4px;flex-shrink:0}
+.app-item .ops .btn-mini{padding:3px 8px;font-size:11px}
+.empty-state{background:#fff;border-radius:12px;padding:50px 20px;text-align:center;color:var(--sub);box-shadow:var(--shadow)}
+.empty-state .em{font-size:40px;margin-bottom:10px}
 
 /* ============ 分页 ============ */
-.admin-pagination{display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap;margin-top:20px;user-select:none}
-.page-btn{min-width:34px;height:34px;padding:0 10px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--text);font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s}
+.admin-pagination{display:flex;justify-content:center;align-items:center;gap:5px;flex-wrap:wrap;margin-top:16px;user-select:none}
+.page-btn{min-width:32px;height:32px;padding:0 8px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--text);font-size:12px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s}
 .page-btn:active{transform:scale(.95)}
 .page-btn.active{background:var(--primary);color:#fff;border-color:transparent;font-weight:700}
 .page-btn:disabled{opacity:.35;cursor:not-allowed}
-.page-ellipsis{color:var(--sub);padding:0 4px;font-size:13px}
-
-/* ============ 智能识别 ============ */
-.smart-panel{background:#fff;border-radius:14px;padding:20px;box-shadow:var(--shadow);margin-bottom:20px;border:2px dashed #d0d7e8}
-.smart-panel h2{font-size:15px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px}
-.smart-panel .hint{font-size:12px;color:var(--sub);margin-bottom:12px;line-height:1.7}
-.smart-panel .hint code{background:#f0f2f7;padding:1px 6px;border-radius:4px;font-family:Menlo,Consolas,monospace;font-size:11px;color:#5b7bf9}
-#smartInput{width:100%;min-height:120px;padding:12px 14px;border:1px solid var(--border);border-radius:10px;font-family:Menlo,Consolas,monospace;font-size:13px;line-height:1.7;resize:vertical;background:#fafbff}
-#smartInput:focus{outline:2px solid var(--primary);border-color:transparent;background:#fff}
-.smart-actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.page-ellipsis{color:var(--sub);padding:0 3px;font-size:12px}
 
 /* ============ 弹窗 ============ */
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;justify-content:center;align-items:center;padding:20px;overflow-y:auto}
@@ -143,33 +161,28 @@ input,select,textarea{font-family:inherit;font-size:14px}
 .history-item input[type="text"],.history-item input:not([type]){width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:#fff}
 .history-empty{padding:12px;text-align:center;color:var(--muted);font-size:12px;background:#fafbff;border-radius:8px;border:1px dashed var(--border);margin-bottom:10px}
 .pin-preview{font-size:11px;color:var(--sub);margin-top:4px}
+.license-hint{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.5}
 
 /* ============ Toast ============ */
-.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(0,0,0,.85);color:#fff;padding:12px 20px;border-radius:12px;font-size:13px;opacity:0;transition:.3s;pointer-events:none;z-index:3000;max-width:90vw;display:flex;align-items:center;gap:10px;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(0,0,0,.85);color:#fff;padding:12px 20px;border-radius:12px;font-size:13px;opacity:0;transition:.3s;pointer-events:none;z-index:3000;max-width:90vw;word-break:break-word;overflow-wrap:anywhere;display:flex;align-items:center;gap:10px;box-shadow:0 4px 12px rgba(0,0,0,.2)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
 .toast.ok{background:#22a06b}
 .toast.err{background:#e74c3c}
-.toast button{background:rgba(255,255,255,.25);border:none;color:#fff;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer}
+.toast button{background:rgba(255,255,255,.25);border:none;color:#fff;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0}
 .toast button:hover{background:rgba(255,255,255,.4)}
 .error-msg{font-size:11px;color:var(--danger);margin-top:3px;display:none}
 .input-error{border-color:var(--danger) !important}
 
-/* ============ 帮助 ============ */
-.help{background:#fff;border-radius:12px;padding:16px 20px;box-shadow:var(--shadow);margin-top:20px;font-size:12px;color:var(--sub);line-height:1.9}
+/* ============ 帮助（★ 溢出修复） ============ */
+.help{background:#fff;border-radius:12px;padding:14px 18px;box-shadow:var(--shadow);margin-top:16px;font-size:11px;color:var(--sub);line-height:1.9;word-break:break-word;overflow-wrap:anywhere}
 .help b{color:var(--text)}
-.help code{background:#f0f2f7;padding:1px 6px;border-radius:4px;font-family:Menlo,Consolas,monospace;font-size:11px;color:#5b7bf9}
+.help code{background:#f0f2f7;padding:1px 6px;border-radius:4px;font-family:Menlo,Consolas,monospace;font-size:11px;color:#5b7bf9;word-break:break-all;overflow-wrap:anywhere;display:inline-block;max-width:100%}
 
 @media (max-width:600px){
-  .toolbar h1{font-size:15px}
-  .toolbar .actions{width:100%}
-  .toolbar .actions .btn{flex:1;font-size:12px;padding:8px 10px}
-  .stats-bar{grid-template-columns:1fr 1fr}
-  .link-row{grid-template-columns:80px 1fr 80px 30px;gap:6px}
+  .toolbar h1{font-size:14px}
+  .app-item .ops{flex-direction:column;gap:3px}
+  .link-row{grid-template-columns:70px 1fr 70px 28px;gap:5px}
   .form-row.two-col{grid-template-columns:1fr}
-  .app-item .ops{flex-direction:column;gap:4px}
-  .admin-pagination .page-btn{padding:0 8px;font-size:12px;min-width:30px;height:30px}
-  .filter-group{flex-wrap:wrap}
-  .filter-group input{width:100%}
 }
 </style>
 </head>
@@ -190,19 +203,26 @@ input,select,textarea{font-family:inherit;font-size:14px}
 
 <div id="globalError"></div>
 
-<!-- ============ 工具栏 ============ -->
+<!-- ============ 精简工具栏 ============ -->
 <header class="toolbar">
-  <h1>🔧 WL软件库 · 后台管理 <span class="stats" id="statsText">共 0 个应用</span></h1>
-  <div class="actions">
-    <button class="btn ghost" onclick="reloadFromServer()">🔄 重新拉取</button>
-    <button class="btn primary" onclick="openEditor()">➕ 新建应用</button>
-    <button class="btn" onclick="document.getElementById('importFile').click()">📥 导入 JSON</button>
-    <button class="btn" onclick="importCSV()">📊 导入 CSV</button>
-    <button class="btn" onclick="checkLinks()">🩺 链接检查</button>
-    <button class="btn" onclick="showLogs()">📋 操作日志</button>
-    <button class="btn" onclick="clearAll()">🗑 清空数据</button>
-    <button class="btn success" onclick="exportJson()">📤 导出 data.json</button>
-    <button class="btn ghost" onclick="logout()">🚪 退出登录</button>
+  <div class="toolbar-top">
+    <h1>🔧 WL软件库 <span class="stats" id="statsText">共 0 个</span></h1>
+    <div class="toolbar-actions">
+      <button class="btn primary" onclick="openEditor()">➕ 新建</button>
+      <button class="btn success" onclick="exportJson()">📤 导出</button>
+      <div class="more-menu">
+        <button class="btn ghost icon-only" onclick="toggleMoreMenu(event)" title="更多">⋯</button>
+        <div class="more-dropdown" id="moreDropdown">
+          <button onclick="reloadFromServer();closeMoreMenu()">🔄 重新拉取</button>
+          <button onclick="document.getElementById('importFile').click();closeMoreMenu()">📥 导入 JSON</button>
+          <button onclick="importCSV();closeMoreMenu()">📊 导入 CSV</button>
+          <button onclick="checkLinks();closeMoreMenu()">🩺 链接检查</button>
+          <button onclick="showLogs();closeMoreMenu()">📋 操作日志</button>
+          <button class="danger" onclick="clearAll();closeMoreMenu()">🗑 清空数据</button>
+          <button class="danger" onclick="logout()">🚪 退出登录</button>
+        </div>
+      </div>
+    </div>
   </div>
   <input type="file" id="importFile" accept=".json,application/json" style="display:none" onchange="importJson(event)">
   <input type="file" id="csvFile" accept=".csv,text/csv" style="display:none" onchange="handleCSV(event)">
@@ -218,31 +238,37 @@ input,select,textarea{font-family:inherit;font-size:14px}
 
   <!-- ============ 应用管理 ============ -->
   <div id="appsView">
-    <div class="stats-bar">
-      <div class="stat-card"><div class="num" id="statTotal">0</div><div class="lbl">总应用数</div></div>
-      <div class="stat-card"><div class="num" id="statAnd">0</div><div class="lbl">安卓应用</div></div>
-      <div class="stat-card"><div class="num" id="statIos">0</div><div class="lbl">iOS 应用</div></div>
-      <div class="stat-card"><div class="num" id="statNew">0</div><div class="lbl">今日新增</div></div>
+    <!-- 紧凑统计栏 -->
+    <div class="stats-strip">
+      <div class="stat-badge"><span class="num" id="statTotal">0</span><span class="lbl">总应用</span></div>
+      <div class="stat-badge"><span class="num" id="statAnd">0</span><span class="lbl">安卓</span></div>
+      <div class="stat-badge"><span class="num" id="statIos">0</span><span class="lbl">iOS</span></div>
+      <div class="stat-badge"><span class="num" id="statNew">0</span><span class="lbl">今日新增</span></div>
     </div>
 
+    <!-- 搜索栏 -->
     <div class="control-bar">
       <div class="filter-group">
         <input type="text" id="adminSearchInput" placeholder="🔍 搜索名称、分类、ID..." oninput="onAdminSearch()">
         <select id="adminCategoryFilter" onchange="onAdminCategoryChange()"><option value="">全部分类</option></select>
-        <button class="btn ghost" onclick="clearAdminFilter()" style="padding:6px 10px;font-size:12px">清空</button>
-        <span class="count-info" id="filterCount">共 0 条结果</span>
+        <button class="btn-mini" onclick="clearAdminFilter()">清空</button>
+        <span class="count-info" id="filterCount">0 条</span>
       </div>
       <div class="batch-group" id="batchGroup" style="display:none">
-        <span class="count" id="batchCount">已选 0 项</span>
-        <button class="btn-mini danger" onclick="batchDelete()">批量删除</button>
-        <button class="btn-mini primary" onclick="batchSetCategory()">批量改分类</button>
+        <span class="count" id="batchCount">已选 0</span>
+        <button class="btn-mini danger" onclick="batchDelete()">删除</button>
+        <button class="btn-mini primary" onclick="batchSetCategory()">改分类</button>
       </div>
     </div>
 
-    <section class="smart-panel">
-      <h2>✨ 智能识别（粘贴自动填表）</h2>
+    <!-- 折叠式智能识别 -->
+    <div class="smart-toggle" onclick="toggleSmartPanel(this)" id="smartToggle">
+      <span>✨ 智能识别（粘贴自动填表）</span>
+      <span class="arrow">▼</span>
+    </div>
+    <section class="smart-panel" id="smartPanel">
       <div class="hint">
-        粘贴包含<b>网盘链接</b>和 <b>App Store 链接</b>的任意文本，系统会自动识别平台、链接、提取码并填入表单。<br>
+        粘贴包含<b>网盘链接</b>和 <b>App Store 链接</b>的文本，系统自动识别平台、链接、提取码并填入表单。<br>
         支持：<code>夸克</code> <code>百度</code> <code>蓝奏云</code> <code>阿里云盘</code> <code>123云盘</code> <code>迅雷</code> <code>115</code> <code>移动云盘</code> <code>天翼云盘</code> <code>微云</code> <code>UC网盘</code>
       </div>
       <textarea id="smartInput" placeholder="在此粘贴文本，例如：&#10;&#10;小柿子影视 v2.1.9&#10;追剧神器，电影动漫全部高清免费看&#10;&#10;夸克网盘：https://pan.quark.cn/s/abc123&#10;百度网盘：https://pan.baidu.com/s/1xyz 提取码：1234&#10;&#10;App Store：https://apps.apple.com/cn/app/id123456"></textarea>
@@ -252,6 +278,7 @@ input,select,textarea{font-family:inherit;font-size:14px}
       </div>
     </section>
 
+    <!-- 应用列表 -->
     <section>
       <div id="appListContainer" class="app-list"></div>
       <div class="admin-pagination" id="adminPagination"></div>
@@ -260,29 +287,30 @@ input,select,textarea{font-family:inherit;font-size:14px}
 
   <!-- ============ 数据统计 ============ -->
   <div id="statsView" style="display:none">
-    <div style="background:#fff;border-radius:12px;padding:20px;box-shadow:var(--shadow);margin-bottom:20px">
-      <h3 style="font-size:15px;margin-bottom:16px">🔧 数据源配置</h3>
-      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <input type="text" id="statsEndpoint" placeholder="Cloudflare Worker 地址，如 https://xxx.workers.dev" style="flex:1;min-width:240px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:#fafbff">
+    <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:var(--shadow);margin-bottom:16px">
+      <h3 style="font-size:14px;margin-bottom:12px">🔧 数据源配置</h3>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <input type="text" id="statsEndpoint" placeholder="Cloudflare Worker 地址" style="flex:1;min-width:200px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:#fafbff;font-size:13px">
         <button class="btn primary" onclick="loadStats()">🔄 加载统计</button>
         <button class="btn" onclick="document.getElementById('statsEndpoint').value='';localStorage.removeItem('wl_stats_endpoint')">清空</button>
       </div>
-      <p style="font-size:12px;color:var(--sub);margin-top:10px">提示：51.LA 事件数据请登录 51.LA 后台查看。此页展示自建 Cloudflare Worker 的原始日志。</p>
+      <p style="font-size:11px;color:var(--sub);margin-top:8px">提示：51.LA 事件数据请登录 51.LA 后台查看。此页展示自建 Cloudflare Worker 的原始日志。</p>
     </div>
     <div id="statsContent"></div>
   </div>
 
   <section class="help" id="helpSection">
     <b>使用说明：</b><br>
-    1. <b>后台密码</b>：首次使用会引导你设置密码，哈希存本地，建议配合服务器 HTTP Basic Auth。<br>
+    1. <b>后台密码</b>：首次使用会引导设置密码，哈希存本地，建议配合服务器 HTTP Basic Auth。<br>
     2. <b>置顶</b>：勾选后强制排最前，可设小时/天/月，过期自动取消。<br>
-    3. <b>历史版本特点</b>：在编辑弹窗「📜 历史版本」区填写一行小字描述，前端展示在版本号下方。<br>
-    4. <b>拖拽排序</b>：按住卡片左侧 ☰ 图标拖动。<br>
-    5. <b>撤销</b>：删除后 5 秒内可撤销。<br>
-    6. <b>链接健康检查</b>：批量检测下载链接可达性（no-cors 模式，仅供参考）。<br>
-    7. <b>操作日志</b>：记录最近 200 条增删改记录。<br>
-    8. <b>CSV 导入</b>：支持 name,icon,desc,category,version,androidUrl,pwd,iosUrl,addedAt 字段。<br>
-    9. 快捷键：<code>Ctrl + S</code> 保存正在编辑的表单。<br>
+    3. <b>版权来源</b>：为每个应用标注来源（开源/免费/官方/网络/影视），前端显示彩色标签。<br>
+    4. <b>历史版本特点</b>：在编辑弹窗「📜 历史版本」区填写小字描述。<br>
+    5. <b>拖拽排序</b>：按住卡片左侧 ☰ 图标拖动。<br>
+    6. <b>撤销</b>：删除后 5 秒内可撤销。<br>
+    7. <b>链接健康检查</b>：批量检测下载链接可达性（no-cors 模式，仅供参考）。<br>
+    8. <b>操作日志</b>：记录最近 200 条增删改记录。<br>
+    9. <b>CSV 导入</b>：支持字段 <code>name</code> <code>icon</code> <code>desc</code> <code>category</code> <code>version</code> <code>androidUrl</code> <code>pwd</code> <code>iosUrl</code> <code>addedAt</code> <code>note</code> <code>license</code>。<br>
+    10. <b>快捷键</b>：<code>Ctrl + S</code> 保存正在编辑的表单。<br>
     <b style="color:#e74c3c">⚠️ 上线后请用难以猜测的文件名替换 admin.html。</b>
   </section>
 </div>
@@ -310,9 +338,29 @@ input,select,textarea{font-family:inherit;font-size:14px}
         <input id="f_category" list="categoryList" placeholder="工具 / 影视 / 音乐 / 阅读 / 游戏 / 社交">
         <datalist id="categoryList"></datalist>
       </div>
+
+      <div class="form-row two-col">
+        <div>
+          <label>版权来源</label>
+          <select id="f_license">
+            <option value="">未标注</option>
+            <option value="开源软件">开源软件（MIT/Apache/GPL 等）</option>
+            <option value="免费软件">免费软件</option>
+            <option value="官方版本">官方原版</option>
+            <option value="网络来源">网络来源</option>
+            <option value="影视相关">影视相关</option>
+          </select>
+          <div class="license-hint">绿色=低风险，黄色=中，红色=高</div>
+        </div>
+        <div>
+          <label>来源补充说明（可选）</label>
+          <input id="f_licenseNote" placeholder="如：MIT 协议，GitHub 开源">
+        </div>
+      </div>
+
       <div class="form-row">
         <label>添加日期（YYYY-MM-DD）</label>
-        <input id="f_addedAt" placeholder="2026-09-22" oninput="validateDate(this)">
+        <input id="f_addedAt" placeholder="2026-09-24" oninput="validateDate(this)">
         <div class="error-msg" id="err_addedAt">请输入正确的日期格式</div>
       </div>
       <div class="form-row"><label>描述</label><textarea id="f_desc" rows="2" placeholder="一句话介绍这个应用"></textarea></div>
@@ -376,7 +424,7 @@ input,select,textarea{font-family:inherit;font-size:14px}
 
 <div class="toast" id="toast"></div>
 
-<!-- ============ Sortable 按需加载（不阻塞主流程） ============ -->
+<!-- ============ Sortable 按需加载 ============ -->
 <script>
   (function(){
     var s = document.createElement('script');
@@ -394,16 +442,33 @@ window.onerror = function(msg, url, line){
   return false;
 };
 
+/* ==================== 更多菜单 ==================== */
+function toggleMoreMenu(e){
+  e.stopPropagation();
+  document.getElementById('moreDropdown').classList.toggle('show');
+}
+function closeMoreMenu(){
+  document.getElementById('moreDropdown').classList.remove('show');
+}
+document.addEventListener('click', e => {
+  if(!e.target.closest('.more-menu')) closeMoreMenu();
+});
+
+/* ==================== 折叠智能识别 ==================== */
+function toggleSmartPanel(el){
+  el.classList.toggle('expanded');
+  document.getElementById('smartPanel').classList.toggle('show');
+}
+
 /* ==================== 登录/密码 ==================== */
 const LS_AUTH_HASH = 'wl_admin_pwd_hash';
 const SS_AUTH_TOKEN = 'wl_admin_token';
-let authMode = 'setup'; // setup | login
+let authMode = 'setup';
 
 async function sha256(str){
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
 }
-
 function initAuth(){
   const saved = localStorage.getItem(LS_AUTH_HASH);
   const token = sessionStorage.getItem(SS_AUTH_TOKEN);
@@ -419,7 +484,6 @@ function initAuth(){
   document.getElementById('authGate').style.display = 'flex';
   setTimeout(() => document.getElementById('authPwd').focus(), 100);
 }
-
 async function doAuth(){
   const pwd = document.getElementById('authPwd').value;
   if(!pwd){ alert('请输入密码'); return; }
@@ -443,7 +507,6 @@ async function doAuth(){
     document.getElementById('authPwd').value = '';
   }
 }
-
 function logout(){
   if(!confirm('确定退出登录？')) return;
   sessionStorage.removeItem(SS_AUTH_TOKEN);
@@ -498,6 +561,13 @@ async function copyText(text){
   try{ document.execCommand('copy'); }catch(e){}
   document.body.removeChild(ta);
 }
+function getLicenseClass(license){
+  if(!license) return '';
+  if(license.includes('开源') || license.includes('官方') || license.includes('免费')) return 'license-low';
+  if(license.includes('网络')) return 'license-mid';
+  if(license.includes('影视')) return 'license-high';
+  return 'license-mid';
+}
 
 /* ==================== 操作日志 ==================== */
 function logAction(type, detail){
@@ -513,18 +583,18 @@ function showLogs(){
   const c = document.getElementById('appListContainer');
   const colorMap = { delete: '#e74c3c', add: '#22a06b', edit: '#5b7bf9', auth: '#f0a020', import: '#5b7bf9', csv: '#5b7bf9', check: '#f0a020' };
   c.innerHTML = `<div style="background:#fff;border-radius:12px;padding:20px;box-shadow:var(--shadow)">
-    <h3 style="margin:0 0 16px">📋 操作日志（最近 200 条）</h3>
+    <h3 style="margin:0 0 16px;font-size:14px">📋 操作日志（最近 200 条）</h3>
     ${logs.length ? logs.map(l => {
       const d = new Date(l.t);
       const time = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
       const color = colorMap[l.type] || '#5b7bf9';
-      return `<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;display:flex;gap:10px;align-items:flex-start">
-        <span style="color:#888;width:80px;flex-shrink:0">${time}</span>
-        <span style="color:${color};font-weight:600;width:60px;flex-shrink:0">${esc(l.type)}</span>
-        <span style="flex:1;word-break:break-word">${esc(l.detail)}</span>
+      return `<div style="padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;display:flex;gap:8px;align-items:flex-start">
+        <span style="color:#888;width:75px;flex-shrink:0;font-size:11px">${time}</span>
+        <span style="color:${color};font-weight:600;width:55px;flex-shrink:0;font-size:11px">${esc(l.type)}</span>
+        <span style="flex:1;word-break:break-word;overflow-wrap:anywhere">${esc(l.detail)}</span>
       </div>`;
     }).join('') : '<p style="color:#888">暂无日志</p>'}
-    <div style="display:flex;gap:10px;margin-top:16px">
+    <div style="display:flex;gap:8px;margin-top:14px">
       <button class="btn" onclick="render()">← 返回</button>
       <button class="btn danger" onclick="if(confirm('确定清空所有日志？')){localStorage.removeItem('${LS_LOGS}');showLogs();}">清空日志</button>
     </div>
@@ -542,7 +612,6 @@ async function fetchWithTimeout(url, timeout = 4000){
     return res;
   }catch(err){ clearTimeout(timer); throw err; }
 }
-
 async function init(){
   const local = loadLocal();
   if(local && Array.isArray(local.apps)){
@@ -555,7 +624,8 @@ async function init(){
     try{
       const res = await fetchWithTimeout('./data.json?t=' + Date.now());
       if(res.ok){
-        const json = await res.json();
+        const text = await res.text();
+        const json = JSON.parse(text);
         if(Array.isArray(json.apps)) DB = json;
       }
     }catch(e){
@@ -570,13 +640,13 @@ async function init(){
   }, 1000);
   setInterval(autoSaveDraft, 3000);
 }
-
 async function reloadFromServer(){
   if(!confirm('将从服务器重新加载 data.json，本地未导出的修改会丢失。继续？')) return;
   try{
     const res = await fetchWithTimeout('./data.json?t=' + Date.now(), 5000);
     if(!res.ok) throw new Error('HTTP ' + res.status);
-    const json = await res.json();
+    const text = await res.text();
+    const json = JSON.parse(text);
     if(!Array.isArray(json.apps)) throw new Error('数据格式错误');
     DB = json; save(); adminPage = 1; selectedIds.clear();
     render();
@@ -641,7 +711,7 @@ function updateStats(){
   const newCount = DB.apps.filter(a => a.addedAt === today()).length;
   const set = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
   set('statTotal', total); set('statAnd', andCount); set('statIos', iosCount); set('statNew', newCount);
-  set('statsText', `共 ${total} 个应用`);
+  set('statsText', `共 ${total} 个`);
 }
 function renderCategoryFilterOptions(){
   const cats = new Set();
@@ -672,7 +742,7 @@ function renderAdminPagination(page, totalPages, total){
   });
   html += `<button class="page-btn" ${page===totalPages?'disabled':''} onclick="gotoAdminPage(${page+1})">›</button>`;
   html += `<button class="page-btn" ${page===totalPages?'disabled':''} onclick="gotoAdminPage(${totalPages})">»</button>`;
-  html += `<span style="font-size:12px;color:var(--sub);margin-left:10px">第 ${page}/${totalPages} 页，共 ${total} 条</span>`;
+  html += `<span style="font-size:11px;color:var(--sub);margin-left:8px">${page}/${totalPages} 页 · ${total} 条</span>`;
   el.innerHTML = html;
 }
 function gotoAdminPage(p){
@@ -699,7 +769,7 @@ function render(){
     currentFilteredApps = currentFilteredApps.filter(a => a.category === adminCategory);
   }
   const elCount = document.getElementById('filterCount');
-  if(elCount) elCount.textContent = `共 ${currentFilteredApps.length} 条结果`;
+  if(elCount) elCount.textContent = `${currentFilteredApps.length} 条`;
   const c = document.getElementById('appListContainer');
   if(!c) return;
 
@@ -708,7 +778,7 @@ function render(){
       <div class="em">🔍</div>
       <div>${adminKeyword || adminCategory ? '没有找到匹配的应用' : '暂无应用'}</div>
       <div style="font-size:12px;margin-top:8px;opacity:.7">
-        ${adminKeyword || adminCategory ? '试试更换搜索词或分类' : '点击右上角「新建应用」或使用「智能识别」开始'}
+        ${adminKeyword || adminCategory ? '试试更换搜索词或分类' : '点击右上角「新建」开始'}
       </div>
     </div>`;
     document.getElementById('adminPagination').innerHTML = '';
@@ -735,7 +805,7 @@ function render(){
   if(batchGroup){
     if(selectedIds.size > 0){
       batchGroup.style.display = 'flex';
-      document.getElementById('batchCount').textContent = `已选 ${selectedIds.size} 项`;
+      document.getElementById('batchCount').textContent = `已选 ${selectedIds.size}`;
     } else {
       batchGroup.style.display = 'none';
     }
@@ -748,19 +818,20 @@ function renderAppItem(app){
   const iosTag = app.iosUrl
     ? (app.isTransform
         ? (app.iosType === 'clone' ? '<span class="tag ios-clone">👥 分身</span>' : '<span class="tag ios-transform">🎭 变身</span>')
-        : '<span class="tag ios-plain">🍎 App Store</span>')
-    : '<span class="tag" style="background:#f0f2f7;color:#a0a5b5">无 iOS</span>';
+        : '<span class="tag ios-plain">🍎 iOS</span>')
+    : '';
   const andTag = (app.androidLinks && app.androidLinks.length)
-    ? `<span class="tag and">📱 ${app.androidLinks.length} 条线路</span>`
-    : '<span class="tag" style="background:#f0f2f7;color:#a0a5b5">无安卓</span>';
+    ? `<span class="tag and">📱 ${app.androidLinks.length}</span>`
+    : '';
   const hCount = (app.historyVersions && app.historyVersions.length) || 0;
-  const historyTag = hCount ? `<span class="tag history">📜 ${hCount} 个历史版本</span>` : '';
+  const historyTag = hCount ? `<span class="tag history">📜 ${hCount}</span>` : '';
   let newTag = '';
   if(app.addedAt){
     const added = new Date(app.addedAt).getTime();
     if(Date.now() - added <= 7 * 86400000) newTag = '<span class="tag new">NEW</span>';
   }
-  const pinTag = isPin ? '<span class="tag pin">📌 置顶</span>' : '';
+  const pinTag = isPin ? '<span class="tag pin">📌</span>' : '';
+  const licenseTag = app.license ? `<span class="tag ${getLicenseClass(app.license)}">${esc(app.license)}</span>` : '';
   const iconHtml = app.iconUrl
     ? `<img src="${esc(app.iconUrl)}" alt="" onerror="this.parentNode.textContent='📦'">`
     : esc(app.icon || '📦');
@@ -775,12 +846,12 @@ function renderAppItem(app){
           <span class="tag id">#${app.id}</span>${esc(app.name)}
           <span class="tag ver">v${esc(app.version || '?')}</span>
           <span class="tag cat">${esc(app.category || '未分类')}</span>
-          ${andTag}${iosTag}${historyTag}${pinTag}${newTag}
+          ${licenseTag}${andTag}${iosTag}${historyTag}${pinTag}${newTag}
         </div>
-        <div class="desc">${esc(app.desc || '')}${app.note ? ' · ' + esc(app.note) : ''}</div>
+        <div class="desc">${esc(app.desc || '')}</div>
       </div>
       <div class="ops">
-        <button class="btn-mini" onclick="copyAppJson(${app.id})" title="复制 JSON">📋</button>
+        <button class="btn-mini" onclick="copyAppJson(${app.id})" title="复制">📋</button>
         <button class="btn-mini" onclick="moveApp(${app.id}, -1)" title="上移">↑</button>
         <button class="btn-mini" onclick="moveApp(${app.id}, 1)" title="下移">↓</button>
         <button class="btn-mini primary" onclick="openEditor(${app.id})">编辑</button>
@@ -796,7 +867,7 @@ function toggleSelect(id, checked){
   if(bg){
     if(selectedIds.size > 0){
       bg.style.display = 'flex';
-      document.getElementById('batchCount').textContent = `已选 ${selectedIds.size} 项`;
+      document.getElementById('batchCount').textContent = `已选 ${selectedIds.size}`;
     } else bg.style.display = 'none';
   }
 }
@@ -809,7 +880,7 @@ function batchDelete(){
   showUndoToast(`已删除 ${deletedApps.length} 个应用`, deletedApps);
 }
 function batchSetCategory(){
-  const cat = prompt('请输入要设置的分类（如：工具、影视）：');
+  const cat = prompt('请输入要设置的分类：');
   if(!cat || !cat.trim()) return;
   const trimmed = cat.trim();
   const count = selectedIds.size;
@@ -914,6 +985,8 @@ function openEditor(id, preset){
     document.getElementById('f_iconUrl').value = app.iconUrl || '';
     document.getElementById('f_addedAt').value = app.addedAt || '';
     document.getElementById('f_note').value = app.note || '';
+    document.getElementById('f_license').value = app.license || '';
+    document.getElementById('f_licenseNote').value = app.licenseNote || '';
     document.getElementById('f_isPinned').checked = isPinned(app);
     if(isPinned(app)){
       document.getElementById('f_pinDuration').value = 1;
@@ -930,7 +1003,8 @@ function openEditor(id, preset){
     if(!editingApp){
       editingApp = {
         id: Date.now(), name: '', icon: '📦', iconUrl: '', desc: '', category: '工具',
-        version: '', note: '', addedAt: today(), pinnedUntil: 0,
+        version: '', note: '', license: '', licenseNote: '',
+        addedAt: today(), pinnedUntil: 0,
         androidLinks: [], iosUrl: '', isTransform: false, iosType: 'transform',
         transformTip: '', historyVersions: []
       };
@@ -940,6 +1014,8 @@ function openEditor(id, preset){
     document.getElementById('f_iconUrl').value = editingApp.iconUrl || '';
     document.getElementById('f_addedAt').value = editingApp.addedAt || today();
     document.getElementById('f_note').value = editingApp.note || '';
+    document.getElementById('f_license').value = editingApp.license || '';
+    document.getElementById('f_licenseNote').value = editingApp.licenseNote || '';
     document.getElementById('f_isPinned').checked = false;
     togglePinFields();
   }
@@ -1128,6 +1204,8 @@ function autoSaveDraft(){
     addedAt: document.getElementById('f_addedAt').value.trim(),
     desc: document.getElementById('f_desc').value.trim(),
     note: document.getElementById('f_note').value.trim(),
+    license: document.getElementById('f_license').value,
+    licenseNote: document.getElementById('f_licenseNote').value.trim(),
     androidLinks: editingApp.androidLinks,
     iosUrl: document.getElementById('f_iosUrl').value.trim(),
     isTransform: document.getElementById('f_isTransform').checked,
@@ -1146,7 +1224,7 @@ function saveEditor(){
   const iconUrl = document.getElementById('f_iconUrl').value.trim();
   const dateRe = /^\d{4}-\d{2}-\d{2}$/;
   const urlRe = /^https?:\/\/.+/i;
-  if(addedAt && !dateRe.test(addedAt)){ toast('日期格式不正确，请使用 YYYY-MM-DD', 'err'); return; }
+  if(addedAt && !dateRe.test(addedAt)){ toast('日期格式不正确', 'err'); return; }
   if(iconUrl && !urlRe.test(iconUrl)){ toast('图标 URL 格式不正确', 'err'); return; }
 
   editingApp.name = name;
@@ -1155,6 +1233,8 @@ function saveEditor(){
   editingApp.version = document.getElementById('f_version').value.trim();
   editingApp.category = document.getElementById('f_category').value.trim() || '工具';
   editingApp.note = document.getElementById('f_note').value.trim();
+  editingApp.license = document.getElementById('f_license').value;
+  editingApp.licenseNote = document.getElementById('f_licenseNote').value.trim();
   editingApp.addedAt = addedAt || today();
   editingApp.desc = document.getElementById('f_desc').value.trim();
   editingApp.iosUrl = document.getElementById('f_iosUrl').value.trim();
@@ -1209,6 +1289,7 @@ function smartParse(){
   const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
   const result = {
     name: '', icon: '📦', iconUrl: '', desc: '', category: '工具', version: '', note: '',
+    license: '', licenseNote: '',
     addedAt: today(), pinnedUntil: 0,
     androidLinks: [], iosUrl: '', isTransform: false, iosType: 'transform', transformTip: ''
   };
@@ -1260,7 +1341,7 @@ function smartParse(){
   if(!result.name) result.name = '新应用';
   openEditor(null, result);
   document.getElementById('smartInput').value = '';
-  toast(`识别完成：${result.androidLinks.length} 条网盘${result.iosUrl ? ' + iOS 链接' : ''}`, 'ok');
+  toast(`识别完成：${result.androidLinks.length} 条网盘${result.iosUrl ? ' + iOS' : ''}`, 'ok');
 }
 
 /* ==================== 链接健康检查 ==================== */
@@ -1295,29 +1376,29 @@ async function checkLinks(){
     results.push({ ...link, ok, reason });
     done++;
     c.innerHTML = `<div style="padding:30px;text-align:center;color:#888">
-      正在检查链接... ${done}/${allLinks.length}
+      检查中... ${done}/${allLinks.length}
       <div style="margin-top:10px;font-size:12px;color:#aaa">当前：${esc(link.app)} · ${esc(link.provider)}</div>
     </div>`;
   }
 
   const failed = results.filter(r => !r.ok);
   c.innerHTML = `<div style="background:#fff;border-radius:12px;padding:20px;box-shadow:var(--shadow)">
-    <h3 style="margin:0 0 12px">🩺 链接健康检查结果</h3>
-    <p style="color:#666;font-size:13px;margin-bottom:16px">
-      共检查 <b>${results.length}</b> 条链接，<span style="color:#e74c3c;font-weight:600">${failed.length}</span> 条可能失效（no-cors 模式，仅供参考，部分平台会误报）
+    <h3 style="margin:0 0 12px;font-size:14px">🩺 链接健康检查结果</h3>
+    <p style="color:#666;font-size:12px;margin-bottom:16px">
+      共检查 <b>${results.length}</b> 条，<span style="color:#e74c3c;font-weight:600">${failed.length}</span> 条可能失效（no-cors 模式，仅供参考）
     </p>
     ${failed.length ? failed.map(f => `
-      <div style="padding:10px 0;border-bottom:1px solid var(--border);font-size:13px">
-        <b>${esc(f.app)}</b> · ${esc(f.provider)} · ${f.type === 'ios' ? '🍎 iOS' : '📱 安卓'}
+      <div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:12px">
+        <b>${esc(f.app)}</b> · ${esc(f.provider)} · ${f.type === 'ios' ? '🍎' : '📱'}
         <span style="color:#e74c3c;font-weight:600">⚠️ ${esc(f.reason || '可能失效')}</span>
         <div style="color:#888;font-size:11px;margin-top:2px;word-break:break-all">${esc(f.url)}</div>
       </div>
     `).join('') : '<p style="color:#22a06b">✅ 未检测到失效链接</p>'}
-    <div style="display:flex;gap:10px;margin-top:16px">
+    <div style="margin-top:14px">
       <button class="btn primary" onclick="render()">← 返回</button>
     </div>
   </div>`;
-  logAction('check', `链接检查完成，${results.length} 条中 ${failed.length} 条可能失效`);
+  logAction('check', `链接检查：${results.length} 条中 ${failed.length} 条可能失效`);
 }
 
 /* ==================== CSV 导入 ==================== */
@@ -1329,10 +1410,9 @@ function handleCSV(e){
   reader.onload = ev => {
     try{
       const lines = ev.target.result.split('\n').filter(l => l.trim());
-      if(lines.length < 2) throw new Error('CSV 至少需要表头 + 1 行数据');
+      if(lines.length < 2) throw new Error('CSV 至少需要表头 + 1 行');
       const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-      const requiredCols = ['name'];
-      if(!requiredCols.every(c => headers.includes(c))) throw new Error('缺少必需列：name');
+      if(!headers.includes('name')) throw new Error('缺少必需列：name');
 
       const newApps = [];
       for(let i = 1; i < lines.length; i++){
@@ -1342,20 +1422,12 @@ function handleCSV(e){
         if(!row.name) continue;
         newApps.push({
           id: Date.now() + i + Math.floor(Math.random() * 1000),
-          name: row.name,
-          icon: row.icon || '📦',
-          iconUrl: row.iconurl || '',
-          desc: row.desc || '',
-          category: row.category || '工具',
-          version: row.version || '1.0.0',
-          note: row.note || '',
-          addedAt: row.addedat || today(),
-          pinnedUntil: 0,
+          name: row.name, icon: row.icon || '📦', iconUrl: row.iconurl || '',
+          desc: row.desc || '', category: row.category || '工具', version: row.version || '1.0.0',
+          note: row.note || '', license: row.license || '', licenseNote: row.licensenote || '',
+          addedAt: row.addedat || today(), pinnedUntil: 0,
           androidLinks: row.androidurl ? [{ provider: row.provider || '网盘', url: row.androidurl, pwd: row.pwd || '' }] : [],
-          iosUrl: row.iosurl || '',
-          isTransform: false,
-          iosType: 'transform',
-          transformTip: '',
+          iosUrl: row.iosurl || '', isTransform: false, iosType: 'transform', transformTip: '',
           historyVersions: []
         });
       }
@@ -1365,9 +1437,7 @@ function handleCSV(e){
       save(); render();
       logAction('csv', `CSV 导入 ${newApps.length} 个应用`);
       toast(`成功导入 ${newApps.length} 个应用`, 'ok');
-    }catch(err){
-      toast('导入失败：' + err.message, 'err');
-    }
+    }catch(err){ toast('导入失败：' + err.message, 'err'); }
     e.target.value = '';
   };
   reader.readAsText(file);
@@ -1380,9 +1450,8 @@ function parseCSVLine(line){
     if(c === '"'){
       if(inQuote && line[i+1] === '"'){ cur += '"'; i++; }
       else inQuote = !inQuote;
-    } else if(c === ',' && !inQuote){
-      result.push(cur); cur = '';
-    } else cur += c;
+    } else if(c === ',' && !inQuote){ result.push(cur); cur = ''; }
+    else cur += c;
   }
   result.push(cur);
   return result;
@@ -1394,15 +1463,9 @@ function checkDuplicateLinks(){
   let hasDup = false;
   DB.apps.forEach(app => {
     (app.androidLinks || []).forEach(l => {
-      if(l.url){
-        if(urlMap[l.url]) hasDup = true;
-        urlMap[l.url] = app.name;
-      }
+      if(l.url){ if(urlMap[l.url]) hasDup = true; urlMap[l.url] = app.name; }
     });
-    if(app.iosUrl){
-      if(urlMap[app.iosUrl]) hasDup = true;
-      urlMap[app.iosUrl] = app.name;
-    }
+    if(app.iosUrl){ if(urlMap[app.iosUrl]) hasDup = true; urlMap[app.iosUrl] = app.name; }
   });
   return hasDup;
 }
@@ -1437,9 +1500,7 @@ function importJson(event){
       render();
       logAction('import', `导入 JSON，共 ${data.apps.length} 个应用`);
       toast(`成功导入 ${data.apps.length} 个应用`, 'ok');
-    }catch(err){
-      toast('导入失败：' + err.message, 'err');
-    }
+    }catch(err){ toast('导入失败：' + err.message, 'err'); }
     event.target.value = '';
   };
   reader.readAsText(file);
@@ -1502,65 +1563,57 @@ function renderStatsView(stats, details){
   });
   const ranked = Object.entries(byApp).map(([appId, data]) => {
     const app = DB.apps.find(a => String(a.id) === String(appId));
-    return {
-      id: appId,
-      name: app ? app.name : '已删除应用 #' + appId,
-      icon: app ? (app.icon || '📦') : '❓',
-      total: data.total,
-      actions: data.actions
-    };
+    return { id: appId, name: app ? app.name : '已删除 #' + appId, icon: app ? (app.icon || '📦') : '❓', total: data.total, actions: data.actions };
   }).sort((a, b) => b.total - a.total);
 
   let html = '';
-  html += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px">
-    <div style="background:#fff;border-radius:10px;padding:16px;text-align:center;box-shadow:var(--shadow)">
-      <div style="font-size:24px;font-weight:700;color:var(--primary)">${totalClicks}</div>
-      <div style="font-size:12px;color:var(--sub);margin-top:4px">总点击量</div>
+  html += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">
+    <div style="background:#fff;border-radius:10px;padding:14px;text-align:center;box-shadow:var(--shadow)">
+      <div style="font-size:22px;font-weight:700;color:var(--primary)">${totalClicks}</div>
+      <div style="font-size:11px;color:var(--sub);margin-top:2px">总点击</div>
     </div>
-    <div style="background:#fff;border-radius:10px;padding:16px;text-align:center;box-shadow:var(--shadow)">
-      <div style="font-size:24px;font-weight:700;color:var(--success)">${ranked.length}</div>
-      <div style="font-size:12px;color:var(--sub);margin-top:4px">有下载的应用</div>
+    <div style="background:#fff;border-radius:10px;padding:14px;text-align:center;box-shadow:var(--shadow)">
+      <div style="font-size:22px;font-weight:700;color:var(--success)">${ranked.length}</div>
+      <div style="font-size:11px;color:var(--sub);margin-top:2px">有下载</div>
     </div>
-    <div style="background:#fff;border-radius:10px;padding:16px;text-align:center;box-shadow:var(--shadow)">
-      <div style="font-size:24px;font-weight:700;color:var(--warn)">${details.length}</div>
-      <div style="font-size:12px;color:var(--sub);margin-top:4px">明细记录数</div>
+    <div style="background:#fff;border-radius:10px;padding:14px;text-align:center;box-shadow:var(--shadow)">
+      <div style="font-size:22px;font-weight:700;color:var(--warn)">${details.length}</div>
+      <div style="font-size:11px;color:var(--sub);margin-top:2px">明细数</div>
     </div>
   </div>`;
 
-  html += '<div style="background:#fff;border-radius:12px;padding:20px;box-shadow:var(--shadow);margin-bottom:20px">';
-  html += '<h3 style="font-size:15px;margin-bottom:16px">🏆 应用下载排行</h3>';
-  if(!ranked.length){
-    html += '<div style="text-align:center;color:#888;padding:20px">暂无数据</div>';
-  } else {
+  html += '<div style="background:#fff;border-radius:12px;padding:16px;box-shadow:var(--shadow);margin-bottom:16px">';
+  html += '<h3 style="font-size:14px;margin-bottom:14px">🏆 应用下载排行</h3>';
+  if(!ranked.length){ html += '<div style="text-align:center;color:#888;padding:16px;font-size:13px">暂无数据</div>'; }
+  else {
     html += ranked.map((item, idx) => `
-      <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
-        <div style="width:24px;text-align:center;font-weight:700;color:${idx === 0 ? '#f0a020' : idx === 1 ? '#999' : idx === 2 ? '#cd7f32' : '#aaa'}">${idx + 1}</div>
-        <div style="font-size:22px">${item.icon}</div>
-        <div style="flex:1">
-          <div style="font-weight:600">${esc(item.name)}</div>
-          <div style="font-size:12px;color:var(--sub);margin-top:2px">
+      <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
+        <div style="width:22px;text-align:center;font-weight:700;font-size:13px;color:${idx === 0 ? '#f0a020' : idx === 1 ? '#999' : idx === 2 ? '#cd7f32' : '#aaa'}">${idx + 1}</div>
+        <div style="font-size:20px">${item.icon}</div>
+        <div style="flex:1;min-width:0;overflow:hidden">
+          <div style="font-weight:600;font-size:13px;word-break:break-word">${esc(item.name)}</div>
+          <div style="font-size:11px;color:var(--sub);margin-top:1px;word-break:break-word">
             ${Object.entries(item.actions).map(([a, c]) => esc(a) + ': ' + c).join(' · ')}
           </div>
         </div>
-        <div style="font-size:18px;font-weight:700;color:var(--primary)">${item.total}</div>
+        <div style="font-size:16px;font-weight:700;color:var(--primary)">${item.total}</div>
       </div>`).join('');
   }
   html += '</div>';
 
-  html += '<div style="background:#fff;border-radius:12px;padding:20px;box-shadow:var(--shadow)">';
-  html += '<h3 style="font-size:15px;margin-bottom:16px">📋 最近 500 条明细</h3>';
-  if(!details.length){
-    html += '<div style="text-align:center;color:#888;padding:20px">暂无数据</div>';
-  } else {
+  html += '<div style="background:#fff;border-radius:12px;padding:16px;box-shadow:var(--shadow)">';
+  html += '<h3 style="font-size:14px;margin-bottom:14px">📋 最近 500 条明细</h3>';
+  if(!details.length){ html += '<div style="text-align:center;color:#888;padding:16px;font-size:13px">暂无数据</div>'; }
+  else {
     html += '<div style="max-height:500px;overflow-y:auto">';
     html += details.slice(0, 500).map(log => {
       const d = new Date(log.t);
       const time = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-      return `<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
-        <div style="color:var(--muted);width:80px;flex-shrink:0">${time}</div>
-        <div style="font-weight:600;flex:1">${esc(log.app || '未知应用')}</div>
-        <div style="color:var(--primary)">${esc(log.action || '')}</div>
-        <div style="color:var(--sub);font-size:11px">${esc(log.os || '')}</div>
+      return `<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">
+        <div style="color:var(--muted);width:75px;flex-shrink:0;font-size:11px">${time}</div>
+        <div style="font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(log.app || '未知')}</div>
+        <div style="color:var(--primary);font-size:11px">${esc(log.action || '')}</div>
+        <div style="color:var(--sub);font-size:10px">${esc(log.os || '')}</div>
       </div>`;
     }).join('');
     html += '</div>';
