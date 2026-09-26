@@ -1605,7 +1605,7 @@ function parseDeviceInfo(line){
     if(parts.length>0){
       const el=document.getElementById('infoBand');
       if(parts.length===2&&parts[1]<=8){
-        const band=parts[0];
+        const band=parts[1];
         if(band>0&&band<300){
           el.textContent=`LTE B${band}`;
           el.className='info-value net4g';
