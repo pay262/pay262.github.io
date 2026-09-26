@@ -31,12 +31,8 @@
     display: flex;
     flex-direction: column;
   }
-
-  /* ── 顶栏 ── */
   .topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: flex; align-items: center; justify-content: space-between;
     padding: 12px 20px;
     background: var(--bg-panel);
     border-bottom: 1px solid var(--border);
@@ -53,15 +49,12 @@
   }
   .topbar h1 { font-size: 15px; font-weight: 600; }
   .topbar h1 span { color: var(--text-dim); font-weight: 400; font-size: 12px; margin-left: 6px; }
-
   .status-badge {
     display: flex; align-items: center; gap: 6px;
-    padding: 5px 12px;
-    border-radius: 20px;
+    padding: 5px 12px; border-radius: 20px;
     background: var(--bg-card);
     border: 1px solid var(--border);
-    font-size: 12px;
-    color: var(--text-dim);
+    font-size: 12px; color: var(--text-dim);
     transition: all .3s;
   }
   .status-badge.connected {
@@ -70,8 +63,7 @@
     background: rgba(46,204,113,.08);
   }
   .status-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
+    width: 8px; height: 8px; border-radius: 50%;
     background: var(--text-dim);
     transition: background .3s;
   }
@@ -79,12 +71,10 @@
     background: var(--success);
     box-shadow: 0 0 8px rgba(46,204,113,.6);
   }
-
-  /* ── 主布局 ── */
   .main {
     flex: 1;
     display: grid;
-    grid-template-columns: 300px 1fr 280px;
+    grid-template-columns: 300px 1fr 300px;
     gap: 0;
     overflow: hidden;
     height: calc(100vh - 57px);
@@ -93,137 +83,88 @@
     .main { grid-template-columns: 1fr; height: auto; overflow: auto; }
     .panel { border-right: none !important; border-bottom: 1px solid var(--border); }
   }
-
-  .panel {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
+  .panel { display: flex; flex-direction: column; overflow: hidden; }
   .panel-left { border-right: 1px solid var(--border); }
   .panel-right { border-left: 1px solid var(--border); }
-
   .panel-header {
     padding: 14px 16px;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: .8px;
+    font-size: 12px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .8px;
     color: var(--text-dim);
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: flex; align-items: center; justify-content: space-between;
   }
   .panel-body { flex: 1; overflow-y: auto; padding: 14px 16px; }
-
-  /* ── 连接面板 ── */
   .conn-tabs {
-    display: flex;
-    gap: 0;
-    margin-bottom: 14px;
-    background: var(--bg-card);
-    border-radius: 8px;
-    padding: 3px;
+    display: flex; gap: 0; margin-bottom: 14px;
+    background: var(--bg-card); border-radius: 8px; padding: 3px;
   }
   .conn-tab {
-    flex: 1;
-    padding: 7px 0;
-    text-align: center;
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text-dim);
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all .2s;
-    border: none;
-    background: none;
+    flex: 1; padding: 7px 0; text-align: center;
+    font-size: 12px; font-weight: 500;
+    color: var(--text-dim); border-radius: 6px;
+    cursor: pointer; transition: all .2s;
+    border: none; background: none;
   }
   .conn-tab.active {
-    background: var(--accent);
-    color: #fff;
+    background: var(--accent); color: #fff;
     box-shadow: 0 2px 8px var(--accent-glow);
   }
   .conn-tab:hover:not(.active) { color: var(--text); background: rgba(255,255,255,.04); }
-
   .form-group { margin-bottom: 12px; }
   .form-group label {
-    display: block;
-    font-size: 11px;
-    color: var(--text-dim);
-    margin-bottom: 5px;
-    font-weight: 500;
+    display: block; font-size: 11px;
+    color: var(--text-dim); margin-bottom: 5px; font-weight: 500;
   }
   .form-control {
-    width: 100%;
-    padding: 8px 11px;
+    width: 100%; padding: 8px 11px;
     background: var(--bg-input);
     border: 1px solid var(--border);
-    border-radius: 7px;
-    color: var(--text);
-    font-size: 13px;
-    font-family: var(--font-mono);
-    outline: none;
-    transition: border-color .2s;
+    border-radius: 7px; color: var(--text);
+    font-size: 13px; font-family: var(--font-mono);
+    outline: none; transition: border-color .2s;
   }
   .form-control:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
   select.form-control { cursor: pointer; }
-
   .btn {
-    width: 100%;
-    padding: 9px;
-    border: none;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all .2s;
-    font-family: inherit;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
+    width: 100%; padding: 9px; border: none;
+    border-radius: 8px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all .2s; font-family: inherit;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
   }
   .btn:disabled { opacity: .45; cursor: not-allowed; }
   .btn-primary {
-    background: var(--accent);
-    color: #fff;
+    background: var(--accent); color: #fff;
     box-shadow: 0 2px 10px var(--accent-glow);
   }
   .btn-primary:hover:not(:disabled) { background: #6b92ff; transform: translateY(-1px); }
   .btn-danger {
-    background: rgba(231,76,60,.15);
-    color: var(--error);
+    background: rgba(231,76,60,.15); color: var(--error);
     border: 1px solid rgba(231,76,60,.3);
   }
   .btn-danger:hover:not(:disabled) { background: rgba(231,76,60,.25); }
+  .btn-warn {
+    background: rgba(243,156,18,.12); color: var(--warn);
+    border: 1px solid rgba(243,156,18,.3);
+  }
+  .btn-warn:hover:not(:disabled) { background: rgba(243,156,18,.22); }
   .btn-sm { padding: 6px 10px; font-size: 11px; width: auto; }
   .btn-outline {
-    background: transparent;
-    color: var(--text-dim);
+    background: transparent; color: var(--text-dim);
     border: 1px solid var(--border);
   }
   .btn-outline:hover:not(:disabled) { color: var(--text); border-color: var(--text-dim); }
-
   .btn-row { display: flex; gap: 8px; margin-top: 10px; }
   .btn-row .btn { flex: 1; }
-
-  /* ── 终端 ── */
   .terminal-wrap {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    background: #0a0c12;
+    flex: 1; display: flex; flex-direction: column;
+    overflow: hidden; background: #0a0c12;
   }
   .terminal {
-    flex: 1;
-    overflow-y: auto;
-    padding: 12px 16px;
-    font-family: var(--font-mono);
-    font-size: 12.5px;
-    line-height: 1.7;
-    color: #c8cdd8;
+    flex: 1; overflow-y: auto; padding: 12px 16px;
+    font-family: var(--font-mono); font-size: 12.5px;
+    line-height: 1.7; color: #c8cdd8;
   }
   .terminal .line { display: flex; gap: 8px; }
   .terminal .prefix { flex-shrink: 0; user-select: none; }
@@ -233,179 +174,160 @@
   .terminal .prefix.info { color: var(--warn); }
   .terminal .content { word-break: break-all; white-space: pre-wrap; }
   .terminal .content.err { color: #ff8a80; }
-
   .terminal-input-row {
-    display: flex;
-    gap: 0;
+    display: flex; gap: 0;
     border-top: 1px solid var(--border);
-    background: var(--bg-panel);
-    padding: 8px 12px;
-    align-items: center;
+    background: var(--bg-panel); padding: 8px 12px; align-items: center;
   }
   .terminal-input-row .prompt {
-    color: var(--accent);
-    font-family: var(--font-mono);
-    font-size: 13px;
-    font-weight: 600;
-    margin-right: 8px;
-    flex-shrink: 0;
+    color: var(--accent); font-family: var(--font-mono);
+    font-size: 13px; font-weight: 600; margin-right: 8px; flex-shrink: 0;
   }
   .terminal-input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    outline: none;
-    color: var(--text);
-    font-family: var(--font-mono);
-    font-size: 13px;
-    padding: 4px 0;
+    flex: 1; background: transparent; border: none;
+    outline: none; color: var(--text);
+    font-family: var(--font-mono); font-size: 13px; padding: 4px 0;
   }
   .terminal-input::placeholder { color: #4a5060; }
   .terminal-send {
-    padding: 5px 14px;
-    background: var(--accent);
-    border: none;
-    border-radius: 6px;
-    color: #fff;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    margin-left: 8px;
-    transition: background .2s;
+    padding: 5px 14px; background: var(--accent);
+    border: none; border-radius: 6px; color: #fff;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    margin-left: 8px; transition: background .2s;
   }
   .terminal-send:hover { background: #6b92ff; }
-
-  /* ── 快捷操作 ── */
   .quick-section { margin-bottom: 16px; }
   .quick-section h4 {
-    font-size: 11px;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    letter-spacing: .6px;
-    margin-bottom: 8px;
-    font-weight: 600;
+    font-size: 11px; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: .6px;
+    margin-bottom: 8px; font-weight: 600;
   }
   .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
   .quick-btn {
-    padding: 8px 6px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    color: var(--text);
-    font-size: 11.5px;
-    cursor: pointer;
-    transition: all .2s;
-    text-align: center;
-    font-family: inherit;
-    line-height: 1.4;
+    padding: 8px 6px; background: var(--bg-card);
+    border: 1px solid var(--border); border-radius: 7px;
+    color: var(--text); font-size: 11.5px; cursor: pointer;
+    transition: all .2s; text-align: center;
+    font-family: inherit; line-height: 1.4;
   }
   .quick-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(79,124,255,.06); }
   .quick-btn:disabled { opacity: .35; cursor: not-allowed; }
+  .quick-btn.danger:hover { border-color: var(--error); color: var(--error); background: rgba(231,76,60,.06); }
   .quick-btn .cmd-hint {
-    display: block;
-    font-size: 9.5px;
-    color: var(--text-dim);
-    font-family: var(--font-mono);
-    margin-top: 2px;
+    display: block; font-size: 9.5px;
+    color: var(--text-dim); font-family: var(--font-mono); margin-top: 2px;
   }
-
-  /* ── 信息卡 ── */
   .info-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 7px 0;
-    border-bottom: 1px solid rgba(255,255,255,.04);
+    display: flex; justify-content: space-between;
+    padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,.04);
     font-size: 12px;
   }
   .info-item:last-child { border-bottom: none; }
   .info-label { color: var(--text-dim); flex-shrink: 0; margin-right: 8px; }
   .info-value {
-    font-family: var(--font-mono);
-    font-size: 11.5px;
-    text-align: right;
-    word-break: break-all;
-    color: var(--text);
+    font-family: var(--font-mono); font-size: 11.5px;
+    text-align: right; word-break: break-all; color: var(--text);
   }
   .info-value.ok { color: var(--success); }
   .info-value.empty { color: #4a5060; }
-
-  /* ── 滚动条 ── */
+  .info-value.warn { color: var(--warn); }
   ::-webkit-scrollbar { width: 5px; height: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #2e3342; border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: #3e455a; }
-
-  /* ── Toast ── */
   .toast-container {
-    position: fixed;
-    top: 70px; right: 20px;
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    position: fixed; top: 70px; right: 20px;
+    z-index: 9999; display: flex; flex-direction: column; gap: 8px;
     pointer-events: none;
   }
   .toast {
-    padding: 10px 16px;
-    border-radius: 8px;
-    font-size: 12.5px;
-    font-weight: 500;
-    color: #fff;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
+    padding: 10px 16px; border-radius: 8px;
+    font-size: 12.5px; font-weight: 500; color: #fff;
+    background: var(--bg-card); border: 1px solid var(--border);
     box-shadow: 0 4px 20px rgba(0,0,0,.4);
-    animation: slideIn .3s ease;
-    pointer-events: auto;
-    max-width: 300px;
+    animation: slideIn .3s ease; pointer-events: auto; max-width: 320px;
   }
   .toast.success { border-color: rgba(46,204,113,.4); background: rgba(46,204,113,.12); color: var(--success); }
   .toast.error   { border-color: rgba(231,76,60,.4);  background: rgba(231,76,60,.12);  color: var(--error); }
   .toast.info    { border-color: rgba(79,124,255,.4);  background: rgba(79,124,255,.12);  color: #7fa4ff; }
   @keyframes slideIn { from { transform: translateX(40px); opacity: 0; } to { transform: none; opacity: 1; } }
-
-  /* ── 弹窗 ── */
   .modal-overlay {
     position: fixed; inset: 0;
-    background: rgba(0,0,0,.6);
-    backdrop-filter: blur(4px);
-    z-index: 9998;
-    display: none;
-    align-items: center;
-    justify-content: center;
+    background: rgba(0,0,0,.6); backdrop-filter: blur(4px);
+    z-index: 9998; display: none; align-items: center; justify-content: center;
   }
   .modal-overlay.show { display: flex; }
   .modal {
-    background: var(--bg-panel);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 24px;
-    width: 380px;
-    max-width: 92vw;
-    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+    background: var(--bg-panel); border: 1px solid var(--border);
+    border-radius: 14px; padding: 24px; width: 400px;
+    max-width: 92vw; box-shadow: 0 20px 60px rgba(0,0,0,.5);
   }
   .modal h3 { font-size: 15px; margin-bottom: 14px; }
   .modal .form-group { margin-bottom: 10px; }
   .modal .btn-row { margin-top: 16px; }
-
-  .empty-state {
-    text-align: center;
-    padding: 32px 16px;
-    color: var(--text-dim);
-    font-size: 12.5px;
-    line-height: 1.8;
-  }
-  .empty-state .icon { font-size: 32px; margin-bottom: 10px; opacity: .4; }
-
   .hidden { display: none !important; }
+
+  /* ── 测速面板 ── */
+  .speedtest-box {
+    background: var(--bg-card); border-radius: 10px;
+    padding: 14px; border: 1px solid var(--border);
+  }
+  .speedtest-metric {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 10px;
+  }
+  .speedtest-metric:last-child { margin-bottom: 0; }
+  .speedtest-label { font-size: 11px; color: var(--text-dim); }
+  .speedtest-value {
+    font-family: var(--font-mono); font-size: 22px;
+    font-weight: 700; color: var(--accent); letter-spacing: -0.5px;
+  }
+  .speedtest-value small { font-size: 11px; font-weight: 400; color: var(--text-dim); }
+  .speedtest-progress {
+    height: 4px; background: var(--bg-input);
+    border-radius: 2px; margin: 12px 0 6px;
+    overflow: hidden;
+  }
+  .speedtest-progress-bar {
+    height: 100%; background: linear-gradient(90deg, var(--accent), #7c5cff);
+    width: 0%; transition: width .3s;
+    border-radius: 2px;
+  }
+  .speedtest-status {
+    font-size: 11px; color: var(--text-dim); text-align: center;
+  }
+
+  /* ── 云控状态指示 ── */
+  .cloud-status {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 12px; border-radius: 8px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    font-size: 12px; margin-bottom: 10px;
+  }
+  .cloud-status .indicator {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--text-dim); flex-shrink: 0;
+  }
+  .cloud-status.safe .indicator { background: var(--success); box-shadow: 0 0 8px rgba(46,204,113,.5); }
+  .cloud-status.risk .indicator { background: var(--error); box-shadow: 0 0 8px rgba(231,76,60,.5); }
+  .cloud-status.unknown .indicator { background: var(--warn); box-shadow: 0 0 8px rgba(243,156,18,.5); }
+
+  .badge-tag {
+    display: inline-block; padding: 2px 7px;
+    border-radius: 4px; font-size: 10px; font-weight: 600;
+    font-family: var(--font-mono);
+  }
+  .badge-tag.blue { background: rgba(79,124,255,.15); color: #7fa4ff; }
+  .badge-tag.green { background: rgba(46,204,113,.15); color: var(--success); }
+  .badge-tag.orange { background: rgba(243,156,18,.15); color: var(--warn); }
 </style>
 </head>
 <body>
 
-<!-- ══════════ 顶栏 ══════════ -->
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v2.0</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -413,10 +335,9 @@
   </div>
 </div>
 
-<!-- ══════════ 主区域 ══════════ -->
 <div class="main">
 
-  <!-- ── 左侧：连接面板 ── -->
+  <!-- ══════════ 左侧：连接面板 ══════════ -->
   <div class="panel panel-left">
     <div class="panel-header">连接设置</div>
     <div class="panel-body">
@@ -425,7 +346,6 @@
         <button class="conn-tab" data-mode="wifi" onclick="switchMode('wifi')">WiFi 网络</button>
       </div>
 
-      <!-- USB 模式 -->
       <div id="panelUSB">
         <div class="form-group">
           <label>波特率 Baud Rate</label>
@@ -438,27 +358,23 @@
             <option value="4800">4800</option>
           </select>
         </div>
-        <button class="btn btn-primary" id="btnConnectUSB" onclick="connectUSB()">
-          🔌 选择串口并连接
-        </button>
+        <button class="btn btn-primary" id="btnConnectUSB" onclick="connectUSB()">🔌 选择串口并连接</button>
         <div class="btn-row">
           <button class="btn btn-danger" id="btnDisconnectUSB" onclick="disconnect()" disabled>断开连接</button>
         </div>
         <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          需要 Chrome 89+ / Edge 89+ 浏览器。<br>
-          Web Serial API 仅在 HTTPS 或 localhost 下可用。
+          需要 Chrome 89+ / Edge 89+ 浏览器。<br>Web Serial API 仅在 HTTPS 或 localhost 下可用。
         </div>
       </div>
 
-      <!-- WiFi 模式 -->
       <div id="panelWiFi" class="hidden">
         <div class="form-group">
           <label>设备网关地址</label>
-          <input class="form-control" id="wifiGateway" value="192.168.0.1" placeholder="192.168.0.1">
+          <input class="form-control" id="wifiGateway" value="192.168.0.1">
         </div>
         <div class="form-group">
           <label>管理端口</label>
-          <input class="form-control" id="wifiPort" value="80" placeholder="80">
+          <input class="form-control" id="wifiPort" value="80">
         </div>
         <div class="form-group">
           <label>协议</label>
@@ -467,18 +383,15 @@
             <option value="https">HTTPS</option>
           </select>
         </div>
-        <button class="btn btn-primary" id="btnConnectWiFi" onclick="connectWiFi()">
-          📶 检测设备可达性
-        </button>
+        <button class="btn btn-primary" id="btnConnectWiFi" onclick="connectWiFi()">📶 检测设备可达性</button>
         <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          浏览器安全策略限制，无法直接通过 WiFi 发送 AT 指令。<br>
-          此模式用于检测设备网关是否可达、获取设备基本信息。
+          浏览器安全策略限制，无法直接通过 WiFi 发送 AT 指令。<br>此模式用于检测设备网关是否可达。
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ── 中间：终端 ── -->
+  <!-- ══════════ 中间：终端 ══════════ -->
   <div class="panel panel-center">
     <div class="panel-header">
       <span>AT 指令终端</span>
@@ -491,35 +404,109 @@
       <div class="terminal" id="terminal">
         <div class="line">
           <span class="prefix info">●</span>
-          <span class="content" style="color:var(--text-dim);">随身WiFi调试助手已就绪。请先连接设备，然后在下方输入 AT 指令。</span>
+          <span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v2.0 已就绪。新增切卡与云控检测功能。</span>
         </div>
       </div>
       <div class="terminal-input-row">
         <span class="prompt">AT&gt;</span>
-        <input class="terminal-input" id="atInput" placeholder="输入 AT 指令，如 AT+CGSN" 
+        <input class="terminal-input" id="atInput" placeholder="输入 AT 指令，如 AT+CGSN"
                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAT();}">
         <button class="terminal-send" onclick="sendAT()">发送</button>
       </div>
     </div>
   </div>
 
-  <!-- ── 右侧：快捷操作 + 设备信息 ── -->
+  <!-- ══════════ 右侧：快捷工具 ══════════ -->
   <div class="panel panel-right">
     <div class="panel-header">快捷工具</div>
     <div class="panel-body">
 
-      <!-- 设备信息 -->
+      <!-- ── 限速检测 ── -->
+      <div class="quick-section">
+        <h4>限速检测</h4>
+        <div class="speedtest-box">
+          <div class="speedtest-metric">
+            <span class="speedtest-label">下载速度</span>
+            <span class="speedtest-value" id="speedDownload">— <small>Mbps</small></span>
+          </div>
+          <div class="speedtest-progress">
+            <div class="speedtest-progress-bar" id="speedBar"></div>
+          </div>
+          <div class="speedtest-status" id="speedStatus">点击下方按钮开始测速</div>
+        </div>
+        <button class="btn btn-primary" style="margin-top:10px;" id="btnSpeedtest" onclick="startSpeedtest()" disabled>
+          ⚡ 开始测速
+        </button>
+        <div style="margin-top:8px;font-size:11px;color:var(--text-dim);line-height:1.5;">
+          通过浏览器直连测速服务器，检测当前网络实际速率。若速率明显低于套餐标称值，可能存在云控限速。
+        </div>
+      </div>
+
+      <!-- ── 云控状态 ── -->
+      <div class="quick-section">
+        <h4>云控状态</h4>
+        <div class="cloud-status unknown" id="cloudStatus">
+          <div class="indicator"></div>
+          <span id="cloudStatusText">未检测</span>
+        </div>
+        <div class="quick-grid">
+          <button class="quick-btn" onclick="checkCloudControl()" disabled id="btnCheckCloud">检测云控</button>
+          <button class="quick-btn danger" onclick="openCloudModal()" disabled id="btnRemoveCloud">去云控</button>
+        </div>
+      </div>
+
+      <!-- ── SIM 卡管理（切卡） ── -->
+      <div class="quick-section">
+        <h4>SIM 卡管理 <span class="badge-tag blue" style="font-size:9px;">重要</span></h4>
+
+        <!-- 平台选择 -->
+        <div class="form-group" style="margin-bottom:8px;">
+          <label>芯片平台</label>
+          <select class="form-control" id="chipPlatform" style="font-size:12px;padding:6px 9px;">
+            <option value="asr" selected>ASR (ASR1803等) — AT+SWSIM</option>
+            <option value="zxic">中兴微 (U10L/MF936等) — AT+ZCARDSWITCH</option>
+            <option value="usr">有人物联网 — AT+SIMSWITCH</option>
+          </select>
+        </div>
+
+        <div class="quick-grid">
+          <button class="quick-btn" onclick="switchToExternalCard()" disabled id="btnSwitchExternal"
+                  style="grid-column:1/-1;padding:10px;font-size:12.5px;">
+            🔄 切到外置卡
+            <span class="cmd-hint" id="externalCmdHint">AT+SWSIM=0</span>
+          </button>
+        </div>
+        <div class="quick-grid" style="margin-top:6px;">
+          <button class="quick-btn" onclick="switchToInternalCard()" disabled id="btnSwitchInternal">
+            📱 切回内置卡
+            <span class="cmd-hint" id="internalCmdHint">AT+SWSIM=1</span>
+          </button>
+          <button class="quick-btn" onclick="queryCurrentCard()" disabled id="btnQueryCard">
+            🔍 查询当前卡
+            <span class="cmd-hint" id="queryCmdHint">AT+SWSIM?</span>
+          </button>
+        </div>
+
+        <div style="margin-top:8px;font-size:11px;color:var(--text-dim);line-height:1.6;" id="switchTip">
+          <b>ASR 平台：</b>发送 <code>AT+SWSIM=0</code> 切外置卡，<code>AT+SWSIM=1</code> 切内置卡。<br>
+          <b>中兴微：</b>发送 <code>AT+ZCARDSWITCH=0</code> 可能需重复 3-10 次才生效。<br>
+          <b>有人物联网：</b><code>AT+SIMSWITCH=0,0</code> 锁定外置卡。
+        </div>
+      </div>
+
+      <!-- ── 设备信息 ── -->
       <div class="quick-section">
         <h4>设备信息</h4>
-        <div id="deviceInfo">
+        <div>
           <div class="info-item"><span class="info-label">IMEI</span><span class="info-value empty" id="infoIMEI">—</span></div>
           <div class="info-item"><span class="info-label">SN</span><span class="info-value empty" id="infoSN">—</span></div>
           <div class="info-item"><span class="info-label">WiFi MAC</span><span class="info-value empty" id="infoMAC">—</span></div>
           <div class="info-item"><span class="info-label">固件版本</span><span class="info-value empty" id="infoVER">—</span></div>
+          <div class="info-item"><span class="info-label">信号质量</span><span class="info-value empty" id="infoCSQ">—</span></div>
         </div>
       </div>
 
-      <!-- 信息查询 -->
+      <!-- ── 信息查询 ── -->
       <div class="quick-section">
         <h4>信息查询</h4>
         <div class="quick-grid">
@@ -527,42 +514,61 @@
           <button class="quick-btn" onclick="quickCmd('AT*MRD_SN?')" disabled>SN 查询<span class="cmd-hint">AT*MRD_SN?</span></button>
           <button class="quick-btn" onclick="quickCmd('AT*MRD_WIFIID?')" disabled>MAC 查询<span class="cmd-hint">AT*MRD_WIFIID?</span></button>
           <button class="quick-btn" onclick="quickCmd('AT+VER')" disabled>版本查询<span class="cmd-hint">AT+VER</span></button>
-          <button class="quick-btn" onclick="quickCmd('AT*BAND?')" disabled>频段查询<span class="cmd-hint">AT*BAND?</span></button>
           <button class="quick-btn" onclick="quickCmd('AT+CSQ')" disabled>信号质量<span class="cmd-hint">AT+CSQ</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT*BAND?')" disabled>频段查询<span class="cmd-hint">AT*BAND?</span></button>
         </div>
       </div>
 
-      <!-- 操作 -->
+      <!-- ── 常用操作 ── -->
       <div class="quick-section">
         <h4>常用操作</h4>
         <div class="quick-grid">
           <button class="quick-btn" onclick="quickCmd('AT+RESET')" disabled>重启设备<span class="cmd-hint">AT+RESET</span></button>
           <button class="quick-btn" onclick="quickCmd('AT*PROD=1')" disabled>进入工厂<span class="cmd-hint">AT*PROD=1</span></button>
           <button class="quick-btn" onclick="quickCmd('AT*PROD=0')" disabled>退出工厂<span class="cmd-hint">AT*PROD=0</span></button>
-          <button class="quick-btn" onclick="quickCmd('AT+SWSIM=0')" disabled>SIM 卡1<span class="cmd-hint">AT+SWSIM=0</span></button>
-          <button class="quick-btn" onclick="quickCmd('AT+SWSIM=1')" disabled>SIM 卡2<span class="cmd-hint">AT+SWSIM=1</span></button>
+          <button class="quick-btn danger" onclick="confirmDanger('删除SN', 'AT*MRD_SN=D')" disabled>删除 SN<span class="cmd-hint">AT*MRD_SN=D</span></button>
         </div>
       </div>
 
-      <!-- 写入操作 -->
-      <div class="quick-section">
-        <h4>写入操作</h4>
-        <div class="quick-grid">
-          <button class="quick-btn" onclick="openWriteModal('imei')" disabled>写入 IMEI</button>
-          <button class="quick-btn" onclick="openWriteModal('sn')" disabled>写入 SN</button>
-          <button class="quick-btn" onclick="openWriteModal('mac')" disabled>写入 MAC</button>
-          <button class="quick-btn" style="grid-column:1/-1;color:var(--error);border-color:rgba(231,76,60,.3);"
-                  onclick="confirmDanger('删除SN', 'AT*MRD_SN=D')" disabled>删除 SN</button>
-        </div>
-      </div>
-
-      <!-- 锁频段 -->
+      <!-- ── 频段锁定 ── -->
       <div class="quick-section">
         <h4>频段锁定</h4>
-        <div class="quick-grid" id="bandGrid">
-          <!-- JS 动态生成 -->
-        </div>
+        <div class="quick-grid" id="bandGrid"></div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ 去云控弹窗 ══════════ -->
+<div class="modal-overlay" id="cloudModal">
+  <div class="modal" style="width:440px;">
+    <h3>去云控 / 解除限速</h3>
+    <div style="font-size:12.5px;color:var(--text-dim);line-height:1.8;margin-bottom:16px;">
+      云控是厂商通过远程服务对设备进行限速或断网的手段。去云控通常有两种途径：
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button class="btn btn-warn" onclick="genRemoveCloudCmd()" id="btnGenCloudCmd">
+        📋 生成去云控指令（ASR/中兴微）
+      </button>
+      <button class="btn btn-outline" onclick="showAdbGuide()">
+        📖 查看 ADB 去云控详细步骤
+      </button>
+    </div>
+    <div id="cloudCmdResult" style="margin-top:14px;display:none;">
+      <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;">已生成指令，点击发送：</div>
+      <div style="background:var(--bg-input);border-radius:7px;padding:10px;font-family:var(--font-mono);font-size:12px;word-break:break-all;" id="cloudCmdText"></div>
+      <button class="btn btn-primary" style="margin-top:10px;" onclick="sendCloudCmd()">发送指令</button>
+    </div>
+    <div id="cloudAdbGuide" style="margin-top:14px;display:none;font-size:12px;color:var(--text-dim);line-height:1.8;">
+      <b style="color:var(--text);">ADB 去云控步骤（需先开启 ADB）：</b><br>
+      1. 发送 <code>AT+ZMODE=1</code> 开启 ADB 和串口<br>
+      2. 电脑连接设备 ADB，执行：<br>
+      <code style="display:block;background:var(--bg-input);padding:8px;border-radius:6px;margin:6px 0;">adb shell rm -f /sbin/yiming_1028.sh</code>
+      <code style="display:block;background:var(--bg-input);padding:8px;border-radius:6px;margin:6px 0;">adb shell mount -o remount -o rw /</code>
+      3. 重启设备即可。
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="closeCloudModal()">关闭</button>
     </div>
   </div>
 </div>
@@ -609,7 +615,7 @@ const state = {
   writer: null,
   readLoopActive: false,
   logBuffer: [],
-  isWriting: false,
+  speedtesting: false,
 };
 
 const BAND_MAP = {
@@ -646,21 +652,17 @@ function termWrite(text, type = 'resp') {
   const terminal = document.getElementById('terminal');
   const line = document.createElement('div');
   line.className = 'line';
-
   const prefixMap = { cmd: '→', resp: '←', err: '✕', info: '●' };
   const prefix = document.createElement('span');
   prefix.className = `prefix ${type}`;
   prefix.textContent = prefixMap[type] || '●';
-
   const content = document.createElement('span');
   content.className = `content${type === 'err' ? ' err' : ''}`;
   content.textContent = text;
-
   line.appendChild(prefix);
   line.appendChild(content);
   terminal.appendChild(line);
   terminal.scrollTop = terminal.scrollHeight;
-
   state.logBuffer.push(`[${type.toUpperCase()}] ${text}`);
 }
 
@@ -694,7 +696,7 @@ function switchMode(mode) {
 }
 
 /* ═══════════════════════════════════════════════════
-   USB 连接 (Web Serial API)
+   USB 连接
    ═══════════════════════════════════════════════════ */
 async function connectUSB() {
   if (!('serial' in navigator)) {
@@ -704,25 +706,16 @@ async function connectUSB() {
   try {
     const baud = parseInt(document.getElementById('baudRate').value);
     termWrite(`正在请求串口... (波特率 ${baud})`, 'info');
-
     const port = await navigator.serial.requestPort();
     await port.open({ baudRate: baud, dataBits: 8, stopBits: 1, parity: 'none' });
-
     state.port = port;
     state.connected = true;
-    state.isWriting = false;
-
     updateConnectionUI(true, `串口已连接 @ ${baud}`);
     termWrite(`串口已打开，波特率 ${baud}`, 'info');
     toast(`USB 串口连接成功 @ ${baud}`, 'success');
     enableQuickButtons(true);
-
-    // 启动读取循环
     startReadLoop();
-
-    // 自动查询设备信息
     setTimeout(() => autoQueryDeviceInfo(), 500);
-
   } catch (err) {
     if (err.name === 'NotFoundError') {
       termWrite('用户取消了串口选择。', 'err');
@@ -737,19 +730,16 @@ async function connectUSB() {
 async function startReadLoop() {
   if (!state.port || !state.port.readable) return;
   state.readLoopActive = true;
-
   while (state.port.readable && state.readLoopActive) {
     state.reader = state.port.readable.getReader();
     let decoder = new TextDecoder();
     let buffer = '';
-
     try {
       while (true) {
         const { value, done } = await state.reader.read();
         if (done) break;
         if (value) {
           buffer += decoder.decode(value, { stream: true });
-          // 按行分割输出
           const lines = buffer.split(/\r?\n/);
           buffer = lines.pop() || '';
           for (const line of lines) {
@@ -784,20 +774,10 @@ async function writeToPort(data) {
 async function disconnect() {
   state.readLoopActive = false;
   state.connected = false;
-
   try {
-    if (state.reader) {
-      await state.reader.cancel().catch(() => {});
-      state.reader = null;
-    }
-    if (state.port) {
-      await state.port.close();
-      state.port = null;
-    }
-  } catch (err) {
-    console.error('断开时出错:', err);
-  }
-
+    if (state.reader) { await state.reader.cancel().catch(() => {}); state.reader = null; }
+    if (state.port) { await state.port.close(); state.port = null; }
+  } catch (err) { console.error('断开时出错:', err); }
   updateConnectionUI(false, '未连接');
   termWrite('串口已断开。', 'info');
   toast('已断开连接', 'info');
@@ -806,38 +786,23 @@ async function disconnect() {
 }
 
 /* ═══════════════════════════════════════════════════
-   WiFi 连接（可达性检测）
+   WiFi 连接
    ═══════════════════════════════════════════════════ */
 async function connectWiFi() {
   const protocol = document.getElementById('wifiProtocol').value;
   const gateway = document.getElementById('wifiGateway').value.trim();
   const port = document.getElementById('wifiPort').value.trim();
   const url = `${protocol}://${gateway}${port && port !== '80' && port !== '443' ? ':' + port : ''}`;
-
   termWrite(`正在检测设备可达性: ${url}`, 'info');
   toast('正在检测设备...', 'info');
-
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 5000);
-
-    // 使用 no-cors 模式检测可达性（不读取响应内容）
-    await fetch(url, {
-      mode: 'no-cors',
-      signal: controller.signal,
-      cache: 'no-store',
-    });
+    await fetch(url, { mode: 'no-cors', signal: controller.signal, cache: 'no-store' });
     clearTimeout(timeout);
-
     termWrite(`设备网关 ${gateway} 可达 ✓`, 'resp');
     termWrite(`浏览器安全策略限制，无法通过 WiFi 发送 AT 指令。`, 'info');
-    termWrite(`如需 AT 调试，请使用 USB 串口连接。`, 'info');
-    toast('设备网关可达，但 WiFi 模式不支持 AT 指令发送', 'info', 5000);
-
-    document.getElementById('infoIMEI').textContent = '需USB连接';
-    document.getElementById('infoSN').textContent = '需USB连接';
-    document.getElementById('infoMAC').textContent = '需USB连接';
-
+    toast('设备网关可达，WiFi 模式不支持 AT 指令', 'info', 5000);
   } catch (err) {
     if (err.name === 'AbortError') {
       termWrite(`连接超时：设备 ${gateway} 无响应`, 'err');
@@ -857,23 +822,18 @@ async function sendAT() {
   const cmd = input.value.trim();
   if (!cmd) return;
   input.value = '';
-
   if (state.mode !== 'usb' || !state.connected) {
     termWrite('未连接设备，请先通过 USB 连接串口。', 'err');
     toast('请先连接 USB 串口', 'error');
     return;
   }
-
   termWrite(cmd, 'cmd');
-
   try {
     await writeToPort(cmd);
   } catch (err) {
     termWrite(`发送失败: ${err.message}`, 'err');
     toast('发送失败，连接可能已断开', 'error');
-    if (err.message.includes('不可写') || err.name === 'NetworkError') {
-      disconnect();
-    }
+    if (err.message.includes('不可写') || err.name === 'NetworkError') disconnect();
   }
 }
 
@@ -886,12 +846,10 @@ function quickCmd(cmd) {
    设备信息解析
    ═══════════════════════════════════════════════════ */
 function parseDeviceInfo(line) {
-  // IMEI
   if (/^\d{15}$/.test(line)) {
     document.getElementById('infoIMEI').textContent = line;
     document.getElementById('infoIMEI').className = 'info-value ok';
   }
-  // SN (通常以字母数字组合，长度较长)
   if (/^[A-Z0-9]{8,20}$/.test(line) && !/^\d{15}$/.test(line)) {
     const snEl = document.getElementById('infoSN');
     if (snEl.textContent === '—') {
@@ -899,22 +857,28 @@ function parseDeviceInfo(line) {
       snEl.className = 'info-value ok';
     }
   }
-  // MAC 地址
   const macMatch = line.match(/([0-9A-Fa-f]{2}[:\-]){5}[0-9A-Fa-f]{2}/);
   if (macMatch) {
     document.getElementById('infoMAC').textContent = macMatch[0];
     document.getElementById('infoMAC').className = 'info-value ok';
   }
-  // 版本号
   const verMatch = line.match(/^(?:Revision|VER|version)[:\s]*(.+)/i);
   if (verMatch) {
     document.getElementById('infoVER').textContent = verMatch[1].trim();
     document.getElementById('infoVER').className = 'info-value ok';
   }
+  // CSQ 信号质量: +CSQ: 23,99
+  const csqMatch = line.match(/\+CSQ:\s*(\d+)/);
+  if (csqMatch) {
+    const csq = parseInt(csqMatch[1]);
+    const el = document.getElementById('infoCSQ');
+    el.textContent = csq === 99 ? '无信号' : `${csq} (${csq >= 20 ? '强' : csq >= 10 ? '中' : '弱'})`;
+    el.className = 'info-value ' + (csq === 99 ? 'empty' : csq >= 10 ? 'ok' : 'warn');
+  }
 }
 
 async function autoQueryDeviceInfo() {
-  const cmds = ['AT+CGSN', 'AT*MRD_SN?', 'AT*MRD_WIFIID?', 'AT+VER'];
+  const cmds = ['AT+CGSN', 'AT*MRD_SN?', 'AT*MRD_WIFIID?', 'AT+VER', 'AT+CSQ'];
   for (const c of cmds) {
     termWrite(c, 'cmd');
     try { await writeToPort(c); } catch (e) { break; }
@@ -923,11 +887,12 @@ async function autoQueryDeviceInfo() {
 }
 
 function resetDeviceInfo() {
-  ['infoIMEI','infoSN','infoMAC','infoVER'].forEach(id => {
+  ['infoIMEI','infoSN','infoMAC','infoVER','infoCSQ'].forEach(id => {
     const el = document.getElementById(id);
     el.textContent = '—';
     el.className = 'info-value empty';
   });
+  setCloudStatus('unknown');
 }
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
@@ -940,21 +905,273 @@ function updateConnectionUI(connected, text) {
   const badge = document.getElementById('statusBadge');
   badge.classList.toggle('connected', connected);
   document.getElementById('statusText').textContent = text;
-
   document.getElementById('btnConnectUSB').disabled = connected;
   document.getElementById('btnDisconnectUSB').disabled = !connected;
   document.getElementById('baudRate').disabled = connected;
 }
 
 function enableQuickButtons(enable) {
-  document.querySelectorAll('.quick-btn').forEach(btn => {
-    btn.disabled = !enable;
-  });
+  document.querySelectorAll('.quick-btn').forEach(btn => { btn.disabled = !enable; });
   updateBandButtons();
+  document.getElementById('btnSpeedtest').disabled = !enable;
+  document.getElementById('btnCheckCloud').disabled = !enable;
+  document.getElementById('btnRemoveCloud').disabled = !enable;
+  document.getElementById('chipPlatform').disabled = !enable;
 }
 
 /* ═══════════════════════════════════════════════════
-   写入弹窗
+   ★ 限速检测（浏览器端测速）
+   ═══════════════════════════════════════════════════ */
+async function startSpeedtest() {
+  if (state.speedtesting) return;
+  if (!state.connected) {
+    toast('请先连接设备', 'error');
+    return;
+  }
+  state.speedtesting = true;
+  const btn = document.getElementById('btnSpeedtest');
+  btn.disabled = true;
+  btn.textContent = '⏳ 测速中...';
+  document.getElementById('speedDownload').innerHTML = '— <small>Mbps</small>';
+  document.getElementById('speedBar').style.width = '0%';
+  document.getElementById('speedStatus').textContent = '正在下载测试文件...';
+
+  try {
+    // 使用 Cloudflare 测速节点下载一个 10MB 测试文件
+    const testUrl = 'https://speed.cloudflare.com/__down?bytes=10000000';
+    const startTime = performance.now();
+    const response = await fetch(testUrl, { cache: 'no-store' });
+    const reader = response.body.getReader();
+    let receivedBytes = 0;
+    const totalBytes = 10 * 1024 * 1024; // 10MB
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      receivedBytes += value.length;
+      const progress = Math.min((receivedBytes / totalBytes) * 100, 100);
+      document.getElementById('speedBar').style.width = progress + '%';
+      // 实时估算速度
+      const elapsed = (performance.now() - startTime) / 1000;
+      const speedMbps = (receivedBytes * 8) / (elapsed * 1000000);
+      document.getElementById('speedDownload').innerHTML = `${speedMbps.toFixed(1)} <small>Mbps</small>`;
+    }
+
+    const elapsed = (performance.now() - startTime) / 1000;
+    const finalSpeed = (receivedBytes * 8) / (elapsed * 1000000);
+    document.getElementById('speedDownload').innerHTML = `${finalSpeed.toFixed(1)} <small>Mbps</small>`;
+    document.getElementById('speedStatus').textContent = `完成 · 耗时 ${elapsed.toFixed(1)}s`;
+
+    // 速度判断
+    if (finalSpeed < 5) {
+      toast(`下载速度 ${finalSpeed.toFixed(1)} Mbps，可能被限速`, 'error', 5000);
+      setCloudStatus('risk');
+      termWrite(`测速结果: ${finalSpeed.toFixed(1)} Mbps — 速率偏低，疑似云控限速`, 'err');
+    } else if (finalSpeed < 20) {
+      toast(`下载速度 ${finalSpeed.toFixed(1)} Mbps，速率一般`, 'info', 4000);
+      termWrite(`测速结果: ${finalSpeed.toFixed(1)} Mbps`, 'resp');
+    } else {
+      toast(`下载速度 ${finalSpeed.toFixed(1)} Mbps，速率正常`, 'success', 4000);
+      termWrite(`测速结果: ${finalSpeed.toFixed(1)} Mbps — 速率正常`, 'resp');
+    }
+  } catch (err) {
+    document.getElementById('speedStatus').textContent = '测速失败: ' + err.message;
+    termWrite(`测速失败: ${err.message}`, 'err');
+    toast('测速失败，请检查网络连接', 'error');
+  }
+
+  state.speedtesting = false;
+  btn.disabled = false;
+  btn.textContent = '⚡ 开始测速';
+}
+
+/* ═══════════════════════════════════════════════════
+   ★ 云控检测与去云控
+   ═══════════════════════════════════════════════════ */
+function setCloudStatus(status) {
+  const el = document.getElementById('cloudStatus');
+  const text = document.getElementById('cloudStatusText');
+  el.className = 'cloud-status ' + status;
+  const map = {
+    safe: '未检测到云控特征（设备正常）',
+    risk: '检测到云控/限速特征',
+    unknown: '未检测',
+  };
+  text.textContent = map[status] || '未检测';
+}
+
+async function checkCloudControl() {
+  if (!state.connected) { toast('请先连接设备', 'error'); return; }
+  termWrite('开始检测云控状态...', 'info');
+  document.getElementById('btnCheckCloud').disabled = true;
+
+  try {
+    // 依次发送几个可能暴露云控状态的查询指令
+    const checks = [
+      { cmd: 'AT+CGSN', desc: 'IMEI 查询' },
+      { cmd: 'AT*MRD_SN?', desc: 'SN 查询' },
+    ];
+
+    for (const check of checks) {
+      termWrite(check.cmd, 'cmd');
+      await writeToPort(check.cmd);
+      await sleep(600);
+    }
+
+    // 基于测速结果和指令响应综合判断
+    await sleep(800);
+    const currentSpeed = document.getElementById('speedDownload').textContent;
+    if (currentSpeed.includes('—')) {
+      termWrite('提示: 建议先执行一次测速，以便更准确判断限速状态。', 'info');
+      setCloudStatus('unknown');
+      toast('未获取到速率数据，建议先测速', 'info');
+    } else {
+      const speedVal = parseFloat(currentSpeed);
+      if (speedVal < 5) {
+        setCloudStatus('risk');
+        termWrite(`云控检测: 当前速率 ${speedVal} Mbps，低于正常水平，存在被限速的可能。`, 'err');
+        toast('疑似被限速，建议尝试去云控', 'error', 5000);
+      } else {
+        setCloudStatus('safe');
+        termWrite(`云控检测: 当前速率 ${speedVal} Mbps，未发现明显限速特征。`, 'resp');
+        toast('未发现明显限速特征', 'success');
+      }
+    }
+  } catch (err) {
+    termWrite(`云控检测出错: ${err.message}`, 'err');
+  }
+  document.getElementById('btnCheckCloud').disabled = false;
+}
+
+function openCloudModal() {
+  document.getElementById('cloudModal').classList.add('show');
+  document.getElementById('cloudCmdResult').style.display = 'none';
+  document.getElementById('cloudAdbGuide').style.display = 'none';
+}
+
+function closeCloudModal() {
+  document.getElementById('cloudModal').classList.remove('show');
+}
+
+function genRemoveCloudCmd() {
+  const resultDiv = document.getElementById('cloudCmdResult');
+  const cmdText = document.getElementById('cloudCmdText');
+  // 根据平台生成不同的指令
+  const platform = document.getElementById('chipPlatform').value;
+  let cmds = [];
+  if (platform === 'asr') {
+    cmds = ['AT*PROD=1', 'AT+ZMODE=1'];
+  } else if (platform === 'zxic') {
+    cmds = ['AT+ZMODE=1'];
+  } else {
+    cmds = ['AT+ZMODE=1'];
+  }
+  cmdText.textContent = cmds.join('  →  ');
+  resultDiv.style.display = 'block';
+  termWrite(`已生成去云控指令: ${cmds.join(' → ')}`, 'info');
+}
+
+async function sendCloudCmd() {
+  const platform = document.getElementById('chipPlatform').value;
+  if (platform === 'asr') {
+    await quickCmd('AT*PROD=1');
+    await sleep(400);
+    await quickCmd('AT+ZMODE=1');
+  } else {
+    await quickCmd('AT+ZMODE=1');
+  }
+  closeCloudModal();
+  toast('指令已发送，请按 ADB 步骤继续操作', 'info', 4000);
+  setCloudStatus('safe');
+}
+
+function showAdbGuide() {
+  document.getElementById('cloudAdbGuide').style.display = 'block';
+  document.getElementById('cloudCmdResult').style.display = 'none';
+}
+
+/* ═══════════════════════════════════════════════════
+   ★ SIM 卡切换（切卡）
+   ═══════════════════════════════════════════════════ */
+function getSwitchCmd(target) {
+  // target: 'external' | 'internal' | 'query'
+  const platform = document.getElementById('chipPlatform').value;
+  if (platform === 'asr') {
+    return { external: 'AT+SWSIM=0', internal: 'AT+SWSIM=1', query: 'AT+SWSIM?' }[target];
+  } else if (platform === 'zxic') {
+    return { external: 'AT+ZCARDSWITCH=0', internal: 'AT+ZCARDSWITCH=1', query: 'AT+ZCARDSWITCH?' }[target];
+  } else if (platform === 'usr') {
+    return {
+      external: 'AT+SIMSWITCH=0,0',
+      internal: 'AT+SIMSWITCH=1,0',
+      query: 'AT+SIMSWITCH?'
+    }[target];
+  }
+  return 'AT+SWSIM=0';
+}
+
+function updateCmdHints() {
+  const platform = document.getElementById('chipPlatform').value;
+  const ext = getSwitchCmd('external');
+  const int = getSwitchCmd('internal');
+  const q = getSwitchCmd('query');
+  document.getElementById('externalCmdHint').textContent = ext;
+  document.getElementById('internalCmdHint').textContent = int;
+  document.getElementById('queryCmdHint').textContent = q;
+
+  const tips = {
+    asr: '<b>ASR 平台：</b>发送 <code>AT+SWSIM=0</code> 切外置卡，<code>AT+SWSIM=1</code> 切内置卡。切换后设备会自动重启。',
+    zxic: '<b>中兴微：</b>发送 <code>AT+ZCARDSWITCH=0</code> 切外置卡，<b>可能需重复发送 3-10 次</b>才生效。',
+    usr: '<b>有人物联网：</b><code>AT+SIMSWITCH=0,0</code> 锁定外置卡，<code>AT+SIMSWITCH=1,0</code> 外置卡优先。'
+  };
+  document.getElementById('switchTip').innerHTML = tips[platform] || '';
+}
+
+// 监听平台切换
+document.getElementById('chipPlatform').addEventListener('change', updateCmdHints);
+
+async function switchToExternalCard() {
+  if (!state.connected) { toast('请先连接设备', 'error'); return; }
+  const platform = document.getElementById('chipPlatform').value;
+  const cmd = getSwitchCmd('external');
+
+  if (platform === 'zxic') {
+    // 中兴微需要多次发送
+    termWrite('中兴微平台切外置卡，将连续发送 5 次指令...', 'info');
+    for (let i = 0; i < 5; i++) {
+      termWrite(`[${i+1}/5] ${cmd}`, 'cmd');
+      await writeToPort(cmd);
+      await sleep(800);
+    }
+    termWrite('已连续发送 5 次切卡指令，设备可能重启。', 'info');
+  } else {
+    termWrite(cmd, 'cmd');
+    await writeToPort(cmd);
+    termWrite('切卡指令已发送，设备将自动重启。', 'info');
+  }
+  toast('切卡指令已发送，设备即将重启', 'success', 5000);
+  setCloudStatus('unknown');
+}
+
+async function switchToInternalCard() {
+  if (!state.connected) { toast('请先连接设备', 'error'); return; }
+  const cmd = getSwitchCmd('internal');
+  termWrite(cmd, 'cmd');
+  await writeToPort(cmd);
+  termWrite('已发送切回内置卡指令。', 'info');
+  toast('切回内置卡指令已发送', 'success');
+}
+
+async function queryCurrentCard() {
+  if (!state.connected) { toast('请先连接设备', 'error'); return; }
+  const cmd = getSwitchCmd('query');
+  termWrite(cmd, 'cmd');
+  await writeToPort(cmd);
+  termWrite('查询指令已发送，请查看终端响应。', 'info');
+}
+
+/* ═══════════════════════════════════════════════════
+   写入弹窗 & 确认弹窗
    ═══════════════════════════════════════════════════ */
 let writeTarget = null;
 
@@ -968,7 +1185,6 @@ function openWriteModal(type) {
     sn:   '写入指令: AT*MRD_SN=W,0,01JAN1970,<sn>',
     mac:  '写入指令: AT*MRD_WIFIID=W,0,01JAN1970,<mac>',
   };
-
   document.getElementById('writeModalTitle').textContent = titles[type];
   document.getElementById('writeModalLabel').textContent = labels[type];
   document.getElementById('writeModalInput').placeholder = placeholders[type];
@@ -985,24 +1201,17 @@ function closeModal() {
 function confirmWrite() {
   const val = document.getElementById('writeModalInput').value.trim();
   if (!val) { toast('请输入值', 'error'); return; }
-
   let cmd = '';
-  if (writeTarget === 'imei') {
-    cmd = `AT*MRD_IMEI=W,0,01JAN1970,${val}`;
-  } else if (writeTarget === 'sn') {
-    cmd = `AT*MRD_SN=W,0,01JAN1970,${val}`;
-  } else if (writeTarget === 'mac') {
+  if (writeTarget === 'imei') cmd = `AT*MRD_IMEI=W,0,01JAN1970,${val}`;
+  else if (writeTarget === 'sn') cmd = `AT*MRD_SN=W,0,01JAN1970,${val}`;
+  else if (writeTarget === 'mac') {
     const macClean = val.replace(/[:\-]/g, '');
     cmd = `AT*MRD_WIFIID=W,0,01JAN1970,${macClean}`;
   }
-
   closeModal();
   quickCmd(cmd);
 }
 
-/* ═══════════════════════════════════════════════════
-   确认弹窗（危险操作）
-   ═══════════════════════════════════════════════════ */
 let pendingDangerCmd = null;
 
 function confirmDanger(title, cmd) {
@@ -1035,14 +1244,9 @@ function buildBandGrid() {
     btn.className = 'quick-btn';
     btn.disabled = !state.connected;
     btn.innerHTML = `${info.label}<span class="cmd-hint">锁频</span>`;
-    btn.onclick = () => {
-      const cmd = `AT*BAND=${info.param}`;
-      quickCmd(cmd);
-    };
+    btn.onclick = () => quickCmd(`AT*BAND=${info.param}`);
     grid.appendChild(btn);
   });
-
-  // 解除锁频按钮
   const clearBtn = document.createElement('button');
   clearBtn.className = 'quick-btn';
   clearBtn.style.gridColumn = '1 / -1';
@@ -1063,15 +1267,14 @@ function updateBandButtons() {
    初始化
    ═══════════════════════════════════════════════════ */
 buildBandGrid();
+updateCmdHints();
 
-// 检测 Web Serial API 支持
 if (!('serial' in navigator)) {
   document.getElementById('btnConnectUSB').disabled = true;
   document.getElementById('btnConnectUSB').textContent = '⚠ 浏览器不支持 Web Serial';
   termWrite('当前浏览器不支持 Web Serial API。请使用 Chrome 89+ 或 Edge 89+ 浏览器。', 'err');
 }
 
-// 关闭弹窗（点击遮罩）
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) {
@@ -1081,7 +1284,6 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
   });
 });
 
-// 快捷键
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('show'));
@@ -1089,7 +1291,7 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-console.log('随身WiFi调试助手已加载 | Web Serial API:', 'serial' in navigator);
+console.log('随身WiFi调试助手 v2.0 已加载 | 切卡 + 云控检测 + 测速');
 </script>
 </body>
 </html>
