@@ -170,7 +170,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v9.0</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v9.1</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -218,7 +218,7 @@
           <button class="btn btn-danger" id="btnDisconnectUSB" onclick="disconnect()" disabled>断开连接</button>
         </div>
         <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          <b style="color:var(--accent);">v9.0 能力驱动：</b>首次接入新设备自动探测指令，之后按指纹缓存，无需再手动适配。
+          <b style="color:var(--accent);">v9.1：</b>修复芯片平台识别、运营商数字格式解析；能力未命中时 UI 明确标注"不支持"。
         </div>
       </div>
       <div id="panelWiFi" class="hidden">
@@ -240,7 +240,7 @@
     </div>
     <div class="terminal-wrap">
       <div class="terminal" id="terminal">
-        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v9.0 · 能力驱动架构已就绪。</span></div>
+        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v9.1 · 能力驱动架构已就绪。</span></div>
       </div>
       <div class="terminal-input-row">
         <span class="prompt">AT&gt;</span>
@@ -263,7 +263,6 @@
         </div>
       </div>
 
-      <!-- ★ v9.0 新增：设备能力表 -->
       <div class="quick-section">
         <h4>
           <span>设备能力</span>
@@ -470,17 +469,7 @@ function getLineEnding() {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   ★★★ v9.0 核心：能力探测表（CAPABILITY_PROBES）★★★
-   ═══════════════════════════════════════════════════════════════════════════
-
-   每个能力（capability）包含：
-     label       人类可读的名称
-     candidates  候选指令数组，按优先级排序（先试的放前面）
-       每个候选包含：
-         cmd       要发送的 AT 指令
-         pattern   用于从响应中提取值的正则（第一个捕获组为值）
-         decoder   可选，解码器名字（用于 CRSM、BANDIND 等特殊响应）
-         validator 可选，自定义校验函数（返回 true 才接受）
+   能力探测表
    ═══════════════════════════════════════════════════════════════════════════ */
 const CAPABILITY_PROBES = {
   iccid: {
@@ -573,7 +562,6 @@ const CAPABILITY_PROBES = {
   },
 };
 
-/* ═══ 切卡动作候选（不参与探测，只在用户点击时按需试） ═══ */
 const SIM_SWITCH_CANDIDATES = {
   external: [
     { cmd: 'AT+ZCARDSWITCH=0', repeat: 5, label: '中兴微' },
@@ -591,7 +579,6 @@ const SIM_SWITCH_CANDIDATES = {
   ],
 };
 
-/* ═══ ADB 开关候选 ═══ */
 const ADB_CANDIDATES = {
   enable: [
     { cmd: 'AT+ZADB=1',       label: '中兴微' },
@@ -613,8 +600,18 @@ const ADB_CANDIDATES = {
   ],
 };
 
+/* ★ v9.1 新增：芯片识别关键词（用于填充 infoChip） */
+const CHIP_IDENTIFIERS = [
+  { id:'zxic',    name:'中兴微',   patterns: [/ZXIC/i, /ZX2975/i, /中兴微/i, /ZCARDSWITCH/i, /ZICCID/i, /XFNJ.*MF761W/i, /7520V3/i] },
+  { id:'asr4g',   name:'ASR 4G',   patterns: [/ASR,\s*Inc/i, /^ASR$/im, /Nezha/i, /ASR180/i, /ASR8861/i, /Air720/i] },
+  { id:'asr5g',   name:'ASR 5G',   patterns: [/ASR1901/i, /ASR1903/i, /ASR8603/i] },
+  { id:'unisoc',  name:'紫光展锐', patterns: [/UDX710/i, /UIS8910/i, /Unisoc/i, /Spreadtrum/i, /SPRD/i, /展锐/i] },
+  { id:'qualcomm',name:'高通',     patterns: [/SDX\d+/i, /Qualcomm/i, /MDM\d/i, /RM5\d{2}/i] },
+  { id:'mtk',     name:'联发科',   patterns: [/MediaTek/i, /MT27\d+/i, /MTK/i] },
+];
+
 /* ═══════════════════════════════════════════════════════════════════════════
-   解码器（DECODERS）：把原始响应字符串转成人类可读值
+   解码器
    ═══════════════════════════════════════════════════════════════════════════ */
 const DECODERS = {
   crsm: (hexStr) => {
@@ -630,7 +627,6 @@ const DECODERS = {
     return null;
   },
   mrd_imei: (raw) => {
-    // 常见返回: 866766071561673 或 hex 编码
     const digits = raw.replace(/[^0-9]/g, '');
     if (digits.length === 15) return digits;
     return null;
@@ -658,7 +654,6 @@ const DECODERS = {
     return bands.length ? 'LTE ' + bands.join(' ') : null;
   },
   cardmode_asr: (val) => {
-    // ASR1803 定制固件实测：0=内置卡(SIM2)，1=外置卡(SIM1)
     const n = parseInt(val);
     if (n === 0) return '内置卡';
     if (n === 1) return '外置卡';
@@ -681,15 +676,12 @@ const DECODERS = {
     return 'QCI ' + qci;
   },
   qeng_lte: (band, earfcn) => {
-    const b = parseInt(band), e = parseInt(earfcn);
+    const b = parseInt(band);
     if (!b || b <= 0) return null;
     return 'LTE B' + b;
   },
 };
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   芯片库（v9.0 降级为"高级兜底"，仅在能力探测失败时使用）
-   ═══════════════════════════════════════════════════════════════════════════ */
 const FALLBACK_CHIPS = [
   { id:'zxic',    name:'中兴微',   detection:'ZXIC' },
   { id:'asr4g',   name:'ASR 4G',   detection:'ASR' },
@@ -699,9 +691,6 @@ const FALLBACK_CHIPS = [
   { id:'mtk',     name:'联发科',   detection:'MT' },
 ];
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   全局状态
-   ═══════════════════════════════════════════════════════════════════════════ */
 const state = {
   connected:false, port:null, reader:null, readLoopActive:false,
   logBuffer:[], responseBuffer:'', maxLogLines:500,
@@ -710,10 +699,9 @@ const state = {
   ipHidden:true, ipRaw:{pubV4:'',pubV6:'',locV4:'',locV6:''},
   networkType:'unknown',
   speedtesting:false, speedtestAbort:null, writeInProgress:false,
-  // v9.0 新增
   deviceFingerprint:null,
-  capabilities:null,        // { iccid: {cmd, pattern, decoder, sample, source}, ... }
-  capabilitySource:'fresh', // 'cache' | 'fresh'
+  capabilities:null,
+  capabilitySource:'fresh',
   probing:false,
 };
 
@@ -774,7 +762,7 @@ function isValidResponse(r){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   USB 串口连接
+   USB 串口
    ═══════════════════════════════════════════════════════════════════════════ */
 async function connectUSB(){
   if (!('serial' in navigator)) { toast('浏览器不支持 Web Serial','error',5000); return; }
@@ -877,7 +865,7 @@ async function connectWiFi(){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   AT 指令发送 / 收集
+   AT 指令发送
    ═══════════════════════════════════════════════════════════════════════════ */
 async function sendAT(){
   const input = document.getElementById('atInput');
@@ -911,10 +899,9 @@ async function queryAndCollect(cmd, waitMs = 1500){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   设备指纹 + 缓存管理
+   设备指纹 + 芯片识别
    ═══════════════════════════════════════════════════════════════════════════ */
 async function wakeAndFingerprint(){
-  // 尝试 AT 唤醒
   let woke = false;
   for (let i = 0; i < 3; i++) {
     const r = await queryAndCollect('AT', 1500);
@@ -922,7 +909,6 @@ async function wakeAndFingerprint(){
     await sleep(300);
   }
   if (!woke) {
-    // DTR/RTS 组合尝试
     if (state.port) {
       const combos = [
         { dtr: false, rts: false },
@@ -941,13 +927,26 @@ async function wakeAndFingerprint(){
   if (woke) termWrite('✓ 设备已唤醒','resp');
   else termWrite('⚠ 设备无响应，继续尝试','info');
 
-  // 计算指纹
   termWrite('正在计算设备指纹...','info');
   const ati  = await queryAndCollect('ATI', 1200);
   const cgmi = await queryAndCollect('AT+CGMI', 900);
   const cgmm = await queryAndCollect('AT+CGMM', 900);
   const cgmr = await queryAndCollect('AT+CGMR', 900);
-  const raw = (ati + '|' + cgmi + '|' + cgmm + '|' + cgmr).replace(/AT\+?\w+\??/gi, '').replace(/\s+/g, ' ').trim();
+
+  /* ★ v9.1：清洗指纹 —— 去掉 OK / ERROR / CME ERROR / 指令回显 / 空白 */
+  const cleanResp = (s) => {
+    if (!s) return '';
+    return s
+      .split(/\r?\n/)
+      .map(l => l.trim())
+      .filter(l => l && !/^(OK|ERROR)$/i.test(l) && !/^\+CME ERROR/i.test(l) && !/^\+CMS ERROR/i.test(l))
+      .join(' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+  const rawParts = [cleanResp(ati), cleanResp(cgmi), cleanResp(cgmm), cleanResp(cgmr)].filter(x => x);
+  const raw = rawParts.join(' | ');
+
   let hash = 0;
   for (let i = 0; i < raw.length; i++) {
     hash = ((hash << 5) - hash) + raw.charCodeAt(i);
@@ -955,7 +954,31 @@ async function wakeAndFingerprint(){
   }
   state.deviceFingerprint = 'dev_' + Math.abs(hash).toString(36);
   termWrite(`设备指纹: ${state.deviceFingerprint}`, 'info');
-  termWrite(`指纹原文: ${raw.substring(0, 120)}`, 'info');
+  termWrite(`指纹原文: ${raw.substring(0, 150)}`, 'info');
+
+  /* ★ v9.1：识别芯片平台 */
+  const combined = (ati + ' ' + cgmi + ' ' + cgmm + ' ' + cgmr);
+  let chipName = null;
+  for (const c of CHIP_IDENTIFIERS) {
+    for (const p of c.patterns) {
+      if (p.test(combined)) { chipName = c.name; break; }
+    }
+    if (chipName) break;
+  }
+  const chipEl = document.getElementById('infoChip');
+  if (chipName) {
+    chipEl.textContent = chipName;
+    chipEl.className = 'info-value ok';
+    termWrite(`✓ 识别芯片平台: ${chipName}`, 'resp');
+  } else {
+    /* 未命中关键词则展示 CGMI/CGMM 的原文 */
+    const cgmiClean = cleanResp(cgmi);
+    const cgmmClean = cleanResp(cgmm);
+    const display = (cgmiClean || cgmmClean || '未知').substring(0, 40);
+    chipEl.textContent = display;
+    chipEl.className = 'info-value warn';
+    termWrite(`⚠ 未能识别标准芯片，显示厂商信息: ${display}`, 'info');
+  }
 }
 
 function loadCapCache(fp){
@@ -967,16 +990,13 @@ function loadCapCache(fp){
     return caps;
   } catch (e) { return null; }
 }
-
 function saveCapCache(fp, caps){
   try {
     localStorage.setItem('atmaster_caps_' + fp, JSON.stringify(caps));
-    // 记录所有已知指纹
     const list = JSON.parse(localStorage.getItem('atmaster_caps_list') || '[]');
     if (!list.includes(fp)) { list.push(fp); localStorage.setItem('atmaster_caps_list', JSON.stringify(list)); }
   } catch (e) {}
 }
-
 function clearCapCache(){
   if (!state.deviceFingerprint) { toast('无设备指纹','error'); return; }
   localStorage.removeItem('atmaster_caps_' + state.deviceFingerprint);
@@ -987,7 +1007,7 @@ function clearCapCache(){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   ★★★ v9.0 核心：能力探测引擎 ★★★
+   能力探测引擎
    ═══════════════════════════════════════════════════════════════════════════ */
 async function runFullProbe(){
   if (!state.connected) { toast('请先连接设备','error'); return; }
@@ -998,7 +1018,6 @@ async function runFullProbe(){
     if (!state.deviceFingerprint) { toast('无法获取设备指纹','error'); return; }
   }
 
-  // 先尝试从缓存读取
   if (state.capabilitySource !== 'fresh') {
     const cached = loadCapCache(state.deviceFingerprint);
     if (cached) {
@@ -1013,7 +1032,6 @@ async function runFullProbe(){
     }
   }
 
-  // 全量探测
   state.probing = true;
   state.capabilitySource = 'fresh';
   termWrite('═══ 开始能力探测（首次接入需 20~40 秒）═══', 'info');
@@ -1038,7 +1056,6 @@ async function runFullProbe(){
 
       let value;
       if (cand.decoder && DECODERS[cand.decoder]) {
-        // decoder 接收所有捕获组
         const groups = m.slice(1);
         try { value = DECODERS[cand.decoder](...groups); }
         catch (e) { value = null; }
@@ -1072,10 +1089,36 @@ async function runFullProbe(){
 
   renderCapList();
   updateCmdHintsFromCaps();
+  /* ★ v9.1：探测完成后，未命中的能力在 UI 上明确标注"不支持" */
+  applyUnsupportedMarkers();
+}
+
+/* ★ v9.1 新增：未命中能力 UI 标注 */
+function applyUnsupportedMarkers(){
+  if (!state.capabilities) return;
+  const map = {
+    cardSlot: 'infoCardSlot',
+    qci:      'infoQCI',
+    sn:       'infoSN',
+    mac:      'infoMAC',
+    band:     'infoBand',
+    iccid:    'infoICCID',
+    imei:     'infoIMEI',
+  };
+  for (const [capKey, elId] of Object.entries(map)) {
+    if (!state.capabilities[capKey]) {
+      const el = document.getElementById(elId);
+      if (el && el.textContent === '—') {
+        el.textContent = '不支持';
+        el.className = 'info-value empty';
+        el.title = '该设备固件不支持查询此项';
+      }
+    }
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   用能力表读取所有设备信息
+   按能力表读取设备信息
    ═══════════════════════════════════════════════════════════════════════════ */
 async function queryAllByCapabilities(){
   if (!state.capabilities) { termWrite('⚠ 无能力表，跳过信息读取','info'); return; }
@@ -1090,7 +1133,7 @@ async function queryAllByCapabilities(){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   通用响应解析（不依赖芯片，靠 pattern 匹配）
+   通用响应解析
    ═══════════════════════════════════════════════════════════════════════════ */
 function parseAnyResponse(line){
   let m;
@@ -1120,7 +1163,7 @@ function parseAnyResponse(line){
   if (m && !state.rawValues.SN && m[1] !== state.rawValues.IMEI && !/^\d{15}$/.test(m[1]))
     setInfoValue('SN', m[1]);
 
-  // 固件版本
+  // 版本
   m = line.match(/\+CGMR[:\s]+"?([^"\r\n]+)"?/i)
     || line.match(/[+*]VER[:\s]+"?([^"\r\n]+)"?/i)
     || line.match(/\+ASRVERSION[:\s]+"?([^"\r\n]+)"?/i);
@@ -1144,24 +1187,38 @@ function parseAnyResponse(line){
     }
   }
 
-  // 运营商
+  /* ★ v9.1：运营商解析 —— 支持字符串和数字两种格式 */
   m = line.match(/\+COPS[:\s]*(\d+)(?:,\s*(\d+)\s*,\s*(?:"([^"]*)"|(\d+)))?/i);
   if (m) {
     const mode = parseInt(m[1]);
-    const nameStr = m[3] || '';
-    const numStr = m[4] || '';
+    const format = m[2];
+    const nameStr = (m[3] || '').trim();
+    const numStr = (m[4] || '').trim();
     const el = document.getElementById('infoOperator');
-    if (mode === 0 && !nameStr && !numStr) { el.textContent = '未注册'; el.className = 'info-value warn'; }
-    else if (nameStr) {
-      const op = mapOperatorName(nameStr);
-      if (op) { el.textContent = op.name; el.className = 'info-value ' + op.cls; }
-    } else if (numStr) {
-      const op = OPERATOR_MAP[numStr.substring(0, 5)];
-      if (op) { el.textContent = op.name; el.className = 'info-value ' + op.cls; }
+    if (mode === 0 && !nameStr && !numStr) {
+      el.textContent = '未注册'; el.className = 'info-value warn';
+    } else {
+      let op = null;
+      // 优先：如果是纯数字 MCC+MNC（无论是否带引号），走数字映射
+      const candidate = nameStr || numStr;
+      if (/^\d{5,6}$/.test(candidate)) {
+        const key5 = candidate.substring(0, 5);
+        op = OPERATOR_MAP[key5] || null;
+        if (!op) { op = { name: candidate, cls: 'ok' }; }
+      } else if (nameStr) {
+        op = mapOperatorName(nameStr);
+      } else if (numStr) {
+        op = OPERATOR_MAP[numStr.substring(0, 5)] || { name: numStr, cls: 'ok' };
+      }
+      if (op) {
+        el.textContent = op.name;
+        el.className = 'info-value ' + op.cls;
+        el.title = `原始响应: ${line}`;
+      }
     }
   }
 
-  // 卡槽（多格式）
+  // 卡槽
   m = line.match(/\^CARDMODE:\s*(\d+)/i);
   if (m) { setInfo('infoCardSlot', DECODERS.cardmode_asr(m[1]), 'ok'); }
   else {
@@ -1181,7 +1238,7 @@ function parseAnyResponse(line){
     }
   }
 
-  // 频段（多格式）
+  // 频段
   m = line.match(/[*+]BANDIND[:\s]*(.*)$/i);
   if (m) {
     const raw = m[1].trim();
@@ -1227,7 +1284,7 @@ function parseAnyResponse(line){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   UI：能力表渲染
+   能力表渲染
    ═══════════════════════════════════════════════════════════════════════════ */
 function renderCapList(){
   const el = document.getElementById('capList');
@@ -1265,11 +1322,7 @@ function renderCapList(){
   footer.textContent = `指纹: ${state.deviceFingerprint || '—'} · 命中 ${hit}/10 · 来源: ${srcLabel}`;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   根据能力表更新切卡/ADB 提示
-   ═══════════════════════════════════════════════════════════════════════════ */
 function updateCmdHintsFromCaps(){
-  // 切卡候选展示（按优先级展示第一条）
   const extCand = SIM_SWITCH_CANDIDATES.external[0];
   const intCand = SIM_SWITCH_CANDIDATES.internal[0];
   const q = state.capabilities && state.capabilities.cardSlot;
@@ -1288,7 +1341,7 @@ function updateCmdHintsFromCaps(){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   切卡（v9.0：多候选依次尝试）
+   切卡
    ═══════════════════════════════════════════════════════════════════════════ */
 async function switchCard(direction){
   if (!state.connected) { toast('请先连接','error'); return; }
@@ -1305,8 +1358,6 @@ async function switchCard(direction){
         await sleep(c.repeat > 1 ? 800 : 1000);
       }
     } catch (err) { termWrite(`发送失败: ${err.message}`, 'err'); break; }
-    // 简单判定：如果是 ERROR 则继续下一条，否则认为成功
-    // （由于切卡后设备可能立刻重启，无法等 OK）
     if (!isErrorResponse(state.responseBuffer)) { success = c; break; }
   }
   if (success) {
@@ -1324,7 +1375,6 @@ async function queryCurrentCard(){
   if (state.capabilities && state.capabilities.cardSlot) {
     await queryAndCollect(state.capabilities.cardSlot.cmd, 1200);
   } else {
-    // 依次尝试候选
     for (const cand of CAPABILITY_PROBES.cardSlot.candidates) {
       await queryAndCollect(cand.cmd, 1200);
       const el = document.getElementById('infoCardSlot');
@@ -1334,7 +1384,7 @@ async function queryCurrentCard(){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   ADB 开关（多候选）
+   ADB 开关
    ═══════════════════════════════════════════════════════════════════════════ */
 async function openADB(){
   if (!state.connected) { toast('请先连接','error'); return; }
@@ -1348,7 +1398,6 @@ async function openADB(){
   termWrite('ADB 开启指令已全部发送，请用数据线连接电脑后执行 adb devices。', 'info');
   toast('ADB 开启指令已发送', 'success', 5000);
 }
-
 async function closeADB(){
   if (!state.connected) { toast('请先连接','error'); return; }
   termWrite('═══ 关闭 ADB（多候选）═══', 'info');
@@ -1363,20 +1412,15 @@ async function closeADB(){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   网络类型探测（简化版）
+   网络类型探测
    ═══════════════════════════════════════════════════════════════════════════ */
 async function detectNetworkType(){
   termWrite('探测网络类型...', 'info');
   await sleep(300);
-  // 优先看 BANDIND 响应
   const csq = await queryAndCollect('AT+CSQ', 1200);
-  if (/\+CSQ:/i.test(csq)) {
-    setNetworkType('4g', 'CSQ 响应');
-    return;
-  }
+  if (/\+CSQ:/i.test(csq)) { setNetworkType('4g', 'CSQ 响应'); return; }
   setNetworkType('unknown', '无法判断');
 }
-
 function setNetworkType(type, subText){
   state.networkType = type;
   const i = document.getElementById('netTypeIcon');
@@ -1392,7 +1436,7 @@ function setNetworkType(type, subText){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   IP 地址
+   IP
    ═══════════════════════════════════════════════════════════════════════════ */
 async function queryPublicIPv4(){
   const apis = [
@@ -1501,7 +1545,7 @@ async function refreshIPs(){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   通用辅助函数
+   通用辅助
    ═══════════════════════════════════════════════════════════════════════════ */
 function mapOperatorName(name){
   if (!name) return null;
@@ -1518,8 +1562,12 @@ function mapOperatorName(name){
 }
 const OPERATOR_MAP = {
   '46000':{name:'中国移动',cls:'operator-cm'}, '46002':{name:'中国移动',cls:'operator-cm'},
+  '46004':{name:'中国移动',cls:'operator-cm'}, '46007':{name:'中国移动',cls:'operator-cm'},
+  '46008':{name:'中国移动',cls:'operator-cm'}, '46020':{name:'中国铁通',cls:'operator-cm'},
   '46001':{name:'中国联通',cls:'operator-cu'}, '46006':{name:'中国联通',cls:'operator-cu'},
-  '46003':{name:'中国电信',cls:'operator-ct'}, '46011':{name:'中国电信',cls:'operator-ct'},
+  '46009':{name:'中国联通',cls:'operator-cu'}, '46010':{name:'中国联通',cls:'operator-cu'},
+  '46003':{name:'中国电信',cls:'operator-ct'}, '46005':{name:'中国电信',cls:'operator-ct'},
+  '46011':{name:'中国电信',cls:'operator-ct'}, '46012':{name:'中国电信',cls:'operator-ct'},
   '46015':{name:'中国广电',cls:'operator-cbn'},
 };
 function mapQci(qci){
@@ -1552,7 +1600,7 @@ function calcLuhnCheckDigit(f14){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   UI 状态更新
+   UI 状态
    ═══════════════════════════════════════════════════════════════════════════ */
 function setInfo(id, value, cls = 'ok'){
   const el = document.getElementById(id);
@@ -1733,7 +1781,7 @@ async function sendCloudCmd(){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   写入 IMEI / SN
+   写入 IMEI/SN
    ═══════════════════════════════════════════════════════════════════════════ */
 let writeContext = { type:null, value:'', isDelete:false };
 
@@ -1760,14 +1808,14 @@ function openWriteModal(type){
   if (writeContext.isDelete) {
     document.getElementById('writeFormArea').innerHTML = `
       <div class="warn-box" style="background:rgba(231,76,60,.08);border-color:rgba(231,76,60,.3);color:#ff8a80;">
-        <b>⚠ 危险操作：</b>此操作将清空设备上的 ${baseType} 值，可能导致设备无法正常联网。
+        <b>⚠ 危险操作：</b>此操作将清空设备上的 ${baseType} 值。
       </div>
       <div class="info-box">即将发送：<code>AT*MRD_${baseType}=D</code></div>
     `;
   } else {
     document.getElementById('writeFormArea').innerHTML = `
       <div class="form-group">
-        <label id="writeLabel">${baseType==='IMEI'?'新 IMEI（15 位数字，最后一位为 Luhn 校验位）':'新 SN（8~20 位字母数字组合）'}</label>
+        <label id="writeLabel">${baseType==='IMEI'?'新 IMEI（15 位数字）':'新 SN（8~20 位字母数字）'}</label>
         <input class="form-control" id="writeInput" placeholder="${baseType==='IMEI'?'例如 866766071561673':'例如 CW26020101879'}" autocomplete="off">
         <div class="validation-hint" id="validationHint"></div>
       </div>
@@ -1891,7 +1939,7 @@ function closeWriteModalForce(){
   sel.addEventListener('change', () => {
     if (sel.value) {
       toast(`已手动指定芯片: ${sel.options[sel.selectedIndex].text}`, 'info');
-      termWrite(`⚠ 已切换到手动芯片模式: ${sel.value}（v9.0 默认能力驱动，此选项仅作兜底）`, 'info');
+      termWrite(`⚠ 已切换到手动芯片模式: ${sel.value}（v9.1 默认能力驱动，此选项仅作兜底）`, 'info');
     }
   });
 })();
@@ -1924,8 +1972,8 @@ window.addEventListener('beforeunload', () => {
   setCloudStatus('unknown');
   renderCapList();
 
-  termWrite('随身WiFi调试助手 v9.0 · 能力驱动架构已就绪', 'info');
-  termWrite('连接设备后将自动：1) 计算指纹 2) 探测能力 3) 读取信息', 'info');
+  termWrite('随身WiFi调试助手 v9.1 · 能力驱动架构已就绪', 'info');
+  termWrite('连接设备后将自动：1) 计算指纹 2) 识别芯片 3) 探测能力 4) 读取信息', 'info');
   termWrite('同一台设备再次连接时将直接使用缓存，无需重复探测。', 'info');
 
   if (!('serial' in navigator)) {
