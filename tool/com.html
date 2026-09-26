@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>串口诊断工具</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: #0f1117; color: #e8eaf0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 14px; padding: 16px;
+    min-height: 100vh;
+  }
+  h1 { font-size: 16px; margin-bottom: 4px; }
+  h1 span { color: #8b91a5; font-weight: 400; font-size: 12px; margin-left: 6px; }
+  .subtitle { color: #8b91a5; font-size: 12px; margin-bottom: 16px; }
+  .card {
+    background: #1a1d27; border: 1px solid #343a4d;
+    border-radius: 10px; padding: 14px 16px; margin-bottom: 12px;
+  }
+  .card h2 {
+    font-size: 11px; color: #8b91a5;
+    text-transform: uppercase; letter-spacing: .6px;
+    margin-bottom: 10px; font-weight: 600;
+  }
+  .row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+  .row:last-child { margin-bottom: 0; }
+  label { font-size: 12px; color: #8b91a5; min-width: 70px; }
+  select, input, button {
+    background: #2a2e3d; border: 1px solid #343a4d;
+    border-radius: 6px; color: #e8eaf0;
+    padding: 7px 10px; font-size: 13px;
+    font-family: 'SF Mono', Consolas, monospace; outline: none;
+  }
+  select { cursor: pointer; }
+  select:focus, input:focus { border-color: #4f7cff; }
+  input { flex: 1; }
+  button {
+    background: #4f7cff; border: none; color: #fff;
+    font-weight: 600; font-family: inherit;
+    cursor: pointer; padding: 8px 16px;
+    transition: all .2s;
+  }
+  button:hover:not(:disabled) { background: #6b92ff; }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.danger { background: rgba(231,76,60,.2); color: #ff8a80; border: 1px solid rgba(231,76,60,.4); }
+  button.danger:hover:not(:disabled) { background: rgba(231,76,60,.3); }
+  button.warn { background: rgba(243,156,18,.15); color: #f39c12; border: 1px solid rgba(243,156,18,.35); }
+  button.warn:hover:not(:disabled) { background: rgba(243,156,18,.25); }
+  button.ok { background: rgba(46,204,113,.15); color: #2ecc71; border: 1px solid rgba(46,204,113,.35); }
+  button.ok:hover:not(:disabled) { background: rgba(46,204,113,.25); }
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px; border-radius: 20px;
+    background: #222633; border: 1px solid #343a4d;
+    font-size: 12px; color: #8b91a5;
+  }
+  .status-badge .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #8b91a5;
+  }
+  .status-badge.connected { border-color: rgba(46,204,113,.4); color: #2ecc71; background: rgba(46,204,113,.08); }
+  .status-badge.connected .dot { background: #2ecc71; box-shadow: 0 0 8px rgba(46,204,113,.6); }
+  .status-badge.testing { border-color: rgba(243,156,18,.4); color: #f39c12; background: rgba(243,156,18,.08); }
+  .status-badge.testing .dot { background: #f39c12; animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
+  .log {
+    background: #0a0c12; border: 1px solid #343a4d;
+    border-radius: 8px; padding: 12px;
+    height: 340px; overflow-y: auto;
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 12px; line-height: 1.7;
+  }
+  .log .line { display: flex; gap: 8px; margin-bottom: 2px; }
+  .log .ts { color: #4a5060; flex-shrink: 0; }
+  .log .tag { flex-shrink: 0; font-weight: 600; }
+  .log .tag.tx { color: #4f7cff; }
+  .log .tag.rx { color: #2ecc71; }
+  .log .tag.info { color: #f39c12; }
+  .log .tag.err { color: #e74c3c; }
+  .log .tag.ok { color: #2ecc71; font-weight: 700; }
+  .log .body { white-space: pre-wrap; word-break: break-all; flex: 1; }
+  .log .body.hex { color: #8b91a5; font-size: 11px; }
+  .stats {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 8px; margin-top: 10px;
+  }
+  .stat {
+    background: #222633; border: 1px solid #343a4d;
+    border-radius: 8px; padding: 10px;
+    text-align: center;
+  }
+  .stat .num { font-size: 20px; font-weight: 700; font-family: 'SF Mono', monospace; }
+  .stat .lbl { font-size: 10px; color: #8b91a5; margin-top: 2px; text-transform: uppercase; letter-spacing: .5px; }
+  .stat.ok .num { color: #2ecc71; }
+  .stat.err .num { color: #e74c3c; }
+  .stat.warn .num { color: #f39c12; }
+  .stat.info .num { color: #4f7cff; }
+  .hint {
+    font-size: 11px; color: #8b91a5; line-height: 1.6;
+    padding: 8px 10px; background: rgba(79,124,255,.06);
+    border: 1px solid rgba(79,124,255,.2); border-radius: 6px;
+    margin-top: 8px;
+  }
+  .hint b { color: #7fa4ff; }
+  .hint code { background: rgba(0,0,0,.3); padding: 1px 5px; border-radius: 3px; font-size: 10.5px; color: #a8c0ff; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #2e3342; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #3e455a; }
+  .presets { display: flex; gap: 6px; flex-wrap: wrap; }
+  .preset-btn {
+    padding: 5px 10px; font-size: 11px;
+    background: #222633; border: 1px solid #343a4d;
+    border-radius: 5px; color: #e8eaf0;
+    cursor: pointer; font-family: 'SF Mono', monospace;
+  }
+  .preset-btn:hover { border-color: #4f7cff; color: #4f7cff; }
+</style>
+</head>
+<body>
+
+<h1>串口诊断工具 <span>Serial Diagnose v1.0</span></h1>
+<div class="subtitle">手动控制 DTR/RTS，多波特率自动扫描，原始字节日志</div>
+
+<div class="card">
+  <h2>连接设置</h2>
+  <div class="row">
+    <button id="btnConnect" style="flex:1;">🔌 选择串口并连接</button>
+    <button id="btnDisconnect" class="danger" disabled>断开</button>
+    <div class="status-badge" id="statusBadge">
+      <div class="dot"></div>
+      <span id="statusText">未连接</span>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>DTR / RTS 控制</h2>
+  <div class="row">
+    <label>DTR</label>
+    <select id="dtr">
+      <option value="true">高（true）</option>
+      <option value="false">低（false）</option>
+    </select>
+    <label>RTS</label>
+    <select id="rts">
+      <option value="true">高（true）</option>
+      <option value="false">低（false）</option>
+    </select>
+    <button id="btnApplySignals" class="ok" disabled>应用信号</button>
+  </div>
+  <div class="hint">
+    <b>展锐 UDX710 的 SPRD AT 口：</b>先试试 <code>DTR=true, RTS=true</code>，再试 <code>DTR=true, RTS=false</code>。不同固件要求不同。
+  </div>
+</div>
+
+<div class="card">
+  <h2>手动发送</h2>
+  <div class="row">
+    <input id="cmdInput" placeholder="输入 AT 指令，如 AT 或 ATI" value="AT">
+    <button id="btnSend" disabled>发送</button>
+  </div>
+  <div class="row">
+    <label>快速测试</label>
+    <div class="presets">
+      <button class="preset-btn" data-cmd="AT">AT</button>
+      <button class="preset-btn" data-cmd="ATE0">ATE0</button>
+      <button class="preset-btn" data-cmd="ATI">ATI</button>
+      <button class="preset-btn" data-cmd="AT+CGMM">AT+CGMM</button>
+      <button class="preset-btn" data-cmd="AT+CGMI">AT+CGMI</button>
+      <button class="preset-btn" data-cmd="AT+CGMR">AT+CGMR</button>
+      <button class="preset-btn" data-cmd="AT+CGSN">AT+CGSN</button>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>自动诊断扫描</h2>
+  <div class="row">
+    <button id="btnAutoScan" class="warn" style="flex:1;" disabled>
+      🔍 自动扫描所有波特率 × DTR/RTS 组合
+    </button>
+  </div>
+  <div class="hint">
+    会依次尝试 <b>9600 / 19200 / 38400 / 57600 / 115200</b> × <b>4 种 DTR/RTS 组合</b>，每种组合发送 <code>AT</code> 并等待 1.2 秒。检测到 <code>OK</code> 或其他响应即停止并报告结果。
+  </div>
+</div>
+
+<div class="card">
+  <h2>原始日志</h2>
+  <div class="log" id="log"></div>
+  <div class="stats">
+    <div class="stat info"><div class="num" id="statTx">0</div><div class="lbl">发送指令</div></div>
+    <div class="stat ok"><div class="num" id="statRx">0</div><div class="lbl">收到字节</div></div>
+    <div class="stat warn"><div class="num" id="statScans">0</div><div class="lbl">扫描次数</div></div>
+    <div class="stat err"><div class="num" id="statErrors">0</div><div class="lbl">错误</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>使用步骤</h2>
+  <div class="hint">
+    <b>1.</b> 点「选择串口并连接」，在弹窗里选 <code>SPRD AT (COM20)</code>（不要选蓝牙 COM3/COM4）<br>
+    <b>2.</b> 先手动点「应用信号」，试试 <code>DTR=true, RTS=true</code>，然后点「发送」AT<br>
+    <b>3.</b> 如果无响应，切换到 <code>DTR=true, RTS=false</code> 再试<br>
+    <b>4.</b> 如果还不行，点「自动扫描」，让工具穷举所有组合<br>
+    <b>5.</b> 有响应的组合就是正确的配置，把它记下来，回主工具里默认用这个
+  </div>
+</div>
+
+<script>
+const state = {
+  port: null,
+  reader: null,
+  writer: null,
+  connected: false,
+  readLoopActive: false,
+  stats: { tx: 0, rx: 0, scans: 0, errors: 0 },
+};
+
+/* ─── 日志 ─── */
+function log(tag, text, cls = '') {
+  const el = document.getElementById('log');
+  const line = document.createElement('div');
+  line.className = 'line';
+  const ts = new Date().toTimeString().slice(0, 8);
+  line.innerHTML = `<span class="ts">${ts}</span><span class="tag ${tag}">[${tag.toUpperCase()}]</span><span class="body ${cls}">${escapeHtml(text)}</span>`;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+}
+
+function bytesToHex(bytes) {
+  return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join(' ');
+}
+
+function bytesToAscii(bytes) {
+  return Array.from(bytes).map(b => (b >= 32 && b < 127) ? String.fromCharCode(b) : (b === 10 ? '\\n' : b === 13 ? '\\r' : '.')).join('');
+}
+
+function updateStats() {
+  document.getElementById('statTx').textContent = state.stats.tx;
+  document.getElementById('statRx').textContent = state.stats.rx;
+  document.getElementById('statScans').textContent = state.stats.scans;
+  document.getElementById('statErrors').textContent = state.stats.errors;
+}
+
+function setStatus(cls, text) {
+  const badge = document.getElementById('statusBadge');
+  badge.className = 'status-badge ' + cls;
+  document.getElementById('statusText').textContent = text;
+}
+
+/* ─── 连接 ─── */
+document.getElementById('btnConnect').onclick = async () => {
+  if (!('serial' in navigator)) {
+    log('err', '当前浏览器不支持 Web Serial API，请用 Chrome 89+ / Edge 89+');
+    return;
+  }
+  try {
+    log('info', '正在请求串口...');
+    const port = await navigator.serial.requestPort();
+    log('info', `已选中端口，正在打开（波特率 115200）...`);
+    await port.open({ baudRate: 115200, dataBits: 8, stopBits: 1, parity: 'none', flowControl: 'none' });
+    state.port = port;
+    state.connected = true;
+    state.stats = { tx: 0, rx: 0, scans: 0, errors: 0 };
+    updateStats();
+    setStatus('connected', '已连接 COM');
+    log('ok', '✓ 串口已打开');
+    document.getElementById('btnConnect').disabled = true;
+    document.getElementById('btnDisconnect').disabled = false;
+    document.getElementById('btnSend').disabled = false;
+    document.getElementById('btnApplySignals').disabled = false;
+    document.getElementById('btnAutoScan').disabled = false;
+
+    // 默认尝试 DTR=true, RTS=true
+    try {
+      await port.setSignals({ dataTerminalReady: true, requestToSend: true });
+      log('info', '已设置 DTR=true, RTS=true');
+    } catch (e) {
+      log('err', '设置 DTR/RTS 失败: ' + e.message);
+    }
+
+    startReadLoop();
+  } catch (err) {
+    if (err.name === 'NotFoundError') {
+      log('info', '用户取消了串口选择');
+    } else {
+      log('err', '连接失败: ' + err.message);
+      state.stats.errors++; updateStats();
+    }
+  }
+};
+
+document.getElementById('btnDisconnect').onclick = async () => {
+  state.readLoopActive = false;
+  try {
+    if (state.reader) { await state.reader.cancel().catch(() => {}); state.reader = null; }
+    if (state.writer) { state.writer.releaseLock(); state.writer = null; }
+    if (state.port) { await state.port.close(); state.port = null; }
+  } catch (e) {}
+  state.connected = false;
+  setStatus('', '未连接');
+  log('info', '已断开连接');
+  document.getElementById('btnConnect').disabled = false;
+  document.getElementById('btnDisconnect').disabled = true;
+  document.getElementById('btnSend').disabled = true;
+  document.getElementById('btnApplySignals').disabled = true;
+  document.getElementById('btnAutoScan').disabled = true;
+};
+
+/* ─── 读循环 ─── */
+async function startReadLoop() {
+  if (!state.port || !state.port.readable) return;
+  state.readLoopActive = true;
+  while (state.port.readable && state.readLoopActive) {
+    state.reader = state.port.readable.getReader();
+    let buffer = '';
+    try {
+      while (true) {
+        const { value, done } = await state.reader.read();
+        if (done) break;
+        if (value && value.length) {
+          state.stats.rx += value.length;
+          updateStats();
+          const text = new TextDecoder().decode(value);
+          buffer += text;
+          // 按行输出，同时给出 hex
+          log('rx', text.replace(/\r/g, '\\r').replace(/\n/g, '\\n'));
+          log('rx', bytesToHex(value), 'hex');
+        }
+      }
+    } catch (err) {
+      if (state.connected && err.name !== 'NetworkError') {
+        log('err', '读取错误: ' + err.message);
+        state.stats.errors++; updateStats();
+      }
+    } finally {
+      try { state.reader.releaseLock(); } catch (e) {}
+    }
+  }
+}
+
+/* ─── 发送 ─── */
+async function sendCmd(cmd) {
+  if (!state.port || !state.port.writable) {
+    log('err', '串口不可写');
+    return false;
+  }
+  try {
+    const writer = state.port.writable.getWriter();
+    const bytes = new TextEncoder().encode(cmd + '\r\n');
+    await writer.write(bytes);
+    writer.releaseLock();
+    state.stats.tx++;
+    updateStats();
+    log('tx', cmd);
+    return true;
+  } catch (err) {
+    log('err', '发送失败: ' + err.message);
+    state.stats.errors++; updateStats();
+    return false;
+  }
+}
+
+document.getElementById('btnSend').onclick = async () => {
+  const cmd = document.getElementById('cmdInput').value.trim();
+  if (cmd) await sendCmd(cmd);
+};
+
+document.getElementById('cmdInput').onkeydown = (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    document.getElementById('btnSend').click();
+  }
+};
+
+document.querySelectorAll('.preset-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.getElementById('cmdInput').value = btn.dataset.cmd;
+    document.getElementById('btnSend').click();
+  };
+});
+
+/* ─── 应用 DTR/RTS ─── */
+document.getElementById('btnApplySignals').onclick = async () => {
+  if (!state.port) return;
+  const dtr = document.getElementById('dtr').value === 'true';
+  const rts = document.getElementById('rts').value === 'true';
+  try {
+    await state.port.setSignals({ dataTerminalReady: dtr, requestToSend: rts });
+    log('ok', `✓ 已设置 DTR=${dtr}, RTS=${rts}`);
+  } catch (err) {
+    log('err', '设置信号失败: ' + err.message);
+    state.stats.errors++; updateStats();
+  }
+};
+
+/* ─── 自动扫描 ─── */
+document.getElementById('btnAutoScan').onclick = async () => {
+  if (!state.port) return;
+  const btn = document.getElementById('btnAutoScan');
+  btn.disabled = true;
+  setStatus('testing', '扫描中...');
+
+  const bauds = [9600, 19200, 38400, 57600, 115200];
+  const signalCombos = [
+    { dtr: true,  rts: true  },
+    { dtr: true,  rts: false },
+    { dtr: false, rts: true  },
+    { dtr: false, rts: false },
+  ];
+
+  let found = null;
+
+  outer:
+  for (const baud of bauds) {
+    for (const sig of signalCombos) {
+      state.stats.scans++;
+      updateStats();
+      log('info', `── 测试 波特率=${baud} DTR=${sig.dtr} RTS=${sig.rts} ──`);
+
+      // 关闭当前串口
+      try {
+        state.readLoopActive = false;
+        if (state.reader) { await state.reader.cancel().catch(() => {}); state.reader = null; }
+        if (state.port) { await state.port.close(); state.port = null; }
+      } catch (e) {}
+
+      try {
+        // 重新打开
+        const ports = await navigator.serial.getPorts();
+        const port = ports[0];
+        if (!port) { log('err', '未找到已授权串口，请手动重连'); break outer; }
+        await port.open({ baudRate: baud, dataBits: 8, stopBits: 1, parity: 'none', flowControl: 'none' });
+        state.port = port;
+        state.readLoopActive = true;
+
+        // 应用信号
+        await port.setSignals({ dataTerminalReady: sig.dtr, requestToSend: sig.rts });
+        log('info', `信号已设置`);
+
+        // 启动读循环（临时收集）
+        let responseBytes = 0;
+        let responseData = '';
+        const readPromise = (async () => {
+          const reader = port.readable.getReader();
+          try {
+            while (true) {
+              const { value, done } = await reader.read();
+              if (done) break;
+              if (value && value.length) {
+                responseBytes += value.length;
+                responseData += new TextDecoder().decode(value);
+              }
+            }
+          } catch (e) {} finally { try { reader.releaseLock(); } catch (e) {} }
+        })();
+
+        // 等待 200ms 让信号稳定
+        await new Promise(r => setTimeout(r, 200));
+
+        // 发送 AT
+        const writer = port.writable.getWriter();
+        await writer.write(new TextEncoder().encode('AT\r\n'));
+        writer.releaseLock();
+        state.stats.tx++; updateStats();
+        log('tx', 'AT');
+
+        // 等待 1.2 秒
+        await new Promise(r => setTimeout(r, 1200));
+
+        // 停止读循环
+        state.readLoopActive = false;
+        if (state.reader) { await state.reader.cancel().catch(() => {}); }
+        await readPromise.catch(() => {});
+
+        if (responseBytes > 0) {
+          state.stats.rx += responseBytes;
+          updateStats();
+          log('ok', `🎉 收到响应！字节数=${responseBytes}`);
+          log('ok', '响应内容: ' + responseData.replace(/\r/g, '\\r').replace(/\n/g, '\\n'));
+          found = { baud, dtr: sig.dtr, rts: sig.rts, response: responseData };
+          break outer;
+        } else {
+          log('info', '无响应');
+        }
+
+      } catch (e) {
+        log('err', '打开/测试失败: ' + e.message);
+        state.stats.errors++; updateStats();
+      }
+    }
+  }
+
+  btn.disabled = false;
+
+  if (found) {
+    setStatus('connected', `找到配置：${found.baud}`);
+    log('ok', '');
+    log('ok', '═══════════════════════════════');
+    log('ok', `✓ 有效配置：波特率=${found.baud}, DTR=${found.dtr}, RTS=${found.rts}`);
+    log('ok', `响应：${found.response.replace(/\r/g, '\\r').replace(/\n/g, '\\n')}`);
+    log('ok', '═══════════════════════════════');
+    alert(`找到有效配置！\n波特率：${found.baud}\nDTR：${found.dtr}\nRTS：${found.rts}\n\n把这三个值记下来，回主工具里使用。`);
+  } else {
+    setStatus('', '未找到');
+    log('err', '');
+    log('err', '═══════════════════════════════');
+    log('err', `✗ 已尝试 ${state.stats.scans} 种组合，全部无响应`);
+    log('err', '可能原因：');
+    log('err', '  1. 设备的 AT 串口未开启（需登录 192.168.1.1 后台开启调试模式）');
+    log('err', '  2. USB 口是纯数据网卡（RNDIS），不是 AT 串口');
+    log('err', '  3. 模块串口被固件锁定，无法通过浏览器访问');
+    log('err', '  4. 硬件 TX/RX 未连接或接反');
+    log('err', '═══════════════════════════════');
+  }
+};
+
+/* ─── 初始化 ─── */
+log('info', '串口诊断工具已就绪');
+log('info', 'Web Serial 支持: ' + ('serial' in navigator ? '✓' : '✗'));
+if (!('serial' in navigator)) {
+  document.getElementById('btnConnect').disabled = true;
+  log('err', '当前浏览器不支持 Web Serial，请用 Chrome 89+ / Edge 89+');
+}
+</script>
+</body>
+</html>
