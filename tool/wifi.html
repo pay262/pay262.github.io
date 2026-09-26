@@ -316,6 +316,8 @@
   .badge-tag.green { background: rgba(46,204,113,.15); color: var(--success); }
   .badge-tag.orange { background: rgba(243,156,18,.15); color: var(--warn); }
   .badge-tag.gray { background: rgba(139,145,165,.12); color: var(--text-dim); }
+  .btn-stop { background: var(--error) !important; box-shadow: 0 2px 10px rgba(231,76,60,.3) !important; }
+  .btn-stop:hover:not(:disabled) { background: #ff6b5b !important; }
 </style>
 </head>
 <body>
@@ -323,7 +325,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v2.2</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v2.3</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -400,7 +402,7 @@
       <div class="terminal" id="terminal">
         <div class="line">
           <span class="prefix info">●</span>
-          <span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v2.2 已就绪。连接设备后将自动识别基带芯片平台。</span>
+          <span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v2.3 已就绪。修复设备信息读取、频段卡槽显示、测速中断。</span>
         </div>
       </div>
       <div class="terminal-input-row">
@@ -468,7 +470,7 @@
           </div>
           <div class="speedtest-status" id="speedStatus">点击下方按钮开始测速</div>
         </div>
-        <button class="btn btn-primary" style="margin-top:10px;" id="btnSpeedtest" onclick="startSpeedtest()" disabled>
+        <button class="btn btn-primary" style="margin-top:10px;" id="btnSpeedtest" onclick="toggleSpeedtest()" disabled>
           ⚡ 开始测速
         </button>
         <div style="margin-top:8px;font-size:11px;color:var(--text-dim);line-height:1.5;">
@@ -494,6 +496,8 @@
         <h4>设备信息</h4>
         <div>
           <div class="info-item"><span class="info-label">芯片平台</span><span class="info-value empty" id="infoChip">—</span></div>
+          <div class="info-item"><span class="info-label">当前卡槽</span><span class="info-value empty" id="infoCardSlot">—</span></div>
+          <div class="info-item"><span class="info-label">当前频段</span><span class="info-value empty" id="infoBand">—</span></div>
           <div class="info-item"><span class="info-label">IMEI</span><span class="info-value empty" id="infoIMEI">—</span></div>
           <div class="info-item"><span class="info-label">SN</span><span class="info-value empty" id="infoSN">—</span></div>
           <div class="info-item"><span class="info-label">WiFi MAC</span><span class="info-value empty" id="infoMAC">—</span></div>
@@ -590,9 +594,10 @@ const state = {
   reader: null,
   readLoopActive: false,
   logBuffer: [],
+  speedtestAbort: null,      // AbortController 用于中断测速
   speedtesting: false,
-  responseBuffer: '',        // 用于收集指令响应
-  detectedChip: null,        // 自动识别到的芯片
+  responseBuffer: '',
+  detectedChip: null,
 };
 
 const BAND_MAP = {
@@ -606,7 +611,6 @@ const BAND_MAP = {
   B41: { label: 'B41', param: ',256,0,0,2,2,0' },
 };
 
-/* 切卡指令映射 —— 严格按基带芯片分类 */
 const SWITCH_CMD_MAP = {
   zxic: {
     name: '中兴微',
@@ -729,7 +733,6 @@ async function connectUSB() {
     enableQuickButtons(true);
     startReadLoop();
 
-    // 连接后自动流程：先识别芯片，再查询设备信息
     setTimeout(async () => {
       await autoDetectChip();
       await autoQueryDeviceInfo();
@@ -766,7 +769,6 @@ async function startReadLoop() {
               const trimmed = line.trim();
               termWrite(trimmed, 'resp');
               parseDeviceInfo(trimmed);
-              // 收集到响应缓冲，用于自动识别
               state.responseBuffer += trimmed + '\n';
             }
           }
@@ -796,6 +798,7 @@ async function writeToPort(data) {
 async function disconnect() {
   state.readLoopActive = false;
   state.connected = false;
+  if (state.speedtestAbort) { state.speedtestAbort.abort(); state.speedtestAbort = null; }
   try {
     if (state.reader) { await state.reader.cancel().catch(() => {}); state.reader = null; }
     if (state.port) { await state.port.close(); state.port = null; }
@@ -868,7 +871,7 @@ function quickCmd(cmd) {
 }
 
 /* ═══════════════════════════════════════════════════
-   响应收集辅助：发送指令并等待，返回收集到的响应
+   响应收集：发送指令并等待返回
    ═══════════════════════════════════════════════════ */
 async function queryAndCollect(cmd, waitMs = 800) {
   state.responseBuffer = '';
@@ -886,7 +889,7 @@ async function queryAndCollect(cmd, waitMs = 800) {
 }
 
 /* ═══════════════════════════════════════════════════
-   ★ 芯片自动识别
+   芯片自动识别
    ═══════════════════════════════════════════════════ */
 function setChipDetectStatus(status, name) {
   const el = document.getElementById('chipDetectStatus');
@@ -902,32 +905,23 @@ function setChipDetectStatus(status, name) {
   el.className = 'badge-tag ' + info.cls;
 }
 
-/* 从文本中匹配芯片关键字 */
 function detectChipFromText(text) {
   if (!text) return null;
-  // ASR 特征：ASR1802/ASR1803 等型号，或带 * 的 AT*MRD_ 指令集
   if (/ASR\s*18\d{2}/i.test(text) || /\bASR\b/i.test(text)) return 'asr';
-  // 中兴微特征：ZTE / ZXIC / ZCARDSWITCH
   if (/ZXIC|中兴微|\bZTE\b|ZCARDSWITCH/i.test(text)) return 'zxic';
-  // 紫光展锐特征：Unisoc / Spreadtrum / SPRD / UISxxxx
   if (/Unisoc|Spreadtrum|\bSPRD\b|UIS\d{4}|展锐/i.test(text)) return 'unisoc';
-  // 高通特征：Qualcomm / MDM9xxx / QDSIM
   if (/Qualcomm|\bMDM\d|QDSIM/i.test(text)) return 'qualcomm';
   return null;
 }
 
-/* 自动识别主流程 */
 async function autoDetectChip() {
   setChipDetectStatus('detecting');
   termWrite('开始自动识别芯片平台...', 'info');
-
   let chip = null;
 
-  // 第 1 步：发送 ATI 获取模块型号信息
   const atiResp = await queryAndCollect('ATI', 1000);
   chip = detectChipFromText(atiResp);
 
-  // 第 2 步：如果 ATI 无法判断，逐个探测平台特有指令
   if (!chip) {
     termWrite('ATI 未能识别，尝试探测平台特有指令...', 'info');
     const probes = [
@@ -938,7 +932,6 @@ async function autoDetectChip() {
     ];
     for (const probe of probes) {
       const r = await queryAndCollect(probe.cmd, 700);
-      // 有响应且匹配关键字，且不是 ERROR
       if (probe.kw.test(r) && !/^\s*ERROR\s*$/im.test(r)) {
         chip = probe.p;
         termWrite(`探测到 ${SWITCH_CMD_MAP[probe.p].name} 特征指令响应`, 'resp');
@@ -949,11 +942,9 @@ async function autoDetectChip() {
 
   if (chip) {
     state.detectedChip = chip;
-    // 自动设置下拉框（程序修改 value 不会触发 change 事件）
     document.getElementById('chipPlatform').value = chip;
     updateCmdHints();
     setChipDetectStatus('detected', SWITCH_CMD_MAP[chip].name);
-    // 更新设备信息面板
     const chipEl = document.getElementById('infoChip');
     chipEl.textContent = SWITCH_CMD_MAP[chip].name;
     chipEl.className = 'info-value ok';
@@ -969,13 +960,16 @@ async function autoDetectChip() {
 }
 
 /* ═══════════════════════════════════════════════════
-   设备信息解析
+   设备信息解析（增强版）
    ═══════════════════════════════════════════════════ */
 function parseDeviceInfo(line) {
+  // IMEI（15位数字）
   if (/^\d{15}$/.test(line)) {
     document.getElementById('infoIMEI').textContent = line;
     document.getElementById('infoIMEI').className = 'info-value ok';
   }
+
+  // SN（字母数字组合，排除 IMEI）
   if (/^[A-Z0-9]{8,20}$/.test(line) && !/^\d{15}$/.test(line)) {
     const snEl = document.getElementById('infoSN');
     if (snEl.textContent === '—') {
@@ -983,16 +977,23 @@ function parseDeviceInfo(line) {
       snEl.className = 'info-value ok';
     }
   }
+
+  // MAC 地址
   const macMatch = line.match(/([0-9A-Fa-f]{2}[:\-]){5}[0-9A-Fa-f]{2}/);
   if (macMatch) {
     document.getElementById('infoMAC').textContent = macMatch[0];
     document.getElementById('infoMAC').className = 'info-value ok';
   }
-  const verMatch = line.match(/^(?:Revision|VER|version)[:\s]*(.+)/i);
+
+  // 固件版本（多格式兼容）
+  const verMatch = line.match(/^(?:Revision|VER|Version|Firmware)[:\s]*(.+)/i) ||
+                   line.match(/(?:^|\s)(?:VER|Revision)[\s:=]+([A-Za-z0-9._\-]+)/i);
   if (verMatch) {
     document.getElementById('infoVER').textContent = verMatch[1].trim();
     document.getElementById('infoVER').className = 'info-value ok';
   }
+
+  // 信号质量 +CSQ: 23,99
   const csqMatch = line.match(/\+CSQ:\s*(\d+)/);
   if (csqMatch) {
     const csq = parseInt(csqMatch[1]);
@@ -1000,19 +1001,106 @@ function parseDeviceInfo(line) {
     el.textContent = csq === 99 ? '无信号' : `${csq} (${csq >= 20 ? '强' : csq >= 10 ? '中' : '弱'})`;
     el.className = 'info-value ' + (csq === 99 ? 'empty' : csq >= 10 ? 'ok' : 'warn');
   }
-}
 
-async function autoQueryDeviceInfo() {
-  const cmds = ['AT+CGSN', 'AT*MRD_SN?', 'AT*MRD_WIFIID?', 'AT+VER', 'AT+CSQ'];
-  for (const c of cmds) {
-    termWrite(c, 'cmd');
-    try { await writeToPort(c); } catch (e) { break; }
-    await sleep(400);
+  // 当前卡槽：+SWSIM: 0 / +SWSIM: 1 / *SWSIM: 0
+  const swsimMatch = line.match(/[*+]SWSIM[:\s]*(\d+)/i);
+  if (swsimMatch) {
+    const slot = parseInt(swsimMatch[1]);
+    const el = document.getElementById('infoCardSlot');
+    el.textContent = slot === 0 ? '外置卡 (SIM2)' : '内置卡 (SIM1)';
+    el.className = 'info-value ' + (slot === 0 ? 'ok' : 'warn');
+  }
+
+  // 中兴微卡槽：+ZCARDSWITCH: 0 / 1
+  const zcardMatch = line.match(/\+ZCARDSWITCH[:\s]*(\d+)/i);
+  if (zcardMatch) {
+    const slot = parseInt(zcardMatch[1]);
+    const el = document.getElementById('infoCardSlot');
+    el.textContent = slot === 0 ? '外置卡' : '内置卡';
+    el.className = 'info-value ' + (slot === 0 ? 'ok' : 'warn');
+  }
+
+  // 紫光展锐卡槽：+SIMSWITCH: 0,0 / 1,0
+  const simswitchMatch = line.match(/\+SIMSWITCH[:\s]*(\d+)/i);
+  if (simswitchMatch) {
+    const slot = parseInt(simswitchMatch[1]);
+    const el = document.getElementById('infoCardSlot');
+    el.textContent = slot === 0 ? '外置卡' : '内置卡';
+    el.className = 'info-value ' + (slot === 0 ? 'ok' : 'warn');
+  }
+
+  // 高通卡槽：+QDSIM: 2 / 1
+  const qdsimMatch = line.match(/\+QDSIM[:\s]*(\d+)/i);
+  if (qdsimMatch) {
+    const slot = parseInt(qdsimMatch[1]);
+    const el = document.getElementById('infoCardSlot');
+    el.textContent = slot === 2 ? '外置卡 (SIM2)' : '内置卡 (SIM1)';
+    el.className = 'info-value ' + (slot === 2 ? 'ok' : 'warn');
+  }
+
+  // 频段：*BAND: 1,3,8 或 +BAND: 1
+  const bandMatch = line.match(/[*+]BAND[:\s]*([0-9,]+)/i);
+  if (bandMatch) {
+    const bandStr = bandMatch[1].trim();
+    const bands = bandStr.split(',').map(b => {
+      const n = parseInt(b);
+      if (n === 1) return 'B1';
+      if (n === 4) return 'B3';
+      if (n === 16) return 'B5';
+      if (n === 128 && bandStr.split(',').length > 1) return 'B8';
+      if (n === 32) return 'B38';
+      if (n === 64) return 'B39';
+      if (n === 128 && bandStr.split(',').length === 1) return 'B40';
+      if (n === 256) return 'B41';
+      return 'B' + n;
+    }).filter(b => b !== 'B0');
+    const el = document.getElementById('infoBand');
+    el.textContent = bands.length > 0 ? bands.join(', ') : bandStr;
+    el.className = 'info-value ok';
   }
 }
 
+/* ═══════════════════════════════════════════════════
+   自动查询设备信息（增强探测）
+   ═══════════════════════════════════════════════════ */
+async function autoQueryDeviceInfo() {
+  termWrite('正在查询设备信息...', 'info');
+
+  const chip = state.detectedChip || 'asr';
+
+  // IMEI：先试标准 AT+CGSN，无响应则试 ASR 私有指令
+  let imeiResp = await queryAndCollect('AT+CGSN', 600);
+  if (!/\d{15}/.test(imeiResp)) {
+    await queryAndCollect('AT*MRD_IMEI?', 600);
+  }
+
+  // SN：先试 AT*MRD_SN?，无响应则试 AT+CGSN（部分模块 SN 和 IMEI 合一）
+  let snResp = await queryAndCollect('AT*MRD_SN?', 600);
+  if (!snResp || /^\s*ERROR\s*$/im.test(snResp)) {
+    await queryAndCollect('AT+SN?', 600);
+  }
+
+  // 固件版本：先试 AT+VER，无响应则试 AT+CGMR / ATI
+  let verResp = await queryAndCollect('AT+VER', 600);
+  if (!verResp || /^\s*ERROR\s*$/im.test(verResp)) {
+    await queryAndCollect('AT+CGMR', 600);
+  }
+
+  // 信号质量
+  await queryAndCollect('AT+CSQ', 600);
+
+  // 当前卡槽
+  const cfg = SWITCH_CMD_MAP[chip];
+  if (cfg) await queryAndCollect(cfg.query, 600);
+
+  // 当前频段
+  await queryAndCollect('AT*BAND?', 600);
+
+  termWrite('设备信息查询完成。', 'info');
+}
+
 function resetDeviceInfo() {
-  ['infoChip','infoIMEI','infoSN','infoMAC','infoVER','infoCSQ'].forEach(id => {
+  ['infoChip','infoCardSlot','infoBand','infoIMEI','infoSN','infoMAC','infoVER','infoCSQ'].forEach(id => {
     const el = document.getElementById(id);
     el.textContent = '—';
     el.className = 'info-value empty';
@@ -1045,7 +1133,7 @@ function enableQuickButtons(enable) {
 }
 
 /* ═══════════════════════════════════════════════════
-   ★ SIM 卡切换
+   SIM 卡切换
    ═══════════════════════════════════════════════════ */
 function getPlatformConfig() {
   const platform = document.getElementById('chipPlatform').value;
@@ -1060,7 +1148,6 @@ function updateCmdHints() {
   document.getElementById('switchTip').innerHTML = cfg.tip;
 }
 
-/* 用户手动修改下拉框时，标记为手动选择 */
 document.getElementById('chipPlatform').addEventListener('change', () => {
   updateCmdHints();
   setChipDetectStatus('manual');
@@ -1094,6 +1181,8 @@ async function switchToExternalCard() {
   }
   toast('切卡指令已发送，设备即将重启', 'success', 5000);
   setCloudStatus('unknown');
+  // 2 秒后查询卡槽状态
+  setTimeout(() => queryCurrentCard(), 2000);
 }
 
 async function switchToInternalCard() {
@@ -1107,6 +1196,7 @@ async function switchToInternalCard() {
   } catch (err) {
     termWrite(`发送失败: ${err.message}`, 'err');
   }
+  setTimeout(() => queryCurrentCard(), 2000);
 }
 
 async function queryCurrentCard() {
@@ -1122,23 +1212,46 @@ async function queryCurrentCard() {
 }
 
 /* ═══════════════════════════════════════════════════
-   限速检测
+   限速检测（带停止按钮 + 超时保护）
    ═══════════════════════════════════════════════════ */
+async function toggleSpeedtest() {
+  if (state.speedtesting) {
+    // 当前正在测速，点击停止
+    if (state.speedtestAbort) state.speedtestAbort.abort();
+    return;
+  }
+  // 开始测速
+  await startSpeedtest();
+}
+
 async function startSpeedtest() {
-  if (state.speedtesting) return;
   if (!state.connected) { toast('请先连接设备', 'error'); return; }
   state.speedtesting = true;
+
   const btn = document.getElementById('btnSpeedtest');
-  btn.disabled = true;
-  btn.textContent = '⏳ 测速中...';
+  btn.disabled = false;
+  btn.textContent = '⏹ 停止测速';
+  btn.className = 'btn btn-stop';
   document.getElementById('speedDownload').innerHTML = '— <small>Mbps</small>';
   document.getElementById('speedBar').style.width = '0%';
-  document.getElementById('speedStatus').textContent = '正在下载测试文件...';
+  document.getElementById('speedStatus').textContent = '正在连接测速服务器...';
+
+  const controller = new AbortController();
+  state.speedtestAbort = controller;
+
+  // 10 秒无数据超时保护
+  let lastDataTime = Date.now();
+  const timeoutTimer = setInterval(() => {
+    if (Date.now() - lastDataTime > 10000) {
+      controller.abort();
+      clearInterval(timeoutTimer);
+    }
+  }, 2000);
 
   try {
     const testUrl = 'https://speed.cloudflare.com/__down?bytes=10000000';
     const startTime = performance.now();
-    const response = await fetch(testUrl, { cache: 'no-store' });
+    const response = await fetch(testUrl, { cache: 'no-store', signal: controller.signal });
     const reader = response.body.getReader();
     let receivedBytes = 0;
     const totalBytes = 10 * 1024 * 1024;
@@ -1146,12 +1259,14 @@ async function startSpeedtest() {
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
+      lastDataTime = Date.now();
       receivedBytes += value.length;
       const progress = Math.min((receivedBytes / totalBytes) * 100, 100);
       document.getElementById('speedBar').style.width = progress + '%';
       const elapsed = (performance.now() - startTime) / 1000;
       const speedMbps = (receivedBytes * 8) / (elapsed * 1000000);
       document.getElementById('speedDownload').innerHTML = `${speedMbps.toFixed(1)} <small>Mbps</small>`;
+      document.getElementById('speedStatus').textContent = `已下载 ${(receivedBytes/1024/1024).toFixed(1)} MB / 10 MB`;
     }
 
     const elapsed = (performance.now() - startTime) / 1000;
@@ -1171,14 +1286,21 @@ async function startSpeedtest() {
       termWrite(`测速结果: ${finalSpeed.toFixed(1)} Mbps — 速率正常`, 'resp');
     }
   } catch (err) {
-    document.getElementById('speedStatus').textContent = '测速失败: ' + err.message;
-    termWrite(`测速失败: ${err.message}`, 'err');
-    toast('测速失败，请检查网络连接', 'error');
+    if (err.name === 'AbortError') {
+      document.getElementById('speedStatus').textContent = '已停止测速';
+      termWrite('测速已手动停止或超时中断。', 'info');
+    } else {
+      document.getElementById('speedStatus').textContent = '测速失败: ' + err.message;
+      termWrite(`测速失败: ${err.message}`, 'err');
+      toast('测速失败，请检查网络连接', 'error');
+    }
+  } finally {
+    clearInterval(timeoutTimer);
+    state.speedtesting = false;
+    state.speedtestAbort = null;
+    btn.textContent = '⚡ 开始测速';
+    btn.className = 'btn btn-primary';
   }
-
-  state.speedtesting = false;
-  btn.disabled = false;
-  btn.textContent = '⚡ 开始测速';
 }
 
 /* ═══════════════════════════════════════════════════
@@ -1356,7 +1478,7 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-console.log('随身WiFi调试助手 v2.2 已加载 | 芯片自动识别');
+console.log('随身WiFi调试助手 v2.3 已加载 | 增强设备信息 + 卡槽频段 + 可停止测速');
 </script>
 </body>
 </html>
