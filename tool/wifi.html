@@ -162,6 +162,7 @@
   .cap-source{font-size:9px;color:var(--text-dim);padding:0 4px;border-radius:3px;background:rgba(139,145,165,.12);flex-shrink:0}
   .cap-source.cache{color:var(--success);background:rgba(46,204,113,.12)}
   .cap-source.fresh{color:var(--warn);background:rgba(243,156,18,.12)}
+  .dtr-row{display:grid;grid-template-columns:1fr 1fr;gap:4px}
   @media (max-width:1100px){html,body{height:auto!important;overflow:auto!important}body{display:block!important}.main{display:block!important;height:auto!important;overflow:visible!important}.panel{display:block!important;overflow:visible!important}.terminal-wrap{height:420px!important;flex:none!important}}
 </style>
 </head>
@@ -170,7 +171,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v9.1</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v9.2</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -190,13 +191,20 @@
         <div class="form-group">
           <label>波特率 Baud Rate</label>
           <select class="form-control" id="baudRate">
+            <option value="921600">921600（紫光展锐5G常用）</option>
+            <option value="460800">460800</option>
+            <option value="230400">230400</option>
             <option value="115200" selected>115200</option>
-            <option value="9600">9600</option>
             <option value="57600">57600</option>
             <option value="38400">38400</option>
             <option value="19200">19200</option>
-            <option value="4800">4800</option>
+            <option value="9600">9600</option>
+            <option value="custom">自定义...</option>
           </select>
+        </div>
+        <div class="form-group" id="customBaudGroup" style="display:none;">
+          <label>自定义波特率</label>
+          <input class="form-control" id="customBaud" type="number" value="921600" min="300" max="4000000">
         </div>
         <div class="form-group">
           <label>流控 Flow Control</label>
@@ -213,12 +221,22 @@
             <option value="lf">LF (\n)</option>
           </select>
         </div>
+        <div class="form-group">
+          <label>DTR / RTS 手动控制（部分设备需手动拉信号）</label>
+          <div class="dtr-row">
+            <button class="btn btn-outline btn-sm" onclick="setDTR(true)">DTR ↑</button>
+            <button class="btn btn-outline btn-sm" onclick="setDTR(false)">DTR ↓</button>
+            <button class="btn btn-outline btn-sm" onclick="setRTS(true)">RTS ↑</button>
+            <button class="btn btn-outline btn-sm" onclick="setRTS(false)">RTS ↓</button>
+          </div>
+        </div>
         <button class="btn btn-primary" id="btnConnectUSB" onclick="connectUSB()">🔌 选择串口并连接</button>
         <div class="btn-row">
+          <button class="btn btn-warn" id="btnTestAT" onclick="testATComms()" disabled>🧪 仅测试 AT</button>
           <button class="btn btn-danger" id="btnDisconnectUSB" onclick="disconnect()" disabled>断开连接</button>
         </div>
         <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          <b style="color:var(--accent);">v9.1：</b>修复芯片平台识别、运营商数字格式解析；能力未命中时 UI 明确标注"不支持"。
+          <b style="color:var(--accent);">v9.2：</b>补充高速波特率（921600/460800）、DTR/RTS 手动控制、AT 通信预检，避免无响应时傻等。
         </div>
       </div>
       <div id="panelWiFi" class="hidden">
@@ -240,7 +258,7 @@
     </div>
     <div class="terminal-wrap">
       <div class="terminal" id="terminal">
-        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v9.1 · 能力驱动架构已就绪。</span></div>
+        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v9.2 · 能力驱动架构已就绪。</span></div>
       </div>
       <div class="terminal-input-row">
         <span class="prompt">AT&gt;</span>
@@ -600,7 +618,6 @@ const ADB_CANDIDATES = {
   ],
 };
 
-/* ★ v9.1 新增：芯片识别关键词（用于填充 infoChip） */
 const CHIP_IDENTIFIERS = [
   { id:'zxic',    name:'中兴微',   patterns: [/ZXIC/i, /ZX2975/i, /中兴微/i, /ZCARDSWITCH/i, /ZICCID/i, /XFNJ.*MF761W/i, /7520V3/i] },
   { id:'asr4g',   name:'ASR 4G',   patterns: [/ASR,\s*Inc/i, /^ASR$/im, /Nezha/i, /ASR180/i, /ASR8861/i, /Air720/i] },
@@ -610,9 +627,6 @@ const CHIP_IDENTIFIERS = [
   { id:'mtk',     name:'联发科',   patterns: [/MediaTek/i, /MT27\d+/i, /MTK/i] },
 ];
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   解码器
-   ═══════════════════════════════════════════════════════════════════════════ */
 const DECODERS = {
   crsm: (hexStr) => {
     if (!hexStr) return null;
@@ -761,13 +775,47 @@ function isValidResponse(r){
   return /\bOK\b/i.test(r) && !/\bERROR\b/i.test(r) && !/\+CME ERROR/i.test(r);
 }
 
+/* ★ v9.2 新增：读取波特率（支持自定义） */
+function getBaudRate() {
+  const sel = document.getElementById('baudRate');
+  if (sel.value === 'custom') {
+    const v = parseInt(document.getElementById('customBaud').value);
+    if (v && v >= 300 && v <= 4000000) return v;
+    toast('自定义波特率无效，回退到 115200', 'warn');
+    return 115200;
+  }
+  return parseInt(sel.value);
+}
+
+/* ★ v9.2 新增：DTR 手动控制 */
+async function setDTR(value) {
+  if (!state.port) { toast('请先连接串口', 'error'); return; }
+  try {
+    await state.port.setSignals({ dataTerminalReady: value });
+    termWrite(`DTR → ${value ? 'HIGH (true)' : 'LOW (false)'}`, 'info');
+  } catch (e) {
+    termWrite(`DTR 设置失败: ${e.message}`, 'err');
+  }
+}
+
+/* ★ v9.2 新增：RTS 手动控制 */
+async function setRTS(value) {
+  if (!state.port) { toast('请先连接串口', 'error'); return; }
+  try {
+    await state.port.setSignals({ requestToSend: value });
+    termWrite(`RTS → ${value ? 'HIGH (true)' : 'LOW (false)'}`, 'info');
+  } catch (e) {
+    termWrite(`RTS 设置失败: ${e.message}`, 'err');
+  }
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    USB 串口
    ═══════════════════════════════════════════════════════════════════════════ */
 async function connectUSB(){
   if (!('serial' in navigator)) { toast('浏览器不支持 Web Serial','error',5000); return; }
   try {
-    const baud = parseInt(document.getElementById('baudRate').value);
+    const baud = getBaudRate();
     const flowControl = document.getElementById('flowControl').value;
     localStorage.setItem('atmaster_last_baud', baud);
     localStorage.setItem('atmaster_last_flow', flowControl);
@@ -782,10 +830,26 @@ async function connectUSB(){
     startReadLoop();
     setTimeout(async () => {
       refreshIPs();
-      await wakeAndFingerprint();
-      await runFullProbe();
-      await queryAllByCapabilities();
-      detectNetworkType();
+      /* ★ v9.2：先快速测 AT 通信，通了才走完整流程 */
+      const ok = await quickATTest();
+      if (!ok) {
+        termWrite('❌ AT 通信失败，已中止自动探测流程', 'err');
+        termWrite('建议尝试以下操作：', 'info');
+        termWrite('  1. 断开重连，换波特率（921600 / 460800 / 230400）', 'info');
+        termWrite('  2. 换流控为「硬件流控 (RTS/CTS)」', 'info');
+        termWrite('  3. 使用 DTR/RTS 手动控制按钮组合', 'info');
+        termWrite('  4. 点「🧪 仅测试 AT」重新验证', 'info');
+        toast('设备未响应，请调整参数后重连', 'error', 8000);
+        return;
+      }
+      try {
+        await wakeAndFingerprint();
+        await runFullProbe();
+        await queryAllByCapabilities();
+        detectNetworkType();
+      } catch (err) {
+        termWrite(`⚠ 流程已中止: ${err.message}`, 'err');
+      }
     }, 500);
   } catch (err) {
     if (err.name === 'NotFoundError') termWrite('用户取消选择','err');
@@ -880,22 +944,67 @@ async function sendAT(){
 }
 function quickCmd(cmd){ document.getElementById('atInput').value = cmd; sendAT(); }
 
+/* ★ v9.2：queryAndCollect 加写超时保护 */
 async function queryAndCollect(cmd, waitMs = 1500){
   state.responseBuffer = '';
   termWrite(cmd, 'cmd');
-  try { await writeToPort(cmd); }
-  catch (err) { termWrite(`发送失败: ${err.message}`, 'err'); return ''; }
+
+  try {
+    await Promise.race([
+      writeToPort(cmd),
+      new Promise((_, rej) => setTimeout(() => rej(new Error('write timeout')), 3000))
+    ]);
+  } catch (err) {
+    termWrite(`发送失败: ${err.message}`, 'err');
+    return '';
+  }
+
   const startTime = Date.now();
-  while (Date.now() - startTime < waitMs) {
+  const hardTimeout = waitMs + 1000;
+  while (Date.now() - startTime < hardTimeout) {
     await sleep(80);
     const buf = state.responseBuffer;
     if (/\b(OK|ERROR)\s*$/im.test(buf.trim()) || /\b(OK|ERROR)\r?\n/i.test(buf)) {
-      await sleep(120); break;
+      await sleep(120);
+      break;
     }
   }
-  if (Date.now() - startTime >= waitMs) await sleep(150);
-  const result = state.responseBuffer; state.responseBuffer = '';
+  const result = state.responseBuffer;
+  state.responseBuffer = '';
   return result;
+}
+
+/* ★ v9.2 新增：内部快速 AT 测试 */
+async function quickATTest() {
+  for (let i = 0; i < 3; i++) {
+    const r = await queryAndCollect('AT', 1500);
+    if (isValidResponse(r)) return true;
+    await sleep(300);
+  }
+  return false;
+}
+
+/* ★ v9.2 新增：用户手动点「仅测试 AT 通信」 */
+async function testATComms() {
+  if (!state.connected) { toast('请先连接串口', 'error'); return; }
+  termWrite('═══ 测试 AT 通信（不进入自动探测）═══', 'info');
+  let ok = false;
+  for (let i = 0; i < 3; i++) {
+    const r = await queryAndCollect('AT', 1500);
+    if (isValidResponse(r)) { ok = true; break; }
+    await sleep(300);
+  }
+  if (ok) {
+    termWrite('✓ AT 通信正常', 'resp');
+    toast('AT 通信正常', 'success', 3000);
+  } else {
+    termWrite('✗ AT 无响应，建议尝试：', 'err');
+    termWrite('  1. 换波特率（921600 / 460800 / 230400）', 'info');
+    termWrite('  2. 换流控为硬件流控', 'info');
+    termWrite('  3. 手动切换 DTR/RTS 组合', 'info');
+    termWrite('  4. 检查 USB 线是数据线', 'info');
+    toast('AT 通信失败', 'error', 5000);
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -933,7 +1042,6 @@ async function wakeAndFingerprint(){
   const cgmm = await queryAndCollect('AT+CGMM', 900);
   const cgmr = await queryAndCollect('AT+CGMR', 900);
 
-  /* ★ v9.1：清洗指纹 —— 去掉 OK / ERROR / CME ERROR / 指令回显 / 空白 */
   const cleanResp = (s) => {
     if (!s) return '';
     return s
@@ -956,7 +1064,6 @@ async function wakeAndFingerprint(){
   termWrite(`设备指纹: ${state.deviceFingerprint}`, 'info');
   termWrite(`指纹原文: ${raw.substring(0, 150)}`, 'info');
 
-  /* ★ v9.1：识别芯片平台 */
   const combined = (ati + ' ' + cgmi + ' ' + cgmm + ' ' + cgmr);
   let chipName = null;
   for (const c of CHIP_IDENTIFIERS) {
@@ -971,7 +1078,6 @@ async function wakeAndFingerprint(){
     chipEl.className = 'info-value ok';
     termWrite(`✓ 识别芯片平台: ${chipName}`, 'resp');
   } else {
-    /* 未命中关键词则展示 CGMI/CGMM 的原文 */
     const cgmiClean = cleanResp(cgmi);
     const cgmmClean = cleanResp(cgmm);
     const display = (cgmiClean || cgmmClean || '未知').substring(0, 40);
@@ -1089,11 +1195,9 @@ async function runFullProbe(){
 
   renderCapList();
   updateCmdHintsFromCaps();
-  /* ★ v9.1：探测完成后，未命中的能力在 UI 上明确标注"不支持" */
   applyUnsupportedMarkers();
 }
 
-/* ★ v9.1 新增：未命中能力 UI 标注 */
 function applyUnsupportedMarkers(){
   if (!state.capabilities) return;
   const map = {
@@ -1117,9 +1221,6 @@ function applyUnsupportedMarkers(){
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   按能力表读取设备信息
-   ═══════════════════════════════════════════════════════════════════════════ */
 async function queryAllByCapabilities(){
   if (!state.capabilities) { termWrite('⚠ 无能力表，跳过信息读取','info'); return; }
   termWrite('═══ 按能力表读取设备信息 ═══', 'info');
@@ -1138,7 +1239,6 @@ async function queryAllByCapabilities(){
 function parseAnyResponse(line){
   let m;
 
-  // ICCID
   m = line.match(/[+*](?:QCCID|ICCID|CCID|ICID|ZICCID)[:\s]*"?([0-9A-Za-z]{18,22})"?/i);
   if (m) setInfoValue('ICCID', m[1]);
   else if (/^89\d{17,19}[A-Za-z0-9]*$/.test(line)) setInfoValue('ICCID', line);
@@ -1150,12 +1250,10 @@ function parseAnyResponse(line){
     }
   }
 
-  // IMEI
   m = line.match(/\+CGSN[:\s]+"?(\d{14,16})"?/i);
   if (m) setInfoValue('IMEI', m[1]);
   else if (/^\d{15}$/.test(line)) setInfoValue('IMEI', line);
 
-  // SN
   m = line.match(/[*+]MRD_SN[:\s]+"?([A-Za-z0-9]{6,30})"?/i)
     || line.match(/\+ZSN[:\s]+"?([A-Za-z0-9]{6,30})"?/i)
     || line.match(/\+GSN[:\s]+"?([A-Za-z0-9]{6,30})"?/i)
@@ -1163,18 +1261,15 @@ function parseAnyResponse(line){
   if (m && !state.rawValues.SN && m[1] !== state.rawValues.IMEI && !/^\d{15}$/.test(m[1]))
     setInfoValue('SN', m[1]);
 
-  // 版本
   m = line.match(/\+CGMR[:\s]+"?([^"\r\n]+)"?/i)
     || line.match(/[+*]VER[:\s]+"?([^"\r\n]+)"?/i)
     || line.match(/\+ASRVERSION[:\s]+"?([^"\r\n]+)"?/i);
   if (m) setInfo('infoVER', m[1].trim());
 
-  // MAC
   m = line.match(/[+*](?:ZMAC|ZWIFIMAC|WIFIMAC|WIFIID|MRD_WIFIID|MAC)[:\s]*"?([0-9A-Fa-f:]{12,20})"?/i)
     || line.match(/([0-9A-Fa-f]{2}[:\-]){5}[0-9A-Fa-f]{2}/);
   if (m) setInfo('infoMAC', m[1] || m[0]);
 
-  // CSQ
   m = line.match(/\+CSQ[:\s]*(\d+)/);
   if (m) {
     const csq = parseInt(m[1]);
@@ -1187,11 +1282,9 @@ function parseAnyResponse(line){
     }
   }
 
-  /* ★ v9.1：运营商解析 —— 支持字符串和数字两种格式 */
   m = line.match(/\+COPS[:\s]*(\d+)(?:,\s*(\d+)\s*,\s*(?:"([^"]*)"|(\d+)))?/i);
   if (m) {
     const mode = parseInt(m[1]);
-    const format = m[2];
     const nameStr = (m[3] || '').trim();
     const numStr = (m[4] || '').trim();
     const el = document.getElementById('infoOperator');
@@ -1199,7 +1292,6 @@ function parseAnyResponse(line){
       el.textContent = '未注册'; el.className = 'info-value warn';
     } else {
       let op = null;
-      // 优先：如果是纯数字 MCC+MNC（无论是否带引号），走数字映射
       const candidate = nameStr || numStr;
       if (/^\d{5,6}$/.test(candidate)) {
         const key5 = candidate.substring(0, 5);
@@ -1218,7 +1310,6 @@ function parseAnyResponse(line){
     }
   }
 
-  // 卡槽
   m = line.match(/\^CARDMODE:\s*(\d+)/i);
   if (m) { setInfo('infoCardSlot', DECODERS.cardmode_asr(m[1]), 'ok'); }
   else {
@@ -1238,7 +1329,6 @@ function parseAnyResponse(line){
     }
   }
 
-  // 频段
   m = line.match(/[*+]BANDIND[:\s]*(.*)$/i);
   if (m) {
     const raw = m[1].trim();
@@ -1263,7 +1353,6 @@ function parseAnyResponse(line){
     }
   }
 
-  // QCI
   m = line.match(/\+CGEQOSRDP[:\s]*(\d+),(\d+)/i);
   if (m) {
     const qci = parseInt(m[2]);
@@ -1638,12 +1727,13 @@ function updateConnectionUI(connected, text){
   document.getElementById('btnConnectUSB').disabled = connected;
   document.getElementById('btnDisconnectUSB').disabled = !connected;
   document.getElementById('baudRate').disabled = connected;
+  document.getElementById('customBaud').disabled = connected;
   document.getElementById('flowControl').disabled = connected;
   document.getElementById('lineEnding').disabled = connected;
 }
 function enableQuickButtons(enable){
   document.querySelectorAll('.quick-btn').forEach(b => b.disabled = !enable);
-  ['btnSpeedtest','btnCheckCloud','btnRefreshIP','btnProbeCaps','btnClearCaps'].forEach(id => {
+  ['btnSpeedtest','btnCheckCloud','btnRefreshIP','btnProbeCaps','btnClearCaps','btnTestAT'].forEach(id => {
     const e = document.getElementById(id); if (e) e.disabled = !enable;
   });
 }
@@ -1939,10 +2029,14 @@ function closeWriteModalForce(){
   sel.addEventListener('change', () => {
     if (sel.value) {
       toast(`已手动指定芯片: ${sel.options[sel.selectedIndex].text}`, 'info');
-      termWrite(`⚠ 已切换到手动芯片模式: ${sel.value}（v9.1 默认能力驱动，此选项仅作兜底）`, 'info');
+      termWrite(`⚠ 已切换到手动芯片模式: ${sel.value}（v9.2 默认能力驱动，此选项仅作兜底）`, 'info');
     }
   });
 })();
+
+document.getElementById('baudRate').addEventListener('change', function() {
+  document.getElementById('customBaudGroup').style.display = this.value === 'custom' ? 'block' : 'none';
+});
 
 document.getElementById('writeModal').addEventListener('click', e => {
   if (e.target.id === 'writeModal' && !state.writeInProgress) closeWriteModal();
@@ -1962,7 +2056,10 @@ window.addEventListener('beforeunload', () => {
 
 (function initFinal(){
   const lb = localStorage.getItem('atmaster_last_baud');
-  if (lb) { const s = document.getElementById('baudRate'); if ([...s.options].some(o => o.value === lb)) s.value = lb; }
+  if (lb) {
+    const s = document.getElementById('baudRate');
+    if ([...s.options].some(o => o.value === lb)) s.value = lb;
+  }
   const lf = localStorage.getItem('atmaster_last_flow');
   if (lf) { const s = document.getElementById('flowControl'); if ([...s.options].some(o => o.value === lf)) s.value = lf; }
 
@@ -1972,9 +2069,9 @@ window.addEventListener('beforeunload', () => {
   setCloudStatus('unknown');
   renderCapList();
 
-  termWrite('随身WiFi调试助手 v9.1 · 能力驱动架构已就绪', 'info');
-  termWrite('连接设备后将自动：1) 计算指纹 2) 识别芯片 3) 探测能力 4) 读取信息', 'info');
-  termWrite('同一台设备再次连接时将直接使用缓存，无需重复探测。', 'info');
+  termWrite('随身WiFi调试助手 v9.2 · 能力驱动架构已就绪', 'info');
+  termWrite('连接后：先 AT 预检（3 秒），通过才走指纹+探测+读取；失败会立即提示不再傻等', 'info');
+  termWrite('同一台设备再次连接将直接使用缓存，无需重复探测。', 'info');
 
   if (!('serial' in navigator)) {
     termWrite('⚠ 当前浏览器不支持 Web Serial API，请使用 Chrome / Edge 89+ 桌面版。', 'err');
