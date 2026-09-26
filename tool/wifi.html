@@ -195,6 +195,8 @@
   .info-value.qci-mid  { color: #f39c12; font-weight: 600; }
   .info-value.qci-low  { color: #4f7cff; font-weight: 600; }
   .info-value.qci-custom { color: #a78bfa; font-weight: 600; }
+  .info-value.public-ip { color: #6ee7b7; font-weight: 600; }
+  .info-value.local-ip { color: #fbbf24; font-weight: 600; }
   .eye-btn {
     background: none; border: none; color: var(--text-dim);
     cursor: pointer; font-size: 13px; padding: 0 2px; line-height: 1;
@@ -328,7 +330,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v3.3</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v3.4</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -403,7 +405,7 @@
       <div class="terminal" id="terminal">
         <div class="line">
           <span class="prefix info">●</span>
-          <span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v3.3 已就绪。ICCID 查询增强，支持 CRSM 兜底。</span>
+          <span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v3.4 已就绪。新增公网 IP / 内网 IP 查询显示。</span>
         </div>
       </div>
       <div class="terminal-input-row">
@@ -446,6 +448,8 @@
           <div class="info-item"><span class="info-label">WiFi MAC</span><span class="info-value empty" id="infoMAC">—</span></div>
           <div class="info-item"><span class="info-label">固件版本</span><span class="info-value empty" id="infoVER">—</span></div>
           <div class="info-item"><span class="info-label">信号质量</span><span class="info-value empty" id="infoCSQ">—</span></div>
+          <div class="info-item"><span class="info-label">公网 IP</span><span class="info-value empty" id="infoPublicIP">—</span></div>
+          <div class="info-item"><span class="info-label">内网 IP</span><span class="info-value empty" id="infoLocalIP">—</span></div>
         </div>
       </div>
 
@@ -504,7 +508,7 @@
           </button>
         </div>
         <div style="margin-top:8px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          <b style="color:var(--warn);">⚠ 警告：</b>改写 IMEI/SN 需先进入工厂模式，操作有风险，可能导致设备无法联网或失去保修。
+          <b style="color:var(--warn);">⚠ 警告：</b>改写 IMEI/SN 需先进入工厂模式，操作有风险。
         </div>
       </div>
 
@@ -523,9 +527,6 @@
         <button class="btn btn-primary" style="margin-top:10px;" id="btnSpeedtest" onclick="toggleSpeedtest()" disabled>
           ⚡ 开始测速
         </button>
-        <div style="margin-top:8px;font-size:11px;color:var(--text-dim);line-height:1.5;">
-          通过浏览器直连测速服务器，检测当前网络实际速率。若速率明显低于套餐标称值，可能存在云控限速。
-        </div>
       </div>
 
       <div class="quick-section">
@@ -543,9 +544,14 @@
       <div class="quick-section">
         <h4>信息查询</h4>
         <div class="quick-grid">
+          <button class="quick-btn" onclick="refreshIPs()" disabled id="btnRefreshIP"
+                  style="grid-column:1/-1;color:#6ee7b7;border-color:rgba(110,231,183,.3);">
+            🌐 刷新 IP 地址
+            <span class="cmd-hint">公网 + 内网</span>
+          </button>
+          <button class="quick-btn" onclick="quickCmd('AT+QCCID')" disabled>ICCID 查询<span class="cmd-hint">AT+QCCID</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT+CRSM=176,12258,0,0,0')" disabled>ICCID(CRSM)<span class="cmd-hint">底层读取</span></button>
           <button class="quick-btn" onclick="quickCmd('AT+CGEQOSRDP')" disabled>QCI 查询<span class="cmd-hint">AT+CGEQOSRDP</span></button>
-          <button class="quick-btn" onclick="quickCmd('AT+ICCID')" disabled>ICCID 查询<span class="cmd-hint">AT+ICCID</span></button>
-          <button class="quick-btn" onclick="quickCmd('AT+CRSM=176,12258,0,0,27')" disabled>ICCID(CRSM)<span class="cmd-hint">AT+CRSM</span></button>
           <button class="quick-btn" onclick="quickCmd('AT+CGSN')" disabled>IMEI 查询<span class="cmd-hint">AT+CGSN</span></button>
           <button class="quick-btn" onclick="quickCmd('AT*MRD_SN?')" disabled>SN 查询<span class="cmd-hint">AT*MRD_SN?</span></button>
           <button class="quick-btn" onclick="quickCmd('AT*MRD_WIFIID?')" disabled>MAC 查询<span class="cmd-hint">AT*MRD_WIFIID?</span></button>
@@ -620,7 +626,7 @@
 <div class="modal-overlay" id="cloudModal">
   <div class="modal" style="width:440px;">
     <h3>去云控 / 解除限速</h3>
-    <div class="modal-sub">云控是厂商通过远程服务对设备进行限速或断网的手段。去云控通常有两种途径：</div>
+    <div class="modal-sub">云控是厂商通过远程服务对设备进行限速或断网的手段。</div>
     <div style="display:flex;flex-direction:column;gap:10px;">
       <button class="btn btn-warn" onclick="genRemoveCloudCmd()">📋 生成去云控指令</button>
       <button class="btn btn-outline" onclick="showAdbGuide()">📖 查看 ADB 去云控详细步骤</button>
@@ -678,13 +684,13 @@ const SWITCH_CMD_MAP = {
     name: 'ASR',
     external: 'AT+SWSIM=0', internal: 'AT+SWSIM=1', query: 'AT+SWSIM?',
     repeat: 1,
-    tip: '<b>ASR 平台：</b>发送 <code>AT+SWSIM=0</code> 切外置卡，<code>AT+SWSIM=1</code> 切内置卡。<br>发送后设备会自动重启，等待重新枚举即可。',
+    tip: '<b>ASR 平台：</b>发送 <code>AT+SWSIM=0</code> 切外置卡，<code>AT+SWSIM=1</code> 切内置卡。<br>发送后设备会自动重启。',
   },
   unisoc: {
     name: '紫光展锐',
     external: 'AT+SIMSWITCH=0,0', internal: 'AT+SIMSWITCH=1,0', query: 'AT+SIMSWITCH?',
     repeat: 1,
-    tip: '<b>紫光展锐平台：</b><code>AT+SIMSWITCH=0,0</code> 切外置卡，<code>AT+SIMSWITCH=1,0</code> 切内置卡。<br>部分模块指令为 <code>AT+SPCARD=0</code>，请以模块手册为准。',
+    tip: '<b>紫光展锐平台：</b><code>AT+SIMSWITCH=0,0</code> 切外置卡，<code>AT+SIMSWITCH=1,0</code> 切内置卡。',
   },
   qualcomm: {
     name: '高通',
@@ -697,7 +703,7 @@ const SWITCH_CMD_MAP = {
 const LTE_BAND_MAP = {
   1: 'B1', 2: 'B2', 3: 'B3', 4: 'B4', 5: 'B5', 7: 'B7', 8: 'B8',
   20: 'B20', 28: 'B28', 34: 'B34', 38: 'B38', 39: 'B39',
-  40: 'B40', 41: 'B41'
+  40: 'B40', 41: 'B41', 71: 'B71', 77: 'B77', 78: 'B78', 79: 'B79'
 };
 
 const OPERATOR_MAP = {
@@ -770,8 +776,7 @@ function validateIMEI(imei) {
     }
     sum += digit;
   }
-  const checkDigit = (10 - (sum % 10)) % 10;
-  return checkDigit === parseInt(imei[14]);
+  return ((10 - (sum % 10)) % 10) === parseInt(imei[14]);
 }
 
 function calcLuhnCheckDigit(first14) {
@@ -864,6 +869,8 @@ async function connectUSB() {
     setTimeout(async () => {
       await autoDetectChip();
       await autoQueryDeviceInfo();
+      // 设备信息查询完成后自动刷新 IP
+      refreshIPs();
     }, 500);
   } catch (err) {
     if (err.name === 'NotFoundError') {
@@ -1006,6 +1013,126 @@ async function queryAndCollect(cmd, waitMs = 800) {
   return result;
 }
 
+/* ═══════════════════════════════════════════════════
+   ★ IP 地址查询：公网 IP + 内网 IP
+   ═══════════════════════════════════════════════════ */
+
+/* 公网 IP：通过外部 API 查询 */
+async function queryPublicIP() {
+  const apis = [
+    { url: 'https://api.ipify.org?format=json', type: 'json', key: 'ip' },
+    { url: 'https://api64.ipify.org?format=json', type: 'json', key: 'ip' },
+    { url: 'https://api.ip.sb/ip', type: 'text' },
+    { url: 'https://ifconfig.me/ip', type: 'text' },
+    { url: 'https://ipinfo.io/ip', type: 'text' },
+  ];
+  for (const api of apis) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 4000);
+      const res = await fetch(api.url, { cache: 'no-store', signal: controller.signal });
+      clearTimeout(timeout);
+      const text = (await res.text()).trim();
+      let ip = '';
+      if (api.type === 'json') {
+        try { ip = JSON.parse(text)[api.key] || ''; } catch { ip = ''; }
+      } else {
+        ip = text;
+      }
+      ip = ip.replace(/[^0-9a-fA-F:.]/g, '');
+      if (ip && (/(\d{1,3}\.){3}\d{1,3}/.test(ip) || /^[0-9a-fA-F:]+$/.test(ip))) {
+        return { ip, source: new URL(api.url).hostname };
+      }
+    } catch (e) { /* 尝试下一个 API */ }
+  }
+  return null;
+}
+
+/* 内网 IP：通过 WebRTC 获取本机局域网地址 */
+function queryLocalIPViaWebRTC() {
+  return new Promise((resolve) => {
+    const ips = new Set();
+    let resolved = false;
+    const finish = () => {
+      if (resolved) return;
+      resolved = true;
+      const arr = [...ips];
+      // 优先局域网私有地址段
+      const lan = arr.find(ip =>
+        /^(10\.|172\.(1[6-9]|2[0-9]|3[01])\.|192\.168\.)/.test(ip)
+      );
+      resolve(lan || arr[0] || null);
+    };
+    try {
+      const pc = new RTCPeerConnection({ iceServers: [] });
+      pc.createDataChannel('');
+      pc.onicecandidate = (e) => {
+        if (!e.candidate) {
+          try { pc.close(); } catch (err) {}
+          finish();
+          return;
+        }
+        const m = e.candidate.candidate.match(/(\d{1,3}\.){3}\d{1,3}/);
+        if (m && !/^0\.0\.0\.0$/.test(m[0])) ips.add(m[0]);
+      };
+      pc.createOffer()
+        .then(o => pc.setLocalDescription(o))
+        .catch(() => finish());
+      // 3 秒超时
+      setTimeout(() => {
+        try { pc.close(); } catch (err) {}
+        finish();
+      }, 3000);
+    } catch (e) {
+      finish();
+    }
+  });
+}
+
+/* 刷新 IP：并行查询公网 + 内网 */
+async function refreshIPs() {
+  const pubEl = document.getElementById('infoPublicIP');
+  const locEl = document.getElementById('infoLocalIP');
+
+  pubEl.textContent = '查询中...';
+  pubEl.className = 'info-value warn';
+  locEl.textContent = '查询中...';
+  locEl.className = 'info-value warn';
+
+  termWrite('正在查询公网 IP...', 'info');
+  termWrite('正在通过 WebRTC 获取内网 IP...', 'info');
+
+  const [pub, loc] = await Promise.all([queryPublicIP(), queryLocalIPViaWebRTC()]);
+
+  if (pub) {
+    pubEl.textContent = pub.ip;
+    pubEl.className = 'info-value public-ip';
+    pubEl.title = `公网 IP: ${pub.ip}\n数据来源: ${pub.source}`;
+    termWrite(`✓ 公网 IP: ${pub.ip} (来自 ${pub.source})`, 'resp');
+  } else {
+    pubEl.textContent = '查询失败';
+    pubEl.className = 'info-value warn';
+    pubEl.title = '所有公网 IP API 均不可用，请检查网络连接';
+    termWrite('✗ 公网 IP 查询失败，请检查网络', 'err');
+  }
+
+  if (loc) {
+    locEl.textContent = loc;
+    locEl.className = 'info-value local-ip';
+    locEl.title = `内网 IP: ${loc}\n来源: WebRTC ICE candidate`;
+    termWrite(`✓ 内网 IP: ${loc}`, 'resp');
+  } else {
+    // WebRTC 被 mDNS 保护时返回 .local 主机名，浏览器无法获取真实内网 IP
+    locEl.textContent = '受限';
+    locEl.className = 'info-value warn';
+    locEl.title = '现代浏览器为保护隐私，WebRTC 已用 mDNS 主机名替换真实内网 IP。可在 chrome://flags 中禁用 "Anonymize local IPs exposed by WebRTC" 后重试。';
+    termWrite('⚠ 内网 IP 查询受限：浏览器 WebRTC 隐私保护阻止获取真实内网 IP', 'info');
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   芯片识别
+   ═══════════════════════════════════════════════════ */
 function setChipDetectStatus(status, name) {
   const el = document.getElementById('chipDetectStatus');
   const map = {
@@ -1025,7 +1152,7 @@ function detectChipFromText(text) {
   if (/ASR\s*18\d{2}/i.test(text) || /\bASR\b/i.test(text)) return 'asr';
   if (/ZXIC|中兴微|\bZTE\b|ZCARDSWITCH/i.test(text)) return 'zxic';
   if (/Unisoc|Spreadtrum|\bSPRD\b|UIS\d{4}|展锐/i.test(text)) return 'unisoc';
-  if (/Qualcomm|\bMDM\d|QDSIM/i.test(text)) return 'qualcomm';
+  if (/Qualcomm|\bMDM\d|QDSIM|SDX/i.test(text)) return 'qualcomm';
   return null;
 }
 
@@ -1107,8 +1234,7 @@ function openWriteModal(type) {
   if (writeContext.isDelete) {
     document.getElementById('writeFormArea').innerHTML = `
       <div class="warn-box" style="background:rgba(231,76,60,.08);border-color:rgba(231,76,60,.3);color:#ff8a80;">
-        <b>⚠ 危险操作：</b>此操作将清空设备上的 ${baseType} 值，可能导致设备无法正常联网。<br>
-        执行后需重新写入正确的 ${baseType} 才能恢复使用。
+        <b>⚠ 危险操作：</b>此操作将清空设备上的 ${baseType} 值，可能导致设备无法正常联网。
       </div>
       <div class="info-box" id="cmdPreviewBox">
         即将发送：<code id="cmdPreview">—</code>
@@ -1163,11 +1289,7 @@ function updateCmdPreviewForWrite(baseType) {
 function updateCmdPreviewForDelete(baseType) {
   const preview = document.getElementById('cmdPreview');
   if (!preview) return;
-  if (baseType === 'IMEI') {
-    preview.textContent = 'AT*MRD_IMEI=D';
-  } else {
-    preview.textContent = 'AT*MRD_SN=D';
-  }
+  preview.textContent = baseType === 'IMEI' ? 'AT*MRD_IMEI=D' : 'AT*MRD_SN=D';
 }
 
 function validateWriteInput(baseType) {
@@ -1192,13 +1314,13 @@ function validateWriteInput(baseType) {
       return false;
     }
     if (!validateIMEI(val)) {
-      hint.textContent = '⚠ Luhn 校验失败，最后一位校验位不正确';
+      hint.textContent = '⚠ Luhn 校验失败';
       hint.className = 'validation-hint err';
       input.className = 'form-control invalid';
       const first14 = val.substring(0, 14);
       const correct = calcLuhnCheckDigit(first14);
       if (correct !== null) {
-        hint.innerHTML = `⚠ Luhn 校验失败，最后一位应为 <b>${correct}</b>（当前为 ${val[14]}）<br>
+        hint.innerHTML = `⚠ Luhn 校验失败，最后一位应为 <b>${correct}</b><br>
           <a href="#" onclick="event.preventDefault();document.getElementById('writeInput').value='${first14}${correct}';validateWriteInput('IMEI');updateCmdPreviewForWrite('IMEI');" style="color:var(--accent);">点击自动修正</a>`;
       }
       return false;
@@ -1239,11 +1361,9 @@ async function confirmWrite() {
   const baseType = writeContext.type.replace('DEL_', '');
   const isDelete = writeContext.isDelete;
 
-  if (!isDelete) {
-    if (!validateWriteInput(baseType)) {
-      toast('请检查输入内容', 'error');
-      return;
-    }
+  if (!isDelete && !validateWriteInput(baseType)) {
+    toast('请检查输入内容', 'error');
+    return;
   }
 
   const val = isDelete ? '' : document.getElementById('writeInput').value.trim();
@@ -1251,12 +1371,10 @@ async function confirmWrite() {
   let writeCmd = '';
   if (isDelete) {
     writeCmd = `AT*MRD_${baseType}=D`;
+  } else if (baseType === 'IMEI') {
+    writeCmd = `AT*MRD_IMEI=W,0,01JAN1970,${val}`;
   } else {
-    if (baseType === 'IMEI') {
-      writeCmd = `AT*MRD_IMEI=W,0,01JAN1970,${val}`;
-    } else {
-      writeCmd = `AT*MRD_SN=W,0,01JAN1970,${val}`;
-    }
+    writeCmd = `AT*MRD_SN=W,0,01JAN1970,${val}`;
   }
 
   state.writeInProgress = true;
@@ -1309,7 +1427,6 @@ async function confirmWrite() {
     appendLog('', '');
     appendLog('━━━━━━━━━━━━━━━━━━━━━━', 'info');
     appendLog('🎉 写入流程完成', 'success');
-    appendLog('建议重启设备后验证新值', 'info');
 
     toast(`${baseType} ${isDelete ? '删除' : '写入'}成功`, 'success', 5000);
     termWrite(`✅ ${baseType} ${isDelete ? '删除' : '写入'}流程完成`, 'info');
@@ -1447,8 +1564,8 @@ function parseDeviceInfo(line) {
     el.title = `原始响应: ${line}\nQCI: ${qci}`;
   }
 
-  // ICCID 解析：支持字母、ICID 前缀、CRSM 十六进制转换
-  m = line.match(/[+*](?:ICCID|CCID|ICID)[:\s]*"?([0-9A-Za-z]{18,22})"?/i);
+  // ICCID：多格式兼容
+  m = line.match(/[+*](?:QCCID|ICCID|CCID|ICID)[:\s]*"?([0-9A-Za-z]{18,22})"?/i);
   if (m) {
     setInfoValue('ICCID', m[1]);
   } else if (/^89\d{17,19}[A-Za-z0-9]*$/.test(line)) {
@@ -1457,11 +1574,25 @@ function parseDeviceInfo(line) {
     m = line.match(/\+CRSM[:\s]*\d+,\d+,"([0-9A-Fa-f]+)"/i);
     if (m) {
       const hexStr = m[1];
-      let ascii = '';
-      for (let i = 0; i < hexStr.length; i += 2) {
-        ascii += String.fromCharCode(parseInt(hexStr.substring(i, i + 2), 16));
+      // 交换每两个字符的顺序（CRSM 返回的字节序为颠倒的）
+      let swapped = '';
+      for (let i = 0; i < hexStr.length - 1; i += 2) {
+        swapped += hexStr[i+1] + hexStr[i];
       }
-      if (ascii.length >= 18) setInfoValue('ICCID', ascii);
+      // 十六进制转 ASCII
+      let ascii = '';
+      for (let i = 0; i < swapped.length; i += 2) {
+        ascii += String.fromCharCode(parseInt(swapped.substring(i, i + 2), 16));
+      }
+      if (ascii.length >= 18 && /^\d/.test(ascii)) setInfoValue('ICCID', ascii);
+      // 若交换后无效，尝试直接转换（兼容部分模块）
+      else {
+        let ascii2 = '';
+        for (let i = 0; i < hexStr.length; i += 2) {
+          ascii2 += String.fromCharCode(parseInt(hexStr.substring(i, i + 2), 16));
+        }
+        if (ascii2.length >= 18 && /^\d/.test(ascii2)) setInfoValue('ICCID', ascii2);
+      }
     }
   }
 
@@ -1585,7 +1716,7 @@ function parseDeviceInfo(line) {
     const bandEl = document.getElementById('infoBand');
     if (bandEl.textContent === '—') {
       bandEl.textContent = '查询中...';
-      bandEl.title = `频段配置掩码: *BAND:${m[1].trim()}\n当前频段需通过 AT*BANDIND? 查询`;
+      bandEl.title = `频段配置掩码: *BAND:${m[1].trim()}`;
       bandEl.className = 'info-value';
     }
   }
@@ -1598,27 +1729,20 @@ async function autoQueryDeviceInfo() {
   // ICCID：多指令尝试 + CRSM 兜底
   termWrite('尝试查询 ICCID...', 'info');
   let iccidFound = false;
-  const iccidCmds = ['AT+ICCID', 'AT+CCID', 'AT+ICID?', 'AT*MRD_ICCID?'];
+  const iccidCmds = ['AT+QCCID', 'AT+ICCID', 'AT+CCID', 'AT+ICID?', 'AT*MRD_ICCID?'];
   for (const cmd of iccidCmds) {
     const r = await queryAndCollect(cmd, 600);
-    if (/[+*](?:ICCID|CCID|ICID)/i.test(r) || /^89\d{17,19}[A-Za-z0-9]*/m.test(r)) {
+    if (/[+*](?:QCCID|ICCID|CCID|ICID)/i.test(r) || /^89\d{17,19}[A-Za-z0-9]*/m.test(r)) {
       iccidFound = true;
       break;
     }
   }
   if (!iccidFound) {
     termWrite('常规 ICCID 指令无响应，尝试 CRSM 读取 SIM 卡 EF_ICCID 文件...', 'info');
-    const crsmResp = await queryAndCollect('AT+CRSM=176,12258,0,0,27', 800);
+    await queryAndCollect('AT+CRSM=176,12258,0,0,0', 800);
     if (!state.rawValues.ICCID) {
-      const crsmMatch = crsmResp.match(/\+CRSM[:\s]*\d+,\d+,"([0-9A-Fa-f]+)"/i);
-      if (crsmMatch) {
-        const hexStr = crsmMatch[1];
-        let ascii = '';
-        for (let i = 0; i < hexStr.length; i += 2) {
-          ascii += String.fromCharCode(parseInt(hexStr.substring(i, i + 2), 16));
-        }
-        if (ascii.length >= 18) setInfoValue('ICCID', ascii);
-      }
+      // 备选：带长度参数的旧格式
+      await queryAndCollect('AT+CRSM=176,12258,0,0,27', 800);
     }
   }
 
@@ -1668,9 +1792,10 @@ async function autoQueryDeviceInfo() {
   if (!/CGEQOSRDP/i.test(resp) || /^\s*ERROR\s*$/im.test(resp)) {
     termWrite('AT+CGEQOSRDP 无响应，尝试平台专用指令...', 'info');
     if (chip === 'qualcomm') {
-      resp = await queryAndCollect('AT+QNWCFG="qci"', 800);
-      if (!/QNWCFG/i.test(resp) || /^\s*ERROR\s*$/im.test(resp)) {
-        termWrite('AT+QNWCFG="qci" 无响应。', 'info');
+      // 5G 场景尝试 C5GQOSRDP（5GS 动态 QoS 参数）
+      resp = await queryAndCollect('AT+C5GQOSRDP', 800);
+      if (!/C5GQOSRDP/i.test(resp) || /^\s*ERROR\s*$/im.test(resp)) {
+        await queryAndCollect('AT+QNWCFG="qci"', 800);
       }
     } else if (chip === 'unisoc') {
       resp = await queryAndCollect('AT+CGQREQ?', 800);
@@ -1686,7 +1811,7 @@ async function autoQueryDeviceInfo() {
 }
 
 function resetDeviceInfo() {
-  ['infoChip','infoOperator','infoCardSlot','infoBand','infoQCI','infoMAC','infoVER','infoCSQ'].forEach(id => {
+  ['infoChip','infoOperator','infoCardSlot','infoBand','infoQCI','infoMAC','infoVER','infoCSQ','infoPublicIP','infoLocalIP'].forEach(id => {
     const el = document.getElementById(id);
     el.textContent = '—';
     el.className = 'info-value empty';
@@ -2004,7 +2129,7 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-console.log('随身WiFi调试助手 v3.3 已加载 | ICCID 增强版');
+console.log('随身WiFi调试助手 v3.4 已加载 | 新增公网 IP / 内网 IP 查询');
 </script>
 </body>
 </html>
