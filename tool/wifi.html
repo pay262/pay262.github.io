@@ -91,6 +91,8 @@
     font-size: 13px; font-family: var(--font-mono); outline: none; transition: border-color .2s;
   }
   .form-control:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+  .form-control.invalid { border-color: var(--error); }
+  .form-control.valid { border-color: var(--success); }
   select.form-control { cursor: pointer; }
   .btn {
     width: 100%; padding: 9px; border: none; border-radius: 8px;
@@ -225,11 +227,13 @@
   .modal-overlay.show { display: flex; }
   .modal {
     background: var(--bg-panel); border: 1px solid var(--border);
-    border-radius: 14px; padding: 24px; width: 400px;
+    border-radius: 14px; padding: 24px; width: 460px;
     max-width: 92vw; box-shadow: 0 20px 60px rgba(0,0,0,.5);
+    max-height: 90vh; overflow-y: auto;
   }
-  .modal h3 { font-size: 15px; margin-bottom: 14px; }
-  .modal .form-group { margin-bottom: 10px; }
+  .modal h3 { font-size: 15px; margin-bottom: 6px; }
+  .modal .modal-sub { font-size: 12px; color: var(--text-dim); margin-bottom: 16px; line-height: 1.6; }
+  .modal .form-group { margin-bottom: 12px; }
   .modal .btn-row { margin-top: 16px; }
   .hidden { display: none !important; }
   .speedtest-box {
@@ -276,8 +280,48 @@
   .badge-tag.green { background: rgba(46,204,113,.15); color: var(--success); }
   .badge-tag.orange { background: rgba(243,156,18,.15); color: var(--warn); }
   .badge-tag.gray { background: rgba(139,145,165,.12); color: var(--text-dim); }
+  .badge-tag.red { background: rgba(231,76,60,.15); color: var(--error); }
   .btn-stop { background: var(--error) !important; box-shadow: 0 2px 10px rgba(231,76,60,.3) !important; }
   .btn-stop:hover:not(:disabled) { background: #ff6b5b !important; }
+
+  /* 写入弹窗特有 */
+  .validation-hint {
+    font-size: 11px; margin-top: 4px; min-height: 16px;
+    font-family: var(--font-mono);
+  }
+  .validation-hint.ok { color: var(--success); }
+  .validation-hint.err { color: var(--error); }
+  .validation-hint.info { color: var(--text-dim); }
+  .warn-box {
+    padding: 10px 12px; border-radius: 8px;
+    background: rgba(243,156,18,.08);
+    border: 1px solid rgba(243,156,18,.3);
+    color: var(--warn);
+    font-size: 11.5px; line-height: 1.7; margin-bottom: 14px;
+  }
+  .warn-box b { color: #ffb84d; }
+  .info-box {
+    padding: 10px 12px; border-radius: 8px;
+    background: rgba(79,124,255,.08);
+    border: 1px solid rgba(79,124,255,.25);
+    color: #7fa4ff;
+    font-size: 11.5px; line-height: 1.7; margin-bottom: 12px;
+  }
+  .info-box code {
+    background: rgba(0,0,0,.3); padding: 1px 5px;
+    border-radius: 3px; font-family: var(--font-mono); font-size: 10.5px;
+    color: #a8c0ff;
+  }
+  .step-indicator {
+    display: flex; gap: 4px; margin-bottom: 14px;
+  }
+  .step-indicator .step {
+    flex: 1; height: 4px; border-radius: 2px;
+    background: var(--bg-input); transition: background .3s;
+  }
+  .step-indicator .step.active { background: var(--accent); }
+  .step-indicator .step.done { background: var(--success); }
+  .step-indicator .step.fail { background: var(--error); }
 </style>
 </head>
 <body>
@@ -285,7 +329,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v2.9</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v3.1</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -360,7 +404,7 @@
       <div class="terminal" id="terminal">
         <div class="line">
           <span class="prefix info">●</span>
-          <span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v2.9 已就绪。新增 QCI 服务质量等级查询与显示。</span>
+          <span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v3.1 已就绪。新增 IMEI / SN 写入功能。</span>
         </div>
       </div>
       <div class="terminal-input-row">
@@ -408,6 +452,31 @@
           </button>
         </div>
         <div style="margin-top:8px;font-size:11px;color:var(--text-dim);line-height:1.6;" id="switchTip"></div>
+      </div>
+
+      <div class="quick-section">
+        <h4>写入操作 <span class="badge-tag red" style="font-size:9px;">危险</span></h4>
+        <div class="quick-grid">
+          <button class="quick-btn" onclick="openWriteModal('IMEI')" disabled id="btnWriteIMEI">
+            ✏️ 改写 IMEI
+            <span class="cmd-hint">AT*MRD_IMEI</span>
+          </button>
+          <button class="quick-btn" onclick="openWriteModal('SN')" disabled id="btnWriteSN">
+            ✏️ 改写 SN
+            <span class="cmd-hint">AT*MRD_SN</span>
+          </button>
+          <button class="quick-btn danger" onclick="openWriteModal('DEL_IMEI')" disabled id="btnDelIMEI">
+            🗑️ 删除 IMEI
+            <span class="cmd-hint">D 参数</span>
+          </button>
+          <button class="quick-btn danger" onclick="openWriteModal('DEL_SN')" disabled id="btnDelSN">
+            🗑️ 删除 SN
+            <span class="cmd-hint">D 参数</span>
+          </button>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:var(--text-dim);line-height:1.6;">
+          <b style="color:var(--warn);">⚠ 警告：</b>改写 IMEI/SN 需先进入工厂模式，操作有风险，可能导致设备无法联网或失去保修。
+        </div>
       </div>
 
       <div class="quick-section">
@@ -476,6 +545,7 @@
         <div class="quick-grid">
           <button class="quick-btn" onclick="quickCmd('AT+CGEQOSRDP')" disabled>QCI 查询<span class="cmd-hint">AT+CGEQOSRDP</span></button>
           <button class="quick-btn" onclick="quickCmd('AT+ICCID')" disabled>ICCID 查询<span class="cmd-hint">AT+ICCID</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT+CRSM=176,12258,0,0,27')" disabled>ICCID(CRSM)<span class="cmd-hint">AT+CRSM</span></button>
           <button class="quick-btn" onclick="quickCmd('AT+CGSN')" disabled>IMEI 查询<span class="cmd-hint">AT+CGSN</span></button>
           <button class="quick-btn" onclick="quickCmd('AT*MRD_SN?')" disabled>SN 查询<span class="cmd-hint">AT*MRD_SN?</span></button>
           <button class="quick-btn" onclick="quickCmd('AT*MRD_WIFIID?')" disabled>MAC 查询<span class="cmd-hint">AT*MRD_WIFIID?</span></button>
@@ -492,7 +562,6 @@
           <button class="quick-btn" onclick="quickCmd('AT+RESET')" disabled>重启设备<span class="cmd-hint">AT+RESET</span></button>
           <button class="quick-btn" onclick="quickCmd('AT*PROD=1')" disabled>进入工厂<span class="cmd-hint">AT*PROD=1</span></button>
           <button class="quick-btn" onclick="quickCmd('AT*PROD=0')" disabled>退出工厂<span class="cmd-hint">AT*PROD=0</span></button>
-          <button class="quick-btn danger" onclick="confirmDanger('删除SN', 'AT*MRD_SN=D')" disabled>删除 SN<span class="cmd-hint">AT*MRD_SN=D</span></button>
         </div>
       </div>
 
@@ -504,12 +573,54 @@
   </div>
 </div>
 
+<!-- ══════════ 写入弹窗（IMEI / SN） ══════════ -->
+<div class="modal-overlay" id="writeModal">
+  <div class="modal">
+    <h3 id="writeModalTitle">改写 IMEI</h3>
+    <div class="modal-sub" id="writeModalSub"></div>
+
+    <div class="warn-box" id="writeWarnBox">
+      <b>⚠ 操作风险：</b><br>
+      • 改写 IMEI 在部分国家/地区属违法行为<br>
+      • 操作不当可能导致设备无法入网<br>
+      • 写入前请确保设备已进入工厂模式
+    </div>
+
+    <div class="step-indicator" id="stepIndicator" style="display:none;">
+      <div class="step" id="step1"></div>
+      <div class="step" id="step2"></div>
+      <div class="step" id="step3"></div>
+    </div>
+
+    <div id="writeFormArea">
+      <div class="form-group">
+        <label id="writeLabel">新 IMEI（15 位数字）</label>
+        <input class="form-control" id="writeInput" placeholder="" autocomplete="off">
+        <div class="validation-hint" id="validationHint"></div>
+      </div>
+
+      <div class="info-box" id="cmdPreviewBox">
+        即将发送：<code id="cmdPreview">—</code>
+      </div>
+    </div>
+
+    <div id="writeProgressArea" style="display:none;">
+      <div class="info-box" style="min-height:60px;">
+        <div id="progressLog" style="font-family:var(--font-mono);font-size:11.5px;line-height:1.8;"></div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-outline" id="writeCancelBtn" onclick="closeWriteModal()">取消</button>
+      <button class="btn btn-primary" id="writeConfirmBtn" onclick="confirmWrite()">确认写入</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="cloudModal">
   <div class="modal" style="width:440px;">
     <h3>去云控 / 解除限速</h3>
-    <div style="font-size:12.5px;color:var(--text-dim);line-height:1.8;margin-bottom:16px;">
-      云控是厂商通过远程服务对设备进行限速或断网的手段。去云控通常有两种途径：
-    </div>
+    <div class="modal-sub">云控是厂商通过远程服务对设备进行限速或断网的手段。去云控通常有两种途径：</div>
     <div style="display:flex;flex-direction:column;gap:10px;">
       <button class="btn btn-warn" onclick="genRemoveCloudCmd()">📋 生成去云控指令</button>
       <button class="btn btn-outline" onclick="showAdbGuide()">📖 查看 ADB 去云控详细步骤</button>
@@ -533,17 +644,6 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="confirmModal">
-  <div class="modal">
-    <h3 id="confirmModalTitle">确认操作</h3>
-    <p style="color:var(--text-dim);font-size:13px;line-height:1.6;" id="confirmModalDesc"></p>
-    <div class="btn-row">
-      <button class="btn btn-outline" onclick="closeConfirmModal()">取消</button>
-      <button class="btn btn-danger" id="confirmModalBtn">确认执行</button>
-    </div>
-  </div>
-</div>
-
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
@@ -552,7 +652,8 @@ const state = {
   readLoopActive: false, logBuffer: [], speedtestAbort: null,
   speedtesting: false, responseBuffer: '', detectedChip: null,
   sensitiveHidden: { IMEI: true, SN: true, ICCID: true },
-  rawValues: { IMEI: '', SN: '', ICCID: '' }
+  rawValues: { IMEI: '', SN: '', ICCID: '' },
+  writeInProgress: false,
 };
 
 const BAND_MAP = {
@@ -617,7 +718,6 @@ const OPERATOR_MAP = {
   '46015': { name: '中国广电', cls: 'operator-cbn' },
 };
 
-/* QCI 等级映射 */
 const QCI_MAP = {
   1:  { desc: 'VoLTE 语音',       cls: 'qci-high' },
   2:  { desc: '会话视频',         cls: 'qci-high' },
@@ -657,6 +757,38 @@ function mapOperatorName(name) {
   if (/中国电信/.test(name)) return { name: '中国电信', cls: 'operator-ct' };
   if (/中国广电/.test(name)) return { name: '中国广电', cls: 'operator-cbn' };
   return { name: name, cls: 'ok' };
+}
+
+/* ═══════════════════════════════════════════════════
+   IMEI Luhn 校验
+   ═══════════════════════════════════════════════════ */
+function validateIMEI(imei) {
+  if (!/^\d{15}$/.test(imei)) return false;
+  let sum = 0;
+  for (let i = 0; i < 14; i++) {
+    let digit = parseInt(imei[i]);
+    if (i % 2 === 1) {
+      digit *= 2;
+      if (digit > 9) digit -= 9;
+    }
+    sum += digit;
+  }
+  const checkDigit = (10 - (sum % 10)) % 10;
+  return checkDigit === parseInt(imei[14]);
+}
+
+function calcLuhnCheckDigit(first14) {
+  if (!/^\d{14}$/.test(first14)) return null;
+  let sum = 0;
+  for (let i = 0; i < 14; i++) {
+    let digit = parseInt(first14[i]);
+    if (i % 2 === 1) {
+      digit *= 2;
+      if (digit > 9) digit -= 9;
+    }
+    sum += digit;
+  }
+  return (10 - (sum % 10)) % 10;
 }
 
 function toast(msg, type = 'info', duration = 3000) {
@@ -946,6 +1078,305 @@ async function autoDetectChip() {
 }
 
 /* ═══════════════════════════════════════════════════
+   ★ 写入操作：IMEI / SN
+   ═══════════════════════════════════════════════════ */
+let writeContext = { type: null, value: '', isDelete: false };
+
+function openWriteModal(type) {
+  if (!state.connected) { toast('请先连接设备', 'error'); return; }
+  if (state.writeInProgress) { toast('写入正在进行中，请稍候', 'error'); return; }
+
+  writeContext.type = type;
+  writeContext.isDelete = type.startsWith('DEL_');
+
+  const baseType = type.replace('DEL_', '');
+  const titles = {
+    IMEI: writeContext.isDelete ? '删除 IMEI' : '改写 IMEI',
+    SN:   writeContext.isDelete ? '删除 SN' : '改写 SN',
+  };
+
+  document.getElementById('writeModalTitle').textContent = titles[baseType];
+  document.getElementById('writeModal').classList.add('show');
+  document.getElementById('stepIndicator').style.display = 'none';
+  document.getElementById('writeProgressArea').style.display = 'none';
+  document.getElementById('writeFormArea').style.display = 'block';
+  document.getElementById('writeConfirmBtn').textContent = writeContext.isDelete ? '确认删除' : '确认写入';
+  document.getElementById('writeConfirmBtn').className = writeContext.isDelete ? 'btn btn-danger' : 'btn btn-primary';
+  document.getElementById('writeCancelBtn').textContent = '取消';
+  document.getElementById('writeCancelBtn').disabled = false;
+
+  // 重置步骤指示
+  ['step1','step2','step3'].forEach(id => {
+    const el = document.getElementById(id);
+    el.className = 'step';
+  });
+
+  if (writeContext.isDelete) {
+    // 删除模式：隐藏输入框
+    document.getElementById('writeFormArea').innerHTML = `
+      <div class="warn-box" style="background:rgba(231,76,60,.08);border-color:rgba(231,76,60,.3);color:#ff8a80;">
+        <b>⚠ 危险操作：</b>此操作将清空设备上的 ${baseType} 值，可能导致设备无法正常联网。<br>
+        执行后需重新写入正确的 ${baseType} 才能恢复使用。
+      </div>
+      <div class="info-box" id="cmdPreviewBox">
+        即将发送：<code id="cmdPreview">—</code>
+      </div>
+    `;
+    updateCmdPreviewForDelete(baseType);
+  } else {
+    // 写入模式：恢复输入框
+    document.getElementById('writeFormArea').innerHTML = `
+      <div class="form-group">
+        <label id="writeLabel">${baseType === 'IMEI' ? '新 IMEI（15 位数字，最后一位为 Luhn 校验位）' : '新 SN（8~20 位字母数字组合）'}</label>
+        <input class="form-control" id="writeInput" placeholder="${baseType === 'IMEI' ? '例如 866766071561673' : '例如 CW26020101879'}" autocomplete="off">
+        <div class="validation-hint" id="validationHint"></div>
+      </div>
+      <div class="info-box" id="cmdPreviewBox">
+        即将发送：<code id="cmdPreview">—</code>
+      </div>
+    `;
+    // 预填当前值作为参考
+    const currentVal = state.rawValues[baseType] || '';
+    if (baseType === 'IMEI') {
+      document.getElementById('writeInput').value = currentVal;
+      if (currentVal && currentVal.length === 15) {
+        // 修改最后 3 位，生成新 IMEI
+        const newPrefix = currentVal.substring(0, 12);
+        document.getElementById('writeInput').value = newPrefix + '000';
+      }
+    } else if (currentVal) {
+      document.getElementById('writeInput').value = currentVal;
+    }
+
+    // 绑定校验
+    const input = document.getElementById('writeInput');
+    input.addEventListener('input', () => {
+      validateWriteInput(baseType);
+      updateCmdPreviewForWrite(baseType);
+    });
+    validateWriteInput(baseType);
+    updateCmdPreviewForWrite(baseType);
+  }
+}
+
+function updateCmdPreviewForWrite(baseType) {
+  const val = document.getElementById('writeInput')?.value.trim() || '';
+  const preview = document.getElementById('cmdPreview');
+  if (!preview) return;
+  if (!val) {
+    preview.textContent = '—';
+    return;
+  }
+  if (baseType === 'IMEI') {
+    preview.textContent = `AT*MRD_IMEI=W,0,01JAN1970,${val}`;
+  } else {
+    preview.textContent = `AT*MRD_SN=W,0,01JAN1970,${val}`;
+  }
+}
+
+function updateCmdPreviewForDelete(baseType) {
+  const preview = document.getElementById('cmdPreview');
+  if (!preview) return;
+  if (baseType === 'IMEI') {
+    preview.textContent = 'AT*MRD_IMEI=D';
+  } else {
+    preview.textContent = 'AT*MRD_SN=D';
+  }
+}
+
+function validateWriteInput(baseType) {
+  const input = document.getElementById('writeInput');
+  const hint = document.getElementById('validationHint');
+  if (!input || !hint) return false;
+
+  const val = input.value.trim();
+  input.className = 'form-control';
+
+  if (!val) {
+    hint.textContent = '请输入值';
+    hint.className = 'validation-hint info';
+    return false;
+  }
+
+  if (baseType === 'IMEI') {
+    if (!/^\d{15}$/.test(val)) {
+      hint.textContent = `长度错误：IMEI 必须为 15 位数字，当前 ${val.length} 位`;
+      hint.className = 'validation-hint err';
+      input.className = 'form-control invalid';
+      return false;
+    }
+    if (!validateIMEI(val)) {
+      hint.textContent = '⚠ Luhn 校验失败，最后一位校验位不正确';
+      hint.className = 'validation-hint err';
+      input.className = 'form-control invalid';
+      // 提供自动补全建议
+      const first14 = val.substring(0, 14);
+      const correct = calcLuhnCheckDigit(first14);
+      if (correct !== null) {
+        hint.innerHTML = `⚠ Luhn 校验失败，最后一位应为 <b>${correct}</b>（当前为 ${val[14]}）<br>
+          <a href="#" onclick="event.preventDefault();document.getElementById('writeInput').value='${first14}${correct}';validateWriteInput('IMEI');updateCmdPreviewForWrite('IMEI');" style="color:var(--accent);">点击自动修正</a>`;
+      }
+      return false;
+    }
+    hint.textContent = '✓ IMEI 格式与 Luhn 校验均通过';
+    hint.className = 'validation-hint ok';
+    input.className = 'form-control valid';
+    return true;
+  }
+
+  if (baseType === 'SN') {
+    if (!/^[A-Za-z0-9]{8,20}$/.test(val)) {
+      hint.textContent = 'SN 必须为 8~20 位字母数字组合';
+      hint.className = 'validation-hint err';
+      input.className = 'form-control invalid';
+      return false;
+    }
+    hint.textContent = '✓ SN 格式通过';
+    hint.className = 'validation-hint ok';
+    input.className = 'form-control valid';
+    return true;
+  }
+
+  return true;
+}
+
+function closeWriteModal() {
+  if (state.writeInProgress) {
+    toast('写入进行中，请等待完成', 'error');
+    return;
+  }
+  document.getElementById('writeModal').classList.remove('show');
+}
+
+async function confirmWrite() {
+  if (state.writeInProgress) return;
+
+  const baseType = writeContext.type.replace('DEL_', '');
+  const isDelete = writeContext.isDelete;
+
+  // 校验输入
+  if (!isDelete) {
+    if (!validateWriteInput(baseType)) {
+      toast('请检查输入内容', 'error');
+      return;
+    }
+  }
+
+  const val = isDelete ? '' : document.getElementById('writeInput').value.trim();
+
+  // 构造写入指令
+  let writeCmd = '';
+  if (isDelete) {
+    writeCmd = `AT*MRD_${baseType}=D`;
+  } else {
+    if (baseType === 'IMEI') {
+      writeCmd = `AT*MRD_IMEI=W,0,01JAN1970,${val}`;
+    } else {
+      writeCmd = `AT*MRD_SN=W,0,01JAN1970,${val}`;
+    }
+  }
+
+  // 切换 UI 到进度模式
+  state.writeInProgress = true;
+  document.getElementById('writeFormArea').style.display = 'none';
+  document.getElementById('writeProgressArea').style.display = 'block';
+  document.getElementById('stepIndicator').style.display = 'flex';
+  document.getElementById('writeConfirmBtn').disabled = true;
+  document.getElementById('writeCancelBtn').disabled = true;
+
+  const logEl = document.getElementById('progressLog');
+  logEl.innerHTML = '';
+
+  const appendLog = (msg, cls = '') => {
+    const div = document.createElement('div');
+    div.textContent = msg;
+    if (cls) div.style.color = `var(--${cls})`;
+    logEl.appendChild(div);
+  };
+
+  const setStep = (idx, status) => {
+    document.getElementById('step' + idx).className = 'step ' + status;
+  };
+
+  try {
+    // ═══ 步骤 1：进入工厂模式 ═══
+    setStep(1, 'active');
+    appendLog('▶ 步骤 1/3：进入工厂模式...', 'warn');
+    termWrite('AT*PROD=1', 'cmd');
+    await writeToPort('AT*PROD=1');
+    await sleep(1200);
+    setStep(1, 'done');
+    appendLog('✓ 工厂模式已激活', 'success');
+    appendLog('', '');
+
+    // ═══ 步骤 2：发送写入指令 ═══
+    setStep(2, 'active');
+    appendLog('▶ 步骤 2/3：发送写入指令...', 'warn');
+    termWrite(writeCmd, 'cmd');
+    await writeToPort(writeCmd);
+    await sleep(1500);
+    setStep(2, 'done');
+    appendLog(`✓ 已发送：${writeCmd}`, 'success');
+    appendLog('', '');
+
+    // ═══ 步骤 3：退出工厂模式 ═══
+    setStep(3, 'active');
+    appendLog('▶ 步骤 3/3：退出工厂模式...', 'warn');
+    termWrite('AT*PROD=0', 'cmd');
+    await writeToPort('AT*PROD=0');
+    await sleep(1200);
+    setStep(3, 'done');
+    appendLog('✓ 已退出工厂模式', 'success');
+    appendLog('', '');
+    appendLog('━━━━━━━━━━━━━━━━━━━━━━', 'info');
+    appendLog('🎉 写入流程完成', 'success');
+    appendLog('建议重启设备后验证新值', 'info');
+
+    toast(`${baseType} ${isDelete ? '删除' : '写入'}成功`, 'success', 5000);
+    termWrite(`✅ ${baseType} ${isDelete ? '删除' : '写入'}流程完成`, 'info');
+
+    // 完成按钮切换为"关闭"
+    document.getElementById('writeConfirmBtn').textContent = '关闭';
+    document.getElementById('writeConfirmBtn').className = 'btn btn-primary';
+    document.getElementById('writeConfirmBtn').disabled = false;
+    document.getElementById('writeConfirmBtn').onclick = () => {
+      closeWriteModalForce();
+      // 刷新设备信息
+      setTimeout(() => autoQueryDeviceInfo(), 500);
+    };
+    document.getElementById('writeCancelBtn').style.display = 'none';
+
+  } catch (err) {
+    appendLog('', '');
+    appendLog('✗ 写入失败: ' + err.message, 'error');
+    toast('写入失败: ' + err.message, 'error', 5000);
+    termWrite(`❌ 写入失败: ${err.message}`, 'err');
+
+    // 尝试退出工厂模式
+    try {
+      appendLog('尝试退出工厂模式以恢复设备...', 'warn');
+      await writeToPort('AT*PROD=0');
+    } catch (e) { /* ignore */ }
+
+    document.getElementById('writeConfirmBtn').textContent = '关闭';
+    document.getElementById('writeConfirmBtn').disabled = false;
+    document.getElementById('writeConfirmBtn').onclick = () => closeWriteModalForce();
+    document.getElementById('writeCancelBtn').style.display = 'none';
+  }
+
+  state.writeInProgress = false;
+}
+
+function closeWriteModalForce() {
+  state.writeInProgress = false;
+  document.getElementById('writeModal').classList.remove('show');
+  document.getElementById('writeConfirmBtn').onclick = confirmWrite;
+  document.getElementById('writeCancelBtn').style.display = '';
+  document.getElementById('writeConfirmBtn').disabled = false;
+  document.getElementById('writeCancelBtn').disabled = false;
+}
+
+/* ═══════════════════════════════════════════════════
    隐私保护
    ═══════════════════════════════════════════════════ */
 function maskValue(val, type) {
@@ -1014,8 +1445,7 @@ function setOperator(name, cls) {
 }
 
 function parseDeviceInfo(line) {
-  // ── QCI：解析 +CGEQOSRDP ──
-  // 格式: +CGEQOSRDP: 1,9,"",""
+  // QCI
   let m = line.match(/\+CGEQOSRDP[:\s]*(\d+),(\d+)/i);
   if (m) {
     const cid = parseInt(m[1]);
@@ -1026,21 +1456,15 @@ function parseDeviceInfo(line) {
     el.className = 'info-value ' + info.cls;
     el.title = `原始响应: ${line}\nCID: ${cid}\nQCI: ${qci}\n${info.desc}`;
   }
-
-  // ── QCI：解析 +QNWCFG="qci" ──
-  // 格式: +QNWCFG: "qci",1,9
   m = line.match(/\+QNWCFG[:\s]*"qci"[,\s]*(\d+),(\d+)/i);
   if (m) {
-    const cid = parseInt(m[1]);
     const qci = parseInt(m[2]);
     const el = document.getElementById('infoQCI');
     const info = mapQci(qci);
     el.textContent = `QCI ${qci} · ${info.desc}`;
     el.className = 'info-value ' + info.cls;
-    el.title = `原始响应: ${line}\nCID: ${cid}\nQCI: ${qci}\n${info.desc}`;
+    el.title = `原始响应: ${line}`;
   }
-
-  // ── QCI：解析 +CGQREQ ──
   m = line.match(/\+CGQREQ[:\s]*(\d+),(\d+)/i);
   if (m && !document.getElementById('infoQCI').textContent.includes('QCI')) {
     const qci = parseInt(m[2]);
@@ -1052,11 +1476,14 @@ function parseDeviceInfo(line) {
   }
 
   // ICCID
-  m = line.match(/[+*](?:ICCID|CCID)[:\s]+([0-9]{18,22})/i);
+  m = line.match(/[+*](?:ICCID|CCID)[:\s]*"?([0-9]{18,22})"?/i);
   if (m) {
     setInfoValue('ICCID', m[1]);
   } else if (/^89\d{17,19}$/.test(line)) {
     setInfoValue('ICCID', line);
+  } else {
+    m = line.match(/\+CRSM[:\s]*\d+,\d+,"([0-9]{18,22})"/i);
+    if (m) setInfoValue('ICCID', m[1]);
   }
 
   // IMEI
@@ -1068,31 +1495,21 @@ function parseDeviceInfo(line) {
   }
 
   // SN
-  m = line.match(/[*+]MRD_SN[:\s]+([A-Za-z0-9]+)/i);
-  if (m) {
-    setInfoValue('SN', m[1]);
-  } else {
-    m = line.match(/\+SN[:\s]+([A-Za-z0-9]+)/i);
-    if (m) setInfoValue('SN', m[1]);
-  }
+  m = line.match(/[*+]MRD_SN[:\s]+([A-Za-z0-9]+)/i) ||
+      line.match(/\+SN[:\s]+([A-Za-z0-9]+)/i);
+  if (m) setInfoValue('SN', m[1]);
 
   // 固件版本
-  m = line.match(/\+CGMR[:\s]+"?([^"\r\n]+)"?/i);
-  if (m) {
-    setInfo('infoVER', m[1].trim());
-  } else {
-    m = line.match(/[+*]VER[:\s]+"?([^"\r\n]+)"?/i);
-    if (m) setInfo('infoVER', m[1].trim());
-  }
+  m = line.match(/\+CGMR[:\s]+"?([^"\r\n]+)"?/i) ||
+      line.match(/[+*]VER[:\s]+"?([^"\r\n]+)"?/i);
+  if (m) setInfo('infoVER', m[1].trim());
 
   // MAC
   m = line.match(/[*+]MRD_WIFIID[:\s]+([0-9A-Fa-f:]{12,20})/i) ||
       line.match(/[+*]WIFIID[:\s]+([0-9A-Fa-f:]{12,20})/i) ||
       line.match(/[+*]MAC[:\s]+([0-9A-Fa-f:]{12,20})/i) ||
       line.match(/([0-9A-Fa-f]{2}[:\-]){5}[0-9A-Fa-f]{2}/);
-  if (m) {
-    setInfo('infoMAC', m[1] || m[0]);
-  }
+  if (m) setInfo('infoMAC', m[1] || m[0]);
 
   // 信号质量
   m = line.match(/\+CSQ[:\s]*(\d+)/);
@@ -1110,28 +1527,16 @@ function parseDeviceInfo(line) {
     const nameStr = m[3] || '';
     const numStr = m[4] || '';
     const el = document.getElementById('infoOperator');
-
     if (mode === 0 && !nameStr && !numStr) {
-      el.textContent = '未注册';
-      el.className = 'info-value warn';
-      el.title = `原始响应: ${line}`;
+      el.textContent = '未注册'; el.className = 'info-value warn'; el.title = `原始响应: ${line}`;
     } else if (nameStr) {
       const op = mapOperatorName(nameStr);
-      if (op) {
-        setOperator(op.name, op.cls);
-        el.title = `原始响应: ${line}\nMCC/MNC名: ${nameStr}`;
-      }
+      if (op) { setOperator(op.name, op.cls); el.title = `原始响应: ${line}\nMCC/MNC名: ${nameStr}`; }
     } else if (numStr) {
       const code5 = numStr.substring(0, 5);
       const op = OPERATOR_MAP[code5];
-      if (op) {
-        setOperator(op.name, op.cls);
-        el.title = `原始响应: ${line}\nMCC/MNC: ${numStr}`;
-      } else {
-        el.textContent = `未知 (${numStr})`;
-        el.className = 'info-value warn';
-        el.title = `原始响应: ${line}`;
-      }
+      if (op) { setOperator(op.name, op.cls); el.title = `原始响应: ${line}\nMCC/MNC: ${numStr}`; }
+      else { el.textContent = `未知 (${numStr})`; el.className = 'info-value warn'; el.title = `原始响应: ${line}`; }
     }
   }
 
@@ -1152,39 +1557,29 @@ function parseDeviceInfo(line) {
       const platform = document.getElementById('chipPlatform').value;
       const slot = parseInt(cardMatch[1]);
       const el = document.getElementById('infoCardSlot');
-      let isExternal = false;
-      if (platform === 'qualcomm') isExternal = (slot === 2);
-      else isExternal = (slot === 0);
+      let isExternal = (platform === 'qualcomm') ? (slot === 2) : (slot === 0);
       el.textContent = isExternal ? '外置卡' : '内置卡';
       el.className = 'info-value ' + (isExternal ? 'ok' : 'warn');
       el.title = `原始响应: ${line}`;
     }
   }
 
-  // 当前频段
+  // 频段
   m = line.match(/[*+]BANDIND[:\s]*(.+)/i);
   if (m) {
     const parts = m[1].split(',').map(s => s.trim());
-    let bandNum = null;
-    let act = null;
-
-    if (parts.length >= 3) {
-      if (parts[0] === '0' || parts[0] === '1') {
-        bandNum = parseInt(parts[1]);
-        act = parseInt(parts[2]);
-      } else {
-        bandNum = parseInt(parts[0]);
-        act = parseInt(parts[1]);
-      }
-    } else if (parts.length === 2) {
+    let bandNum = null, act = null;
+    if (parts.length >= 3 && (parts[0] === '0' || parts[0] === '1')) {
+      bandNum = parseInt(parts[1]);
+      act = parseInt(parts[2]);
+    } else if (parts.length >= 2) {
       bandNum = parseInt(parts[0]);
       act = parseInt(parts[1]);
     } else if (parts.length === 1) {
       bandNum = parseInt(parts[0]);
     }
-
+    const el = document.getElementById('infoBand');
     if (!isNaN(bandNum) && bandNum > 0) {
-      const el = document.getElementById('infoBand');
       let bandName = '';
       if (act === 7 || act === null || act === undefined) {
         bandName = LTE_BAND_MAP[bandNum] || `B${bandNum}`;
@@ -1196,14 +1591,16 @@ function parseDeviceInfo(line) {
       el.textContent = bandName;
       el.title = `原始响应: ${line}`;
       el.className = 'info-value ok';
+    } else if (bandNum === 0) {
+      el.textContent = '未注册';
+      el.title = `原始响应: ${line}`;
+      el.className = 'info-value warn';
     } else {
-      const el = document.getElementById('infoBand');
       el.textContent = '解析失败';
       el.title = `原始响应: ${line}`;
       el.className = 'info-value warn';
     }
   }
-
   m = line.match(/[*+]BAND[:\s]*(?!IND)(.+)/i);
   if (m) {
     const bandEl = document.getElementById('infoBand');
@@ -1219,45 +1616,40 @@ async function autoQueryDeviceInfo() {
   termWrite('正在查询设备信息...', 'info');
   const chip = state.detectedChip || 'asr';
 
-  // ICCID
   termWrite('尝试查询 ICCID...', 'info');
-  let resp = await queryAndCollect('AT+ICCID', 600);
-  if (!/ICCID|CCID|^89\d{17,}/im.test(resp)) {
-    resp = await queryAndCollect('AT+CCID', 600);
-    if (!/ICCID|CCID|^89\d{17,}/im.test(resp)) {
-      resp = await queryAndCollect('AT*ICCID?', 600);
-      if (!/ICCID|CCID|^89\d{17,}/im.test(resp)) {
-        await queryAndCollect('AT*MRD_ICCID?', 600);
-      }
+  let iccidFound = false;
+  const iccidCmds = ['AT+ICCID', 'AT+CCID', 'AT*ICCID?', 'AT*MRD_ICCID?'];
+  for (const cmd of iccidCmds) {
+    const r = await queryAndCollect(cmd, 600);
+    if (/[+*](?:ICCID|CCID)/i.test(r) || /^89\d{17,19}/m.test(r)) {
+      iccidFound = true;
+      break;
     }
   }
+  if (!iccidFound) {
+    termWrite('常规 ICCID 指令无响应，尝试 CRSM 读取...', 'info');
+    await queryAndCollect('AT+CRSM=176,12258,0,0,27', 800);
+  }
 
-  // IMEI
-  resp = await queryAndCollect('AT+CGSN', 600);
+  let resp = await queryAndCollect('AT+CGSN', 600);
   if (!/\+CGSN|^\d{15}/.test(resp)) {
     await queryAndCollect('AT*MRD_IMEI?', 600);
   }
 
-  // SN
   resp = await queryAndCollect('AT*MRD_SN?', 600);
   if (/^\s*ERROR\s*$/im.test(resp) || !resp) {
     await queryAndCollect('AT+SN?', 600);
   }
 
-  // 固件版本
   resp = await queryAndCollect('AT+VER', 600);
   if (/^\s*ERROR\s*$/im.test(resp) || !resp) {
     await queryAndCollect('AT+CGMR', 600);
   }
 
-  // 信号质量
   await queryAndCollect('AT+CSQ', 600);
-
-  // 运营商
   await queryAndCollect('AT+COPS=3,0', 400);
   await queryAndCollect('AT+COPS?', 800);
 
-  // MAC
   termWrite('尝试查询 WiFi MAC 地址...', 'info');
   resp = await queryAndCollect('AT*MRD_WIFIID?', 600);
   if (!/WIFIID|MAC|[0-9A-Fa-f]{2}:/i.test(resp)) {
@@ -1267,22 +1659,19 @@ async function autoQueryDeviceInfo() {
     }
   }
 
-  // 当前卡槽
   const cfg = SWITCH_CMD_MAP[chip];
   if (cfg) await queryAndCollect(cfg.query, 600);
 
-  // 当前实际频段
   termWrite('尝试查询当前频段...', 'info');
   resp = await queryAndCollect('AT*BANDIND?', 600);
   if (/ERROR|^\s*$/m.test(resp) || !/BANDIND/i.test(resp)) {
     termWrite('AT*BANDIND? 无响应，尝试 AT+BANDIND?', 'info');
     resp = await queryAndCollect('AT+BANDIND?', 600);
     if (/ERROR|^\s*$/m.test(resp) || !/BANDIND/i.test(resp)) {
-      termWrite('设备可能不支持 BANDIND 指令，请手动在终端查询。', 'info');
+      termWrite('设备可能不支持 BANDIND 指令。', 'info');
     }
   }
 
-  // ── QCI：多指令尝试 ──
   termWrite('尝试查询 QCI 等级...', 'info');
   resp = await queryAndCollect('AT+CGEQOSRDP', 800);
   if (!/CGEQOSRDP/i.test(resp) || /^\s*ERROR\s*$/im.test(resp)) {
@@ -1290,7 +1679,7 @@ async function autoQueryDeviceInfo() {
     if (chip === 'qualcomm') {
       resp = await queryAndCollect('AT+QNWCFG="qci"', 800);
       if (!/QNWCFG/i.test(resp) || /^\s*ERROR\s*$/im.test(resp)) {
-        termWrite('AT+QNWCFG="qci" 无响应（5G 模块可能不支持）。', 'info');
+        termWrite('AT+QNWCFG="qci" 无响应。', 'info');
       }
     } else if (chip === 'unisoc') {
       resp = await queryAndCollect('AT+CGQREQ?', 800);
@@ -1366,7 +1755,6 @@ document.getElementById('chipPlatform').addEventListener('change', () => {
 async function switchToExternalCard() {
   if (!state.connected) { toast('请先连接设备', 'error'); return; }
   const cfg = getPlatformConfig();
-
   if (cfg.repeat > 1) {
     termWrite(`${cfg.name} 平台切外置卡，将连续发送 ${cfg.repeat} 次指令...`, 'info');
     for (let i = 0; i < cfg.repeat; i++) {
@@ -1375,13 +1763,10 @@ async function switchToExternalCard() {
       catch (err) { termWrite(`发送失败: ${err.message}`, 'err'); break; }
       await sleep(800);
     }
-    termWrite(`已连续发送 ${cfg.repeat} 次切卡指令，设备可能重启。`, 'info');
   } else {
     termWrite(cfg.external, 'cmd');
-    try {
-      await writeToPort(cfg.external);
-      termWrite('切卡指令已发送，设备将自动重启。', 'info');
-    } catch (err) { termWrite(`发送失败: ${err.message}`, 'err'); }
+    try { await writeToPort(cfg.external); }
+    catch (err) { termWrite(`发送失败: ${err.message}`, 'err'); }
   }
   toast('切卡指令已发送，设备即将重启', 'success', 5000);
   setCloudStatus('unknown');
@@ -1394,7 +1779,6 @@ async function switchToInternalCard() {
   termWrite(cfg.internal, 'cmd');
   try {
     await writeToPort(cfg.internal);
-    termWrite('已发送切回内置卡指令。', 'info');
     toast('切回内置卡指令已发送', 'success');
   } catch (err) { termWrite(`发送失败: ${err.message}`, 'err'); }
   setTimeout(() => queryCurrentCard(), 2000);
@@ -1512,12 +1896,10 @@ async function checkCloudControl() {
   if (!state.connected) { toast('请先连接设备', 'error'); return; }
   termWrite('开始检测云控状态...', 'info');
   document.getElementById('btnCheckCloud').disabled = true;
-
   try {
     await queryAndCollect('AT+CGSN', 600);
     await queryAndCollect('AT*MRD_SN?', 600);
     await sleep(800);
-
     const currentSpeed = document.getElementById('speedDownload').textContent;
     if (currentSpeed.includes('—')) {
       termWrite('提示: 建议先执行一次测速，以便更准确判断限速状态。', 'info');
@@ -1527,7 +1909,7 @@ async function checkCloudControl() {
       const speedVal = parseFloat(currentSpeed);
       if (speedVal < 5) {
         setCloudStatus('risk');
-        termWrite(`云控检测: 当前速率 ${speedVal} Mbps，低于正常水平，存在被限速的可能。`, 'err');
+        termWrite(`云控检测: 当前速率 ${speedVal} Mbps，低于正常水平。`, 'err');
         toast('疑似被限速，建议尝试去云控', 'error', 5000);
       } else {
         setCloudStatus('safe');
@@ -1580,27 +1962,6 @@ function showAdbGuide() {
   document.getElementById('cloudCmdResult').style.display = 'none';
 }
 
-let pendingDangerCmd = null;
-
-function confirmDanger(title, cmd) {
-  pendingDangerCmd = cmd;
-  document.getElementById('confirmModalTitle').textContent = title;
-  document.getElementById('confirmModalDesc').textContent = `即将执行: ${cmd}\n\n此操作不可撤销，请确认设备已进入工厂模式。`;
-  document.getElementById('confirmModal').classList.add('show');
-}
-
-function closeConfirmModal() {
-  document.getElementById('confirmModal').classList.remove('show');
-  pendingDangerCmd = null;
-}
-
-document.getElementById('confirmModalBtn').addEventListener('click', () => {
-  if (pendingDangerCmd) {
-    quickCmd(pendingDangerCmd);
-    closeConfirmModal();
-  }
-});
-
 function buildBandGrid() {
   const grid = document.getElementById('bandGrid');
   grid.innerHTML = '';
@@ -1640,21 +2001,19 @@ if (!('serial' in navigator)) {
 
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
   overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) {
+    if (e.target === overlay && !state.writeInProgress) {
       overlay.classList.remove('show');
-      pendingDangerCmd = null;
     }
   });
 });
 
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
+  if (e.key === 'Escape' && !state.writeInProgress) {
     document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('show'));
-    pendingDangerCmd = null;
   }
 });
 
-console.log('随身WiFi调试助手 v2.9 已加载 | 新增 QCI 查询');
+console.log('随身WiFi调试助手 v3.1 已加载 | 新增 IMEI / SN 写入');
 </script>
 </body>
 </html>
