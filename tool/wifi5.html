@@ -357,7 +357,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v5.2</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v5.0</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -387,21 +387,12 @@
             <option value="4800">4800</option>
           </select>
         </div>
-        <div class="form-group">
-          <label>指令结尾 Line Ending</label>
-          <select class="form-control" id="lineEnding">
-            <option value="\r\n" selected>CR+LF (\r\n)</option>
-            <option value="\r">CR (\r)</option>
-            <option value="\n">LF (\n)</option>
-          </select>
-        </div>
         <button class="btn btn-primary" id="btnConnectUSB" onclick="connectUSB()">🔌 选择串口并连接</button>
         <div class="btn-row">
           <button class="btn btn-danger" id="btnDisconnectUSB" onclick="disconnect()" disabled>断开连接</button>
         </div>
         <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          需要 Chrome 89+ / Edge 89+ 浏览器。<br>Web Serial API 仅在 HTTPS 或 localhost 下可用。<br>
-          连接后自动设置 DTR/RTS 高电平并发送 AT 唤醒。
+          需要 Chrome 89+ / Edge 89+ 浏览器。<br>Web Serial API 仅在 HTTPS 或 localhost 下可用。
         </div>
       </div>
 
@@ -438,7 +429,7 @@
       <div class="terminal" id="terminal">
         <div class="line">
           <span class="prefix info">●</span>
-          <span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v5.2 已就绪。新增 ADB 开关、DTR/RTS 自动设置、AT 唤醒。</span>
+          <span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v5.0 已就绪。芯片数据库化，新增芯片只需维护 CHIP_DATABASE。</span>
         </div>
       </div>
       <div class="terminal-input-row">
@@ -615,16 +606,7 @@
           <button class="quick-btn" onclick="quickCmd('AT+RESET')" disabled>重启<span class="cmd-hint">AT+RESET</span></button>
           <button class="quick-btn" onclick="quickCmd('AT*PROD=1')" disabled>进入工厂<span class="cmd-hint">AT*PROD=1</span></button>
           <button class="quick-btn" onclick="quickCmd('AT*PROD=0')" disabled>退出工厂<span class="cmd-hint">AT*PROD=0</span></button>
-          <button class="quick-btn" onclick="openADB()" disabled id="btnOpenADB"
-                  style="color:#6ee7b7;border-color:rgba(110,231,183,.3);">
-            🔓 开启 ADB<span class="cmd-hint" id="adbOnHint">—</span>
-          </button>
-          <button class="quick-btn" onclick="closeADB()" disabled id="btnCloseADB"
-                  style="grid-column:1/-1;color:#f39c12;border-color:rgba(243,156,18,.3);">
-            🔒 关闭 ADB<span class="cmd-hint" id="adbOffHint">—</span>
-          </button>
         </div>
-        <div style="margin-top:8px;font-size:11px;color:var(--text-dim);line-height:1.6;" id="adbTip"></div>
       </div>
 
       <div class="quick-section band-panel" id="bandPanel">
@@ -691,7 +673,7 @@
     </div>
     <div id="cloudAdbGuide" style="margin-top:14px;display:none;font-size:12px;color:var(--text-dim);line-height:1.8;">
       <b style="color:var(--text);">ADB 去云控步骤：</b><br>
-      1. 先点「🔓 开启 ADB」开启调试模式<br>
+      1. 发送 <code>AT+ZMODE=1</code> 开启 ADB<br>
       2. ADB 执行：<br>
       <code style="display:block;background:var(--bg-input);padding:8px;border-radius:6px;margin:6px 0;">adb shell mount -o remount -o rw /</code>
       <code style="display:block;background:var(--bg-input);padding:8px;border-radius:6px;margin:6px 0;">adb shell rm -f /sbin/yiming_1028.sh</code>
@@ -707,241 +689,193 @@
 
 <script>
 /* ═══════════════════════════════════════════════════════════════════════════
-   芯片数据库 —— 外挂加载机制
-   优先级：localStorage（UI 导入） > chip-database.json > 内置 fallback
+   ★★★ 芯片数据库 CHIP_DATABASE ★★★
+   ═══════════════════════════════════════════════════════════════════════════
+
+   维护说明：
+   ─────────────────────────────────────────────────────────────────────────
+   1. 新增芯片时，在 CHIP_DATABASE 数组中 push 一条新记录即可，无需改动其他代码
+   2. 各字段含义：
+      • id             内部唯一标识，不可重复，作为 chipPlatform 下拉的 value
+      • name           短名称，用于徽章显示
+      • fullName       完整名称，用于下拉选项显示
+      • generation     '4G' 或 '5G'，决定频段锁定区展示 4G 还是 5G 频段
+      • detectKeywords ATI 响应匹配的关键字数组（按顺序匹配，先匹配到的优先）
+      • probe          当 ATI 无法识别时的探测指令 + 匹配关键字
+      • simSwitch      SIM 卡切换指令配置
+          - external   切外置卡指令
+          - internal   切内置卡指令
+          - query      查询当前卡槽指令
+          - repeat     重复发送次数（中兴微需要多次）
+          - tip        切换提示文案（支持 HTML）
+      • iccid          ICCID 查询指令数组（按优先级尝试，成功即停止）
+      • imei           IMEI 查询指令数组
+      • sn             SN 查询指令数组
+      • ver            固件版本查询指令数组
+      • band           频段查询指令数组
+      • qci            QCI/5QI 查询指令数组
+      • network5g      5G 网络查询指令数组（仅 5G 芯片使用）
    ═══════════════════════════════════════════════════════════════════════════ */
-
-let CHIP_DATABASE = [];
-
-const FALLBACK_CHIP_DATABASE_RAW = {
-  "version": "1.5",
-  "updated": "2026-09-26",
-  "description": "随身WiFi调试助手芯片数据库（内置 fallback）",
-  "chips": [
-    {
-      "id": "asr5g", "name": "ASR 5G", "fullName": "翱捷科技 ASR1901 / ASR1903 / ASR8603", "generation": "5G",
-      "detectKeywords": ["ASR1901", "ASR1903", "ASR8603"],
-      "probe": { "cmd": "AT+C5GREG?", "kw": "C5GREG" },
-      "simSwitch": { "external": "AT+SWSIM=0", "internal": "AT+SWSIM=1", "query": "AT+SWSIM?", "repeat": 1, "tip": "<b>ASR 5G 平台：</b><code>AT+SWSIM=0</code> 切外置卡，<code>AT+SWSIM=1</code> 切内置卡。" },
-      "adb": { "enable": ["AT+ZMODE=1"], "disable": ["AT+ZMODE=0"], "tip": "<code>AT+ZMODE=1</code> 进入调试模式，同时开启 ADB 和串口。" },
-      "iccid": ["AT+CCID", "AT+ICCID", "AT+UTICCID?", "AT+ICID?", "AT*MRD_ICCID?"],
-      "imei": ["AT+CGSN", "AT*MRD_IMEI?"], "sn": ["AT*MRD_SN?", "AT+SN?", "AT+SN"],
-      "ver": ["AT+CGMR", "AT+VER"], "band": ["AT*BANDIND?", "AT+BANDIND?"],
-      "qci": ["AT+CGEQOSRDP", "AT+C5GQOSRDP"],
-      "network5g": ["AT+C5GREG?", "AT+QENG=\"servingcell\"", "AT+QNWINFO", "AT+CPSI?"]
+const CHIP_DATABASE = [
+  /* ═══ 紫光展锐 Unisoc（含 UDX710 / V510 5G 方案）═══ */
+  {
+    id: 'unisoc',
+    name: '紫光展锐',
+    fullName: '紫光展锐 Unisoc UDX710 / V510',
+    generation: '5G',
+    detectKeywords: [
+      /UDX710/i, /V510/i, /Unisoc/i, /Spreadtrum/i,
+      /\bSPRD\b/i, /UIS\d{4}/i, /展锐/i
+    ],
+    probe: { cmd: 'AT+SIMSWITCH?', kw: /SIMSWITCH/i },
+    simSwitch: {
+      external: 'AT+SIMSWITCH=0,0',
+      internal: 'AT+SIMSWITCH=1,0',
+      query: 'AT+SIMSWITCH?',
+      repeat: 1,
+      tip: '<b>紫光展锐平台：</b><code>AT+SIMSWITCH=0,0</code> 切外置卡，<code>AT+SIMSWITCH=1,0</code> 切内置卡。<br>发送后设备可能自动重启。'
     },
-    {
-      "id": "asr4g", "name": "ASR 4G", "fullName": "翱捷科技 ASR1802 / ASR1803 / ASR1806 / ASR8861 / ASR7801", "generation": "4G",
-      "detectKeywords": ["ASR1806", "ASR1803", "ASR1802", "ASR180", "ASR8861", "ASR7801", "Air720", "Air724"],
-      "probe": { "cmd": "AT+SWSIM?", "kw": "SWSIM" },
-      "simSwitch": { "external": "AT+SWSIM=0", "internal": "AT+SWSIM=1", "query": "AT+SWSIM?", "repeat": 1, "tip": "<b>ASR 4G 平台：</b><code>AT+SWSIM=0</code> 切外置卡，<code>AT+SWSIM=1</code> 切内置卡。" },
-      "adb": { "enable": ["AT+ZMODE=1"], "disable": ["AT+ZMODE=0"], "tip": "<code>AT+ZMODE=1</code> 进入调试模式，同时开启 ADB 和串口。" },
-      "iccid": ["AT+CCID", "AT+ICCID", "AT+UTICCID?", "AT+ICID?", "AT*MRD_ICCID?"],
-      "imei": ["AT+CGSN", "AT*MRD_IMEI?"], "sn": ["AT*MRD_SN?", "AT+SN?", "AT+SN"],
-      "ver": ["AT+CGMR", "AT+VER"], "band": ["AT*BANDIND?", "AT+BANDIND?"],
-      "qci": ["AT+CGEQOSRDP"], "network5g": []
-    },
-    {
-      "id": "unisoc", "name": "紫光展锐", "fullName": "紫光展锐 Unisoc UDX710 / V510 / UIS8910", "generation": "5G",
-      "detectKeywords": ["UDX710", "V510", "UIS8910DM", "UIS8910", "8910", "8978", "Unisoc", "Spreadtrum", "SPRD", "展锐"],
-      "probe": { "cmd": "AT+CGSN", "kw": "^\\d{15}$" },
-      "simSwitch": { "external": "AT+SIMSWITCH=0,0", "internal": "AT+SIMSWITCH=1,0", "query": "AT+SIMSWITCH?", "repeat": 1, "tip": "<b>紫光展锐平台：</b><code>AT+SIMSWITCH=0,0</code> 切外置卡，<code>AT+SIMSWITCH=1,0</code> 切内置卡。" },
-      "adb": {
-        "enable": ["AT+SPUSBDEBUG=1", "AT+USBDEBUG=1", "AT+DEBUG=1", "AT+USBMODE=3"],
-        "disable": ["AT+SPUSBDEBUG=0", "AT+USBDEBUG=0", "AT+DEBUG=0", "AT+USBMODE=0"],
-        "tip": "展锐各固件的 ADB 指令差异较大，工具会依次尝试 <code>AT+SPUSBDEBUG=1</code>、<code>AT+USBDEBUG=1</code>、<code>AT+DEBUG=1</code>、<code>AT+USBMODE=3</code>。如全部无效，请查阅模块手册。"
-      },
-      "iccid": ["AT+ICCID", "AT+ICID?", "AT+CCID", "AT+QCCID", "AT*MRD_ICCID?"],
-      "imei": ["AT+CGSN", "AT*MRD_IMEI?"], "sn": ["AT+SN?", "AT+CGSN", "AT*MRD_SN?"],
-      "ver": ["AT+CGMR", "AT+GMR", "AT+VER"], "band": ["AT*BANDIND?", "AT+BANDIND?", "AT*BAND?"],
-      "qci": ["AT+CGEQOSRDP", "AT+C5GQOSRDP"],
-      "network5g": ["AT+C5GREG?", "AT+QENG=\"servingcell\"", "AT+QNWINFO", "AT+CPSI?"]
-    },
-    {
-      "id": "qualcomm", "name": "高通", "fullName": "高通 Qualcomm SDX55 / SDX62 / SDX65 / SDX75", "generation": "5G",
-      "detectKeywords": ["SDX55", "SDX62", "SDX65", "SDX75", "RM500", "RM520", "RM502", "RM551", "FM150", "SRM825", "Qualcomm", "MDM9"],
-      "probe": { "cmd": "AT+QDSIM?", "kw": "QDSIM" },
-      "simSwitch": { "external": "AT+QDSIM=2", "internal": "AT+QDSIM=1", "query": "AT+QDSIM?", "repeat": 1, "tip": "<b>高通平台：</b>SIM1 为内置卡，SIM2 为外置卡。<code>AT+QDSIM=2</code> 切外置卡，<code>AT+QDSIM=1</code> 切内置卡。" },
-      "adb": {
-        "enable": ["AT+QADBKEY=1", "AT+ZADB=1"],
-        "disable": ["AT+QADBKEY=0", "AT+ZADB=0"],
-        "tip": "高通平台 ADB 开关较复杂。优先尝试 <code>AT+QADBKEY=1</code>，其次 <code>AT+ZADB=1</code>。"
-      },
-      "iccid": ["AT+QCCID", "AT+CCID", "AT+ICCID"], "imei": ["AT+CGSN"], "sn": ["AT+CGSN", "AT*MRD_SN?"],
-      "ver": ["AT+CGMR", "AT+VER"], "band": ["AT+QENG=\"servingcell\"", "AT+QNWINFO", "AT*BANDIND?"],
-      "qci": ["AT+CGEQOSRDP", "AT+C5GQOSRDP", "AT+QNWCFG=\"qci\""],
-      "network5g": ["AT+QNWINFO", "AT+C5GREG?", "AT+QENG=\"servingcell\"", "AT+CPSI?"]
-    },
-    {
-      "id": "zxic", "name": "中兴微", "fullName": "中兴微电子 ZX297520 / ZX297520V3", "generation": "4G",
-      "detectKeywords": ["ZXIC", "ZX2975", "中兴微", "ZCARDSWITCH"],
-      "probe": { "cmd": "AT+ZCARDSWITCH?", "kw": "ZCARDSWITCH" },
-      "simSwitch": { "external": "AT+ZCARDSWITCH=0", "internal": "AT+ZCARDSWITCH=1", "query": "AT+ZCARDSWITCH?", "repeat": 5, "tip": "<b>中兴微平台：</b><code>AT+ZCARDSWITCH=0</code> 切外置卡，<code>AT+ZCARDSWITCH=1</code> 切内置卡。需连续发送 3~10 次才生效。" },
-      "adb": { "enable": ["AT+ZADB=1"], "disable": ["AT+ZADB=0"], "tip": "<code>AT+ZADB=1</code> 开启 ADB，<code>AT+ZADB=0</code> 关闭。" },
-      "iccid": ["AT+ICCID", "AT+ZICCID?", "AT+NCCID?", "AT+CCID"],
-      "imei": ["AT+CGSN", "AT+ZULI=1", "AT+READIMEI?"], "sn": ["AT+CGSN", "AT*MRD_SN?"],
-      "ver": ["AT+VER", "AT+CGMR"], "band": ["AT+ZLTEAMTBAND?", "AT*BANDIND?"],
-      "qci": ["AT+CGEQOSRDP"], "network5g": []
-    },
-    {
-      "id": "mtk", "name": "联发科", "fullName": "联发科 MediaTek MT2735 / T750 / T800", "generation": "5G",
-      "detectKeywords": ["MediaTek", "MT2735", "MT2739", "T750", "T800", "MTK"],
-      "probe": { "cmd": "AT+CGSN", "kw": "^\\d{15}$" },
-      "simSwitch": { "external": "AT+ESIMSWITCH=0", "internal": "AT+ESIMSWITCH=1", "query": "AT+ESIMSWITCH?", "repeat": 1, "tip": "<b>联发科平台：</b><code>AT+ESIMSWITCH=0</code> 切外置卡，<code>AT+ESIMSWITCH=1</code> 切内置卡。" },
-      "adb": { "enable": ["AT+EADB=1", "AT+USBSWITCH=1"], "disable": ["AT+EADB=0", "AT+USBSWITCH=0"], "tip": "优先尝试 <code>AT+EADB=1</code>，其次 <code>AT+USBSWITCH=1</code>。" },
-      "iccid": ["AT+CCID", "AT+ICCID", "AT+CIMI"], "imei": ["AT+CGSN"], "sn": ["AT+CGSN"],
-      "ver": ["AT+CGMR"], "band": ["AT+QENG=\"servingcell\"", "AT+CSYSSEL?"],
-      "qci": ["AT+CGEQOSRDP"],
-      "network5g": ["AT+C5GREG?", "AT+QENG=\"servingcell\"", "AT+CPSI?"]
-    }
-  ]
-};
+    iccid: ['AT+CCID', 'AT+ICCID', 'AT+QCCID', 'AT+ICID?', 'AT*MRD_ICCID?'],
+    imei: ['AT+CGSN', 'AT*MRD_IMEI?'],
+    sn: ['AT+CGSN', 'AT*MRD_SN?', 'AT+SN?'],
+    ver: ['AT+CGMR', 'AT+VER'],
+    band: ['AT*BANDIND?', 'AT+BANDIND?'],
+    qci: ['AT+CGEQOSRDP', 'AT+C5GQOSRDP'],
+    network5g: ['AT+C5GREG?', 'AT+QENG="servingcell"', 'AT+QNWINFO']
+  },
 
-function compileChipDatabase(raw) {
-  return raw.chips.map(chip => ({
-    id: chip.id,
-    name: chip.name,
-    fullName: chip.fullName,
-    generation: chip.generation,
-    detectKeywords: (chip.detectKeywords || []).map(kw => {
-      try { return new RegExp(kw, 'i'); } catch (e) { return /__never_match__/; }
-    }),
-    probe: chip.probe ? {
-      cmd: chip.probe.cmd,
-      kw: (() => { try { return new RegExp(chip.probe.kw, 'i'); } catch (e) { return /__never_match__/; } })()
-    } : null,
-    simSwitch: chip.simSwitch || { external: '—', internal: '—', query: '—', repeat: 1, tip: '' },
-    adb: chip.adb || null,
-    iccid: chip.iccid || [],
-    imei: chip.imei || [],
-    sn: chip.sn || [],
-    ver: chip.ver || [],
-    band: chip.band || [],
-    qci: chip.qci || [],
-    network5g: chip.network5g || []
-  }));
-}
+  /* ═══ 高通 Qualcomm（含 SDX55 / SDX62 / SDX65 5G 方案）═══ */
+  {
+    id: 'qualcomm',
+    name: '高通',
+    fullName: '高通 Qualcomm SDX55 / SDX62 / SDX65',
+    generation: '5G',
+    detectKeywords: [
+      /SDX\d+/i, /Qualcomm/i, /\bMDM\d/i, /\bRM5\d{2}/i, /\bRM500/i, /\bRM520/i, /\bRM502/i
+    ],
+    probe: { cmd: 'AT+QDSIM?', kw: /QDSIM/i },
+    simSwitch: {
+      external: 'AT+QDSIM=2',
+      internal: 'AT+QDSIM=1',
+      query: 'AT+QDSIM?',
+      repeat: 1,
+      tip: '<b>高通平台：</b>SIM1 为内置卡，SIM2 为外置卡。<br><code>AT+QDSIM=2</code> 切外置卡，<code>AT+QDSIM=1</code> 切内置卡。'
+    },
+    iccid: ['AT+QCCID', 'AT+ICCID', 'AT+CCID'],
+    imei: ['AT+CGSN'],
+    sn: ['AT+CGSN', 'AT*MRD_SN?'],
+    ver: ['AT+CGMR', 'AT+VER'],
+    band: ['AT+QENG="servingcell"', 'AT*BANDIND?'],
+    qci: ['AT+CGEQOSRDP', 'AT+C5GQOSRDP', 'AT+QNWCFG="qci"'],
+    network5g: ['AT+QNWINFO', 'AT+C5GREG?', 'AT+QENG="servingcell"']
+  },
 
-async function loadChipDatabase() {
-  try {
-    const cached = localStorage.getItem('atmaster_chip_db');
-    if (cached) {
-      const raw = JSON.parse(cached);
-      if (raw && raw.chips && raw.chips.length) {
-        CHIP_DATABASE = compileChipDatabase(raw);
-        window.__chipDbSource = 'localStorage';
-        window.__chipDbVersion = raw.version || '未知';
-        console.log(`[芯片库] 从 localStorage 加载 ${CHIP_DATABASE.length} 条`);
-        return;
-      }
-    }
-  } catch (e) {}
+  /* ═══ 翱捷科技 ASR1803（4G）═══ */
+  {
+    id: 'asr',
+    name: 'ASR',
+    fullName: '翱捷科技 ASR1802 / ASR1803',
+    generation: '4G',
+    detectKeywords: [/ASR\s*18\d{2}/i, /\bASR180/i],
+    probe: { cmd: 'AT+SWSIM?', kw: /SWSIM|SimX/i },
+    simSwitch: {
+      external: 'AT+SWSIM=0',
+      internal: 'AT+SWSIM=1',
+      query: 'AT+SWSIM?',
+      repeat: 1,
+      tip: '<b>ASR 平台：</b><code>AT+SWSIM=0</code> 切外置卡，<code>AT+SWSIM=1</code> 切内置卡。'
+    },
+    iccid: ['AT+CCID', 'AT+ICCID', 'AT+ICID?', 'AT*MRD_ICCID?'],
+    imei: ['AT+CGSN', 'AT*MRD_IMEI?'],
+    sn: ['AT*MRD_SN?', 'AT+SN?'],
+    ver: ['AT+CGMR', 'AT+VER'],
+    band: ['AT*BANDIND?', 'AT+BANDIND?'],
+    qci: ['AT+CGEQOSRDP'],
+    network5g: []
+  },
 
-  try {
-    const resp = await fetch('./chip-database.json', { cache: 'no-store' });
-    if (resp.ok) {
-      const raw = await resp.json();
-      if (raw && raw.chips && raw.chips.length) {
-        CHIP_DATABASE = compileChipDatabase(raw);
-        window.__chipDbSource = 'json';
-        window.__chipDbVersion = raw.version || '未知';
-        console.log(`[芯片库] 从 chip-database.json 加载 ${CHIP_DATABASE.length} 条`);
-        return;
-      }
-    }
-  } catch (e) {
-    console.log('[芯片库] 外部 JSON 加载失败:', e.message);
+  /* ═══ 中兴微 ZXIC（4G）═══ */
+  {
+    id: 'zxic',
+    name: '中兴微',
+    fullName: '中兴微电子 ZXIC',
+    generation: '4G',
+    detectKeywords: [/ZXIC/i, /中兴微/i, /ZCARDSWITCH/i],
+    probe: { cmd: 'AT+ZCARDSWITCH?', kw: /ZCARDSWITCH/i },
+    simSwitch: {
+      external: 'AT+ZCARDSWITCH=0',
+      internal: 'AT+ZCARDSWITCH=1',
+      query: 'AT+ZCARDSWITCH?',
+      repeat: 5,
+      tip: '<b>中兴微平台：</b><code>AT+ZCARDSWITCH=0</code> 切外置卡，<code>AT+ZCARDSWITCH=1</code> 切内置卡。<br>该指令通常需连续发送 3~10 次才生效，工具自动连发 5 次。'
+    },
+    iccid: ['AT+CCID', 'AT+ICCID'],
+    imei: ['AT+CGSN'],
+    sn: ['AT+CGSN', 'AT*MRD_SN?'],
+    ver: ['AT+CGMR'],
+    band: ['AT*BANDIND?'],
+    qci: ['AT+CGEQOSRDP'],
+    network5g: []
+  },
+
+  /* ═══ 联发科 MediaTek（5G，待完善指令）═══ */
+  {
+    id: 'mtk',
+    name: '联发科',
+    fullName: '联发科 MediaTek MT2735 / T750',
+    generation: '5G',
+    detectKeywords: [/MediaTek/i, /\bMT\d{4}/i, /MTK/i],
+    probe: { cmd: 'AT+CGSN', kw: /^\d{15}$/m },
+    simSwitch: {
+      external: 'AT+ESIMSWITCH=0',
+      internal: 'AT+ESIMSWITCH=1',
+      query: 'AT+ESIMSWITCH?',
+      repeat: 1,
+      tip: '<b>联发科平台：</b><code>AT+ESIMSWITCH=0</code> 切外置卡，<code>AT+ESIMSWITCH=1</code> 切内置卡。<br>指令可能因固件不同有差异。'
+    },
+    iccid: ['AT+CCID', 'AT+ICCID'],
+    imei: ['AT+CGSN'],
+    sn: ['AT+CGSN'],
+    ver: ['AT+CGMR'],
+    band: ['AT+QENG="servingcell"'],
+    qci: ['AT+CGEQOSRDP'],
+    network5g: ['AT+C5GREG?', 'AT+QENG="servingcell"']
   }
 
-  CHIP_DATABASE = compileChipDatabase(FALLBACK_CHIP_DATABASE_RAW);
-  window.__chipDbSource = 'fallback';
-  window.__chipDbVersion = FALLBACK_CHIP_DATABASE_RAW.version || '未知';
-  console.log(`[芯片库] 使用内置 fallback，共 ${CHIP_DATABASE.length} 条`);
-}
+  /* ═══════════════════════════════════════════════════════════════════════
+     新增芯片示例（复制下面模板，填入正确值，放到数组末尾即可）
+     ═══════════════════════════════════════════════════════════════════════
+     ,{
+       id: 'newchip',                    // 唯一 ID
+       name: '新芯片',                    // 短名
+       fullName: '厂商 型号',             // 完整名
+       generation: '4G',                 // '4G' 或 '5G'
+       detectKeywords: [/关键字1/i, /关键字2/i],
+       probe: { cmd: 'AT+探测指令?', kw: /响应关键字/i },
+       simSwitch: {
+         external: 'AT+切外置=0',
+         internal: 'AT+切内置=1',
+         query:    'AT+查询?',
+         repeat:   1,
+         tip: '<b>说明：</b>...'
+       },
+       iccid: ['AT+ICCID', 'AT+CCID'],
+       imei:  ['AT+CGSN'],
+       sn:    ['AT+CGSN'],
+       ver:   ['AT+CGMR'],
+       band:  ['AT+BAND?'],
+       qci:   ['AT+CGEQOSRDP'],
+       network5g: []
+     }
+     ═══════════════════════════════════════════════════════════════════════ */
+];
 
-function importChipDatabase() {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = '.json,application/json';
-  input.onchange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    try {
-      const text = await file.text();
-      const raw = JSON.parse(text);
-      if (!raw.chips || !Array.isArray(raw.chips)) {
-        throw new Error('JSON 格式错误：缺少 chips 数组');
-      }
-      localStorage.setItem('atmaster_chip_db', text);
-      CHIP_DATABASE = compileChipDatabase(raw);
-      window.__chipDbSource = 'localStorage';
-      window.__chipDbVersion = raw.version || '未知';
-      initChipDropdown();
-      updateCmdHints();
-      updateChipDbInfo();
-      toast(`芯片库导入成功，共 ${CHIP_DATABASE.length} 条`, 'success', 4000);
-      termWrite(`✓ 芯片库已更新：${CHIP_DATABASE.length} 条记录（版本 ${raw.version || '未知'}）`, 'resp');
-    } catch (err) {
-      toast(`导入失败: ${err.message}`, 'error', 5000);
-      termWrite(`✗ 芯片库导入失败：${err.message}`, 'err');
-    }
-  };
-  input.click();
-}
-
-function exportChipDatabase() {
-  const raw = {
-    version: window.__chipDbVersion || '1.0',
-    updated: new Date().toISOString().slice(0, 10),
-    description: '随身WiFi调试助手芯片数据库',
-    chips: CHIP_DATABASE.map(chip => ({
-      id: chip.id, name: chip.name, fullName: chip.fullName, generation: chip.generation,
-      detectKeywords: chip.detectKeywords.map(r => r.source),
-      probe: chip.probe ? { cmd: chip.probe.cmd, kw: chip.probe.kw.source } : null,
-      simSwitch: chip.simSwitch, adb: chip.adb,
-      iccid: chip.iccid, imei: chip.imei, sn: chip.sn,
-      ver: chip.ver, band: chip.band, qci: chip.qci,
-      network5g: chip.network5g
-    }))
-  };
-  const blob = new Blob([JSON.stringify(raw, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `chip-database-${new Date().toISOString().slice(0,10)}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-  toast('芯片库已导出', 'success');
-}
-
-function resetChipDatabase() {
-  localStorage.removeItem('atmaster_chip_db');
-  CHIP_DATABASE = compileChipDatabase(FALLBACK_CHIP_DATABASE_RAW);
-  window.__chipDbSource = 'fallback';
-  window.__chipDbVersion = FALLBACK_CHIP_DATABASE_RAW.version || '未知';
-  initChipDropdown();
-  updateCmdHints();
-  updateChipDbInfo();
-  toast('已重置为内置数据库', 'success');
-  termWrite(`✓ 芯片库已重置为内置版本（${CHIP_DATABASE.length} 条记录）`, 'resp');
-}
-
-function updateChipDbInfo() {
-  const el = document.getElementById('chipDbInfo');
-  if (!el) return;
-  const srcMap = { json: '外部文件', localStorage: '本地缓存', fallback: '内置' };
-  el.innerHTML = `当前：<b>${CHIP_DATABASE.length}</b> 条记录 · 来源：<b>${srcMap[window.__chipDbSource] || '未知'}</b> · 版本：<b>${window.__chipDbVersion || '未知'}</b>`;
-}
-
+/* 根据 ID 获取芯片配置 */
 function getChipById(id) {
-  return CHIP_DATABASE.find(c => c.id === id) || CHIP_DATABASE[0] || {
-    id: 'unknown', name: '未知', fullName: '未知芯片', generation: '4G',
-    detectKeywords: [], probe: null, adb: null,
-    simSwitch: { external: '—', internal: '—', query: '—', repeat: 1, tip: '' },
-    iccid: [], imei: [], sn: [], ver: [], band: [], qci: [], network5g: []
-  };
+  return CHIP_DATABASE.find(c => c.id === id) || CHIP_DATABASE[0];
 }
 
+/* 根据文本识别芯片（遍历 detectKeywords） */
 function detectChipFromText(text) {
   if (!text) return null;
   for (const chip of CHIP_DATABASE) {
@@ -953,7 +887,7 @@ function detectChipFromText(text) {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   业务逻辑
+   以下为业务逻辑，与芯片数据库解耦
    ═══════════════════════════════════════════════════════════════════════════ */
 
 const state = {
@@ -969,6 +903,7 @@ const state = {
   currentBand: null,
 };
 
+/* 4G 频段锁定参数 */
 const BAND_MAP_4G = {
   B1:  { label: 'B1',  param: ',0,1,0,2,2,0'   },
   B3:  { label: 'B3',  param: ',0,4,0,2,2,0'   },
@@ -980,6 +915,7 @@ const BAND_MAP_4G = {
   B41: { label: 'B41', param: ',256,0,0,2,2,0' },
 };
 
+/* 5G NR 频段 */
 const BAND_MAP_5G = {
   n1:  { label: 'n1',  band: 1,  freq: '2100MHz', desc: '联通/电信' },
   n3:  { label: 'n3',  band: 3,  freq: '1800MHz', desc: '联通/电信' },
@@ -1039,16 +975,21 @@ function mapQci(qci) {
   return QCI_MAP[qci] || { desc: `未知等级 (${qci})`, cls: '' };
 }
 
+/* ═══ ICCID 解码（CRSM 响应多格式兼容） ═══ */
 function decodeCRSMICCID(hexStr) {
   if (!hexStr) return null;
   hexStr = hexStr.replace(/[\s":]/g, '').toUpperCase();
   if (hexStr.length < 36 || !/^[0-9A-F]+$/.test(hexStr)) return null;
 
+  // 方法1：BCD nibble swap
   let swapped = '';
-  for (let i = 0; i < hexStr.length - 1; i += 2) swapped += hexStr[i + 1] + hexStr[i];
+  for (let i = 0; i < hexStr.length - 1; i += 2) {
+    swapped += hexStr[i + 1] + hexStr[i];
+  }
   const digits = swapped.replace(/[^0-9]/g, '');
   if (digits.length >= 18 && digits.length <= 22 && digits.startsWith('89')) return digits;
 
+  // 方法2：ASCII 编码
   if (hexStr.startsWith('38') || hexStr.startsWith('39')) {
     let ascii = '';
     let valid = true;
@@ -1060,9 +1001,11 @@ function decodeCRSMICCID(hexStr) {
     if (valid && /^89\d{14,19}$/.test(ascii)) return ascii;
   }
 
+  // 方法3：去 F 后取数字
   const directDigits = hexStr.replace(/F/g, '').replace(/[^0-9]/g, '');
   if (directDigits.length >= 18 && directDigits.length <= 22 && directDigits.startsWith('89')) return directDigits;
 
+  // 方法4：仅保留数字
   const simpleDigits = hexStr.replace(/[^0-9]/g, '');
   if (simpleDigits.length >= 18 && simpleDigits.length <= 22 && simpleDigits.startsWith('89')) return simpleDigits;
 
@@ -1171,9 +1114,9 @@ function switchMode(mode) {
   document.getElementById('panelWiFi').classList.toggle('hidden', mode !== 'wifi');
 }
 
+/* 初始化芯片下拉框（从数据库生成） */
 function initChipDropdown() {
   const sel = document.getElementById('chipPlatform');
-  if (!sel) return;
   sel.innerHTML = '';
   CHIP_DATABASE.forEach(chip => {
     const opt = document.createElement('option');
@@ -1190,27 +1133,13 @@ async function connectUSB() {
   }
   try {
     const baud = parseInt(document.getElementById('baudRate').value);
-    localStorage.setItem('atmaster_last_baud', baud);
     termWrite(`正在请求串口... (波特率 ${baud})`, 'info');
     const port = await navigator.serial.requestPort();
-
-    await port.open({ baudRate: baud, dataBits: 8, stopBits: 1, parity: 'none', flowControl: 'none' });
-    termWrite(`串口已打开，波特率 ${baud}`, 'info');
-
-    // ★ 关键：立即设置 DTR/RTS 高电平
-    try {
-      await port.setSignals({ dataTerminalReady: true, requestToSend: true });
-      termWrite('已设置 DTR=true, RTS=true', 'info');
-    } catch (e) {
-      termWrite(`设置 DTR/RTS 失败: ${e.message}`, 'err');
-    }
-
-    // 等待模块初始化
-    await sleep(800);
-
+    await port.open({ baudRate: baud, dataBits: 8, stopBits: 1, parity: 'none' });
     state.port = port;
     state.connected = true;
     updateConnectionUI(true, `串口已连接 @ ${baud}`);
+    termWrite(`串口已打开，波特率 ${baud}`, 'info');
     toast(`USB 串口连接成功 @ ${baud}`, 'success');
     enableQuickButtons(true);
     startReadLoop();
@@ -1271,11 +1200,10 @@ async function startReadLoop() {
 
 async function writeToPort(data) {
   if (!state.port || !state.port.writable) throw new Error('串口不可写');
-  const ending = document.getElementById('lineEnding')?.value || '\r\n';
   const encoder = new TextEncoder();
   const writer = state.port.writable.getWriter();
   try {
-    await writer.write(encoder.encode(data + ending));
+    await writer.write(encoder.encode(data + '\r\n'));
   } finally {
     writer.releaseLock();
   }
@@ -1365,6 +1293,7 @@ async function queryAndCollect(cmd, waitMs = 800) {
   return result;
 }
 
+/* ═══ 按指令数组依次尝试，返回第一个有响应的结果 ═══ */
 async function queryFirstAvailable(cmds, waitMs = 600, stopRegex = null) {
   for (const cmd of cmds) {
     const r = await queryAndCollect(cmd, waitMs);
@@ -1376,6 +1305,7 @@ async function queryFirstAvailable(cmds, waitMs = 600, stopRegex = null) {
   return null;
 }
 
+/* ═══ 网络类型管理 ═══ */
 function setNetworkType(type, subText) {
   const changed = (state.networkType !== type);
   state.networkType = type;
@@ -1416,9 +1346,10 @@ function setNetworkType(type, subText) {
 }
 
 async function detectNetworkType() {
-  const chip = getChipById(state.detectedChip || 'asr4g');
+  const chip = getChipById(state.detectedChip || 'asr');
   termWrite('开始探测当前网络类型...', 'info');
 
+  /* 5G 芯片优先探测 5G */
   if (chip.generation === '5G') {
     for (const cmd of chip.network5g) {
       const r = await queryAndCollect(cmd, 900);
@@ -1433,6 +1364,7 @@ async function detectNetworkType() {
     }
   }
 
+  /* 4G 芯片或 5G 未探测到：检查 BANDIND / CSQ */
   const bandind = await queryAndCollect('AT*BANDIND?', 600);
   if (/BANDIND/i.test(bandind)) {
     setNetworkType('4g', `${chip.name} BANDIND 响应`);
@@ -1441,10 +1373,11 @@ async function detectNetworkType() {
 
   const csq = await queryAndCollect('AT+CSQ', 600);
   if (/\+CSQ:\s*\d+/i.test(csq)) {
-    setNetworkType('4g', `${chip.name} CSQ 响应`);
+    setNetworkType(chip.generation === '4G' ? '4g' : '4g', `${chip.name} CSQ 响应`);
     return '4g';
   }
 
+  /* 兜底：按芯片代数判定 */
   if (chip.generation === '4G') {
     setNetworkType('4g', `${chip.name} 平台默认 4G`);
     return '4g';
@@ -1454,6 +1387,7 @@ async function detectNetworkType() {
   return 'unknown';
 }
 
+/* ═══ 网络查询区渲染 ═══ */
 function renderNetQuerySection() {
   const grid = document.getElementById('netQueryGrid');
   const headerText = document.getElementById('netQueryHeaderText');
@@ -1510,6 +1444,7 @@ function renderNetQuerySection() {
   });
 }
 
+/* ═══ 频段锁定区渲染 ═══ */
 function renderBandLockSection() {
   const grid = document.getElementById('bandGrid');
   const headerText = document.getElementById('bandHeaderText');
@@ -1611,6 +1546,7 @@ function lockBand4G(bandNum, label) {
   termWrite(`⚠ 锁定 4G ${label}（B${bandNum}），设备可能短暂断网`, 'info');
 }
 
+/* ═══ IP 地址查询 ═══ */
 async function queryPublicIPv4() {
   const apis = [
     { url: 'https://api.ipify.org?format=json', type: 'json', key: 'ip' },
@@ -1630,7 +1566,7 @@ async function queryPublicIPv4() {
       if (/^(\d{1,3}\.){3}\d{1,3}$/.test(ip) && !/^0\./.test(ip)) {
         return { ip, source: new URL(api.url).hostname };
       }
-    } catch (e) { }
+    } catch (e) { /* 下一个 */ }
   }
   return null;
 }
@@ -1654,7 +1590,7 @@ async function queryPublicIPv6() {
       if (ip.includes(':') && (ip.match(/:/g) || []).length >= 2) {
         return { ip, source: new URL(api.url).hostname };
       }
-    } catch (e) { }
+    } catch (e) { /* 下一个 */ }
   }
   return null;
 }
@@ -1793,6 +1729,7 @@ async function refreshIPs() {
   updateIPButtonVisibility();
 }
 
+/* ═══ 芯片识别 ═══ */
 function setChipDetectStatus(status, name) {
   const el = document.getElementById('chipDetectStatus');
   const map = {
@@ -1809,48 +1746,16 @@ function setChipDetectStatus(status, name) {
 
 async function autoDetectChip() {
   setChipDetectStatus('detecting');
-
-  /* AT 唤醒序列 */
-  termWrite('发送 AT 唤醒设备...', 'info');
-  let woke = false;
-  for (let i = 0; i < 3; i++) {
-    const r = await queryAndCollect('AT', 500);
-    if (/OK/i.test(r)) { woke = true; break; }
-    await sleep(300);
-  }
-  if (woke) {
-    termWrite('✓ 设备已唤醒', 'resp');
-  } else {
-    termWrite('⚠ AT 无响应，继续尝试...', 'info');
-  }
-
   termWrite('开始自动识别芯片平台...', 'info');
   let chipId = null;
 
   /* 第1步：ATI 关键字匹配 */
   const atiResp = await queryAndCollect('ATI', 1000);
   chipId = detectChipFromText(atiResp);
-  if (chipId) termWrite(`✓ 从 ATI 识别到芯片`, 'resp');
 
-  /* 第2步：ATI 无响应或未识别，尝试替代指令 */
+  /* 第2步：遍历数据库的 probe 字段 */
   if (!chipId) {
-    termWrite('ATI 未能识别，尝试其他芯片信息指令...', 'info');
-    const altCmds = ['AT+CGMM', 'AT+GMM', 'AT+CGMI', 'AT+GMI', 'AT+CGMR', 'AT+GMR'];
-    for (const cmd of altCmds) {
-      const r = await queryAndCollect(cmd, 800);
-      if (r && !/^\s*ERROR\s*$/im.test(r) && r.trim() !== '' && r.trim() !== 'OK') {
-        chipId = detectChipFromText(r);
-        if (chipId) {
-          termWrite(`✓ 从 ${cmd} 响应识别到芯片`, 'resp');
-          break;
-        }
-      }
-    }
-  }
-
-  /* 第3步：探测各平台特征指令 */
-  if (!chipId) {
-    termWrite('尝试探测各平台特有指令...', 'info');
+    termWrite('ATI 未能识别，尝试探测各平台特有指令...', 'info');
     for (const chip of CHIP_DATABASE) {
       if (!chip.probe) continue;
       const r = await queryAndCollect(chip.probe.cmd, 700);
@@ -1859,15 +1764,6 @@ async function autoDetectChip() {
         termWrite(`探测到 ${chip.name} 特征指令响应`, 'resp');
         break;
       }
-    }
-  }
-
-  /* 第4步：localStorage 记忆 */
-  if (!chipId) {
-    const savedChip = localStorage.getItem('atmaster_last_chip');
-    if (savedChip && CHIP_DATABASE.find(c => c.id === savedChip)) {
-      chipId = savedChip;
-      termWrite(`未能自动识别，使用上次保存的芯片：${getChipById(chipId).name}`, 'info');
     }
   }
 
@@ -1880,18 +1776,18 @@ async function autoDetectChip() {
     const chipEl = document.getElementById('infoChip');
     chipEl.textContent = chip.name;
     chipEl.className = 'info-value ok';
-    termWrite(`✓ 芯片平台: ${chip.name} (${chip.fullName})`, 'resp');
+    termWrite(`✓ 芯片平台自动识别为: ${chip.name} (${chip.fullName})`, 'resp');
     toast(`芯片平台: ${chip.name}`, 'success');
-    localStorage.setItem('atmaster_last_chip', chipId);
     return chipId;
   }
 
   setChipDetectStatus('unknown');
-  termWrite('未能自动识别芯片平台，请手动选择下方「基带芯片平台」。', 'err');
-  toast('请手动选择芯片平台', 'info', 5000);
+  termWrite('未能自动识别芯片平台，请手动选择。', 'err');
+  toast('未能自动识别芯片，请手动选择', 'info', 4000);
   return null;
 }
 
+/* ═══ 写入操作 ═══ */
 let writeContext = { type: null, value: '', isDelete: false };
 
 function openWriteModal(type) {
@@ -2082,6 +1978,7 @@ function closeWriteModalForce() {
   document.getElementById('writeCancelBtn').disabled = false;
 }
 
+/* ═══ 隐私保护 ═══ */
 function maskValue(val, type) {
   if (!val || val === '—' || val.length < 6) return val;
   if (type === 'IMEI') return val.substring(0, 4) + '********' + val.substring(val.length - 4);
@@ -2117,6 +2014,7 @@ function setInfoValue(type, rawValue) {
   }
 }
 
+/* ═══ 设备信息解析 ═══ */
 function setInfo(id, value, cls = 'ok') {
   const el = document.getElementById(id);
   el.textContent = value;
@@ -2131,6 +2029,7 @@ function setOperator(name, cls) {
 }
 
 function parseDeviceInfo(line) {
+  /* 网络类型检测 */
   let m = line.match(/\+QNWINFO[:\s]*"([^"]+)"/i);
   if (m) {
     const netType = m[1].toUpperCase();
@@ -2154,6 +2053,7 @@ function parseDeviceInfo(line) {
     if (state.networkType === 'unknown') setNetworkType('4g', 'servingcell: LTE');
   }
 
+  /* 5G QENG */
   m = line.match(/\+QENG[:\s]*"servingcell"\s*,\s*"[^"]*"\s*,\s*"NR5G"\s*,\s*"([^"]*)"\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*(\d+)\s*,\s*[^,]+,\s*(-?\d+)\s*,\s*(-?\d+)\s*,\s*(-?\d+)/i);
   if (m) {
     const duplex = m[1];
@@ -2178,6 +2078,7 @@ function parseDeviceInfo(line) {
     document.getElementById('infoSINR').className = 'info-value ' + (sinr > 20 ? 'ok' : sinr > 0 ? 'warn' : '');
   }
 
+  /* 4G QENG */
   m = line.match(/\+QENG[:\s]*"servingcell"\s*,\s*"[^"]*"\s*,\s*"LTE"\s*,\s*"([^"]*)"\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*(\d+)\s*,\s*[^,]+,\s*[^,]+,\s*(-?\d+)\s*,\s*(-?\d+)/i);
   if (m) {
     const band = parseInt(m[4]);
@@ -2211,6 +2112,7 @@ function parseDeviceInfo(line) {
     }
   }
 
+  /* QCI / 5QI */
   m = line.match(/\+CGEQOSRDP[:\s]*(\d+),(\d+)/i);
   if (m) {
     const qci = parseInt(m[2]);
@@ -2236,6 +2138,7 @@ function parseDeviceInfo(line) {
     el.className = 'info-value ' + info.cls;
   }
 
+  /* ICCID */
   m = line.match(/[+*](?:QCCID|ICCID|CCID|ICID)[:\s]*"?([0-9A-Za-z]{18,22})"?/i);
   if (m) {
     setInfoValue('ICCID', m[1]);
@@ -2250,22 +2153,27 @@ function parseDeviceInfo(line) {
     }
   }
 
+  /* IMEI */
   m = line.match(/\+CGSN[:\s]+(\d{14,16})/i);
   if (m) setInfoValue('IMEI', m[1]);
   else if (/^\d{15}$/.test(line)) setInfoValue('IMEI', line);
 
+  /* SN */
   m = line.match(/[*+]MRD_SN[:\s]+([A-Za-z0-9]+)/i) || line.match(/\+SN[:\s]+([A-Za-z0-9]+)/i);
   if (m) setInfoValue('SN', m[1]);
 
+  /* 固件 */
   m = line.match(/\+CGMR[:\s]+"?([^"\r\n]+)"?/i) || line.match(/[+*]VER[:\s]+"?([^"\r\n]+)"?/i);
   if (m) setInfo('infoVER', m[1].trim());
 
+  /* MAC */
   m = line.match(/[*+]MRD_WIFIID[:\s]+([0-9A-Fa-f:]{12,20})/i) ||
       line.match(/[+*]WIFIID[:\s]+([0-9A-Fa-f:]{12,20})/i) ||
       line.match(/[+*]MAC[:\s]+([0-9A-Fa-f:]{12,20})/i) ||
       line.match(/([0-9A-Fa-f]{2}[:\-]){5}[0-9A-Fa-f]{2}/);
   if (m) setInfo('infoMAC', m[1] || m[0]);
 
+  /* 信号 */
   m = line.match(/\+CSQ[:\s]*(\d+)/);
   if (m) {
     const csq = parseInt(m[1]);
@@ -2274,6 +2182,7 @@ function parseDeviceInfo(line) {
     el.className = 'info-value ' + (csq === 99 ? 'empty' : csq >= 10 ? 'ok' : 'warn');
   }
 
+  /* 运营商 */
   m = line.match(/\+COPS[:\s]*(\d+)(?:,\s*(\d+)\s*,\s*(?:"([^"]*)"|(\d+)))?/i);
   if (m) {
     const mode = parseInt(m[1]);
@@ -2293,6 +2202,7 @@ function parseDeviceInfo(line) {
     }
   }
 
+  /* 卡槽 */
   m = line.match(/\+SimX[:\s]*(\d+)/i);
   if (m) {
     const slot = parseInt(m[1]);
@@ -2314,6 +2224,7 @@ function parseDeviceInfo(line) {
     }
   }
 
+  /* 4G BANDIND */
   m = line.match(/[*+]BANDIND[:\s]*(.+)/i);
   if (m) {
     const parts = m[1].split(',').map(s => s.trim());
@@ -2345,8 +2256,9 @@ function parseDeviceInfo(line) {
 
 async function autoQueryDeviceInfo() {
   termWrite('正在查询设备信息...', 'info');
-  const chip = getChipById(state.detectedChip || 'asr4g');
+  const chip = getChipById(state.detectedChip || 'asr');
 
+  /* ICCID */
   termWrite('尝试查询 ICCID...', 'info');
   const iccidResult = await queryFirstAvailable(
     chip.iccid, 700,
@@ -2360,14 +2272,21 @@ async function autoQueryDeviceInfo() {
     }
   }
 
+  /* IMEI */
   await queryFirstAvailable(chip.imei, 600, /\+CGSN|^\d{15}/m);
+
+  /* SN */
   await queryFirstAvailable(chip.sn, 600, /[*+]MRD_SN|\+SN|^[A-Z0-9]{8,20}$/m);
+
+  /* 固件 */
   await queryFirstAvailable(chip.ver, 600, /[+*]VER|\+CGMR/);
 
+  /* 信号 */
   await queryAndCollect('AT+CSQ', 600);
   await queryAndCollect('AT+COPS=3,0', 400);
   await queryAndCollect('AT+COPS?', 800);
 
+  /* MAC */
   termWrite('尝试查询 WiFi MAC 地址...', 'info');
   let macResult = await queryAndCollect('AT*MRD_WIFIID?', 600);
   if (!/WIFIID|MAC|[0-9A-Fa-f]{2}:/i.test(macResult)) {
@@ -2375,10 +2294,12 @@ async function autoQueryDeviceInfo() {
     if (!/MAC|[0-9A-Fa-f]{2}:/i.test(macResult)) await queryAndCollect('AT+MAC?', 600);
   }
 
+  /* 卡槽 */
   if (chip.simSwitch && chip.simSwitch.query) {
     await queryAndCollect(chip.simSwitch.query, 600);
   }
 
+  /* 网络查询（5G 芯片优先） */
   if (chip.generation === '5G') {
     for (const cmd of chip.network5g) {
       await queryAndCollect(cmd, 900);
@@ -2387,9 +2308,11 @@ async function autoQueryDeviceInfo() {
     await queryAndCollect('AT+CREG?', 600);
   }
 
+  /* 频段 */
   termWrite('尝试查询当前频段...', 'info');
   await queryFirstAvailable(chip.band, 600, /BANDIND|QENG/);
 
+  /* QCI */
   termWrite('尝试查询 QCI 等级...', 'info');
   await queryFirstAvailable(chip.qci, 800, /CGEQOSRDP|C5GQOSRDP|QNWCFG|CGQREQ/);
 
@@ -2450,44 +2373,11 @@ function updateCmdHints() {
   document.getElementById('internalCmdHint').textContent = chip.simSwitch.internal;
   document.getElementById('queryCmdHint').textContent = chip.simSwitch.query;
   document.getElementById('switchTip').innerHTML = chip.simSwitch.tip;
-
-  // 同步 ADB 按钮提示
-  const adb = chip.adb;
-  const adbOnHint = document.getElementById('adbOnHint');
-  const adbOffHint = document.getElementById('adbOffHint');
-  const adbTip = document.getElementById('adbTip');
-  if (adbOnHint) {
-    adbOnHint.textContent = (adb && adb.enable && adb.enable[0]) ? adb.enable[0] : '未配置';
-  }
-  if (adbOffHint) {
-    adbOffHint.textContent = (adb && adb.disable && adb.disable[0]) ? adb.disable[0] : '未配置';
-  }
-  if (adbTip) {
-    adbTip.innerHTML = (adb && adb.tip) ? adb.tip : '';
-  }
 }
 
 document.getElementById('chipPlatform').addEventListener('change', () => {
-  const chipId = document.getElementById('chipPlatform').value;
-  localStorage.setItem('atmaster_last_chip', chipId);
   updateCmdHints();
   setChipDetectStatus('manual');
-  state.detectedChip = chipId;
-  const chip = getChipById(chipId);
-  const chipEl = document.getElementById('infoChip');
-  chipEl.textContent = chip.name;
-  chipEl.className = 'info-value ok';
-  toast(`已切换为 ${chip.name}`, 'success');
-  if (state.connected) {
-    termWrite(`手动切换芯片为 ${chip.name}，重新查询设备信息...`, 'info');
-    resetDeviceInfo();
-    autoQueryDeviceInfo();
-    detectNetworkType();
-  }
-});
-
-document.getElementById('baudRate').addEventListener('change', (e) => {
-  localStorage.setItem('atmaster_last_baud', e.target.value);
 });
 
 async function switchToExternalCard() {
@@ -2655,14 +2545,14 @@ function genRemoveCloudCmd() {
   const resultDiv = document.getElementById('cloudCmdResult');
   const cmdText = document.getElementById('cloudCmdText');
   const chip = getChipById(document.getElementById('chipPlatform').value);
-  let cmds = chip.id === 'asr4g' || chip.id === 'asr5g' ? ['AT*PROD=1', 'AT+ZMODE=1'] : ['AT+ZMODE=1'];
+  let cmds = chip.id === 'asr' ? ['AT*PROD=1', 'AT+ZMODE=1'] : ['AT+ZMODE=1'];
   cmdText.textContent = cmds.join('  →  ');
   resultDiv.style.display = 'block';
 }
 
 async function sendCloudCmd() {
   const chip = getChipById(document.getElementById('chipPlatform').value);
-  if (chip.id === 'asr4g' || chip.id === 'asr5g') {
+  if (chip.id === 'asr') {
     await writeToPort('AT*PROD=1');
     await sleep(400);
   }
@@ -2677,163 +2567,33 @@ function showAdbGuide() {
   document.getElementById('cloudCmdResult').style.display = 'none';
 }
 
-/* ═══ ADB 开关 ═══ */
-async function openADB() {
-  if (!state.connected) { toast('请先连接设备', 'error'); return; }
-  const chip = getChipById(document.getElementById('chipPlatform').value);
-  const adb = chip.adb;
-  if (!adb || !adb.enable || adb.enable.length === 0) {
-    toast(`${chip.name} 未配置 ADB 开启指令`, 'warn', 4000);
-    termWrite(`⚠ ${chip.name} 数据库中没有 ADB 开启指令`, 'err');
-    return;
-  }
-
-  termWrite(`尝试开启 ADB（${chip.name}）...`, 'info');
-  const btn = document.getElementById('btnOpenADB');
-  btn.disabled = true;
-
-  for (const cmd of adb.enable) {
-    termWrite(cmd, 'cmd');
-    const r = await queryAndCollect(cmd, 900);
-    if (/\bOK\b/i.test(r)) {
-      termWrite(`✓ ADB 已开启：${cmd}`, 'resp');
-      toast('ADB 已开启，设备可能需重启生效', 'success', 5000);
-      btn.disabled = false;
-      return;
-    }
-    if (/\bERROR\b/i.test(r)) {
-      termWrite(`✗ ${cmd} 返回 ERROR，尝试下一条`, 'info');
-      continue;
-    }
-    if (r.trim() === '') {
-      termWrite(`✗ ${cmd} 无响应，尝试下一条`, 'info');
-      continue;
-    }
-    termWrite(`响应：${r.substring(0, 80).replace(/\s+/g, ' ')}`, 'resp');
-  }
-
-  termWrite('⚠ 所有 ADB 开启指令均未成功返回 OK', 'err');
-  termWrite(`提示：${adb.tip || '请查阅模块手册'}`, 'info');
-  toast('开启 ADB 失败，请手动测试指令', 'error', 5000);
-  btn.disabled = false;
-}
-
-async function closeADB() {
-  if (!state.connected) { toast('请先连接设备', 'error'); return; }
-  const chip = getChipById(document.getElementById('chipPlatform').value);
-  const adb = chip.adb;
-  if (!adb || !adb.disable || adb.disable.length === 0) {
-    toast(`${chip.name} 未配置 ADB 关闭指令`, 'warn', 4000);
-    termWrite(`⚠ ${chip.name} 数据库中没有 ADB 关闭指令`, 'err');
-    return;
-  }
-
-  termWrite(`尝试关闭 ADB（${chip.name}）...`, 'info');
-  const btn = document.getElementById('btnCloseADB');
-  btn.disabled = true;
-
-  for (const cmd of adb.disable) {
-    termWrite(cmd, 'cmd');
-    const r = await queryAndCollect(cmd, 900);
-    if (/\bOK\b/i.test(r)) {
-      termWrite(`✓ ADB 已关闭：${cmd}`, 'resp');
-      toast('ADB 已关闭', 'success', 4000);
-      btn.disabled = false;
-      return;
-    }
-    if (/\bERROR\b/i.test(r)) {
-      termWrite(`✗ ${cmd} 返回 ERROR，尝试下一条`, 'info');
-      continue;
-    }
-    if (r.trim() === '') {
-      termWrite(`✗ ${cmd} 无响应，尝试下一条`, 'info');
-      continue;
-    }
-    termWrite(`响应：${r.substring(0, 80).replace(/\s+/g, ' ')}`, 'resp');
-  }
-
-  termWrite('⚠ 所有 ADB 关闭指令均未成功返回 OK', 'err');
-  toast('关闭 ADB 失败，请手动测试指令', 'error', 5000);
-  btn.disabled = false;
-}
-
 /* ═══ 初始化 ═══ */
-(async function init() {
-  await loadChipDatabase();
+initChipDropdown();
+renderBandLockSection();
+renderNetQuerySection();
+updateCmdHints();
+setChipDetectStatus('idle');
+updateIPButtonVisibility();
 
-  /* 恢复上次波特率 */
-  const lastBaud = localStorage.getItem('atmaster_last_baud');
-  if (lastBaud) {
-    const sel = document.getElementById('baudRate');
-    for (const opt of sel.options) {
-      if (opt.value === lastBaud) { sel.value = lastBaud; break; }
-    }
-  }
+if (!('serial' in navigator)) {
+  document.getElementById('btnConnectUSB').disabled = true;
+  document.getElementById('btnConnectUSB').textContent = '⚠ 浏览器不支持 Web Serial';
+  termWrite('当前浏览器不支持 Web Serial API。请使用 Chrome 89+ 或 Edge 89+。', 'err');
+}
 
-  initChipDropdown();
-  renderBandLockSection();
-  renderNetQuerySection();
-  updateCmdHints();
-  setChipDetectStatus('idle');
-  updateIPButtonVisibility();
-
-  /* 恢复上次芯片 */
-  const lastChip = localStorage.getItem('atmaster_last_chip');
-  if (lastChip && CHIP_DATABASE.find(c => c.id === lastChip)) {
-    setTimeout(() => {
-      document.getElementById('chipPlatform').value = lastChip;
-      updateCmdHints();
-      const chip = getChipById(lastChip);
-      termWrite(`💡 上次使用的芯片：${chip.name}，已自动预选`, 'info');
-    }, 100);
-  }
-
-  /* 插入芯片库管理区块到最顶部 */
-  const firstSection = document.querySelector('.panel-right .panel-body .quick-section');
-  if (firstSection) {
-    const mgmtSection = document.createElement('div');
-    mgmtSection.className = 'quick-section';
-    mgmtSection.innerHTML = `
-      <h4>芯片库管理 <span class="badge-tag blue" style="font-size:9px;">外挂</span></h4>
-      <div class="quick-grid">
-        <button class="quick-btn" onclick="importChipDatabase()">
-          📥 导入 JSON<span class="cmd-hint">覆盖当前</span>
-        </button>
-        <button class="quick-btn" onclick="exportChipDatabase()">
-          📤 导出 JSON<span class="cmd-hint">备份当前</span>
-        </button>
-        <button class="quick-btn" onclick="resetChipDatabase()" style="grid-column:1/-1;">
-          ♻️ 重置为内置<span class="cmd-hint">恢复默认</span>
-        </button>
-      </div>
-      <div style="margin-top:6px;font-size:11px;color:var(--text-dim);line-height:1.5;" id="chipDbInfo">
-        正在加载...
-      </div>
-    `;
-    firstSection.parentNode.insertBefore(mgmtSection, firstSection);
-  }
-  updateChipDbInfo();
-
-  if (!('serial' in navigator)) {
-    document.getElementById('btnConnectUSB').disabled = true;
-    document.getElementById('btnConnectUSB').textContent = '⚠ 浏览器不支持 Web Serial';
-    termWrite('当前浏览器不支持 Web Serial API。请使用 Chrome 89+ 或 Edge 89+。', 'err');
-  }
-
-  document.querySelectorAll('.modal-overlay').forEach(overlay => {
-    overlay.addEventListener('click', (e) => {
-      if (e.target === overlay && !state.writeInProgress) overlay.classList.remove('show');
-    });
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay && !state.writeInProgress) overlay.classList.remove('show');
   });
+});
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !state.writeInProgress) {
-      document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('show'));
-    }
-  });
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !state.writeInProgress) {
+    document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('show'));
+  }
+});
 
-  console.log(`随身WiFi调试助手 v5.2 已加载 | 芯片库：${CHIP_DATABASE.length} 条 | 来源：${window.__chipDbSource}`);
-})();
+console.log('随身WiFi调试助手 v5.0 已加载 | 芯片数据库化，共', CHIP_DATABASE.length, '条记录');
 </script>
 </body>
 </html>
