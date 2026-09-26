@@ -1573,12 +1573,19 @@ function parseDeviceInfo(line){
       const dbm=-113+first*2;
       el.textContent=`${first} (${dbm} dBm, ${first>=20?'强':first>=10?'中':'弱'})`;
       el.className='info-value '+(first>=10?'ok':'warn');
-    }else{
-      const dbm=-(first/2);
-      const strength=dbm>=-70?'强':dbm>=-85?'中':'弱';
-      el.textContent=`${first} (${dbm.toFixed(1)} dBm, ${strength})`;
-      el.className='info-value '+(dbm>=-85?'ok':'warn');
-      el.title=`原始响应: ${line}`;
+    } else {
+      const dbm = -(first / 2);
+      let strength;
+      if (dbm >= -70) strength = '优';
+      else if (dbm >= -80) strength = '良';
+      else if (dbm >= -90) strength = '中';
+      else if (dbm >= -100) strength = '差';
+      else strength = '极差';
+    
+      el.textContent = `${first} (${dbm.toFixed(1)} dBm, ${strength})`;
+      // 颜色：≥-80 绿色(ok)，-80~-90 黄色(warn)，<-90 红色(err)
+      el.className = 'info-value ' + (dbm >= -80 ? 'ok' : dbm >= -90 ? 'warn' : 'err');
+      el.title = `原始响应: ${line}`;
     }
   }
 
