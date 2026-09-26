@@ -18,7 +18,6 @@
     --success: #2ecc71;
     --error: #e74c3c;
     --warn: #f39c12;
-    --radius: 10px;
     --font-mono: 'SF Mono','Cascadia Code','JetBrains Mono',Consolas,monospace;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -266,8 +265,6 @@
   .modal .form-group { margin-bottom: 10px; }
   .modal .btn-row { margin-top: 16px; }
   .hidden { display: none !important; }
-
-  /* ── 测速面板 ── */
   .speedtest-box {
     background: var(--bg-card); border-radius: 10px;
     padding: 14px; border: 1px solid var(--border);
@@ -296,8 +293,6 @@
   .speedtest-status {
     font-size: 11px; color: var(--text-dim); text-align: center;
   }
-
-  /* ── 云控状态指示 ── */
   .cloud-status {
     display: flex; align-items: center; gap: 8px;
     padding: 10px 12px; border-radius: 8px;
@@ -311,15 +306,16 @@
   .cloud-status.safe .indicator { background: var(--success); box-shadow: 0 0 8px rgba(46,204,113,.5); }
   .cloud-status.risk .indicator { background: var(--error); box-shadow: 0 0 8px rgba(231,76,60,.5); }
   .cloud-status.unknown .indicator { background: var(--warn); box-shadow: 0 0 8px rgba(243,156,18,.5); }
-
   .badge-tag {
     display: inline-block; padding: 2px 7px;
     border-radius: 4px; font-size: 10px; font-weight: 600;
     font-family: var(--font-mono);
+    transition: all .3s;
   }
   .badge-tag.blue { background: rgba(79,124,255,.15); color: #7fa4ff; }
   .badge-tag.green { background: rgba(46,204,113,.15); color: var(--success); }
   .badge-tag.orange { background: rgba(243,156,18,.15); color: var(--warn); }
+  .badge-tag.gray { background: rgba(139,145,165,.12); color: var(--text-dim); }
 </style>
 </head>
 <body>
@@ -327,7 +323,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v2.0</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v2.2</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -404,7 +400,7 @@
       <div class="terminal" id="terminal">
         <div class="line">
           <span class="prefix info">●</span>
-          <span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v2.0 已就绪。新增切卡与云控检测功能。</span>
+          <span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v2.2 已就绪。连接设备后将自动识别基带芯片平台。</span>
         </div>
       </div>
       <div class="terminal-input-row">
@@ -420,6 +416,44 @@
   <div class="panel panel-right">
     <div class="panel-header">快捷工具</div>
     <div class="panel-body">
+
+      <!-- ── SIM 卡切换 ── -->
+      <div class="quick-section">
+        <h4>SIM 卡切换 <span class="badge-tag blue" style="font-size:9px;">核心</span></h4>
+
+        <div class="form-group" style="margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+            <label style="margin-bottom:0;">基带芯片平台</label>
+            <span id="chipDetectStatus" class="badge-tag gray">待识别</span>
+          </div>
+          <select class="form-control" id="chipPlatform" style="font-size:12px;padding:6px 9px;" disabled>
+            <option value="zxic">中兴微 — AT+ZCARDSWITCH</option>
+            <option value="asr" selected>ASR — AT+SWSIM</option>
+            <option value="unisoc">紫光展锐 — AT+SIMSWITCH</option>
+            <option value="qualcomm">高通 — AT+QDSIM</option>
+          </select>
+        </div>
+
+        <div class="quick-grid">
+          <button class="quick-btn" onclick="switchToExternalCard()" disabled id="btnSwitchExternal"
+                  style="grid-column:1/-1;padding:10px;font-size:12.5px;">
+            🔄 切到外置卡
+            <span class="cmd-hint" id="externalCmdHint">AT+SWSIM=0</span>
+          </button>
+        </div>
+        <div class="quick-grid" style="margin-top:6px;">
+          <button class="quick-btn" onclick="switchToInternalCard()" disabled id="btnSwitchInternal">
+            📱 切回内置卡
+            <span class="cmd-hint" id="internalCmdHint">AT+SWSIM=1</span>
+          </button>
+          <button class="quick-btn" onclick="queryCurrentCard()" disabled id="btnQueryCard">
+            🔍 查询当前卡
+            <span class="cmd-hint" id="queryCmdHint">AT+SWSIM?</span>
+          </button>
+        </div>
+
+        <div style="margin-top:8px;font-size:11px;color:var(--text-dim);line-height:1.6;" id="switchTip"></div>
+      </div>
 
       <!-- ── 限速检测 ── -->
       <div class="quick-section">
@@ -455,49 +489,11 @@
         </div>
       </div>
 
-      <!-- ── SIM 卡管理（切卡） ── -->
-      <div class="quick-section">
-        <h4>SIM 卡管理 <span class="badge-tag blue" style="font-size:9px;">重要</span></h4>
-
-        <!-- 平台选择 -->
-        <div class="form-group" style="margin-bottom:8px;">
-          <label>芯片平台</label>
-          <select class="form-control" id="chipPlatform" style="font-size:12px;padding:6px 9px;">
-            <option value="asr" selected>ASR (ASR1803等) — AT+SWSIM</option>
-            <option value="zxic">中兴微 (U10L/MF936等) — AT+ZCARDSWITCH</option>
-            <option value="usr">有人物联网 — AT+SIMSWITCH</option>
-          </select>
-        </div>
-
-        <div class="quick-grid">
-          <button class="quick-btn" onclick="switchToExternalCard()" disabled id="btnSwitchExternal"
-                  style="grid-column:1/-1;padding:10px;font-size:12.5px;">
-            🔄 切到外置卡
-            <span class="cmd-hint" id="externalCmdHint">AT+SWSIM=0</span>
-          </button>
-        </div>
-        <div class="quick-grid" style="margin-top:6px;">
-          <button class="quick-btn" onclick="switchToInternalCard()" disabled id="btnSwitchInternal">
-            📱 切回内置卡
-            <span class="cmd-hint" id="internalCmdHint">AT+SWSIM=1</span>
-          </button>
-          <button class="quick-btn" onclick="queryCurrentCard()" disabled id="btnQueryCard">
-            🔍 查询当前卡
-            <span class="cmd-hint" id="queryCmdHint">AT+SWSIM?</span>
-          </button>
-        </div>
-
-        <div style="margin-top:8px;font-size:11px;color:var(--text-dim);line-height:1.6;" id="switchTip">
-          <b>ASR 平台：</b>发送 <code>AT+SWSIM=0</code> 切外置卡，<code>AT+SWSIM=1</code> 切内置卡。<br>
-          <b>中兴微：</b>发送 <code>AT+ZCARDSWITCH=0</code> 可能需重复 3-10 次才生效。<br>
-          <b>有人物联网：</b><code>AT+SIMSWITCH=0,0</code> 锁定外置卡。
-        </div>
-      </div>
-
       <!-- ── 设备信息 ── -->
       <div class="quick-section">
         <h4>设备信息</h4>
         <div>
+          <div class="info-item"><span class="info-label">芯片平台</span><span class="info-value empty" id="infoChip">—</span></div>
           <div class="info-item"><span class="info-label">IMEI</span><span class="info-value empty" id="infoIMEI">—</span></div>
           <div class="info-item"><span class="info-label">SN</span><span class="info-value empty" id="infoSN">—</span></div>
           <div class="info-item"><span class="info-label">WiFi MAC</span><span class="info-value empty" id="infoMAC">—</span></div>
@@ -547,12 +543,8 @@
       云控是厂商通过远程服务对设备进行限速或断网的手段。去云控通常有两种途径：
     </div>
     <div style="display:flex;flex-direction:column;gap:10px;">
-      <button class="btn btn-warn" onclick="genRemoveCloudCmd()" id="btnGenCloudCmd">
-        📋 生成去云控指令（ASR/中兴微）
-      </button>
-      <button class="btn btn-outline" onclick="showAdbGuide()">
-        📖 查看 ADB 去云控详细步骤
-      </button>
+      <button class="btn btn-warn" onclick="genRemoveCloudCmd()">📋 生成去云控指令</button>
+      <button class="btn btn-outline" onclick="showAdbGuide()">📖 查看 ADB 去云控详细步骤</button>
     </div>
     <div id="cloudCmdResult" style="margin-top:14px;display:none;">
       <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;">已生成指令，点击发送：</div>
@@ -563,28 +555,12 @@
       <b style="color:var(--text);">ADB 去云控步骤（需先开启 ADB）：</b><br>
       1. 发送 <code>AT+ZMODE=1</code> 开启 ADB 和串口<br>
       2. 电脑连接设备 ADB，执行：<br>
-      <code style="display:block;background:var(--bg-input);padding:8px;border-radius:6px;margin:6px 0;">adb shell rm -f /sbin/yiming_1028.sh</code>
       <code style="display:block;background:var(--bg-input);padding:8px;border-radius:6px;margin:6px 0;">adb shell mount -o remount -o rw /</code>
+      <code style="display:block;background:var(--bg-input);padding:8px;border-radius:6px;margin:6px 0;">adb shell rm -f /sbin/yiming_1028.sh</code>
       3. 重启设备即可。
     </div>
     <div class="btn-row">
       <button class="btn btn-outline" onclick="closeCloudModal()">关闭</button>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════ 写入弹窗 ══════════ -->
-<div class="modal-overlay" id="writeModal">
-  <div class="modal">
-    <h3 id="writeModalTitle">写入值</h3>
-    <div class="form-group">
-      <label id="writeModalLabel">请输入新值</label>
-      <input class="form-control" id="writeModalInput" placeholder="">
-    </div>
-    <div style="font-size:11px;color:var(--text-dim);margin-top:6px;" id="writeModalHint"></div>
-    <div class="btn-row">
-      <button class="btn btn-outline" onclick="closeModal()">取消</button>
-      <button class="btn btn-primary" id="writeModalConfirm" onclick="confirmWrite()">确认写入</button>
     </div>
   </div>
 </div>
@@ -612,10 +588,11 @@ const state = {
   connected: false,
   port: null,
   reader: null,
-  writer: null,
   readLoopActive: false,
   logBuffer: [],
   speedtesting: false,
+  responseBuffer: '',        // 用于收集指令响应
+  detectedChip: null,        // 自动识别到的芯片
 };
 
 const BAND_MAP = {
@@ -629,8 +606,44 @@ const BAND_MAP = {
   B41: { label: 'B41', param: ',256,0,0,2,2,0' },
 };
 
+/* 切卡指令映射 —— 严格按基带芯片分类 */
+const SWITCH_CMD_MAP = {
+  zxic: {
+    name: '中兴微',
+    external: 'AT+ZCARDSWITCH=0',
+    internal: 'AT+ZCARDSWITCH=1',
+    query:    'AT+ZCARDSWITCH?',
+    repeat:   5,
+    tip: '<b>中兴微平台：</b>发送 <code>AT+ZCARDSWITCH=0</code> 切外置卡，<code>AT+ZCARDSWITCH=1</code> 切内置卡。<br><b>重点：</b>该指令通常需连续发送 3~10 次才生效，工具会自动连发 5 次。',
+  },
+  asr: {
+    name: 'ASR',
+    external: 'AT+SWSIM=0',
+    internal: 'AT+SWSIM=1',
+    query:    'AT+SWSIM?',
+    repeat:   1,
+    tip: '<b>ASR 平台：</b>发送 <code>AT+SWSIM=0</code> 切外置卡，<code>AT+SWSIM=1</code> 切内置卡。<br>发送后设备会自动重启，等待重新枚举即可。',
+  },
+  unisoc: {
+    name: '紫光展锐',
+    external: 'AT+SIMSWITCH=0,0',
+    internal: 'AT+SIMSWITCH=1,0',
+    query:    'AT+SIMSWITCH?',
+    repeat:   1,
+    tip: '<b>紫光展锐平台：</b><code>AT+SIMSWITCH=0,0</code> 切外置卡，<code>AT+SIMSWITCH=1,0</code> 切内置卡。<br>部分模块指令为 <code>AT+SPCARD=0</code>，请以模块手册为准。',
+  },
+  qualcomm: {
+    name: '高通',
+    external: 'AT+QDSIM=2',
+    internal: 'AT+QDSIM=1',
+    query:    'AT+QDSIM?',
+    repeat:   1,
+    tip: '<b>高通平台：</b>SIM1 为内置卡，SIM2 为外置卡。<br><code>AT+QDSIM=2</code> 切外置卡，<code>AT+QDSIM=1</code> 切内置卡。',
+  },
+};
+
 /* ═══════════════════════════════════════════════════
-   Toast 通知
+   Toast
    ═══════════════════════════════════════════════════ */
 function toast(msg, type = 'info', duration = 3000) {
   const container = document.getElementById('toastContainer');
@@ -646,7 +659,7 @@ function toast(msg, type = 'info', duration = 3000) {
 }
 
 /* ═══════════════════════════════════════════════════
-   终端输出
+   终端
    ═══════════════════════════════════════════════════ */
 function termWrite(text, type = 'resp') {
   const terminal = document.getElementById('terminal');
@@ -715,7 +728,13 @@ async function connectUSB() {
     toast(`USB 串口连接成功 @ ${baud}`, 'success');
     enableQuickButtons(true);
     startReadLoop();
-    setTimeout(() => autoQueryDeviceInfo(), 500);
+
+    // 连接后自动流程：先识别芯片，再查询设备信息
+    setTimeout(async () => {
+      await autoDetectChip();
+      await autoQueryDeviceInfo();
+    }, 500);
+
   } catch (err) {
     if (err.name === 'NotFoundError') {
       termWrite('用户取消了串口选择。', 'err');
@@ -744,8 +763,11 @@ async function startReadLoop() {
           buffer = lines.pop() || '';
           for (const line of lines) {
             if (line.trim()) {
-              termWrite(line.trim(), 'resp');
-              parseDeviceInfo(line.trim());
+              const trimmed = line.trim();
+              termWrite(trimmed, 'resp');
+              parseDeviceInfo(trimmed);
+              // 收集到响应缓冲，用于自动识别
+              state.responseBuffer += trimmed + '\n';
             }
           }
         }
@@ -783,6 +805,9 @@ async function disconnect() {
   toast('已断开连接', 'info');
   enableQuickButtons(false);
   resetDeviceInfo();
+  setChipDetectStatus('idle');
+  state.detectedChip = null;
+  document.getElementById('chipPlatform').disabled = true;
 }
 
 /* ═══════════════════════════════════════════════════
@@ -815,7 +840,7 @@ async function connectWiFi() {
 }
 
 /* ═══════════════════════════════════════════════════
-   AT 指令发送
+   AT 指令
    ═══════════════════════════════════════════════════ */
 async function sendAT() {
   const input = document.getElementById('atInput');
@@ -843,6 +868,107 @@ function quickCmd(cmd) {
 }
 
 /* ═══════════════════════════════════════════════════
+   响应收集辅助：发送指令并等待，返回收集到的响应
+   ═══════════════════════════════════════════════════ */
+async function queryAndCollect(cmd, waitMs = 800) {
+  state.responseBuffer = '';
+  termWrite(cmd, 'cmd');
+  try {
+    await writeToPort(cmd);
+  } catch (err) {
+    termWrite(`发送失败: ${err.message}`, 'err');
+    return '';
+  }
+  await sleep(waitMs);
+  const result = state.responseBuffer;
+  state.responseBuffer = '';
+  return result;
+}
+
+/* ═══════════════════════════════════════════════════
+   ★ 芯片自动识别
+   ═══════════════════════════════════════════════════ */
+function setChipDetectStatus(status, name) {
+  const el = document.getElementById('chipDetectStatus');
+  const map = {
+    detecting: { text: '识别中...', cls: 'orange' },
+    detected:  { text: `已识别：${name || ''}`, cls: 'green' },
+    manual:    { text: '手动选择', cls: 'blue' },
+    unknown:   { text: '未识别，请手动', cls: 'orange' },
+    idle:      { text: '待识别', cls: 'gray' },
+  };
+  const info = map[status] || map.idle;
+  el.textContent = info.text;
+  el.className = 'badge-tag ' + info.cls;
+}
+
+/* 从文本中匹配芯片关键字 */
+function detectChipFromText(text) {
+  if (!text) return null;
+  // ASR 特征：ASR1802/ASR1803 等型号，或带 * 的 AT*MRD_ 指令集
+  if (/ASR\s*18\d{2}/i.test(text) || /\bASR\b/i.test(text)) return 'asr';
+  // 中兴微特征：ZTE / ZXIC / ZCARDSWITCH
+  if (/ZXIC|中兴微|\bZTE\b|ZCARDSWITCH/i.test(text)) return 'zxic';
+  // 紫光展锐特征：Unisoc / Spreadtrum / SPRD / UISxxxx
+  if (/Unisoc|Spreadtrum|\bSPRD\b|UIS\d{4}|展锐/i.test(text)) return 'unisoc';
+  // 高通特征：Qualcomm / MDM9xxx / QDSIM
+  if (/Qualcomm|\bMDM\d|QDSIM/i.test(text)) return 'qualcomm';
+  return null;
+}
+
+/* 自动识别主流程 */
+async function autoDetectChip() {
+  setChipDetectStatus('detecting');
+  termWrite('开始自动识别芯片平台...', 'info');
+
+  let chip = null;
+
+  // 第 1 步：发送 ATI 获取模块型号信息
+  const atiResp = await queryAndCollect('ATI', 1000);
+  chip = detectChipFromText(atiResp);
+
+  // 第 2 步：如果 ATI 无法判断，逐个探测平台特有指令
+  if (!chip) {
+    termWrite('ATI 未能识别，尝试探测平台特有指令...', 'info');
+    const probes = [
+      { p: 'zxic',     cmd: 'AT+ZCARDSWITCH?', kw: /ZCARDSWITCH/i },
+      { p: 'asr',      cmd: 'AT+SWSIM?',       kw: /SWSIM/i },
+      { p: 'unisoc',   cmd: 'AT+SIMSWITCH?',   kw: /SIMSWITCH/i },
+      { p: 'qualcomm', cmd: 'AT+QDSIM?',       kw: /QDSIM/i },
+    ];
+    for (const probe of probes) {
+      const r = await queryAndCollect(probe.cmd, 700);
+      // 有响应且匹配关键字，且不是 ERROR
+      if (probe.kw.test(r) && !/^\s*ERROR\s*$/im.test(r)) {
+        chip = probe.p;
+        termWrite(`探测到 ${SWITCH_CMD_MAP[probe.p].name} 特征指令响应`, 'resp');
+        break;
+      }
+    }
+  }
+
+  if (chip) {
+    state.detectedChip = chip;
+    // 自动设置下拉框（程序修改 value 不会触发 change 事件）
+    document.getElementById('chipPlatform').value = chip;
+    updateCmdHints();
+    setChipDetectStatus('detected', SWITCH_CMD_MAP[chip].name);
+    // 更新设备信息面板
+    const chipEl = document.getElementById('infoChip');
+    chipEl.textContent = SWITCH_CMD_MAP[chip].name;
+    chipEl.className = 'info-value ok';
+    termWrite(`✓ 芯片平台自动识别为: ${SWITCH_CMD_MAP[chip].name}`, 'resp');
+    toast(`芯片平台: ${SWITCH_CMD_MAP[chip].name}`, 'success');
+    return chip;
+  }
+
+  setChipDetectStatus('unknown');
+  termWrite('未能自动识别芯片平台，请手动选择。', 'err');
+  toast('未能自动识别芯片，请手动选择', 'info', 4000);
+  return null;
+}
+
+/* ═══════════════════════════════════════════════════
    设备信息解析
    ═══════════════════════════════════════════════════ */
 function parseDeviceInfo(line) {
@@ -867,7 +993,6 @@ function parseDeviceInfo(line) {
     document.getElementById('infoVER').textContent = verMatch[1].trim();
     document.getElementById('infoVER').className = 'info-value ok';
   }
-  // CSQ 信号质量: +CSQ: 23,99
   const csqMatch = line.match(/\+CSQ:\s*(\d+)/);
   if (csqMatch) {
     const csq = parseInt(csqMatch[1]);
@@ -887,7 +1012,7 @@ async function autoQueryDeviceInfo() {
 }
 
 function resetDeviceInfo() {
-  ['infoIMEI','infoSN','infoMAC','infoVER','infoCSQ'].forEach(id => {
+  ['infoChip','infoIMEI','infoSN','infoMAC','infoVER','infoCSQ'].forEach(id => {
     const el = document.getElementById(id);
     el.textContent = '—';
     el.className = 'info-value empty';
@@ -898,7 +1023,7 @@ function resetDeviceInfo() {
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 /* ═══════════════════════════════════════════════════
-   UI 状态更新
+   UI 状态
    ═══════════════════════════════════════════════════ */
 function updateConnectionUI(connected, text) {
   state.connected = connected;
@@ -920,14 +1045,88 @@ function enableQuickButtons(enable) {
 }
 
 /* ═══════════════════════════════════════════════════
-   ★ 限速检测（浏览器端测速）
+   ★ SIM 卡切换
+   ═══════════════════════════════════════════════════ */
+function getPlatformConfig() {
+  const platform = document.getElementById('chipPlatform').value;
+  return SWITCH_CMD_MAP[platform] || SWITCH_CMD_MAP.asr;
+}
+
+function updateCmdHints() {
+  const cfg = getPlatformConfig();
+  document.getElementById('externalCmdHint').textContent = cfg.external;
+  document.getElementById('internalCmdHint').textContent = cfg.internal;
+  document.getElementById('queryCmdHint').textContent = cfg.query;
+  document.getElementById('switchTip').innerHTML = cfg.tip;
+}
+
+/* 用户手动修改下拉框时，标记为手动选择 */
+document.getElementById('chipPlatform').addEventListener('change', () => {
+  updateCmdHints();
+  setChipDetectStatus('manual');
+});
+
+async function switchToExternalCard() {
+  if (!state.connected) { toast('请先连接设备', 'error'); return; }
+  const cfg = getPlatformConfig();
+
+  if (cfg.repeat > 1) {
+    termWrite(`${cfg.name} 平台切外置卡，将连续发送 ${cfg.repeat} 次指令...`, 'info');
+    for (let i = 0; i < cfg.repeat; i++) {
+      termWrite(`[${i+1}/${cfg.repeat}] ${cfg.external}`, 'cmd');
+      try {
+        await writeToPort(cfg.external);
+      } catch (err) {
+        termWrite(`发送失败: ${err.message}`, 'err');
+        break;
+      }
+      await sleep(800);
+    }
+    termWrite(`已连续发送 ${cfg.repeat} 次切卡指令，设备可能重启。`, 'info');
+  } else {
+    termWrite(cfg.external, 'cmd');
+    try {
+      await writeToPort(cfg.external);
+      termWrite('切卡指令已发送，设备将自动重启。', 'info');
+    } catch (err) {
+      termWrite(`发送失败: ${err.message}`, 'err');
+    }
+  }
+  toast('切卡指令已发送，设备即将重启', 'success', 5000);
+  setCloudStatus('unknown');
+}
+
+async function switchToInternalCard() {
+  if (!state.connected) { toast('请先连接设备', 'error'); return; }
+  const cfg = getPlatformConfig();
+  termWrite(cfg.internal, 'cmd');
+  try {
+    await writeToPort(cfg.internal);
+    termWrite('已发送切回内置卡指令。', 'info');
+    toast('切回内置卡指令已发送', 'success');
+  } catch (err) {
+    termWrite(`发送失败: ${err.message}`, 'err');
+  }
+}
+
+async function queryCurrentCard() {
+  if (!state.connected) { toast('请先连接设备', 'error'); return; }
+  const cfg = getPlatformConfig();
+  termWrite(cfg.query, 'cmd');
+  try {
+    await writeToPort(cfg.query);
+    termWrite('查询指令已发送，请查看终端响应。', 'info');
+  } catch (err) {
+    termWrite(`发送失败: ${err.message}`, 'err');
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   限速检测
    ═══════════════════════════════════════════════════ */
 async function startSpeedtest() {
   if (state.speedtesting) return;
-  if (!state.connected) {
-    toast('请先连接设备', 'error');
-    return;
-  }
+  if (!state.connected) { toast('请先连接设备', 'error'); return; }
   state.speedtesting = true;
   const btn = document.getElementById('btnSpeedtest');
   btn.disabled = true;
@@ -937,13 +1136,12 @@ async function startSpeedtest() {
   document.getElementById('speedStatus').textContent = '正在下载测试文件...';
 
   try {
-    // 使用 Cloudflare 测速节点下载一个 10MB 测试文件
     const testUrl = 'https://speed.cloudflare.com/__down?bytes=10000000';
     const startTime = performance.now();
     const response = await fetch(testUrl, { cache: 'no-store' });
     const reader = response.body.getReader();
     let receivedBytes = 0;
-    const totalBytes = 10 * 1024 * 1024; // 10MB
+    const totalBytes = 10 * 1024 * 1024;
 
     while (true) {
       const { done, value } = await reader.read();
@@ -951,7 +1149,6 @@ async function startSpeedtest() {
       receivedBytes += value.length;
       const progress = Math.min((receivedBytes / totalBytes) * 100, 100);
       document.getElementById('speedBar').style.width = progress + '%';
-      // 实时估算速度
       const elapsed = (performance.now() - startTime) / 1000;
       const speedMbps = (receivedBytes * 8) / (elapsed * 1000000);
       document.getElementById('speedDownload').innerHTML = `${speedMbps.toFixed(1)} <small>Mbps</small>`;
@@ -962,7 +1159,6 @@ async function startSpeedtest() {
     document.getElementById('speedDownload').innerHTML = `${finalSpeed.toFixed(1)} <small>Mbps</small>`;
     document.getElementById('speedStatus').textContent = `完成 · 耗时 ${elapsed.toFixed(1)}s`;
 
-    // 速度判断
     if (finalSpeed < 5) {
       toast(`下载速度 ${finalSpeed.toFixed(1)} Mbps，可能被限速`, 'error', 5000);
       setCloudStatus('risk');
@@ -986,7 +1182,7 @@ async function startSpeedtest() {
 }
 
 /* ═══════════════════════════════════════════════════
-   ★ 云控检测与去云控
+   云控检测与去云控
    ═══════════════════════════════════════════════════ */
 function setCloudStatus(status) {
   const el = document.getElementById('cloudStatus');
@@ -1006,20 +1202,10 @@ async function checkCloudControl() {
   document.getElementById('btnCheckCloud').disabled = true;
 
   try {
-    // 依次发送几个可能暴露云控状态的查询指令
-    const checks = [
-      { cmd: 'AT+CGSN', desc: 'IMEI 查询' },
-      { cmd: 'AT*MRD_SN?', desc: 'SN 查询' },
-    ];
-
-    for (const check of checks) {
-      termWrite(check.cmd, 'cmd');
-      await writeToPort(check.cmd);
-      await sleep(600);
-    }
-
-    // 基于测速结果和指令响应综合判断
+    await queryAndCollect('AT+CGSN', 600);
+    await queryAndCollect('AT*MRD_SN?', 600);
     await sleep(800);
+
     const currentSpeed = document.getElementById('speedDownload').textContent;
     if (currentSpeed.includes('—')) {
       termWrite('提示: 建议先执行一次测速，以便更准确判断限速状态。', 'info');
@@ -1056,13 +1242,10 @@ function closeCloudModal() {
 function genRemoveCloudCmd() {
   const resultDiv = document.getElementById('cloudCmdResult');
   const cmdText = document.getElementById('cloudCmdText');
-  // 根据平台生成不同的指令
   const platform = document.getElementById('chipPlatform').value;
   let cmds = [];
   if (platform === 'asr') {
     cmds = ['AT*PROD=1', 'AT+ZMODE=1'];
-  } else if (platform === 'zxic') {
-    cmds = ['AT+ZMODE=1'];
   } else {
     cmds = ['AT+ZMODE=1'];
   }
@@ -1074,12 +1257,12 @@ function genRemoveCloudCmd() {
 async function sendCloudCmd() {
   const platform = document.getElementById('chipPlatform').value;
   if (platform === 'asr') {
-    await quickCmd('AT*PROD=1');
+    termWrite('AT*PROD=1', 'cmd');
+    await writeToPort('AT*PROD=1');
     await sleep(400);
-    await quickCmd('AT+ZMODE=1');
-  } else {
-    await quickCmd('AT+ZMODE=1');
   }
+  termWrite('AT+ZMODE=1', 'cmd');
+  await writeToPort('AT+ZMODE=1');
   closeCloudModal();
   toast('指令已发送，请按 ADB 步骤继续操作', 'info', 4000);
   setCloudStatus('safe');
@@ -1091,127 +1274,8 @@ function showAdbGuide() {
 }
 
 /* ═══════════════════════════════════════════════════
-   ★ SIM 卡切换（切卡）
+   确认弹窗
    ═══════════════════════════════════════════════════ */
-function getSwitchCmd(target) {
-  // target: 'external' | 'internal' | 'query'
-  const platform = document.getElementById('chipPlatform').value;
-  if (platform === 'asr') {
-    return { external: 'AT+SWSIM=0', internal: 'AT+SWSIM=1', query: 'AT+SWSIM?' }[target];
-  } else if (platform === 'zxic') {
-    return { external: 'AT+ZCARDSWITCH=0', internal: 'AT+ZCARDSWITCH=1', query: 'AT+ZCARDSWITCH?' }[target];
-  } else if (platform === 'usr') {
-    return {
-      external: 'AT+SIMSWITCH=0,0',
-      internal: 'AT+SIMSWITCH=1,0',
-      query: 'AT+SIMSWITCH?'
-    }[target];
-  }
-  return 'AT+SWSIM=0';
-}
-
-function updateCmdHints() {
-  const platform = document.getElementById('chipPlatform').value;
-  const ext = getSwitchCmd('external');
-  const int = getSwitchCmd('internal');
-  const q = getSwitchCmd('query');
-  document.getElementById('externalCmdHint').textContent = ext;
-  document.getElementById('internalCmdHint').textContent = int;
-  document.getElementById('queryCmdHint').textContent = q;
-
-  const tips = {
-    asr: '<b>ASR 平台：</b>发送 <code>AT+SWSIM=0</code> 切外置卡，<code>AT+SWSIM=1</code> 切内置卡。切换后设备会自动重启。',
-    zxic: '<b>中兴微：</b>发送 <code>AT+ZCARDSWITCH=0</code> 切外置卡，<b>可能需重复发送 3-10 次</b>才生效。',
-    usr: '<b>有人物联网：</b><code>AT+SIMSWITCH=0,0</code> 锁定外置卡，<code>AT+SIMSWITCH=1,0</code> 外置卡优先。'
-  };
-  document.getElementById('switchTip').innerHTML = tips[platform] || '';
-}
-
-// 监听平台切换
-document.getElementById('chipPlatform').addEventListener('change', updateCmdHints);
-
-async function switchToExternalCard() {
-  if (!state.connected) { toast('请先连接设备', 'error'); return; }
-  const platform = document.getElementById('chipPlatform').value;
-  const cmd = getSwitchCmd('external');
-
-  if (platform === 'zxic') {
-    // 中兴微需要多次发送
-    termWrite('中兴微平台切外置卡，将连续发送 5 次指令...', 'info');
-    for (let i = 0; i < 5; i++) {
-      termWrite(`[${i+1}/5] ${cmd}`, 'cmd');
-      await writeToPort(cmd);
-      await sleep(800);
-    }
-    termWrite('已连续发送 5 次切卡指令，设备可能重启。', 'info');
-  } else {
-    termWrite(cmd, 'cmd');
-    await writeToPort(cmd);
-    termWrite('切卡指令已发送，设备将自动重启。', 'info');
-  }
-  toast('切卡指令已发送，设备即将重启', 'success', 5000);
-  setCloudStatus('unknown');
-}
-
-async function switchToInternalCard() {
-  if (!state.connected) { toast('请先连接设备', 'error'); return; }
-  const cmd = getSwitchCmd('internal');
-  termWrite(cmd, 'cmd');
-  await writeToPort(cmd);
-  termWrite('已发送切回内置卡指令。', 'info');
-  toast('切回内置卡指令已发送', 'success');
-}
-
-async function queryCurrentCard() {
-  if (!state.connected) { toast('请先连接设备', 'error'); return; }
-  const cmd = getSwitchCmd('query');
-  termWrite(cmd, 'cmd');
-  await writeToPort(cmd);
-  termWrite('查询指令已发送，请查看终端响应。', 'info');
-}
-
-/* ═══════════════════════════════════════════════════
-   写入弹窗 & 确认弹窗
-   ═══════════════════════════════════════════════════ */
-let writeTarget = null;
-
-function openWriteModal(type) {
-  writeTarget = type;
-  const titles = { imei: '写入 IMEI', sn: '写入 SN', mac: '写入 MAC' };
-  const labels = { imei: '15 位 IMEI（含 Luhn 校验位）', sn: '序列号', mac: 'MAC 地址（如 AA:BB:CC:DD:EE:FF）' };
-  const placeholders = { imei: '例如 864512345678901', sn: '例如 SN12345678', mac: '例如 A4:5E:60:12:34:56' };
-  const hints = {
-    imei: '写入指令: AT*MRD_IMEI=W,0,01JAN1970,<imei>',
-    sn:   '写入指令: AT*MRD_SN=W,0,01JAN1970,<sn>',
-    mac:  '写入指令: AT*MRD_WIFIID=W,0,01JAN1970,<mac>',
-  };
-  document.getElementById('writeModalTitle').textContent = titles[type];
-  document.getElementById('writeModalLabel').textContent = labels[type];
-  document.getElementById('writeModalInput').placeholder = placeholders[type];
-  document.getElementById('writeModalInput').value = '';
-  document.getElementById('writeModalHint').textContent = hints[type];
-  document.getElementById('writeModal').classList.add('show');
-}
-
-function closeModal() {
-  document.getElementById('writeModal').classList.remove('show');
-  writeTarget = null;
-}
-
-function confirmWrite() {
-  const val = document.getElementById('writeModalInput').value.trim();
-  if (!val) { toast('请输入值', 'error'); return; }
-  let cmd = '';
-  if (writeTarget === 'imei') cmd = `AT*MRD_IMEI=W,0,01JAN1970,${val}`;
-  else if (writeTarget === 'sn') cmd = `AT*MRD_SN=W,0,01JAN1970,${val}`;
-  else if (writeTarget === 'mac') {
-    const macClean = val.replace(/[:\-]/g, '');
-    cmd = `AT*MRD_WIFIID=W,0,01JAN1970,${macClean}`;
-  }
-  closeModal();
-  quickCmd(cmd);
-}
-
 let pendingDangerCmd = null;
 
 function confirmDanger(title, cmd) {
@@ -1268,6 +1332,7 @@ function updateBandButtons() {
    ═══════════════════════════════════════════════════ */
 buildBandGrid();
 updateCmdHints();
+setChipDetectStatus('idle');
 
 if (!('serial' in navigator)) {
   document.getElementById('btnConnectUSB').disabled = true;
@@ -1291,7 +1356,7 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-console.log('随身WiFi调试助手 v2.0 已加载 | 切卡 + 云控检测 + 测速');
+console.log('随身WiFi调试助手 v2.2 已加载 | 芯片自动识别');
 </script>
 </body>
 </html>
