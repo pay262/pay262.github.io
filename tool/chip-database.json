@@ -1,7 +1,7 @@
 {
-  "version": "2.4",
-  "updated": "2026-09-26",
-  "description": "随身WiFi调试助手芯片数据库。新增芯片时在 chips 数组末尾追加一条记录即可。detectKeywords 和 probe.kw 使用正则字符串（忽略大小写），AT 指令中的双引号需转义为 \\\"。数据来源：各芯片厂商AT手册 + 全网技术社区整理。v2.4 为 asr5g/asr4g 的 ver 数组前置 AT+ASRVERSION。",
+  "version": "2.5",
+  "updated": "2026-09-27",
+  "description": "随身WiFi调试助手芯片数据库。新增芯片时在 chips 数组末尾追加一条记录即可。detectKeywords 和 probe.kw 使用正则字符串（忽略大小写），AT 指令中的双引号需转义为 \\\"。数据来源：各芯片厂商AT手册 + 全网技术社区整理。v2.5 为 asr4g 增加 queryCandidates 与 ^CARDMODE 卡槽查询（0=内置卡/SIM2，1=外置卡/SIM1）。",
   "chips": [
     {
       "id": "zxic",
@@ -85,9 +85,10 @@
       "simSwitch": {
         "external": "AT+SWSIM=0",
         "internal": "AT+SWSIM=1",
-        "query": "AT+SWSIM?",
+        "query": "AT^CARDMODE?",
+        "queryCandidates": ["AT^CARDMODE?", "AT+SWSIM?"],
         "repeat": 1,
-        "tip": "<b>ASR 4G 平台：</b><code>AT+SWSIM=0</code> 切外置卡，<code>AT+SWSIM=1</code> 切内置卡。<br>发送后设备会自动重启。"
+        "tip": "<b>ASR 4G 平台：</b><code>AT+SWSIM=0</code> 切外置卡，<code>AT+SWSIM=1</code> 切内置卡。<br>卡槽查询：<code>AT^CARDMODE?</code>（实测 ASR1803 定制固件：<b>0 = 内置卡 (SIM2)</b>，<b>1 = 外置卡 (SIM1)</b>）。<br>若 SWSIM 无效，请使用原厂后台切卡。"
       },
       "adb": {
         "enable": ["AT+ZMODE=1"],
@@ -97,7 +98,7 @@
       "iccid": ["AT+CCID", "AT+ICCID", "AT+UTICCID?", "AT+ICID?", "AT*MRD_ICCID?"],
       "imei": ["AT+CGSN", "AT*MRD_IMEI?"],
       "sn": ["AT*MRD_SN?", "AT+SN?", "AT+SN"],
-      "ver": ["AT+ASRVERSION", "AT+CGMR", "AT+VER"],
+      "ver": ["AT+CGMR", "AT+VER"],
       "band": ["AT*BANDIND?", "AT+BANDIND?"],
       "qci": ["AT+CGEQOSRDP"],
       "network5g": []

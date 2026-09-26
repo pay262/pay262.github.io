@@ -164,7 +164,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v8.4</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v8.5</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -212,7 +212,7 @@
           <button class="btn btn-danger" id="btnDisconnectUSB" onclick="disconnect()" disabled>断开连接</button>
         </div>
         <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          <b style="color:var(--warn);">v8.4：</b>修复 *BANDIND 解析；ASR 4G 频段区改为「射频重置」+ 查询（AT 锁频已被厂商屏蔽）。
+          <b style="color:var(--warn);">v8.5：</b>修复 *BANDIND 解析；ASR 4G 频段区改为「射频重置」+ 查询；新增 ^CARDMODE 卡槽解析（0=内置卡，1=外置卡）。
         </div>
       </div>
       <div id="panelWiFi" class="hidden">
@@ -234,7 +234,7 @@
     </div>
     <div class="terminal-wrap">
       <div class="terminal" id="terminal">
-        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v8.4 已就绪。</span></div>
+        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v8.5 已就绪。</span></div>
       </div>
       <div class="terminal-input-row">
         <span class="prompt">AT&gt;</span>
@@ -410,6 +410,7 @@
           <button class="quick-btn" onclick="quickCmd('AT+ASRMODE')" disabled>ASR模式<span class="cmd-hint">AT+ASRMODE</span></button>
           <button class="quick-btn" onclick="quickCmd('AT+ASRRESET')" disabled>ASR恢复出厂<span class="cmd-hint">AT+ASRRESET</span></button>
           <button class="quick-btn" onclick="quickCmd('AT*BAND?')" disabled>频段配置查询<span class="cmd-hint">AT*BAND?</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT^CARDMODE?')" disabled>卡槽查询<span class="cmd-hint">AT^CARDMODE?</span></button>
         </div>
       </div>
 
@@ -485,20 +486,14 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
-/* ═══════════════════════════════════════════════════════════════════════════
-   Line Ending 映射
-   ═══════════════════════════════════════════════════════════════════════════ */
 const LINE_ENDING_MAP = { crlf:'\r\n', cr:'\r', lf:'\n' };
 function getLineEnding() {
   const key = document.getElementById('lineEnding').value;
   return LINE_ENDING_MAP[key] || '\r\n';
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   内置 fallback 芯片数据库
-   ═══════════════════════════════════════════════════════════════════════════ */
 const FALLBACK_CHIP_DATABASE_RAW = {
-  version:"2.4", updated:"2026-09-26",
+  version:"2.5", updated:"2026-09-27",
   chips:[
     {
       id:'zxic', name:'中兴微', fullName:'中兴微电子 ZX297520 / ZX297520V3', generation:'4G',
@@ -534,7 +529,7 @@ const FALLBACK_CHIP_DATABASE_RAW = {
       id:'asr4g', name:'ASR 4G', fullName:'翱捷科技 ASR1802 / ASR1803 / ASR1806 / ASR8861 / ASR7801', generation:'4G',
       detectKeywords:['ASR, Inc.','Nezha','ASR','ASR1806','ASR1803','ASR1802','ASR180','ASR8861','ASR7801','Air720','Air724'],
       probe:{cmd:'AT+SWSIM?',kw:'\\+SWSIM'},
-      simSwitch:{external:'AT+SWSIM=0',internal:'AT+SWSIM=1',query:'AT+SWSIM?',repeat:1,tip:''},
+      simSwitch:{external:'AT+SWSIM=0',internal:'AT+SWSIM=1',query:'AT^CARDMODE?',queryCandidates:['AT^CARDMODE?','AT+SWSIM?'],repeat:1,tip:''},
       adb:{enable:['AT+ZMODE=1'],disable:['AT+ZMODE=0'],tip:''},
       iccid:['AT+CCID','AT+ICCID','AT+UTICCID?','AT+ICID?','AT*MRD_ICCID?'],
       imei:['AT+CGSN','AT*MRD_IMEI?'],
@@ -701,9 +696,6 @@ function updateChipDbInfo(){
   el.innerHTML=`当前：<b>${CHIP_DATABASE.length}</b> 条 · 来源：<b>${map[window.__chipDbSource]||'未知'}</b> · 版本：<b>${window.__chipDbVersion||'未知'}</b>`;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   常量
-   ═══════════════════════════════════════════════════════════════════════════ */
 const BAND_MAP_4G = {
   B1:{label:'B1',param:',0,1,0,2,2,0'},B3:{label:'B3',param:',0,4,0,2,2,0'},
   B5:{label:'B5',param:',0,16,0,2,2,0'},B8:{label:'B8',param:',0,128,0,2,2,0'},
@@ -741,9 +733,6 @@ const state = {
   currentDTR:null,currentRTS:null
 };
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   工具函数
-   ═══════════════════════════════════════════════════════════════════════════ */
 function guessCarrierFromICCID(iccid){
   if(!iccid||iccid.length<6)return null;
   const p=iccid.substring(0,6);
@@ -853,9 +842,6 @@ function initChipDropdown(){
   });
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   USB 连接
-   ═══════════════════════════════════════════════════════════════════════════ */
 async function connectUSB(){
   if(!('serial' in navigator)){toast('浏览器不支持 Web Serial','error',5000);return;}
   try{
@@ -959,9 +945,6 @@ async function connectWiFi(){
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   AT 指令
-   ═══════════════════════════════════════════════════════════════════════════ */
 async function sendAT(){
   const input=document.getElementById('atInput');
   const cmd=input.value.trim();if(!cmd)return;input.value='';
@@ -1018,9 +1001,6 @@ function isValidResponse(r){
   return hasOK&&!hasError;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   网络类型
-   ═══════════════════════════════════════════════════════════════════════════ */
 function setNetworkType(type,subText){
   const changed=(state.networkType!==type);
   state.networkType=type;
@@ -1051,9 +1031,6 @@ async function detectNetworkType(){
   setNetworkType('unknown','无法判断');return 'unknown';
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   频段锁定区
-   ═══════════════════════════════════════════════════════════════════════════ */
 function renderBandLockSection(){
   const grid=document.getElementById('bandGrid');
   const headerText=document.getElementById('bandHeaderText');
@@ -1105,8 +1082,6 @@ function renderBandLockSection(){
       c.onclick=()=>quickCmd('AT+ZBAND=0');
       grid.appendChild(c);
     } else if(chipId === 'asr4g'){
-      /* ★ v8.4 新增：ASR 4G 专属区
-         该固件已屏蔽 AT 锁频接口（只接受 AT*BAND=1），改为「射频重置」+ 查询 */
       tip.innerHTML='<b>⚠ ASR 4G 定制固件：</b>该固件屏蔽了 AT 锁频接口，只接受 <code>AT*BAND=1</code>（无实际锁频价值）。<br>如需锁定 B1/B3 等频段，请使用原厂后台 <code>192.168.99.1</code> 的「配置频段」按钮，或 Asr-Tools 开源工具。<br><b>如果已被 <code>AT*BAND=1</code> 锁死在 B1：</b>点下方「🔓 射频重置」恢复自动选网。';
 
       const resetBtn = document.createElement('button');
@@ -1133,7 +1108,6 @@ function renderBandLockSection(){
       q2.onclick=()=>quickCmd('AT*BAND?');
       grid.appendChild(q2);
     } else {
-      /* 其他非中兴微/非 ASR 的 4G 芯片（如展锐、高通 4G 模式）保留原有通用提示 */
       tip.innerHTML='<b>4G 锁频：</b><code>AT*BAND=,0,&lt;mask&gt;,0,2,2,0</code>。<br>B1=1 B3=4 B5=16 B8=128 B38=32 B39=64 B40=128 B41=256。<br><b>解除：</b><code>AT*BAND=0</code>。<br>具体语法请参考芯片手册。';
       Object.entries(BAND_MAP_4G).forEach(([k,info])=>{
         const btn=document.createElement('button');
@@ -1162,8 +1136,6 @@ function renderBandLockSection(){
   }
 }
 
-/* ★ v8.4 新增：ASR 4G 射频重置，解除 AT*BAND=1 锁死 B1 的问题
-   流程：CFUN=0 → 等 5 秒 → CFUN=1 → 等 15 秒网络重注册 */
 async function asrRadioReset(){
   if(!state.connected){toast('请先连接设备','error');return;}
   termWrite('═══ ASR 射频重置：解除频段锁 ═══','info');
@@ -1190,9 +1162,6 @@ async function asrRadioReset(){
   setCloudStatus('unknown');
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   IP 地址
-   ═══════════════════════════════════════════════════════════════════════════ */
 async function queryPublicIPv4(){
   const apis=[
     {url:'https://api.ipify.org?format=json',type:'json',key:'ip'},
@@ -1299,9 +1268,6 @@ async function refreshIPs(){
   updateIPButtonVisibility();
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   芯片状态 UI
-   ═══════════════════════════════════════════════════════════════════════════ */
 function setChipDetectStatus(status,name){
   const el=document.getElementById('chipDetectStatus');
   const map={
@@ -1340,9 +1306,6 @@ function updateCmdHints(){
   if(tp)tp.innerHTML=(adb&&adb.tip)?adb.tip:'';
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   DTR/RTS 自动扫描唤醒
-   ═══════════════════════════════════════════════════════════════════════════ */
 async function tryWakeWithSignals(){
   if(!state.port)return{woke:false};
 
@@ -1377,9 +1340,6 @@ async function tryWakeWithSignals(){
   return{woke:false};
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   芯片识别
-   ═══════════════════════════════════════════════════════════════════════════ */
 async function autoDetectChip(){
   setChipDetectStatus('detecting');
   termWrite('═══ 唤醒设备 ═══','info');
@@ -1450,9 +1410,6 @@ async function autoDetectChip(){
   return null;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   设备信息查询
-   ═══════════════════════════════════════════════════════════════════════════ */
 async function autoQueryDeviceInfo(){
   termWrite('═══ 查询设备信息 ═══','info');
   const chip=getChipById(state.detectedChip||'zxic');
@@ -1556,7 +1513,7 @@ async function autoQueryDeviceInfo(){
   }
 
   if(chip.simSwitch&&chip.simSwitch.query){
-    await queryAndCollect(chip.simSwitch.query,1200);await sleep(200);
+    await queryCurrentCard();
   }
 
   termWrite('设备信息查询完成。','info');
@@ -1633,13 +1590,9 @@ function setInfo(id,value,cls='ok'){
   if(el){el.textContent=value;el.className='info-value '+cls;}
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   响应解析
-   ═══════════════════════════════════════════════════════════════════════════ */
 function parseDeviceInfo(line){
   let m;
 
-  /* ═══ ASR 4G 专属实时数据解析 ═══ */
   if (state.detectedChip === 'asr4g') {
     m = line.match(/\+CESQ:\s*(\d+),(\d+),(\d+),(\d+),(\d+),(\d+)/i);
     if (m) {
@@ -1697,7 +1650,6 @@ function parseDeviceInfo(line){
     }
   }
 
-  /* ASR 版本查询响应 */
   m = line.match(/\+ASRVERSION[:\s]*(.+)/i);
   if(m) {
     const ver = m[1].trim();
@@ -1713,7 +1665,6 @@ function parseDeviceInfo(line){
     }
   }
 
-  /* ICCID 解析（含 CRSM 分支） */
   m=line.match(/[+*](?:QCCID|ICCID|CCID|ICID|ZICCID)[:\s]*"?([0-9A-Za-z]{18,22})"?/i);
   if(m)setInfoValue('ICCID',m[1]);
   else if(/^89\d{17,19}[A-Za-z0-9]*$/.test(line))setInfoValue('ICCID',line);
@@ -1744,7 +1695,6 @@ function parseDeviceInfo(line){
     ||line.match(/([0-9A-Fa-f]{2}[:\-]){5}[0-9A-Fa-f]{2}/);
   if(m)setInfo('infoMAC',m[1]||m[0]);
 
-  /* CSQ 解析（按芯片平台分支） */
   m=line.match(/\+CSQ[:\s]*([\d,\-]+)/);
   if(m){
     const parts=m[1].split(',').map(s=>s.trim());
@@ -1788,21 +1738,31 @@ function parseDeviceInfo(line){
     else if(numStr){const c5=numStr.substring(0,5);const op=OPERATOR_MAP[c5];if(op){el.textContent=op.name;el.className='info-value '+op.cls;}}
   }
 
-  /* 卡槽解析 */
-  m=line.match(/\+SimX[:\s]*(\d+)/i);
+  /* ★ v8.5 卡槽解析：^CARDMODE 优先，其次 +SimX，再次 +ZCARDSWITCH/SWSIM
+     实测 ASR1803 定制固件：^CARDMODE=0 → SIM2 = 内置卡，^CARDMODE=1 → SIM1 = 外置卡 */
+  m=line.match(/\^CARDMODE:\s*(\d+)/);
   if(m){
-    const slot=parseInt(m[1]);
-    const el=document.getElementById('infoCardSlot');
-    el.textContent=slot===0?'外置卡':'内置卡';
-    el.className='info-value '+(slot===0?'ok':'warn');
-    el.title=`原始响应: ${line}`;
+    const mode = parseInt(m[1]);
+    const el = document.getElementById('infoCardSlot');
+    el.textContent = (mode === 0 ? '内置卡' : mode === 1 ? '外置卡' : `模式 ${mode}`);
+    el.className = 'info-value ' + (mode === 0 ? 'warn' : 'ok');
+    el.title = `原始响应: ${line}`;
   } else {
-    m=line.match(/\+ZCARDSWITCH[:\s]*(\d+)/i)||line.match(/[*+]SWSIM[:\s]*(\d+)/i);
+    m=line.match(/\+SimX[:\s]*(\d+)/i);
     if(m){
       const slot=parseInt(m[1]);
       const el=document.getElementById('infoCardSlot');
       el.textContent=slot===0?'外置卡':'内置卡';
       el.className='info-value '+(slot===0?'ok':'warn');
+      el.title=`原始响应: ${line}`;
+    } else {
+      m=line.match(/\+ZCARDSWITCH[:\s]*(\d+)/i)||line.match(/[*+]SWSIM[:\s]*(\d+)/i);
+      if(m){
+        const slot=parseInt(m[1]);
+        const el=document.getElementById('infoCardSlot');
+        el.textContent=slot===0?'外置卡':'内置卡';
+        el.className='info-value '+(slot===0?'ok':'warn');
+      }
     }
   }
 
@@ -1858,13 +1818,7 @@ function parseDeviceInfo(line){
     }
   }
 
-  /* ★ v8.4 修复：*BANDIND 解析
-     常见格式：
-       *BANDIND: 1, 3, 7   → mode=1, band=3, act=7(LTE)
-       *BANDIND: 3, 7      → band=3, act=7
-       *BANDIND: 3         → band=3
-       *BANDIND:           → 未注册（空）
-     判断规则：≥3 参数时 band 在索引 1；否则 band 在索引 0 */
+  /* *BANDIND 解析：3参数取 parts[1]，其他取 parts[0] */
   m = line.match(/[*+]BANDIND[:\s]*(.*)$/i);
   if (m) {
     const raw = m[1].trim();
@@ -1876,13 +1830,9 @@ function parseDeviceInfo(line){
     } else {
       const parts = raw.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
       let bandNum = null;
-      if (parts.length >= 3) {
-        bandNum = parts[1];
-      } else if (parts.length === 2) {
-        bandNum = parts[0];
-      } else if (parts.length === 1) {
-        bandNum = parts[0];
-      }
+      if (parts.length >= 3) bandNum = parts[1];
+      else if (parts.length === 2) bandNum = parts[0];
+      else if (parts.length === 1) bandNum = parts[0];
       if (bandNum === 0) {
         el.textContent = '未注册';
         el.className = 'info-value warn';
@@ -1922,9 +1872,6 @@ function parseDeviceInfo(line){
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   SIM 卡切换
-   ═══════════════════════════════════════════════════════════════════════════ */
 async function switchToExternalCard(){
   if(!state.connected){toast('请先连接','error');return;}
   const chip=getChipById(document.getElementById('chipPlatform').value);
@@ -1954,13 +1901,29 @@ async function switchToInternalCard(){
 async function queryCurrentCard(){
   if(!state.connected){toast('请先连接','error');return;}
   const chip=getChipById(document.getElementById('chipPlatform').value);
-  termWrite(chip.simSwitch.query,'cmd');
-  try{await writeToPort(chip.simSwitch.query);}catch(err){}
+  const sw = chip.simSwitch || {};
+  const candidates = (sw.queryCandidates && sw.queryCandidates.length)
+    ? sw.queryCandidates
+    : (sw.query ? [sw.query] : []);
+  if(!candidates.length){toast('该平台未配置卡槽查询指令','error');return;}
+  const slotEl = document.getElementById('infoCardSlot');
+  slotEl.textContent = '查询中...';
+  slotEl.className = 'info-value warn';
+  for(let i = 0; i < candidates.length; i++){
+    const cmd = candidates[i];
+    termWrite(`[${i+1}/${candidates.length}] ${cmd}`,'cmd');
+    try{ await writeToPort(cmd); }
+    catch(err){ termWrite(`发送失败: ${err.message}`,'err'); break; }
+    await sleep(1200);
+    if(slotEl.textContent !== '查询中...') break;
+  }
+  if(slotEl.textContent === '查询中...'){
+    slotEl.textContent = '该固件不支持查询';
+    slotEl.className = 'info-value warn';
+    termWrite('⚠ 全部候选指令均无卡槽响应','info');
+  }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   写入操作
-   ═══════════════════════════════════════════════════════════════════════════ */
 let writeContext={type:null,value:'',isDelete:false};
 
 function openWriteModal(type){
@@ -2101,9 +2064,6 @@ function closeWriteModalForce(){
   document.getElementById('writeCancelBtn').disabled=false;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   限速检测
-   ═══════════════════════════════════════════════════════════════════════════ */
 async function toggleSpeedtest(){
   if(state.speedtesting){if(state.speedtestAbort)state.speedtestAbort.abort();return;}
   await startSpeedtest();
@@ -2151,9 +2111,6 @@ async function startSpeedtest(){
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   云控
-   ═══════════════════════════════════════════════════════════════════════════ */
 function setCloudStatus(status){
   const el=document.getElementById('cloudStatus');
   const text=document.getElementById('cloudStatusText');
@@ -2234,9 +2191,6 @@ async function sendCloudCmd(){
   setCloudStatus('unknown');
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   ADB 开关
-   ═══════════════════════════════════════════════════════════════════════════ */
 async function openADB(){
   if(!state.connected){toast('请先连接设备','error');return;}
   const chip=getChipById(document.getElementById('chipPlatform').value);
@@ -2268,10 +2222,6 @@ async function closeADB(){
   termWrite('ADB 已关闭。','info');
   toast('ADB 关闭指令已发送','success',4000);
 }
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   全局事件 & 初始化
-   ═══════════════════════════════════════════════════════════════════════════ */
 
 document.getElementById('writeModal').addEventListener('click',e=>{
   if(e.target.id==='writeModal'&&!state.writeInProgress)closeWriteModal();
@@ -2317,7 +2267,7 @@ window.addEventListener('beforeunload',()=>{
   updateConnectionUI(false,'未连接');
   enableQuickButtons(false);
 
-  termWrite(`随身WiFi调试助手 v8.4 已就绪 · 芯片库 ${CHIP_DATABASE.length} 条 · 来源 ${
+  termWrite(`随身WiFi调试助手 v8.5 已就绪 · 芯片库 ${CHIP_DATABASE.length} 条 · 来源 ${
     {json:'外部文件',localStorage:'本地缓存',fallback:'内置'}[window.__chipDbSource]||'未知'
   }`,'info');
   termWrite('请点击「🔌 选择串口并连接」开始调试。','info');
