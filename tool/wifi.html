@@ -164,7 +164,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v7.0</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v8.0</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -188,21 +188,23 @@
             <option value="9600">9600</option>
             <option value="57600">57600</option>
             <option value="38400">38400</option>
+            <option value="19200">19200</option>
+            <option value="4800">4800</option>
           </select>
         </div>
         <div class="form-group">
           <label>流控 Flow Control</label>
           <select class="form-control" id="flowControl">
-            <option value="none" selected>无流控</option>
-            <option value="hardware">硬件流控</option>
+            <option value="none" selected>无流控 (none)</option>
+            <option value="hardware">硬件流控 (RTS/CTS)</option>
           </select>
         </div>
         <div class="form-group">
           <label>指令结尾 Line Ending</label>
           <select class="form-control" id="lineEnding">
-            <option value="crlf" selected>CR+LF</option>
-            <option value="cr">CR</option>
-            <option value="lf">LF</option>
+            <option value="crlf" selected>CR+LF (\r\n)</option>
+            <option value="cr">CR (\r)</option>
+            <option value="lf">LF (\n)</option>
           </select>
         </div>
         <button class="btn btn-primary" id="btnConnectUSB" onclick="connectUSB()">🔌 选择串口并连接</button>
@@ -210,11 +212,13 @@
           <button class="btn btn-danger" id="btnDisconnectUSB" onclick="disconnect()" disabled>断开连接</button>
         </div>
         <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          <b style="color:var(--warn);">v7.0：</b>恢复全部功能：写入 IMEI/SN、测速、云控、频段锁定、ADB。
+          <b style="color:var(--warn);">v8.0 完整版：</b>恢复芯片库外挂、DTR/RTS 扫描、AT 唤醒、5G 查询、全部功能。
         </div>
       </div>
       <div id="panelWiFi" class="hidden">
         <div class="form-group"><label>设备网关地址</label><input class="form-control" id="wifiGateway" value="192.168.0.1"></div>
+        <div class="form-group"><label>管理端口</label><input class="form-control" id="wifiPort" value="80"></div>
+        <div class="form-group"><label>协议</label><select class="form-control" id="wifiProtocol"><option value="http" selected>HTTP</option><option value="https">HTTPS</option></select></div>
         <button class="btn btn-primary" onclick="connectWiFi()">📶 检测设备</button>
       </div>
     </div>
@@ -230,7 +234,7 @@
     </div>
     <div class="terminal-wrap">
       <div class="terminal" id="terminal">
-        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v7.0 已就绪。完整功能版。</span></div>
+        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v8.0 完整版已就绪。</span></div>
       </div>
       <div class="terminal-input-row">
         <span class="prompt">AT&gt;</span>
@@ -251,6 +255,17 @@
           <div class="value unknown" id="netTypeValue">未连接</div>
           <div class="sub" id="netTypeSub">请连接设备</div>
         </div>
+      </div>
+
+      <!-- 芯片库管理 -->
+      <div class="quick-section">
+        <h4>芯片库管理 <span class="badge-tag blue" style="font-size:9px;">外挂</span></h4>
+        <div class="quick-grid">
+          <button class="quick-btn" onclick="importChipDatabase()">📥 导入 JSON<span class="cmd-hint">覆盖当前</span></button>
+          <button class="quick-btn" onclick="exportChipDatabase()">📤 导出 JSON<span class="cmd-hint">备份当前</span></button>
+          <button class="quick-btn" onclick="resetChipDatabase()" style="grid-column:1/-1;">♻️ 重置为内置<span class="cmd-hint">恢复默认</span></button>
+        </div>
+        <div style="margin-top:6px;font-size:11px;color:var(--text-dim);line-height:1.5;" id="chipDbInfo">正在加载...</div>
       </div>
 
       <div class="quick-section">
@@ -314,6 +329,7 @@
           <button class="quick-btn" onclick="switchToInternalCard()" disabled id="btnSwitchInternal">📱 切回内置卡<span class="cmd-hint" id="internalCmdHint">—</span></button>
           <button class="quick-btn" onclick="queryCurrentCard()" disabled id="btnQueryCard">🔍 查询当前卡<span class="cmd-hint" id="queryCmdHint">—</span></button>
         </div>
+        <div style="margin-top:8px;font-size:11px;color:var(--text-dim);line-height:1.6;" id="switchTip"></div>
       </div>
 
       <div class="quick-section">
@@ -365,12 +381,27 @@
         <div class="quick-grid">
           <button class="quick-btn" onclick="quickCmd('AT+ZICCID?')" disabled>ICCID<span class="cmd-hint">AT+ZICCID?</span></button>
           <button class="quick-btn" onclick="quickCmd('AT+ZULI=1')" disabled>IMEI<span class="cmd-hint">AT+ZULI=1</span></button>
-          <button class="quick-btn" onclick="quickCmd('AT*MRD_SN?')" disabled>SN<span class="cmd-hint">AT*MRD_SN?</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT+CGSN')" disabled>SN<span class="cmd-hint">AT+CGSN</span></button>
           <button class="quick-btn" onclick="quickCmd('AT+CSQ')" disabled>信号<span class="cmd-hint">AT+CSQ</span></button>
           <button class="quick-btn" onclick="quickCmd('AT+ZBAND?')" disabled>频段<span class="cmd-hint">AT+ZBAND?</span></button>
-          <button class="quick-btn" onclick="quickCmd('AT+ZMAC?')" disabled>MAC<span class="cmd-hint">AT+ZMAC?</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT+MAC?')" disabled>MAC<span class="cmd-hint">AT+MAC?</span></button>
           <button class="quick-btn" onclick="quickCmd('AT+ZLTEAMTBAND?')" disabled>频段掩码<span class="cmd-hint">ZLTEAMTBAND</span></button>
           <button class="quick-btn" onclick="quickCmd('AT+CGMR')" disabled>版本<span class="cmd-hint">AT+CGMR</span></button>
+        </div>
+      </div>
+
+      <!-- 5G 网络查询专用组 -->
+      <div class="quick-section">
+        <h4>5G 网络查询 <span class="badge-tag cyan" style="font-size:9px;">NR</span></h4>
+        <div class="quick-grid">
+          <button class="quick-btn" onclick="quickCmd('AT+C5GREG?')" disabled>5G 注册<span class="cmd-hint">C5GREG?</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT+QENG=&quot;servingcell&quot;')" disabled>服务小区<span class="cmd-hint">QENG</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT+QNWINFO')" disabled>网络信息<span class="cmd-hint">QNWINFO</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT+QCAINFO')" disabled>载波聚合<span class="cmd-hint">QCAINFO</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT+QRSRP')" disabled>RSRP 信号<span class="cmd-hint">QRSRP</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT+QSINR')" disabled>SINR 信号<span class="cmd-hint">QSINR</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT+C5GQOSRDP')" disabled>5QI 等级<span class="cmd-hint">C5GQOSRDP</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT+CPSI?')" disabled>系统信息<span class="cmd-hint">CPSI?</span></button>
         </div>
       </div>
 
@@ -395,7 +426,7 @@
   <div class="modal">
     <h3 id="writeModalTitle">改写 IMEI</h3>
     <div class="modal-sub" id="writeModalSub"></div>
-    <div class="warn-box"><b>⚠ 操作风险：</b><br>• 改写 IMEI 在部分国家/地区属违法行为<br>• 操作不当可能导致设备无法入网<br>• 写入前请确保设备已进入工厂模式</div>
+    <div class="warn-box" id="writeWarnBox"><b>⚠ 操作风险：</b><br>• 改写 IMEI 在部分国家/地区属违法行为<br>• 操作不当可能导致设备无法入网<br>• 写入前请确保设备已进入工厂模式</div>
     <div class="step-indicator" id="stepIndicator" style="display:none;">
       <div class="step" id="step1"></div><div class="step" id="step2"></div><div class="step" id="step3"></div>
     </div>
@@ -405,7 +436,7 @@
         <input class="form-control" id="writeInput" autocomplete="off">
         <div class="validation-hint" id="validationHint"></div>
       </div>
-      <div class="info-box">即将发送：<code id="cmdPreview">—</code></div>
+      <div class="info-box" id="cmdPreviewBox">即将发送：<code id="cmdPreview">—</code></div>
     </div>
     <div id="writeProgressArea" style="display:none;">
       <div class="info-box" style="min-height:60px;"><div id="progressLog" style="font-family:var(--font-mono);font-size:11.5px;line-height:1.8;"></div></div>
@@ -421,23 +452,23 @@
 <div class="modal-overlay" id="cloudModal">
   <div class="modal" style="width:440px;">
     <h3>去云控 / 解除限速</h3>
-    <div class="modal-sub">云控是厂商通过远程服务对设备进行限速或断网的手段。</div>
+    <div class="modal-sub">云控是厂商通过远程服务对设备进行限速或断网的手段。去云控通常有两种途径：</div>
     <div style="display:flex;flex-direction:column;gap:10px;">
       <button class="btn btn-warn" onclick="genRemoveCloudCmd()">📋 生成去云控指令</button>
-      <button class="btn btn-outline" onclick="showAdbGuide()">📖 查看 ADB 去云控步骤</button>
+      <button class="btn btn-outline" onclick="showAdbGuide()">📖 查看 ADB 去云控详细步骤</button>
     </div>
     <div id="cloudCmdResult" style="margin-top:14px;display:none;">
-      <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;">已生成指令：</div>
+      <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;">已生成指令，点击发送：</div>
       <div style="background:var(--bg-input);border-radius:7px;padding:10px;font-family:var(--font-mono);font-size:12px;word-break:break-all;" id="cloudCmdText"></div>
       <button class="btn btn-primary" style="margin-top:10px;" onclick="sendCloudCmd()">发送指令</button>
     </div>
     <div id="cloudAdbGuide" style="margin-top:14px;display:none;font-size:12px;color:var(--text-dim);line-height:1.8;">
-      <b style="color:var(--text);">ADB 去云控步骤：</b><br>
-      1. 点「🔓 开启 ADB」<br>
-      2. ADB 执行：<br>
+      <b style="color:var(--text);">ADB 去云控步骤（需先开启 ADB）：</b><br>
+      1. 点「🔓 开启 ADB」开启调试模式<br>
+      2. 电脑连接设备 ADB，执行：<br>
       <code style="display:block;background:var(--bg-input);padding:8px;border-radius:6px;margin:6px 0;">adb shell mount -o remount -o rw /</code>
       <code style="display:block;background:var(--bg-input);padding:8px;border-radius:6px;margin:6px 0;">adb shell rm -f /sbin/yiming_1028.sh</code>
-      3. 重启设备
+      3. 重启设备即可。
     </div>
     <div class="btn-row">
       <button class="btn btn-outline" onclick="closeCloudModal()">关闭</button>
@@ -448,89 +479,228 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
-/* Line Ending 映射 */
+/* ═══════════════════════════════════════════════════════════════════════════
+   Line Ending 映射
+   ═══════════════════════════════════════════════════════════════════════════ */
 const LINE_ENDING_MAP = { crlf:'\r\n', cr:'\r', lf:'\n' };
 function getLineEnding() {
   const key = document.getElementById('lineEnding').value;
   return LINE_ENDING_MAP[key] || '\r\n';
 }
 
-/* 芯片数据库 */
-const CHIP_DATABASE = [
-  {
-    id:'zxic', name:'中兴微', fullName:'中兴微电子 ZX297520 / ZX297520V3', generation:'4G',
-    detectKeywords:[/ZXIC/i,/ZX2975/i,/中兴微/i,/ZCARDSWITCH/i,/ZLTEBAND/i,/ZBAND/i,/ZICCID/i,/ZULI/i,/MF761/i],
-    probe:{cmd:'AT+ZICCID?',kw:/ZICCID/i},
-    simSwitch:{external:'AT+ZCARDSWITCH=0',internal:'AT+ZCARDSWITCH=1',query:'AT+ZCARDSWITCH?',repeat:5,
-      tip:'<b>中兴微：</b><code>AT+ZCARDSWITCH=0</code> 切外置卡，<code>AT+ZCARDSWITCH=1</code> 切内置卡。需连发 3~10 次。'},
-    adb:{enable:['AT+ZADB=1','AT+ZADBKEY=1','AT+ZMODE=1'],disable:['AT+ZADB=0','AT+ZADBKEY=0','AT+ZMODE=0'],
-      tip:'优先 <code>AT+ZADB=1</code>。'},
-    iccid:['AT+ZICCID?','AT+ZICCID','AT+ICCID','AT+CCID'],
-    imei:['AT+ZULI=1','AT+READIMEI?','AT+CGSN'],
-    sn:['AT*MRD_SN?','AT+ZSN?','AT+GSN','AT+SN?','AT+ZULI=0'],
-    ver:['AT+CGMR','AT+VER','AT+ZVER?'],
-    band:['AT+ZBAND?','AT+ZLTEBAND?','AT+ZLTEAMTBAND?','AT*BANDIND?'],
-    qci:['AT+CGEQOSRDP','AT+ZQOS?','AT+QOS?','AT+C5GQOSRDP'],
-    network5g:[]
-  },
-  {
-    id:'asr5g', name:'ASR 5G', fullName:'翱捷科技 ASR1901 / ASR1903 / ASR8603', generation:'5G',
-    detectKeywords:[/ASR1901/i,/ASR1903/i,/ASR8603/i],
-    probe:{cmd:'AT+C5GREG?',kw:/C5GREG/i},
-    simSwitch:{external:'AT+SWSIM=0',internal:'AT+SWSIM=1',query:'AT+SWSIM?',repeat:1,tip:'<b>ASR 5G：</b><code>AT+SWSIM=0</code> 切外置卡。'},
-    adb:{enable:['AT+ZMODE=1'],disable:['AT+ZMODE=0'],tip:''},
-    iccid:['AT+CCID','AT+ICCID','AT+UTICCID?'],
-    imei:['AT+CGSN','AT*MRD_IMEI?'],
-    sn:['AT*MRD_SN?','AT+SN?','AT+SN'],
-    ver:['AT+CGMR','AT+VER'],
-    band:['AT*BANDIND?','AT+BANDIND?'],
-    qci:['AT+CGEQOSRDP','AT+C5GQOSRDP'],
-    network5g:['AT+C5GREG?','AT+QENG="servingcell"','AT+QNWINFO']
-  },
-  {
-    id:'asr4g', name:'ASR 4G', fullName:'翱捷科技 ASR1802 / ASR1803 / ASR1806', generation:'4G',
-    detectKeywords:[/ASR1806/i,/ASR1803/i,/ASR1802/i,/ASR180/i,/Air720/i,/Air724/i],
-    probe:{cmd:'AT+SWSIM?',kw:/SWSIM/i},
-    simSwitch:{external:'AT+SWSIM=0',internal:'AT+SWSIM=1',query:'AT+SWSIM?',repeat:1,tip:''},
-    adb:{enable:['AT+ZMODE=1'],disable:['AT+ZMODE=0'],tip:''},
-    iccid:['AT+CCID','AT+ICCID','AT+UTICCID?'],
-    imei:['AT+CGSN','AT*MRD_IMEI?'],
-    sn:['AT*MRD_SN?','AT+SN?','AT+SN'],
-    ver:['AT+CGMR','AT+VER'],
-    band:['AT*BANDIND?','AT+BANDIND?'],
-    qci:['AT+CGEQOSRDP'],
-    network5g:[]
-  },
-  {
-    id:'unisoc', name:'紫光展锐', fullName:'紫光展锐 Unisoc UDX710 / V510', generation:'5G',
-    detectKeywords:[/UDX710/i,/V510/i,/UIS8910/i,/Unisoc/i,/Spreadtrum/i,/SPRD/i,/展锐/i],
-    probe:{cmd:'AT+CGSN',kw:/^\d{15}$/m},
-    simSwitch:{external:'AT+SIMSWITCH=0,0',internal:'AT+SIMSWITCH=1,0',query:'AT+SIMSWITCH?',repeat:1,tip:''},
-    adb:{enable:['AT+SPUSBDEBUG=1','AT+USBDEBUG=1'],disable:['AT+SPUSBDEBUG=0','AT+USBDEBUG=0'],tip:''},
-    iccid:['AT+ICCID','AT+CCID','AT+QCCID'],
-    imei:['AT+CGSN','AT*MRD_IMEI?'],
-    sn:['AT+SN?','AT+CGSN'],
-    ver:['AT+CGMR','AT+GMR','AT+VER'],
-    band:['AT*BANDIND?','AT+BANDIND?'],
-    qci:['AT+CGEQOSRDP','AT+C5GQOSRDP'],
-    network5g:['AT+C5GREG?','AT+QENG="servingcell"','AT+QNWINFO']
-  },
-  {
-    id:'qualcomm', name:'高通', fullName:'高通 Qualcomm SDX55 / SDX62 / SDX65', generation:'5G',
-    detectKeywords:[/SDX55/i,/SDX62/i,/SDX65/i,/RM500/i,/RM520/i,/Qualcomm/i,/MDM9/i],
-    probe:{cmd:'AT+QDSIM?',kw:/QDSIM/i},
-    simSwitch:{external:'AT+QDSIM=1',internal:'AT+QDSIM=0',query:'AT+QDSIM?',repeat:1,tip:''},
-    adb:{enable:['AT+QADBKEY=1'],disable:['AT+QADBKEY=0'],tip:''},
-    iccid:['AT+QCCID','AT+CCID','AT+ICCID'],
-    imei:['AT+CGSN'],
-    sn:['AT+CGSN','AT*MRD_SN?'],
-    ver:['AT+CGMR','AT+VER'],
-    band:['AT+QENG="servingcell"','AT+QNWINFO'],
-    qci:['AT+CGEQOSRDP','AT+C5GQOSRDP'],
-    network5g:['AT+QNWINFO','AT+C5GREG?']
-  }
-];
+/* ═══════════════════════════════════════════════════════════════════════════
+   内置 fallback 芯片数据库
+   ═══════════════════════════════════════════════════════════════════════════ */
+const FALLBACK_CHIP_DATABASE_RAW = {
+  version:"2.2", updated:"2026-09-26",
+  chips:[
+    {
+      id:'zxic', name:'中兴微', fullName:'中兴微电子 ZX297520 / ZX297520V3', generation:'4G',
+      detectKeywords:['ZXIC','ZX2975','中兴微','ZCARDSWITCH','ZLTEBAND','ZBAND','ZICCID','ZULI','MF761'],
+      probe:{cmd:'AT+ZICCID?',kw:'ZICCID'},
+      simSwitch:{external:'AT+ZCARDSWITCH=0',internal:'AT+ZCARDSWITCH=1',query:'AT+ZCARDSWITCH?',repeat:5,
+        tip:'<b>中兴微平台：</b><code>AT+ZCARDSWITCH=0</code> 切外置卡，<code>AT+ZCARDSWITCH=1</code> 切内置卡。<br>需连发 3~10 次才生效。'},
+      adb:{enable:['AT+ZADB=1','AT+ZADBKEY=1','AT+ZMODE=1'],disable:['AT+ZADB=0','AT+ZADBKEY=0','AT+ZMODE=0'],
+        tip:'优先 <code>AT+ZADB=1</code>。'},
+      iccid:['AT+ZICCID?','AT+ZICCID','AT+ICCID','AT+CCID'],
+      imei:['AT+ZULI=1','AT+READIMEI?','AT+CGSN'],
+      sn:['AT*MRD_SN?','AT+ZSN?','AT+GSN','AT+SN?','AT+CGSN','AT+ZULI=0'],
+      ver:['AT+CGMR','AT+VER','AT+ZVER?'],
+      band:['AT+ZBAND?','AT+ZLTEBAND?','AT+ZLTEAMTBAND?','AT*BANDIND?'],
+      qci:['AT+CGEQOSRDP','AT+ZQOS?','AT+QOS?','AT+C5GQOSRDP'],
+      network5g:[]
+    },
+    {
+      id:'asr5g', name:'ASR 5G', fullName:'翱捷科技 ASR1901 / ASR1903 / ASR8603', generation:'5G',
+      detectKeywords:['ASR1901','ASR1903','ASR8603'],
+      probe:{cmd:'AT+C5GREG?',kw:'C5GREG'},
+      simSwitch:{external:'AT+SWSIM=0',internal:'AT+SWSIM=1',query:'AT+SWSIM?',repeat:1,tip:'<b>ASR 5G：</b><code>AT+SWSIM=0</code> 切外置卡。'},
+      adb:{enable:['AT+ZMODE=1'],disable:['AT+ZMODE=0'],tip:''},
+      iccid:['AT+CCID','AT+ICCID','AT+UTICCID?','AT+ICID?','AT*MRD_ICCID?'],
+      imei:['AT+CGSN','AT*MRD_IMEI?'],
+      sn:['AT*MRD_SN?','AT+SN?','AT+SN'],
+      ver:['AT+CGMR','AT+VER'],
+      band:['AT*BANDIND?','AT+BANDIND?'],
+      qci:['AT+CGEQOSRDP','AT+C5GQOSRDP'],
+      network5g:['AT+C5GREG?','AT+QENG="servingcell"','AT+QNWINFO','AT+CPSI?']
+    },
+    {
+      id:'asr4g', name:'ASR 4G', fullName:'翱捷科技 ASR1802 / ASR1803 / ASR1806 / ASR8861 / ASR7801', generation:'4G',
+      detectKeywords:['ASR1806','ASR1803','ASR1802','ASR180','ASR8861','ASR7801','Air720','Air724'],
+      probe:{cmd:'AT+SWSIM?',kw:'SWSIM'},
+      simSwitch:{external:'AT+SWSIM=0',internal:'AT+SWSIM=1',query:'AT+SWSIM?',repeat:1,tip:''},
+      adb:{enable:['AT+ZMODE=1'],disable:['AT+ZMODE=0'],tip:''},
+      iccid:['AT+CCID','AT+ICCID','AT+UTICCID?','AT+ICID?','AT*MRD_ICCID?'],
+      imei:['AT+CGSN','AT*MRD_IMEI?'],
+      sn:['AT*MRD_SN?','AT+SN?','AT+SN'],
+      ver:['AT+CGMR','AT+VER'],
+      band:['AT*BANDIND?','AT+BANDIND?'],
+      qci:['AT+CGEQOSRDP'],
+      network5g:[]
+    },
+    {
+      id:'unisoc', name:'紫光展锐', fullName:'紫光展锐 Unisoc UDX710 / V510 / UIS8910', generation:'5G',
+      detectKeywords:['UDX710','V510','UIS8910DM','UIS8910','8910','8978','Unisoc','Spreadtrum','SPRD','展锐'],
+      probe:{cmd:'AT+CGSN',kw:'^\\d{15}$'},
+      simSwitch:{external:'AT+SIMSWITCH=0,0',internal:'AT+SIMSWITCH=1,0',query:'AT+SIMSWITCH?',repeat:1,
+        tip:'<b>紫光展锐：</b><code>AT+SIMSWITCH=0,0</code> 切外置卡。'},
+      adb:{enable:['AT+SPUSBDEBUG=1','AT+USBDEBUG=1','AT+DEBUG=1','AT+USBMODE=3'],
+        disable:['AT+SPUSBDEBUG=0','AT+USBDEBUG=0','AT+DEBUG=0','AT+USBMODE=0'],tip:''},
+      iccid:['AT+ICCID','AT+ICID?','AT+CCID','AT+QCCID','AT*MRD_ICCID?'],
+      imei:['AT+CGSN','AT*MRD_IMEI?'],
+      sn:['AT+SN?','AT+CGSN','AT*MRD_SN?'],
+      ver:['AT+CGMR','AT+GMR','AT+VER'],
+      band:['AT*BANDIND?','AT+BANDIND?','AT*BAND?','AT+SPLBAND?'],
+      qci:['AT+CGEQOSRDP','AT+C5GQOSRDP'],
+      network5g:['AT+C5GREG?','AT+QENG="servingcell"','AT+QNWINFO','AT+CPSI?']
+    },
+    {
+      id:'qualcomm', name:'高通', fullName:'高通 Qualcomm SDX55 / SDX62 / SDX65 / SDX75', generation:'5G',
+      detectKeywords:['SDX55','SDX62','SDX65','SDX75','RM500','RM520','RM502','RM551','FM150','SRM825','Qualcomm','MDM9'],
+      probe:{cmd:'AT+QDSIM?',kw:'QDSIM'},
+      simSwitch:{external:'AT+QDSIM=1',internal:'AT+QDSIM=0',query:'AT+QDSIM?',repeat:1,
+        tip:'<b>高通平台：</b>SIM1 内置，SIM2 外置。<code>AT+QDSIM=1</code> 切外置卡。'},
+      adb:{enable:['AT+QADBKEY=1','AT+ZADB=1'],disable:['AT+QADBKEY=0','AT+ZADB=0'],tip:'优先 <code>AT+QADBKEY=1</code>。'},
+      iccid:['AT+QCCID','AT+CCID','AT+ICCID'],
+      imei:['AT+CGSN'],
+      sn:['AT+CGSN','AT*MRD_SN?'],
+      ver:['AT+CGMR','AT+VER'],
+      band:['AT+QENG="servingcell"','AT+QNWINFO','AT*BANDIND?'],
+      qci:['AT+CGEQOSRDP','AT+C5GQOSRDP','AT+QNWCFG="qci"'],
+      network5g:['AT+QNWINFO','AT+C5GREG?','AT+QENG="servingcell"','AT+CPSI?']
+    },
+    {
+      id:'mtk', name:'联发科', fullName:'联发科 MediaTek MT2735 / T750 / T800', generation:'5G',
+      detectKeywords:['MediaTek','MT2735','MT2739','T750','T800','MTK'],
+      probe:{cmd:'AT+CGSN',kw:'^\\d{15}$'},
+      simSwitch:{external:'AT^SWITCH_SLOT=1',internal:'AT^SWITCH_SLOT=0',query:'AT^SWITCH_SLOT?',repeat:1,tip:''},
+      adb:{enable:['AT+EADB=1','AT+USBSWITCH=1'],disable:['AT+EADB=0','AT+USBSWITCH=0'],tip:''},
+      iccid:['AT+CCID','AT+ICCID','AT+CIMI'],
+      imei:['AT+CGSN'],
+      sn:['AT+CGSN'],
+      ver:['AT+CGMR'],
+      band:['AT+QENG="servingcell"','AT+CSYSSEL?'],
+      qci:['AT+CGEQOSRDP'],
+      network5g:['AT+C5GREG?','AT+QENG="servingcell"','AT+CPSI?']
+    }
+  ]
+};
 
+let CHIP_DATABASE = [];
+
+function compileChipDatabase(raw){
+  return raw.chips.map(chip=>({
+    id:chip.id, name:chip.name, fullName:chip.fullName, generation:chip.generation,
+    detectKeywords:(chip.detectKeywords||[]).map(kw=>{try{return new RegExp(kw,'i');}catch(e){return /__never__/;}}),
+    probe:chip.probe?{cmd:chip.probe.cmd,kw:(()=>{try{return new RegExp(chip.probe.kw,'i');}catch(e){return /__never__/;}})()}:null,
+    simSwitch:chip.simSwitch||{external:'—',internal:'—',query:'—',repeat:1,tip:''},
+    adb:chip.adb||null,
+    iccid:chip.iccid||[], imei:chip.imei||[], sn:chip.sn||[],
+    ver:chip.ver||[], band:chip.band||[], qci:chip.qci||[],
+    network5g:chip.network5g||[]
+  }));
+}
+
+async function loadChipDatabase(){
+  // ① localStorage
+  try{
+    const cached=localStorage.getItem('atmaster_chip_db');
+    if(cached){
+      const raw=JSON.parse(cached);
+      if(raw&&raw.chips&&raw.chips.length){
+        CHIP_DATABASE=compileChipDatabase(raw);
+        window.__chipDbSource='localStorage';
+        window.__chipDbVersion=raw.version||'未知';
+        console.log(`[芯片库] 从 localStorage 加载 ${CHIP_DATABASE.length} 条`);
+        return;
+      }
+    }
+  }catch(e){}
+  // ② 外部 JSON
+  try{
+    const resp=await fetch('./chip-database.json',{cache:'no-store'});
+    if(resp.ok){
+      const raw=await resp.json();
+      if(raw&&raw.chips&&raw.chips.length){
+        CHIP_DATABASE=compileChipDatabase(raw);
+        window.__chipDbSource='json';
+        window.__chipDbVersion=raw.version||'未知';
+        console.log(`[芯片库] 从 chip-database.json 加载 ${CHIP_DATABASE.length} 条`);
+        return;
+      }
+    }
+  }catch(e){console.log('[芯片库] 外部 JSON 加载失败，使用内置');}
+  // ③ fallback
+  CHIP_DATABASE=compileChipDatabase(FALLBACK_CHIP_DATABASE_RAW);
+  window.__chipDbSource='fallback';
+  window.__chipDbVersion=FALLBACK_CHIP_DATABASE_RAW.version;
+  console.log(`[芯片库] 使用内置 fallback ${CHIP_DATABASE.length} 条`);
+}
+
+function importChipDatabase(){
+  const input=document.createElement('input');
+  input.type='file'; input.accept='.json,application/json';
+  input.onchange=async(e)=>{
+    const file=e.target.files[0];
+    if(!file)return;
+    try{
+      const text=await file.text();
+      const raw=JSON.parse(text);
+      if(!raw.chips||!Array.isArray(raw.chips))throw new Error('缺少 chips 数组');
+      localStorage.setItem('atmaster_chip_db',text);
+      CHIP_DATABASE=compileChipDatabase(raw);
+      window.__chipDbSource='localStorage';
+      window.__chipDbVersion=raw.version||'未知';
+      initChipDropdown(); updateCmdHints(); updateChipDbInfo();
+      toast(`芯片库导入成功，共 ${CHIP_DATABASE.length} 条`,'success',4000);
+      termWrite(`✓ 芯片库已更新：${CHIP_DATABASE.length} 条（版本 ${raw.version||'未知'}）`,'resp');
+    }catch(err){toast(`导入失败: ${err.message}`,'error',5000);}
+  };
+  input.click();
+}
+
+function exportChipDatabase(){
+  const raw={
+    version:window.__chipDbVersion||'1.0',
+    updated:new Date().toISOString().slice(0,10),
+    description:'随身WiFi调试助手芯片数据库',
+    chips:CHIP_DATABASE.map(chip=>({
+      id:chip.id, name:chip.name, fullName:chip.fullName, generation:chip.generation,
+      detectKeywords:chip.detectKeywords.map(r=>r.source),
+      probe:chip.probe?{cmd:chip.probe.cmd,kw:chip.probe.kw.source}:null,
+      simSwitch:chip.simSwitch, adb:chip.adb,
+      iccid:chip.iccid, imei:chip.imei, sn:chip.sn,
+      ver:chip.ver, band:chip.band, qci:chip.qci, network5g:chip.network5g
+    }))
+  };
+  const blob=new Blob([JSON.stringify(raw,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url;
+  a.download=`chip-database-${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  toast('芯片库已导出','success');
+}
+
+function resetChipDatabase(){
+  localStorage.removeItem('atmaster_chip_db');
+  CHIP_DATABASE=compileChipDatabase(FALLBACK_CHIP_DATABASE_RAW);
+  window.__chipDbSource='fallback';
+  window.__chipDbVersion=FALLBACK_CHIP_DATABASE_RAW.version;
+  initChipDropdown(); updateCmdHints(); updateChipDbInfo();
+  toast('已重置为内置数据库','success');
+  termWrite(`✓ 芯片库已重置为内置版本（${CHIP_DATABASE.length} 条）`,'resp');
+}
+
+function updateChipDbInfo(){
+  const el=document.getElementById('chipDbInfo');
+  if(!el)return;
+  const map={json:'外部文件',localStorage:'本地缓存',fallback:'内置'};
+  el.innerHTML=`当前：<b>${CHIP_DATABASE.length}</b> 条 · 来源：<b>${map[window.__chipDbSource]||'未知'}</b> · 版本：<b>${window.__chipDbVersion||'未知'}</b>`;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   常量
+   ═══════════════════════════════════════════════════════════════════════════ */
 const BAND_MAP_4G = {
   B1:{label:'B1',param:',0,1,0,2,2,0'},B3:{label:'B3',param:',0,4,0,2,2,0'},
   B5:{label:'B5',param:',0,16,0,2,2,0'},B8:{label:'B8',param:',0,128,0,2,2,0'},
@@ -545,17 +715,6 @@ const BAND_MAP_5G = {
   n79:{label:'n79',band:79,freq:'4.9GHz',desc:'移动'}
 };
 
-const state = {
-  connected:false,port:null,reader:null,readLoopActive:false,
-  logBuffer:[],responseBuffer:'',detectedChip:null,
-  sensitiveHidden:{IMEI:true,SN:true,ICCID:true},
-  rawValues:{IMEI:'',SN:'',ICCID:''},
-  ipHidden:true,
-  ipRaw:{pubV4:'',pubV6:'',locV4:'',locV6:''},
-  networkType:'unknown',maxLogLines:500,
-  speedtesting:false,speedtestAbort:null,writeInProgress:false
-};
-
 const OPERATOR_MAP = {
   '46000':{name:'中国移动',cls:'operator-cm'},'46002':{name:'中国移动',cls:'operator-cm'},
   '46004':{name:'中国移动',cls:'operator-cm'},'46007':{name:'中国移动',cls:'operator-cm'},
@@ -567,9 +726,21 @@ const OPERATOR_MAP = {
   '46015':{name:'中国广电',cls:'operator-cbn'}
 };
 
-/* LTE 频段位掩码映射（bit 位置 → B 编号） */
-const LTE_BIT_MAP = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48];
+const state = {
+  connected:false,port:null,reader:null,readLoopActive:false,
+  logBuffer:[],responseBuffer:'',detectedChip:null,
+  sensitiveHidden:{IMEI:true,SN:true,ICCID:true},
+  rawValues:{IMEI:'',SN:'',ICCID:''},
+  ipHidden:true,
+  ipRaw:{pubV4:'',pubV6:'',locV4:'',locV6:''},
+  networkType:'unknown',maxLogLines:500,
+  speedtesting:false,speedtestAbort:null,writeInProgress:false,
+  currentDTR:null,currentRTS:null
+};
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   工具函数
+   ═══════════════════════════════════════════════════════════════════════════ */
 function guessCarrierFromICCID(iccid){
   if(!iccid||iccid.length<6)return null;
   const p=iccid.substring(0,6);
@@ -604,6 +775,7 @@ function calcLuhnCheckDigit(f14){
   for(let i=0;i<14;i++){let d=parseInt(f14[i]);if(i%2===1){d*=2;if(d>9)d-=9;}sum+=d;}
   return(10-(sum%10))%10;
 }
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 
 function toast(msg,type='info',dur=3000){
   const c=document.getElementById('toastContainer');
@@ -652,8 +824,10 @@ function initChipDropdown(){
     sel.appendChild(opt);
   });
 }
-function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   USB 连接
+   ═══════════════════════════════════════════════════════════════════════════ */
 async function connectUSB(){
   if(!('serial' in navigator)){toast('浏览器不支持 Web Serial','error',5000);return;}
   try{
@@ -666,8 +840,9 @@ async function connectUSB(){
     termWrite(`正在请求串口... (${baud}, 流控 ${flowControl}, 结尾 ${endingDesc})`,'info');
     const port=await navigator.serial.requestPort();
     await port.open({baudRate:baud,dataBits:8,stopBits:1,parity:'none',flowControl,bufferSize:255});
-    termWrite('串口已打开','info');
+    termWrite('串口已打开（DTR/RTS 保持默认）','info');
     state.port=port;state.connected=true;
+    state.currentDTR=null;state.currentRTS=null;
     updateConnectionUI(true,`已连接 @ ${baud}`);
     toast(`串口连接成功 @ ${baud}`,'success');
     enableQuickButtons(true);
@@ -724,6 +899,7 @@ async function writeToPort(data){
 
 async function disconnect(){
   state.readLoopActive=false;state.connected=false;
+  if(state.speedtestAbort){state.speedtestAbort.abort();state.speedtestAbort=null;}
   try{
     if(state.reader){await state.reader.cancel().catch(()=>{});state.reader=null;}
     if(state.port){await state.port.close();state.port=null;}
@@ -735,14 +911,25 @@ async function disconnect(){
 }
 
 async function connectWiFi(){
+  const protocol=document.getElementById('wifiProtocol').value;
   const gateway=document.getElementById('wifiGateway').value.trim();
+  const port=document.getElementById('wifiPort').value.trim();
+  const url=`${protocol}://${gateway}${port&&port!=='80'&&port!=='443'?':'+port:''}`;
+  termWrite(`正在检测设备可达性: ${url}`,'info');
   try{
     const c=new AbortController();const t=setTimeout(()=>c.abort(),5000);
-    await fetch(`http://${gateway}`,{mode:'no-cors',signal:c.signal,cache:'no-store'});
-    clearTimeout(t);termWrite(`网关 ${gateway} 可达 ✓`,'resp');toast('网关可达','info',5000);
-  }catch(err){termWrite(`检测失败: ${err.message}`,'err');}
+    await fetch(url,{mode:'no-cors',signal:c.signal,cache:'no-store'});
+    clearTimeout(t);termWrite(`设备网关 ${gateway} 可达 ✓`,'resp');
+    toast('设备网关可达，WiFi 模式不支持 AT 指令','info',5000);
+  }catch(err){
+    if(err.name==='AbortError'){termWrite(`连接超时：设备 ${gateway} 无响应`,'err');toast('连接超时','error');}
+    else{termWrite(`检测失败: ${err.message}`,'err');toast(`检测失败`,'error');}
+  }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   AT 指令
+   ═══════════════════════════════════════════════════════════════════════════ */
 async function sendAT(){
   const input=document.getElementById('atInput');
   const cmd=input.value.trim();if(!cmd)return;input.value='';
@@ -773,7 +960,6 @@ async function queryAndCollect(cmd,waitMs=2500){
   const result=state.responseBuffer;state.responseBuffer='';
   return result;
 }
-
 async function queryFirstAvailable(cmds,waitMs=1500,stopRegex=null){
   for(const cmd of cmds){
     const r=await queryAndCollect(cmd,waitMs);
@@ -792,7 +978,16 @@ function isErrorResponse(r){
   if(/^\+CMS ERROR/im.test(t))return true;
   return false;
 }
+function isValidResponse(r){
+  if(!r)return false;
+  const hasOK=/\bOK\b/i.test(r);
+  const hasError=/\bERROR\b/i.test(r)||/\+CME ERROR/i.test(r);
+  return hasOK&&!hasError;
+}
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   网络类型
+   ═══════════════════════════════════════════════════════════════════════════ */
 function setNetworkType(type,subText){
   const changed=(state.networkType!==type);
   state.networkType=type;
@@ -806,17 +1001,25 @@ function setNetworkType(type,subText){
   document.getElementById('rowSINR').style.display=type==='5g'?'flex':'none';
   if(changed||subText)renderBandLockSection();
 }
-
 async function detectNetworkType(){
   const chip=getChipById(state.detectedChip||'zxic');
   termWrite('探测网络类型...','info');
+  if(chip.generation==='5G'){
+    for(const cmd of chip.network5g){
+      const r=await queryAndCollect(cmd,2000);
+      if(/NR5G|"NR"|5GS|C5GREG.*,\s*[15]/i.test(r)){setNetworkType('5g',`${chip.name}: ${cmd.split('=')[0]}`);return '5g';}
+      if(/"LTE"/i.test(r)&&!/NR5G/i.test(r)){setNetworkType('4g',`${chip.name}: 仅 LTE`);return '4g';}
+    }
+  }
   const csq=await queryAndCollect('AT+CSQ',1500);
   if(/\+CSQ:/i.test(csq)){setNetworkType('4g',`${chip.name} CSQ 响应`);return '4g';}
   if(chip.generation==='4G'){setNetworkType('4g',`${chip.name} 默认 4G`);return '4g';}
-  setNetworkType('unknown','无法判断');
-  return 'unknown';
+  setNetworkType('unknown','无法判断');return 'unknown';
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   频段锁定区
+   ═══════════════════════════════════════════════════════════════════════════ */
 function renderBandLockSection(){
   const grid=document.getElementById('bandGrid');
   const headerText=document.getElementById('bandHeaderText');
@@ -830,19 +1033,21 @@ function renderBandLockSection(){
 
   if(state.networkType==='5g'){
     badge.className='badge-tag cyan';badge.textContent='5G NR';
-    tip.innerHTML='<b>5G 锁频（高通）：</b><code>AT+QNWPREFCFG="nr5g_band",&lt;band&gt;</code>。';
+    tip.innerHTML='<b>5G 锁频（高通）：</b><code>AT+QNWPREFCFG="nr5g_band",&lt;band&gt;</code>。<br><b>解除：</b><code>AT+QNWPREFCFG="nr5g_band",0</code>。';
     Object.entries(BAND_MAP_5G).forEach(([k,info])=>{
       const btn=document.createElement('button');
       btn.className='quick-btn';btn.disabled=!state.connected;
       btn.style.borderColor='rgba(34,211,238,.25)';
-      btn.innerHTML=`${info.label}<span class="cmd-hint">${info.freq}</span>`;
+      btn.innerHTML=`${info.label}<span class="cmd-hint">${info.freq} ${info.desc}</span>`;
+      btn.title=`${info.label} · ${info.freq}\nAT+QNWPREFCFG="nr5g_band",${info.band}`;
       btn.onclick=()=>quickCmd(`AT+QNWPREFCFG="nr5g_band",${info.band}`);
       grid.appendChild(btn);
     });
     const c=document.createElement('button');
     c.className='quick-btn';c.style.gridColumn='1/-1';c.style.color='#22d3ee';
+    c.style.borderColor='rgba(34,211,238,.3)';
     c.disabled=!state.connected;
-    c.innerHTML='解除 5G 锁频<span class="cmd-hint">nr5g_band,0</span>';
+    c.innerHTML='解除 5G 锁频<span class="cmd-hint">AT+QNWPREFCFG="nr5g_band",0</span>';
     c.onclick=()=>quickCmd('AT+QNWPREFCFG="nr5g_band",0');
     grid.appendChild(c);
   }else if(state.networkType==='4g'){
@@ -860,6 +1065,7 @@ function renderBandLockSection(){
       });
       const c=document.createElement('button');
       c.className='quick-btn';c.style.gridColumn='1/-1';c.style.color='#fbbf24';
+      c.style.borderColor='rgba(251,191,36,.3)';
       c.disabled=!state.connected;
       c.innerHTML='解除中兴微锁频<span class="cmd-hint">AT+ZBAND=0</span>';
       c.onclick=()=>quickCmd('AT+ZBAND=0');
@@ -876,6 +1082,7 @@ function renderBandLockSection(){
       });
       const c=document.createElement('button');
       c.className='quick-btn';c.style.gridColumn='1/-1';c.style.color='#fbbf24';
+      c.style.borderColor='rgba(251,191,36,.3)';
       c.disabled=!state.connected;
       c.innerHTML='解除锁频<span class="cmd-hint">AT*BAND=0</span>';
       c.onclick=()=>quickCmd('AT*BAND=0');
@@ -892,9 +1099,16 @@ function renderBandLockSection(){
   }
 }
 
-/* IP 查询 */
+/* ═══════════════════════════════════════════════════════════════════════════
+   IP 地址
+   ═══════════════════════════════════════════════════════════════════════════ */
 async function queryPublicIPv4(){
-  const apis=[{url:'https://api.ipify.org?format=json',type:'json',key:'ip'},{url:'https://ipv4.icanhazip.com',type:'text'}];
+  const apis=[
+    {url:'https://api.ipify.org?format=json',type:'json',key:'ip'},
+    {url:'https://ipv4.icanhazip.com',type:'text'},
+    {url:'https://ipv4.ident.me',type:'text'},
+    {url:'https://4.ipw.cn',type:'text'}
+  ];
   for(const api of apis){
     try{
       const c=new AbortController();const t=setTimeout(()=>c.abort(),4000);
@@ -902,13 +1116,18 @@ async function queryPublicIPv4(){
       const text=(await r.text()).trim();
       let ip=api.type==='json'?(JSON.parse(text)[api.key]||''):text;
       ip=ip.replace(/[^0-9.]/g,'');
-      if(/^(\d{1,3}\.){3}\d{1,3}$/.test(ip))return{ip};
+      if(/^(\d{1,3}\.){3}\d{1,3}$/.test(ip)&&!/^0\./.test(ip))return{ip,source:new URL(api.url).hostname};
     }catch(e){}
   }
   return null;
 }
 async function queryPublicIPv6(){
-  const apis=[{url:'https://api64.ipify.org?format=json',type:'json',key:'ip'},{url:'https://ipv6.icanhazip.com',type:'text'}];
+  const apis=[
+    {url:'https://api64.ipify.org?format=json',type:'json',key:'ip'},
+    {url:'https://ipv6.icanhazip.com',type:'text'},
+    {url:'https://v6.ident.me',type:'text'},
+    {url:'https://6.ipw.cn',type:'text'}
+  ];
   for(const api of apis){
     try{
       const c=new AbortController();const t=setTimeout(()=>c.abort(),4000);
@@ -916,7 +1135,7 @@ async function queryPublicIPv6(){
       const text=(await r.text()).trim();
       let ip=api.type==='json'?(JSON.parse(text)[api.key]||''):text;
       ip=ip.replace(/[^0-9a-fA-F:]/g,'');
-      if(ip.includes(':')&&(ip.match(/:/g)||[]).length>=2)return{ip};
+      if(ip.includes(':')&&(ip.match(/:/g)||[]).length>=2)return{ip,source:new URL(api.url).hostname};
     }catch(e){}
   }
   return null;
@@ -989,6 +1208,9 @@ async function refreshIPs(){
   updateIPButtonVisibility();
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   芯片状态 UI
+   ═══════════════════════════════════════════════════════════════════════════ */
 function setChipDetectStatus(status,name){
   const el=document.getElementById('chipDetectStatus');
   const map={
@@ -1017,6 +1239,7 @@ function updateCmdHints(){
   document.getElementById('externalCmdHint').textContent=chip.simSwitch.external;
   document.getElementById('internalCmdHint').textContent=chip.simSwitch.internal;
   document.getElementById('queryCmdHint').textContent=chip.simSwitch.query;
+  document.getElementById('switchTip').innerHTML=chip.simSwitch.tip||'';
   const adb=chip.adb;
   const on=document.getElementById('adbOnHint');
   const off=document.getElementById('adbOffHint');
@@ -1026,20 +1249,67 @@ function updateCmdHints(){
   if(tp)tp.innerHTML=(adb&&adb.tip)?adb.tip:'';
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   DTR/RTS 自动扫描唤醒
+   ═══════════════════════════════════════════════════════════════════════════ */
+async function tryWakeWithSignals(){
+  if(!state.port)return{woke:false};
+
+  termWrite('▶ 尝试 DTR/RTS 组合 1/5：保持默认','info');
+  let r=await queryAndCollect('AT',1500);
+  if(isValidResponse(r)){state.currentDTR=null;state.currentRTS=null;return{woke:true};}
+
+  termWrite('▶ 尝试组合 2/5：DTR=false, RTS=false','info');
+  try{await state.port.setSignals({dataTerminalReady:false,requestToSend:false});state.currentDTR=false;state.currentRTS=false;}catch(e){}
+  await sleep(800);
+  r=await queryAndCollect('AT',1500);
+  if(isValidResponse(r))return{woke:true};
+
+  termWrite('▶ 尝试组合 3/5：DTR=true, RTS=false','info');
+  try{await state.port.setSignals({dataTerminalReady:true,requestToSend:false});state.currentDTR=true;state.currentRTS=false;}catch(e){}
+  await sleep(800);
+  r=await queryAndCollect('AT',1500);
+  if(isValidResponse(r))return{woke:true};
+
+  termWrite('▶ 尝试组合 4/5：DTR=false, RTS=true','info');
+  try{await state.port.setSignals({dataTerminalReady:false,requestToSend:true});state.currentDTR=false;state.currentRTS=true;}catch(e){}
+  await sleep(800);
+  r=await queryAndCollect('AT',1500);
+  if(isValidResponse(r))return{woke:true};
+
+  termWrite('▶ 尝试组合 5/5：DTR=true, RTS=true','info');
+  try{await state.port.setSignals({dataTerminalReady:true,requestToSend:true});state.currentDTR=true;state.currentRTS=true;}catch(e){}
+  await sleep(800);
+  r=await queryAndCollect('AT',1500);
+  if(isValidResponse(r))return{woke:true};
+
+  return{woke:false};
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   芯片识别
+   ═══════════════════════════════════════════════════════════════════════════ */
 async function autoDetectChip(){
   setChipDetectStatus('detecting');
-  termWrite('发送 AT 唤醒设备...','info');
-  let woke=false;
-  for(let i=0;i<3;i++){
-    const r=await queryAndCollect('AT',1500);
-    if(/OK/i.test(r)&&!/ERROR/i.test(r)){woke=true;break;}
-    await sleep(300);
+  termWrite('═══ 唤醒设备 ═══','info');
+  const wakeResult=await tryWakeWithSignals();
+  if(wakeResult.woke){
+    termWrite(`✓ 设备已唤醒（DTR=${state.currentDTR}, RTS=${state.currentRTS}）`,'resp');
+  }else{
+    termWrite('⚠ DTR/RTS 扫描未成功，尝试 AT 唤醒...','info');
+    let woke=false;
+    for(let i=0;i<3;i++){
+      const r=await queryAndCollect('AT',1500);
+      if(isValidResponse(r)){woke=true;break;}
+      await sleep(300);
+    }
+    if(woke)termWrite('✓ 设备已唤醒','resp');
+    else termWrite('⚠ AT 无响应，继续识别...','info');
   }
-  if(woke)termWrite('✓ 设备已唤醒','resp');
-  else termWrite('⚠ AT 无响应','info');
 
-  termWrite('识别芯片平台...','info');
+  termWrite('═══ 识别芯片平台 ═══','info');
   let chipId=null;
+
   const atiResp=await queryAndCollect('ATI',2000);
   chipId=detectChipFromText(atiResp);
   if(chipId)termWrite('✓ 从 ATI 识别','resp');
@@ -1054,6 +1324,7 @@ async function autoDetectChip(){
       }
     }
   }
+
   if(!chipId){
     for(const chip of CHIP_DATABASE){
       if(!chip.probe)continue;
@@ -1063,12 +1334,14 @@ async function autoDetectChip(){
       }
     }
   }
+
   if(!chipId){
     const saved=localStorage.getItem('atmaster_last_chip');
     if(saved&&CHIP_DATABASE.find(c=>c.id===saved)){
       chipId=saved;termWrite(`使用上次：${getChipById(chipId).name}`,'info');
     }
   }
+
   if(chipId){
     state.detectedChip=chipId;
     const chip=getChipById(chipId);
@@ -1086,96 +1359,96 @@ async function autoDetectChip(){
   return null;
 }
 
-/* ★★★ 完整设备信息查询 ★★★ */
+/* ═══════════════════════════════════════════════════════════════════════════
+   设备信息查询
+   ═══════════════════════════════════════════════════════════════════════════ */
 async function autoQueryDeviceInfo(){
-  termWrite('查询设备信息...','info');
+  termWrite('═══ 查询设备信息 ═══','info');
   const chip=getChipById(state.detectedChip||'zxic');
 
-  /* ICCID */
   termWrite('查询 ICCID...','info');
   await queryFirstAvailable(chip.iccid,1800,/[+*](?:QCCID|ICCID|CCID|ICID|ZICCID)|^89\d{17,19}/im);
   await sleep(200);
 
-  /* IMEI */
   termWrite('查询 IMEI...','info');
   await queryFirstAvailable(chip.imei,1500,/\+CGSN|^\d{15}|\+ZULI/im);
   await sleep(200);
 
-  /* ★ SN：多指令探测，如果都没有，从 ZULI 中提取 */
   termWrite('查询 SN...','info');
-  for(const cmd of chip.sn){
+  let snFound=false;
+  const snCmds=['AT+ZSN?','AT*MRD_SN?','AT+GSN','AT+SN?','AT+CGSN'];
+  for(const cmd of snCmds){
     const r=await queryAndCollect(cmd,1500);
-    if(isErrorResponse(r))continue;
-    // 检查响应中是否有非 IMEI 的 SN 格式
-    const snMatch=r.match(/[+*](?:MRD_SN|ZSN|GSN|SN)[:\s]*"?([A-Za-z0-9]{8,20})"?/i);
-    if(snMatch&&snMatch[1]!==state.rawValues.IMEI){
+    if(isErrorResponse(r)){await sleep(200);continue;}
+    const snMatch=r.match(/[+*](?:MRD_SN|ZSN|GSN|SN|CGSN)[:\s]+"?([A-Za-z0-9]{6,20})"?/i);
+    if(snMatch&&snMatch[1]!==state.rawValues.IMEI&&!/^\d{15}$/.test(snMatch[1])){
       setInfoValue('SN',snMatch[1]);
       termWrite(`✓ SN: ${snMatch[1]}`,'resp');
-      break;
+      snFound=true;break;
     }
+    await sleep(200);
   }
-  // 如果 SN 还是空，尝试从 ZULI 响应里提取
-  if(!state.rawValues.SN&&state.rawValues.IMEI){
-    termWrite('SN 未独立返回，尝试从 ZULI 提取...','info');
-    const zuliResp=await queryAndCollect('AT+ZULI=1',1500);
-    const m=zuliResp.match(/\+ZULI[:\s]+\d+,\s*"?([0-9A-Za-z,]+?)"?\s*$/im);
+  if(!snFound){
+    const zuli0=await queryAndCollect('AT+ZULI=0',1500);
+    const m=zuli0.match(/\+ZULI[:\s]*\d+,\s*(.+)/im);
     if(m){
-      const parts=m[1].split(',').map(s=>s.trim().replace(/"/g,''));
+      const parts=m[1].replace(/"/g,'').split(',').map(s=>s.trim());
       for(const p of parts){
-        if(/^[A-Z0-9]{8,20}$/.test(p)&&p!==state.rawValues.IMEI){
+        if(/^[A-Z0-9]{8,20}$/.test(p)&&p!==state.rawValues.IMEI&&!/^46\d{3}$/.test(p)){
           setInfoValue('SN',p);
-          termWrite(`✓ 从 ZULI 提取 SN: ${p}`,'resp');
-          break;
+          termWrite(`✓ 从 ZULI=0 提取 SN: ${p}`,'resp');
+          snFound=true;break;
         }
       }
     }
   }
+  if(!snFound)termWrite('⚠ 设备未提供独立 SN 字段','info');
   await sleep(200);
 
-  /* 固件 */
   termWrite('查询固件版本...','info');
   await queryFirstAvailable(chip.ver,1500,/[+*]VER|\+CGMR/);
   await sleep(200);
 
-  /* 信号 */
   await queryAndCollect('AT+CSQ',1200);await sleep(200);
   await queryAndCollect('AT+COPS=3,0',1200);await sleep(200);
   await queryAndCollect('AT+COPS?',1500);await sleep(200);
 
-  /* ★ 频段：多指令尝试 */
   termWrite('查询当前频段...','info');
   for(const cmd of chip.band){
     const r=await queryAndCollect(cmd,1800);
     if(isErrorResponse(r)){await sleep(200);continue;}
     if(/ZBAND|ZLTEBAND|ZLTEAMTBAND|BANDIND/i.test(r)){
-      termWrite(`✓ 频段响应来自 ${cmd}`,'resp');
-      break;
+      termWrite(`✓ 频段响应来自 ${cmd}`,'resp');break;
     }
     await sleep(200);
   }
 
-  /* ★ QCI：多指令尝试 */
   termWrite('查询 QCI 等级...','info');
+  let qciFound=false;
   for(const cmd of chip.qci){
     const r=await queryAndCollect(cmd,1500);
     if(isErrorResponse(r)){await sleep(200);continue;}
     if(/CGEQOSRDP|C5GQOSRDP|QNWCFG|CGQREQ|ZQOS|QOS/i.test(r)){
       termWrite(`✓ QCI 响应来自 ${cmd}`,'resp');
-      break;
+      qciFound=true;break;
     }
     await sleep(200);
   }
+  if(!qciFound){
+    const el=document.getElementById('infoQCI');
+    el.textContent='设备不支持';
+    el.className='info-value warn';
+    termWrite('⚠ 该设备固件不支持查询 QCI','info');
+  }
 
-  /* WiFi MAC */
   termWrite('查询 WiFi MAC...','info');
-  const macCmds=['AT+ZMAC?','AT+ZWIFIMAC?','AT+WIFIMAC?','AT*MRD_WIFIID?','AT+MAC?'];
+  const macCmds=['AT+MAC?','AT+ZMAC?','AT+ZWIFIMAC?','AT+WIFIMAC?','AT*MRD_WIFIID?'];
   for(const cmd of macCmds){
     const r=await queryAndCollect(cmd,1200);
     if(/[0-9A-Fa-f]{2}[:\-][0-9A-Fa-f]{2}/.test(r)&&!isErrorResponse(r))break;
     await sleep(200);
   }
 
-  /* 卡槽 */
   if(chip.simSwitch&&chip.simSwitch.query){
     await queryAndCollect(chip.simSwitch.query,1200);await sleep(200);
   }
@@ -1254,47 +1527,42 @@ function setInfo(id,value,cls='ok'){
   if(el){el.textContent=value;el.className='info-value '+cls;}
 }
 
-/* ★★★ 响应解析（修复频段/信号/SN） ★★★ */
+/* ═══════════════════════════════════════════════════════════════════════════
+   响应解析
+   ═══════════════════════════════════════════════════════════════════════════ */
 function parseDeviceInfo(line){
   let m;
 
-  /* ZULI 响应 */
   m=line.match(/\+ZULI[:\s]+\d+,\s*"?([0-9A-Za-z,]+?)"?\s*$/i);
   if(m){
     const parts=m[1].split(',').map(s=>s.trim().replace(/"/g,''));
     for(const p of parts){
       if(/^\d{15}$/.test(p))setInfoValue('IMEI',p);
-      else if(/^[A-Z0-9]{8,20}$/.test(p)&&!state.rawValues.SN)setInfoValue('SN',p);
     }
   }
 
-  /* ICCID */
   m=line.match(/[+*](?:QCCID|ICCID|CCID|ICID|ZICCID)[:\s]*"?([0-9A-Za-z]{18,22})"?/i);
   if(m)setInfoValue('ICCID',m[1]);
   else if(/^89\d{17,19}[A-Za-z0-9]*$/.test(line))setInfoValue('ICCID',line);
 
-  /* IMEI */
   m=line.match(/\+CGSN[:\s]+"?(\d{14,16})"?/i);
   if(m)setInfoValue('IMEI',m[1]);
   else if(/^\d{15}$/.test(line))setInfoValue('IMEI',line);
 
-  /* SN */
   m=line.match(/[*+]MRD_SN[:\s]+"?([A-Za-z0-9]+)"?/i)
     ||line.match(/\+ZSN[:\s]+"?([A-Za-z0-9]+)"?/i)
     ||line.match(/\+GSN[:\s]+"?([A-Za-z0-9]+)"?/i)
     ||line.match(/\+SN[:\s]+"?([A-Za-z0-9]+)"?/i);
-  if(m&&!state.rawValues.SN&&m[1]!==state.rawValues.IMEI)setInfoValue('SN',m[1]);
+  if(m&&!state.rawValues.SN&&m[1]!==state.rawValues.IMEI&&!/^\d{15}$/.test(m[1]))
+    setInfoValue('SN',m[1]);
 
-  /* 固件 */
   m=line.match(/\+CGMR[:\s]+"?([^"\r\n]+)"?/i)||line.match(/[+*]VER[:\s]+"?([^"\r\n]+)"?/i);
   if(m)setInfo('infoVER',m[1].trim());
 
-  /* WiFi MAC */
   m=line.match(/[+*](?:ZMAC|ZWIFIMAC|WIFIMAC|WIFIID|MRD_WIFIID|MAC)[:\s]*"?([0-9A-Fa-f:]{12,20})"?/i)
     ||line.match(/([0-9A-Fa-f]{2}[:\-]){5}[0-9A-Fa-f]{2}/);
   if(m)setInfo('infoMAC',m[1]||m[0]);
 
-  /* ★ CSQ 信号质量 - 兼容中兴微扩展格式 */
   m=line.match(/\+CSQ[:\s]*([\d,\-]+)/);
   if(m){
     const parts=m[1].split(',').map(s=>s.trim());
@@ -1302,30 +1570,18 @@ function parseDeviceInfo(line){
     const el=document.getElementById('infoCSQ');
     if(first===99){el.textContent='无信号';el.className='info-value empty';}
     else if(first>=0&&first<=31){
-      // 标准 CSQ
-      el.textContent=`${first} (${first>=20?'强':first>=10?'中':'弱'})`;
+      const dbm=-113+first*2;
+      el.textContent=`${first} (${dbm} dBm, ${first>=20?'强':first>=10?'中':'弱'})`;
       el.className='info-value '+(first>=10?'ok':'warn');
-    }else if(first>31){
-      // 中兴微扩展：RSSI = -113 + first (dBm)
-      // 例如 155 → RSSI = 42；或者可能是 RSRP 的某种编码
-      // 常见中兴微扩展：0-63 对应 -113 到 -50 dBm
-      // 但 155 超出范围，可能是 RSRP: -155+200 = 45? 或者直接除以2
-      // 尝试多种可能，优先显示原始值
-      const rawDb = first - 205;  // 155 - 205 = -50 dBm (RSSI)
-      if(rawDb >= -140 && rawDb <= -40){
-        // 显示为 RSSI dBm
-        el.textContent=`${rawDb} dBm (${rawDb>=-70?'强':rawDb>=-85?'中':'弱'})`;
-        el.className='info-value '+(rawDb>=-85?'ok':'warn');
-      }else{
-        // 无法换算，显示原始值
-        el.textContent=`原始: ${m[1]}`;
-        el.className='info-value ok';
-      }
+    }else{
+      const dbm=-(first/2);
+      const strength=dbm>=-70?'强':dbm>=-85?'中':'弱';
+      el.textContent=`${first} (${dbm.toFixed(1)} dBm, ${strength})`;
+      el.className='info-value '+(dbm>=-85?'ok':'warn');
       el.title=`原始响应: ${line}`;
     }
   }
 
-  /* 运营商 */
   m=line.match(/\+COPS[:\s]*(\d+)(?:,\s*(\d+)\s*,\s*(?:"([^"]*)"|(\d+)))?/i);
   if(m){
     const mode=parseInt(m[1]);const nameStr=m[3]||'';const numStr=m[4]||'';
@@ -1335,7 +1591,6 @@ function parseDeviceInfo(line){
     else if(numStr){const c5=numStr.substring(0,5);const op=OPERATOR_MAP[c5];if(op){el.textContent=op.name;el.className='info-value '+op.cls;}}
   }
 
-  /* 卡槽 */
   m=line.match(/\+ZCARDSWITCH[:\s]*(\d+)/i)||line.match(/[*+]SWSIM[:\s]*(\d+)/i);
   if(m){
     const slot=parseInt(m[1]);
@@ -1344,36 +1599,35 @@ function parseDeviceInfo(line){
     el.className='info-value '+(slot===0?'ok':'warn');
   }
 
-  /* ★★★ 频段解析 ★★★
-     中兴微可能的格式：
-     1. +ZBAND: 7,1,3,8 — 第一个是 AcT 类型（7=LTE），后面是频段号
-     2. +ZBAND: 1,3,8 — 直接是频段号
-     3. +ZLTEBAND: 149,0,0,0,224,1,0,0,0 — 位掩码数组
-     4. +ZLTEAMTBAND: 149,0,0,0 — 位掩码数组
-  */
   m=line.match(/\+ZBAND[:\s]*(.+)/i);
   if(m){
     const parts=m[1].split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n));
     if(parts.length>0){
-      // 判断第一个数是否是 AcT 类型
-      let bands=[];
-      if(parts.length>=2&&(parts[0]===7||parts[0]===1||parts[0]===2||parts[0]===3||parts[0]===4||parts[0]===5||parts[0]===6)){
-        // 第一个是 AcT，后面的是频段
-        bands=parts.slice(1).filter(b=>b>0).map(b=>`B${b}`);
+      const el=document.getElementById('infoBand');
+      if(parts.length===2&&parts[1]<=8){
+        const band=parts[0];
+        if(band>0&&band<300){
+          el.textContent=`LTE B${band}`;
+          el.className='info-value net4g';
+          el.title=`原始响应: ${line}`;
+        }
+      }else if(parts.length>=3&&[1,2,3,4,5,6,7].includes(parts[0])){
+        const bands=parts.slice(1).filter(b=>b>0&&b<300).map(b=>`B${b}`);
+        if(bands.length>0){
+          el.textContent=`LTE ${bands.join(' ')}`;
+          el.className='info-value net4g';
+          el.title=`原始响应: ${line}`;
+        }
       }else{
-        // 全部当作频段号
-        bands=parts.filter(b=>b>0&&b<100).map(b=>`B${b}`);
-      }
-      if(bands.length>0){
-        const el=document.getElementById('infoBand');
-        el.textContent=`LTE ${bands.join(' ')}`;
-        el.className='info-value net4g';
-        el.title=`原始响应: ${line}`;
+        const bands=parts.filter(b=>b>0&&b<300).map(b=>`B${b}`);
+        if(bands.length>0){
+          el.textContent=`LTE ${bands.join(' ')}`;
+          el.className='info-value net4g';
+          el.title=`原始响应: ${line}`;
+        }
       }
     }
   }
-
-  /* ZLTEBAND / ZLTEAMTBAND 位掩码 */
   m=line.match(/\+ZLTE(?:AMT)?BAND[:\s]*(.+)/i);
   if(m&&(document.getElementById('infoBand').textContent==='—')){
     const parts=m[1].split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n));
@@ -1394,7 +1648,6 @@ function parseDeviceInfo(line){
     }
   }
 
-  /* QCI */
   m=line.match(/\+CGEQOSRDP[:\s]*(\d+),(\d+)/i);
   if(m){
     const qci=parseInt(m[2]);
@@ -1421,13 +1674,15 @@ function parseDeviceInfo(line){
   }
 }
 
-/* SIM 卡切换 */
+/* ═══════════════════════════════════════════════════════════════════════════
+   SIM 卡切换
+   ═══════════════════════════════════════════════════════════════════════════ */
 async function switchToExternalCard(){
   if(!state.connected){toast('请先连接','error');return;}
   const chip=getChipById(document.getElementById('chipPlatform').value);
   const sw=chip.simSwitch;
   if(sw.repeat>1){
-    termWrite(`切外置卡，连发 ${sw.repeat} 次...`,'info');
+    termWrite(`${chip.name} 切外置卡，连发 ${sw.repeat} 次...`,'info');
     for(let i=0;i<sw.repeat;i++){
       termWrite(`[${i+1}/${sw.repeat}] ${sw.external}`,'cmd');
       try{await writeToPort(sw.external);}catch(err){break;}
@@ -1438,12 +1693,15 @@ async function switchToExternalCard(){
     try{await writeToPort(sw.external);}catch(err){}
   }
   toast('切卡指令已发送','success',5000);
+  setCloudStatus('unknown');
+  setTimeout(()=>queryCurrentCard(),2500);
 }
 async function switchToInternalCard(){
   if(!state.connected){toast('请先连接','error');return;}
   const chip=getChipById(document.getElementById('chipPlatform').value);
   termWrite(chip.simSwitch.internal,'cmd');
   try{await writeToPort(chip.simSwitch.internal);toast('切回内置卡指令已发送','success');}catch(err){}
+  setTimeout(()=>queryCurrentCard(),2500);
 }
 async function queryCurrentCard(){
   if(!state.connected){toast('请先连接','error');return;}
@@ -1452,8 +1710,10 @@ async function queryCurrentCard(){
   try{await writeToPort(chip.simSwitch.query);}catch(err){}
 }
 
-/* ★★★ 写入操作（IMEI/SN 改写） ★★★ */
-let writeContext = {type:null,value:'',isDelete:false};
+/* ═══════════════════════════════════════════════════════════════════════════
+   写入操作
+   ═══════════════════════════════════════════════════════════════════════════ */
+let writeContext={type:null,value:'',isDelete:false};
 
 function openWriteModal(type){
   if(!state.connected){toast('请先连接设备','error');return;}
@@ -1461,10 +1721,7 @@ function openWriteModal(type){
   writeContext.type=type;
   writeContext.isDelete=type.startsWith('DEL_');
   const baseType=type.replace('DEL_','');
-  const titles={
-    IMEI:writeContext.isDelete?'删除 IMEI':'改写 IMEI',
-    SN:writeContext.isDelete?'删除 SN':'改写 SN'
-  };
+  const titles={IMEI:writeContext.isDelete?'删除 IMEI':'改写 IMEI',SN:writeContext.isDelete?'删除 SN':'改写 SN'};
   document.getElementById('writeModalTitle').textContent=titles[baseType];
   document.getElementById('writeModal').classList.add('show');
   document.getElementById('stepIndicator').style.display='none';
@@ -1472,8 +1729,10 @@ function openWriteModal(type){
   document.getElementById('writeFormArea').style.display='block';
   document.getElementById('writeConfirmBtn').textContent=writeContext.isDelete?'确认删除':'确认写入';
   document.getElementById('writeConfirmBtn').className=writeContext.isDelete?'btn btn-danger':'btn btn-primary';
+  document.getElementById('writeConfirmBtn').onclick=confirmWrite;
   document.getElementById('writeCancelBtn').textContent='取消';
   document.getElementById('writeCancelBtn').disabled=false;
+  document.getElementById('writeCancelBtn').style.display='';
   ['step1','step2','step3'].forEach(id=>document.getElementById(id).className='step');
 
   if(writeContext.isDelete){
@@ -1543,8 +1802,7 @@ async function confirmWrite(){
   const isDelete=writeContext.isDelete;
   if(!isDelete&&!validateWriteInput(baseType)){toast('请检查输入内容','error');return;}
   const val=isDelete?'':document.getElementById('writeInput').value.trim();
-  let writeCmd=isDelete
-    ?`AT*MRD_${baseType}=D`
+  let writeCmd=isDelete?`AT*MRD_${baseType}=D`
     :(baseType==='IMEI'?`AT*MRD_IMEI=W,0,01JAN1970,${val}`:`AT*MRD_SN=W,0,01JAN1970,${val}`);
 
   state.writeInProgress=true;
@@ -1562,16 +1820,13 @@ async function confirmWrite(){
     setStep(1,'active');appendLog('▶ 步骤 1/3：进入工厂模式...','warn');
     termWrite('AT*PROD=1','cmd');await writeToPort('AT*PROD=1');await sleep(1500);
     setStep(1,'done');appendLog('✓ 工厂模式已激活','success');
-
     setStep(2,'active');appendLog('▶ 步骤 2/3：发送写入指令...','warn');
     termWrite(writeCmd,'cmd');await writeToPort(writeCmd);await sleep(1800);
     setStep(2,'done');appendLog(`✓ 已发送：${writeCmd}`,'success');
-
     setStep(3,'active');appendLog('▶ 步骤 3/3：退出工厂模式...','warn');
     termWrite('AT*PROD=0','cmd');await writeToPort('AT*PROD=0');await sleep(1500);
     setStep(3,'done');appendLog('✓ 已退出工厂模式','success');
     appendLog('🎉 写入流程完成','success');
-
     toast(`${baseType} ${isDelete?'删除':'写入'}成功`,'success',5000);
     document.getElementById('writeConfirmBtn').textContent='关闭';
     document.getElementById('writeConfirmBtn').className='btn btn-primary';
@@ -1598,7 +1853,9 @@ function closeWriteModalForce(){
   document.getElementById('writeCancelBtn').disabled=false;
 }
 
-/* ★★★ 限速检测 ★★★ */
+/* ═══════════════════════════════════════════════════════════════════════════
+   限速检测
+   ═══════════════════════════════════════════════════════════════════════════ */
 async function toggleSpeedtest(){
   if(state.speedtesting){if(state.speedtestAbort)state.speedtestAbort.abort();return;}
   await startSpeedtest();
@@ -1646,7 +1903,9 @@ async function startSpeedtest(){
   }
 }
 
-/* ★★★ 云控状态 ★★★ */
+/* ═══════════════════════════════════════════════════════════════════════════
+   云控
+   ═══════════════════════════════════════════════════════════════════════════ */
 function setCloudStatus(status){
   const el=document.getElementById('cloudStatus');
   const text=document.getElementById('cloudStatusText');
@@ -1671,94 +1930,161 @@ async function checkCloudControl(){
   }catch(err){termWrite(`云控检测出错: ${err.message}`,'err');}
   document.getElementById('btnCheckCloud').disabled=false;
 }
+
+/* ── 云控弹窗（补全部分） ─────────────────────────────────────────────── */
 function openCloudModal(){
   document.getElementById('cloudModal').classList.add('show');
   document.getElementById('cloudCmdResult').style.display='none';
   document.getElementById('cloudAdbGuide').style.display='none';
 }
-function closeCloudModal(){document.getElementById('cloudModal').classList.remove('show');}
-function genRemoveCloudCmd(){
-  const resultDiv=document.getElementById('cloudCmdResult');
-  const cmdText=document.getElementById('cloudCmdText');
-  const chip=getChipById(document.getElementById('chipPlatform').value);
-  const cmds=(chip.id==='asr4g'||chip.id==='asr5g')?['AT*PROD=1','AT+ZMODE=1']:['AT+ZMODE=1'];
-  cmdText.textContent=cmds.join('  →  ');
-  resultDiv.style.display='block';
-}
-async function sendCloudCmd(){
-  const chip=getChipById(document.getElementById('chipPlatform').value);
-  if(chip.id==='asr4g'||chip.id==='asr5g'){await writeToPort('AT*PROD=1');await sleep(500);}
-  await writeToPort('AT+ZMODE=1');
-  closeCloudModal();toast('指令已发送','info',4000);setCloudStatus('safe');
+function closeCloudModal(){
+  document.getElementById('cloudModal').classList.remove('show');
+  window.__cloudCmds=[];
 }
 function showAdbGuide(){
-  document.getElementById('cloudAdbGuide').style.display='block';
-  document.getElementById('cloudCmdResult').style.display='none';
+  const el=document.getElementById('cloudAdbGuide');
+  el.style.display=el.style.display==='none'?'block':'none';
 }
 
-/* ADB */
+/* 各平台去云控指令表 */
+const CLOUD_REMOVE_MAP = {
+  zxic:    ['AT*PROD=1','AT+ZCLOUD=0','AT+ZCLOUDCFG=0','AT+ZCLOUDURL=""','AT*PROD=0','AT+RESET'],
+  asr5g:   ['AT*PROD=1','AT+CLOUD=0','AT+CLOUDSWITCH=0','AT*PROD=0','AT+RESET'],
+  asr4g:   ['AT*PROD=1','AT+CLOUD=0','AT+CLOUDSWITCH=0','AT*PROD=0','AT+RESET'],
+  unisoc:  ['AT*PROD=1','AT+SPCLOUD=0','AT+CLOUDSWITCH=0','AT*PROD=0','AT+RESET'],
+  qualcomm:['AT*PROD=1','AT+QCLOUD=0','AT+QCLOUDSWITCH=0','AT*PROD=0','AT+CFUN=1,1'],
+  mtk:     ['AT*PROD=1','AT+ECLOUD=0','AT+ECLOUDSWITCH=0','AT*PROD=0','AT+RESET']
+};
+
+function genRemoveCloudCmd(){
+  const chipId=document.getElementById('chipPlatform').value||'zxic';
+  const chip=getChipById(chipId);
+  const cmds=CLOUD_REMOVE_MAP[chipId]||CLOUD_REMOVE_MAP.zxic;
+  window.__cloudCmds=cmds;
+
+  document.getElementById('cloudCmdResult').style.display='block';
+  document.getElementById('cloudCmdText').innerHTML=
+    `<div style="color:var(--warn);font-size:11px;margin-bottom:6px;">目标平台：${chip.name}</div>`+
+    cmds.map((c,i)=>`<div style="padding:2px 0;">${i+1}. <span style="color:#a8c0ff;">${c}</span></div>`).join('');
+  termWrite(`已为 ${chip.name} 生成 ${cmds.length} 条去云控指令`,'info');
+  toast('去云控指令已生成','success');
+}
+
+async function sendCloudCmd(){
+  if(!state.connected){toast('请先连接设备','error');return;}
+  const cmds=window.__cloudCmds||[];
+  if(!cmds.length){toast('请先生成指令','error');return;}
+  closeCloudModal();
+  termWrite('═══ 执行去云控指令 ═══','info');
+  for(let i=0;i<cmds.length;i++){
+    const c=cmds[i];
+    termWrite(`[${i+1}/${cmds.length}] ${c}`,'cmd');
+    try{await writeToPort(c);}
+    catch(err){termWrite('发送失败: '+err.message,'err');break;}
+    await sleep(1200);
+  }
+  termWrite('去云控流程结束，建议重启设备后重新测速验证。','info');
+  toast('去云控指令已发送','success',5000);
+  setCloudStatus('unknown');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ADB 开关
+   ═══════════════════════════════════════════════════════════════════════════ */
 async function openADB(){
-  if(!state.connected){toast('请先连接','error');return;}
+  if(!state.connected){toast('请先连接设备','error');return;}
   const chip=getChipById(document.getElementById('chipPlatform').value);
-  const adb=chip.adb;
-  if(!adb||!adb.enable||!adb.enable.length){toast(`${chip.name} 未配置 ADB`,'warn',4000);return;}
-  termWrite(`尝试开启 ADB（${chip.name}）...`,'info');
-  const btn=document.getElementById('btnOpenADB');btn.disabled=true;
-  for(const cmd of adb.enable){
-    termWrite(cmd,'cmd');
-    const r=await queryAndCollect(cmd,1500);
-    if(/\bOK\b/i.test(r)&&!/ERROR/i.test(r)){termWrite(`✓ ADB 已开启：${cmd}`,'resp');toast('ADB 已开启','success',5000);btn.disabled=false;return;}
-    if(/\bERROR\b/i.test(r)||/\+CME ERROR/i.test(r)){termWrite(`✗ ${cmd} 返回 ERROR`,'info');continue;}
-    if(r.trim()===''){termWrite(`✗ ${cmd} 无响应`,'info');continue;}
-    termWrite(`响应：${r.substring(0,80).replace(/\s+/g,' ')}`,'resp');
+  const list=(chip.adb&&chip.adb.enable)||[];
+  if(!list.length){toast('该平台未配置 ADB 开启指令','error');return;}
+  termWrite('═══ 开启 ADB ═══','info');
+  for(let i=0;i<list.length;i++){
+    termWrite(`[${i+1}/${list.length}] ${list[i]}`,'cmd');
+    try{await writeToPort(list[i]);}
+    catch(err){termWrite('发送失败: '+err.message,'err');break;}
+    await sleep(900);
   }
-  termWrite('⚠ 所有 ADB 开启指令均失败','err');
-  toast('开启 ADB 失败','error',5000);btn.disabled=false;
-}
-async function closeADB(){
-  if(!state.connected){toast('请先连接','error');return;}
-  const chip=getChipById(document.getElementById('chipPlatform').value);
-  const adb=chip.adb;
-  if(!adb||!adb.disable||!adb.disable.length){toast(`${chip.name} 未配置 ADB`,'warn',4000);return;}
-  termWrite(`尝试关闭 ADB（${chip.name}）...`,'info');
-  const btn=document.getElementById('btnCloseADB');btn.disabled=true;
-  for(const cmd of adb.disable){
-    termWrite(cmd,'cmd');
-    const r=await queryAndCollect(cmd,1500);
-    if(/\bOK\b/i.test(r)&&!/ERROR/i.test(r)){termWrite(`✓ ADB 已关闭：${cmd}`,'resp');toast('ADB 已关闭','success',4000);btn.disabled=false;return;}
-    if(/\bERROR\b/i.test(r)||/\+CME ERROR/i.test(r)){termWrite(`✗ ${cmd} 返回 ERROR`,'info');continue;}
-    if(r.trim()===''){termWrite(`✗ ${cmd} 无响应`,'info');continue;}
-    termWrite(`响应：${r.substring(0,80).replace(/\s+/g,' ')}`,'resp');
-  }
-  termWrite('⚠ 所有 ADB 关闭指令均失败','err');
-  toast('关闭 ADB 失败','error',5000);btn.disabled=false;
+  termWrite('ADB 开启指令已发送，请用数据线连接电脑后执行 adb devices。','info');
+  toast('ADB 开启指令已发送','success',5000);
 }
 
-/* 初始化 */
-(async function init(){
-  const lastBaud=localStorage.getItem('atmaster_last_baud');
-  if(lastBaud){const sel=document.getElementById('baudRate');for(const o of sel.options){if(o.value===lastBaud){sel.value=lastBaud;break;}}}
-  const lastFlow=localStorage.getItem('atmaster_last_flow');
-  if(lastFlow){const sel=document.getElementById('flowControl');for(const o of sel.options){if(o.value===lastFlow){sel.value=lastFlow;break;}}}
-  initChipDropdown();updateCmdHints();setChipDetectStatus('idle');
-  const lastChip=localStorage.getItem('atmaster_last_chip');
-  if(lastChip&&CHIP_DATABASE.find(c=>c.id===lastChip)){
-    setTimeout(()=>{
-      document.getElementById('chipPlatform').value=lastChip;
-      updateCmdHints();
-      const chip=getChipById(lastChip);
-      termWrite(`💡 上次使用的芯片：${chip.name}，已自动预选`,'info');
-      renderBandLockSection();
-    },100);
+async function closeADB(){
+  if(!state.connected){toast('请先连接设备','error');return;}
+  const chip=getChipById(document.getElementById('chipPlatform').value);
+  const list=(chip.adb&&chip.adb.disable)||[];
+  if(!list.length){toast('该平台未配置 ADB 关闭指令','error');return;}
+  termWrite('═══ 关闭 ADB ═══','info');
+  for(let i=0;i<list.length;i++){
+    termWrite(`[${i+1}/${list.length}] ${list[i]}`,'cmd');
+    try{await writeToPort(list[i]);}
+    catch(err){termWrite('发送失败: '+err.message,'err');break;}
+    await sleep(900);
   }
-  renderBandLockSection();
-  updateIPButtonVisibility();
+  termWrite('ADB 已关闭。','info');
+  toast('ADB 关闭指令已发送','success',4000);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   全局事件 & 初始化
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* 点击遮罩关闭弹窗 */
+document.getElementById('writeModal').addEventListener('click',e=>{
+  if(e.target.id==='writeModal'&&!state.writeInProgress)closeWriteModal();
+});
+document.getElementById('cloudModal').addEventListener('click',e=>{
+  if(e.target.id==='cloudModal')closeCloudModal();
+});
+/* ESC 关闭弹窗 */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    if(document.getElementById('writeModal').classList.contains('show')&&!state.writeInProgress)closeWriteModal();
+    if(document.getElementById('cloudModal').classList.contains('show'))closeCloudModal();
+  }
+});
+/* 页面关闭时释放串口 */
+window.addEventListener('beforeunload',()=>{
+  try{ if(state.port) state.port.close(); }catch(e){}
+});
+
+/* 启动 */
+(async function init(){
+  await loadChipDatabase();
+  initChipDropdown();
+  updateChipDbInfo();
+
+  /* 恢复上次配置 */
+  const lb=localStorage.getItem('atmaster_last_baud');
+  if(lb){
+    const s=document.getElementById('baudRate');
+    if([...s.options].some(o=>o.value===lb))s.value=lb;
+  }
+  const lf=localStorage.getItem('atmaster_last_flow');
+  if(lf){
+    const s=document.getElementById('flowControl');
+    if([...s.options].some(o=>o.value===lf))s.value=lf;
+  }
+  const lc=localStorage.getItem('atmaster_last_chip');
+  if(lc&&CHIP_DATABASE.find(c=>c.id===lc)){
+    document.getElementById('chipPlatform').value=lc;
+    state.detectedChip=lc;
+  }
+
+  updateCmdHints();
+  setChipDetectStatus('idle');
+  setNetworkType('unknown');
+  setCloudStatus('unknown');
+  updateConnectionUI(false,'未连接');
+  enableQuickButtons(false);
+
+  termWrite(`随身WiFi调试助手 v8.0 已就绪 · 芯片库 ${CHIP_DATABASE.length} 条 · 来源 ${
+    {json:'外部文件',localStorage:'本地缓存',fallback:'内置'}[window.__chipDbSource]||'未知'
+  }`,'info');
+  termWrite('请点击「🔌 选择串口并连接」开始调试。','info');
 
   if(!('serial' in navigator)){
-    document.getElementById('btnConnectUSB').disabled=true;
-    document.getElementById('btnConnectUSB').textContent='⚠ 浏览器不支持 Web Serial';
+    termWrite('⚠ 当前浏览器不支持 Web Serial API，请使用 Chrome / Edge 89+ 桌面版。','err');
+    toast('浏览器不支持 Web Serial','error',6000);
   }
-  console.log('随身WiFi调试助手 v7.0 完整版已加载');
 })();
 </script>
 </body>
