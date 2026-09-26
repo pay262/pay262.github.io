@@ -188,6 +188,12 @@
   .info-value.operator-cu { color: #ff8a80; font-weight: 600; }
   .info-value.operator-ct { color: #52d0d0; font-weight: 600; }
   .info-value.operator-cbn { color: #a78bfa; font-weight: 600; }
+  .eye-btn {
+    background: none; border: none; color: var(--text-dim);
+    cursor: pointer; font-size: 13px; padding: 0 2px; line-height: 1;
+    transition: color .2s; flex-shrink: 0;
+  }
+  .eye-btn:hover { color: var(--accent); }
   ::-webkit-scrollbar { width: 5px; height: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #2e3342; border-radius: 3px; }
@@ -274,7 +280,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v2.6</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v2.7</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -349,7 +355,7 @@
       <div class="terminal" id="terminal">
         <div class="line">
           <span class="prefix info">●</span>
-          <span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v2.6 已就绪。新增运营商显示（AT+COPS?）。</span>
+          <span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v2.7 已就绪。新增隐私保护，增强MAC和频段解析。</span>
         </div>
       </div>
       <div class="terminal-input-row">
@@ -438,8 +444,16 @@
           <div class="info-item"><span class="info-label">运营商</span><span class="info-value empty" id="infoOperator">—</span></div>
           <div class="info-item"><span class="info-label">当前卡槽</span><span class="info-value empty" id="infoCardSlot">—</span></div>
           <div class="info-item"><span class="info-label">当前频段</span><span class="info-value empty" id="infoBand">—</span></div>
-          <div class="info-item"><span class="info-label">IMEI</span><span class="info-value empty" id="infoIMEI">—</span></div>
-          <div class="info-item"><span class="info-label">SN</span><span class="info-value empty" id="infoSN">—</span></div>
+          <div class="info-item">
+            <span class="info-label">IMEI</span>
+            <span class="info-value empty" id="infoIMEI" data-raw="">—</span>
+            <button class="eye-btn" onclick="toggleSensitive('IMEI')" id="eyeIMEI" title="显示/隐藏" style="display:none;">👁️</button>
+          </div>
+          <div class="info-item">
+            <span class="info-label">SN</span>
+            <span class="info-value empty" id="infoSN" data-raw="">—</span>
+            <button class="eye-btn" onclick="toggleSensitive('SN')" id="eyeSN" title="显示/隐藏" style="display:none;">👁️</button>
+          </div>
           <div class="info-item"><span class="info-label">WiFi MAC</span><span class="info-value empty" id="infoMAC">—</span></div>
           <div class="info-item"><span class="info-label">固件版本</span><span class="info-value empty" id="infoVER">—</span></div>
           <div class="info-item"><span class="info-label">信号质量</span><span class="info-value empty" id="infoCSQ">—</span></div>
@@ -524,6 +538,8 @@ const state = {
   mode: 'usb', connected: false, port: null, reader: null,
   readLoopActive: false, logBuffer: [], speedtestAbort: null,
   speedtesting: false, responseBuffer: '', detectedChip: null,
+  sensitiveHidden: { IMEI: true, SN: true }, // 默认隐藏
+  rawValues: { IMEI: '', SN: '' }
 };
 
 const BAND_MAP = {
@@ -564,37 +580,30 @@ const SWITCH_CMD_MAP = {
   },
 };
 
-/* LTE 频段编号映射 */
 const LTE_BAND_MAP = {
   1: 'B1', 2: 'B2', 3: 'B3', 4: 'B4', 5: 'B5', 7: 'B7', 8: 'B8',
   20: 'B20', 28: 'B28', 34: 'B34', 38: 'B38', 39: 'B39',
   40: 'B40', 41: 'B41'
 };
 
-/* 中国运营商 MCC/MNC 映射 */
 const OPERATOR_MAP = {
-  // 中国移动
   '46000': { name: '中国移动', cls: 'operator-cm' },
   '46002': { name: '中国移动', cls: 'operator-cm' },
   '46004': { name: '中国移动', cls: 'operator-cm' },
   '46007': { name: '中国移动', cls: 'operator-cm' },
   '46008': { name: '中国移动', cls: 'operator-cm' },
   '46020': { name: '中国铁通', cls: 'operator-cm' },
-  // 中国联通
   '46001': { name: '中国联通', cls: 'operator-cu' },
   '46006': { name: '中国联通', cls: 'operator-cu' },
   '46009': { name: '中国联通', cls: 'operator-cu' },
   '46010': { name: '中国联通', cls: 'operator-cu' },
-  // 中国电信
   '46003': { name: '中国电信', cls: 'operator-ct' },
   '46005': { name: '中国电信', cls: 'operator-ct' },
   '46011': { name: '中国电信', cls: 'operator-ct' },
   '46012': { name: '中国电信', cls: 'operator-ct' },
-  // 中国广电
   '46015': { name: '中国广电', cls: 'operator-cbn' },
 };
 
-/* 运营商名称关键词 → 中文映射 */
 function mapOperatorName(name) {
   if (!name) return null;
   const n = name.toUpperCase();
@@ -602,12 +611,10 @@ function mapOperatorName(name) {
   if (/MOBILE|CMCC|CHINA\s*MOBILE|CHN-?CMCC/i.test(n)) return { name: '中国移动', cls: 'operator-cm' };
   if (/TELECOM|CTCC|CHINA\s*TELECOM|CHN-?CT/i.test(n)) return { name: '中国电信', cls: 'operator-ct' };
   if (/BROADNET|CBN|CHINA\s*BROADNET|广电/i.test(n)) return { name: '中国广电', cls: 'operator-cbn' };
-  // 已识别的中文
   if (/中国移动/.test(name)) return { name: '中国移动', cls: 'operator-cm' };
   if (/中国联通/.test(name)) return { name: '中国联通', cls: 'operator-cu' };
   if (/中国电信/.test(name)) return { name: '中国电信', cls: 'operator-ct' };
   if (/中国广电/.test(name)) return { name: '中国广电', cls: 'operator-cbn' };
-  // 未识别的直接返回原名称
   return { name: name, cls: 'ok' };
 }
 
@@ -898,6 +905,54 @@ async function autoDetectChip() {
 }
 
 /* ═══════════════════════════════════════════════════
+   ★ 隐私保护：隐藏/显示 IMEI 和 SN
+   ═══════════════════════════════════════════════════ */
+function maskValue(val, type) {
+  if (!val || val === '—' || val.length < 6) return val;
+  if (type === 'IMEI') {
+    // 显示前4后4，中间打码
+    return val.substring(0, 4) + '********' + val.substring(val.length - 4);
+  } else {
+    // SN 显示前3后3
+    return val.substring(0, 3) + '*****' + val.substring(val.length - 3);
+  }
+}
+
+function toggleSensitive(type) {
+  state.sensitiveHidden[type] = !state.sensitiveHidden[type];
+  const eyeBtn = document.getElementById('eye' + type);
+  eyeBtn.textContent = state.sensitiveHidden[type] ? '👁️' : '🙈';
+  eyeBtn.title = state.sensitiveHidden[type] ? '显示原始值' : '隐藏敏感信息';
+  updateSensitiveDisplay(type);
+}
+
+function updateSensitiveDisplay(type) {
+  const el = document.getElementById('info' + type);
+  const raw = state.rawValues[type];
+  if (!raw) return;
+  if (state.sensitiveHidden[type]) {
+    el.textContent = maskValue(raw, type);
+  } else {
+    el.textContent = raw;
+  }
+}
+
+function setInfoValue(type, rawValue) {
+  state.rawValues[type] = rawValue;
+  const el = document.getElementById('info' + type);
+  el.setAttribute('data-raw', rawValue);
+  el.className = 'info-value ok';
+  const eyeBtn = document.getElementById('eye' + type);
+  eyeBtn.style.display = 'inline-block';
+  // 默认隐藏
+  if (state.sensitiveHidden[type]) {
+    el.textContent = maskValue(rawValue, type);
+  } else {
+    el.textContent = rawValue;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
    设备信息解析
    ═══════════════════════════════════════════════════ */
 function setInfo(id, value, cls = 'ok') {
@@ -917,18 +972,18 @@ function parseDeviceInfo(line) {
   // IMEI
   let m = line.match(/\+CGSN[:\s]+(\d{14,16})/i);
   if (m) {
-    setInfo('infoIMEI', m[1]);
+    setInfoValue('IMEI', m[1]);
   } else if (/^\d{15}$/.test(line)) {
-    setInfo('infoIMEI', line);
+    setInfoValue('IMEI', line);
   }
 
   // SN
   m = line.match(/[*+]MRD_SN[:\s]+([A-Za-z0-9]+)/i);
   if (m) {
-    setInfo('infoSN', m[1]);
+    setInfoValue('SN', m[1]);
   } else {
     m = line.match(/\+SN[:\s]+([A-Za-z0-9]+)/i);
-    if (m) setInfo('infoSN', m[1]);
+    if (m) setInfoValue('SN', m[1]);
   }
 
   // 固件版本
@@ -940,8 +995,10 @@ function parseDeviceInfo(line) {
     if (m) setInfo('infoVER', m[1].trim());
   }
 
-  // MAC
+  // MAC：扩展匹配格式
   m = line.match(/[*+]MRD_WIFIID[:\s]+([0-9A-Fa-f:]{12,20})/i) ||
+      line.match(/[+*]WIFIID[:\s]+([0-9A-Fa-f:]{12,20})/i) ||
+      line.match(/[+*]MAC[:\s]+([0-9A-Fa-f:]{12,20})/i) ||
       line.match(/([0-9A-Fa-f]{2}[:\-]){5}[0-9A-Fa-f]{2}/);
   if (m) {
     setInfo('infoMAC', m[1] || m[0]);
@@ -956,32 +1013,25 @@ function parseDeviceInfo(line) {
     el.className = 'info-value ' + (csq === 99 ? 'empty' : csq >= 10 ? 'ok' : 'warn');
   }
 
-  // ── 运营商：解析 +COPS ──
-  // 格式1（带名称）: +COPS: 0,0,"CHN-UNICOM",7
-  // 格式2（数字码）:  +COPS: 0,2,46001,7
-  // 格式3（无卡）:    +COPS: 0
+  // 运营商
   m = line.match(/\+COPS[:\s]*(\d+)(?:,\s*(\d+)\s*,\s*(?:"([^"]*)"|(\d+)))?/i);
   if (m) {
     const mode = parseInt(m[1]);
-    const format = m[2] !== undefined ? parseInt(m[2]) : null;
     const nameStr = m[3] || '';
     const numStr = m[4] || '';
     const el = document.getElementById('infoOperator');
 
     if (mode === 0 && !nameStr && !numStr) {
-      // 未注册或飞行模式
       el.textContent = '未注册';
       el.className = 'info-value warn';
       el.title = `原始响应: ${line}`;
     } else if (nameStr) {
-      // 带名称的响应
       const op = mapOperatorName(nameStr);
       if (op) {
         setOperator(op.name, op.cls);
         el.title = `原始响应: ${line}\nMCC/MNC名: ${nameStr}`;
       }
     } else if (numStr) {
-      // 数字 MCC/MNC
       const code5 = numStr.substring(0, 5);
       const op = OPERATOR_MAP[code5];
       if (op) {
@@ -1021,24 +1071,55 @@ function parseDeviceInfo(line) {
     }
   }
 
-  // 当前频段
-  m = line.match(/\*BANDIND[:\s]*(\d+),(\d+)(?:,(\d+))?/i);
+  // 当前频段：优化解析，兼容多种返回格式
+  // 格式1: *BANDIND: 1,3,7 (使能,频段,接入技术)
+  // 格式2: *BANDIND: 3,7 (频段,接入技术)
+  // 格式3: *BANDIND: 3 (只有频段)
+  m = line.match(/[*+]BANDIND[:\s]*(.+)/i);
   if (m) {
-    const bandNum = parseInt(m[2]);
-    const act = m[3] ? parseInt(m[3]) : null;
-    const el = document.getElementById('infoBand');
-    let bandName = '';
-    if (act === 7 || act === null) {
-      bandName = LTE_BAND_MAP[bandNum] || `B${bandNum}`;
-    } else if (act >= 2 && act <= 6) {
-      bandName = `UMTS B${bandNum}`;
-    } else {
-      bandName = `B${bandNum}`;
+    const parts = m[1].split(',').map(s => s.trim());
+    let bandNum = null;
+    let act = null;
+
+    if (parts.length >= 3) {
+      // 格式1：可能包含使能状态
+      // 如果第一个数字是 0 或 1，则第二个是频段
+      if (parts[0] === '0' || parts[0] === '1') {
+        bandNum = parseInt(parts[1]);
+        act = parseInt(parts[2]);
+      } else {
+        bandNum = parseInt(parts[0]);
+        act = parseInt(parts[1]);
+      }
+    } else if (parts.length === 2) {
+      bandNum = parseInt(parts[0]);
+      act = parseInt(parts[1]);
+    } else if (parts.length === 1) {
+      bandNum = parseInt(parts[0]);
     }
-    el.textContent = bandName;
-    el.title = `原始响应: ${line}`;
-    el.className = 'info-value ok';
+
+    if (!isNaN(bandNum) && bandNum > 0) {
+      const el = document.getElementById('infoBand');
+      let bandName = '';
+      if (act === 7 || act === null || act === undefined) {
+        bandName = LTE_BAND_MAP[bandNum] || `B${bandNum}`;
+      } else if (act >= 2 && act <= 6) {
+        bandName = `UMTS B${bandNum}`;
+      } else {
+        bandName = `B${bandNum}`;
+      }
+      el.textContent = bandName;
+      el.title = `原始响应: ${line}`;
+      el.className = 'info-value ok';
+    } else {
+      const el = document.getElementById('infoBand');
+      el.textContent = '解析失败';
+      el.title = `原始响应: ${line}`;
+      el.className = 'info-value warn';
+    }
   }
+
+  // 频段配置掩码（兜底显示）
   m = line.match(/[*+]BAND[:\s]*(?!IND)(.+)/i);
   if (m) {
     const bandEl = document.getElementById('infoBand');
@@ -1075,26 +1156,54 @@ async function autoQueryDeviceInfo() {
   // 信号质量
   await queryAndCollect('AT+CSQ', 600);
 
-  // 运营商（先设置长名称格式，再查询）
+  // 运营商
   await queryAndCollect('AT+COPS=3,0', 400);
   await queryAndCollect('AT+COPS?', 800);
+
+  // MAC：多指令尝试
+  termWrite('尝试查询 WiFi MAC 地址...', 'info');
+  resp = await queryAndCollect('AT*MRD_WIFIID?', 600);
+  if (!/WIFIID|MAC|[0-9A-Fa-f]{2}:/i.test(resp)) {
+    resp = await queryAndCollect('AT+WIFIMAC?', 600);
+    if (!/MAC|[0-9A-Fa-f]{2}:/i.test(resp)) {
+      await queryAndCollect('AT+MAC?', 600);
+    }
+  }
 
   // 当前卡槽
   const cfg = SWITCH_CMD_MAP[chip];
   if (cfg) await queryAndCollect(cfg.query, 600);
 
-  // 当前实际频段
-  await queryAndCollect('AT*BANDIND?', 600);
+  // 当前实际频段：先试 ASR 私有指令，再试通用指令
+  termWrite('尝试查询当前频段...', 'info');
+  resp = await queryAndCollect('AT*BANDIND?', 600);
+  if (/ERROR|^\s*$/m.test(resp) || !/BANDIND/i.test(resp)) {
+    termWrite('AT*BANDIND? 无响应，尝试 AT+BANDIND?', 'info');
+    resp = await queryAndCollect('AT+BANDIND?', 600);
+    if (/ERROR|^\s*$/m.test(resp) || !/BANDIND/i.test(resp)) {
+      termWrite('设备可能不支持 BANDIND 指令，请手动在终端查询。', 'info');
+    }
+  }
 
   termWrite('设备信息查询完成。', 'info');
 }
 
 function resetDeviceInfo() {
-  ['infoChip','infoOperator','infoCardSlot','infoBand','infoIMEI','infoSN','infoMAC','infoVER','infoCSQ'].forEach(id => {
+  ['infoChip','infoOperator','infoCardSlot','infoBand','infoMAC','infoVER','infoCSQ'].forEach(id => {
     const el = document.getElementById(id);
     el.textContent = '—';
     el.className = 'info-value empty';
     el.title = '';
+  });
+  // 重置 IMEI 和 SN 并隐藏眼睛
+  ['IMEI', 'SN'].forEach(type => {
+    state.rawValues[type] = '';
+    state.sensitiveHidden[type] = true;
+    const el = document.getElementById('info' + type);
+    el.textContent = '—';
+    el.className = 'info-value empty';
+    document.getElementById('eye' + type).style.display = 'none';
+    document.getElementById('eye' + type).textContent = '👁️';
   });
   setCloudStatus('unknown');
 }
@@ -1429,7 +1538,7 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-console.log('随身WiFi调试助手 v2.6 已加载 | 新增运营商显示');
+console.log('随身WiFi调试助手 v2.7 已加载 | 新增隐私保护，增强 MAC 和频段解析');
 </script>
 </body>
 </html>
