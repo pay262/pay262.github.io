@@ -164,7 +164,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v8.0</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v8.1</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -212,7 +212,7 @@
           <button class="btn btn-danger" id="btnDisconnectUSB" onclick="disconnect()" disabled>断开连接</button>
         </div>
         <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          <b style="color:var(--warn);">v8.0 完整版：</b>恢复芯片库外挂、DTR/RTS 扫描、AT 唤醒、5G 查询、全部功能。
+          <b style="color:var(--warn);">v8.1：</b>修正 isErrorResponse 通用判定 bug，避免指令回显误触发芯片探测。
         </div>
       </div>
       <div id="panelWiFi" class="hidden">
@@ -234,7 +234,7 @@
     </div>
     <div class="terminal-wrap">
       <div class="terminal" id="terminal">
-        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v8.0 完整版已就绪。</span></div>
+        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v8.1 已就绪。</span></div>
       </div>
       <div class="terminal-input-row">
         <span class="prompt">AT&gt;</span>
@@ -257,7 +257,6 @@
         </div>
       </div>
 
-      <!-- 芯片库管理 -->
       <div class="quick-section">
         <h4>芯片库管理 <span class="badge-tag blue" style="font-size:9px;">外挂</span></h4>
         <div class="quick-grid">
@@ -390,7 +389,6 @@
         </div>
       </div>
 
-      <!-- 5G 网络查询专用组 -->
       <div class="quick-section">
         <h4>5G 网络查询 <span class="badge-tag cyan" style="font-size:9px;">NR</span></h4>
         <div class="quick-grid">
@@ -421,7 +419,6 @@
   </div>
 </div>
 
-<!-- 写入弹窗 -->
 <div class="modal-overlay" id="writeModal">
   <div class="modal">
     <h3 id="writeModalTitle">改写 IMEI</h3>
@@ -448,7 +445,6 @@
   </div>
 </div>
 
-<!-- 云控弹窗 -->
 <div class="modal-overlay" id="cloudModal">
   <div class="modal" style="width:440px;">
     <h3>去云控 / 解除限速</h3>
@@ -492,7 +488,7 @@ function getLineEnding() {
    内置 fallback 芯片数据库
    ═══════════════════════════════════════════════════════════════════════════ */
 const FALLBACK_CHIP_DATABASE_RAW = {
-  version:"2.2", updated:"2026-09-26",
+  version:"2.3", updated:"2026-09-26",
   chips:[
     {
       id:'zxic', name:'中兴微', fullName:'中兴微电子 ZX297520 / ZX297520V3', generation:'4G',
@@ -602,7 +598,6 @@ function compileChipDatabase(raw){
 }
 
 async function loadChipDatabase(){
-  // ① localStorage
   try{
     const cached=localStorage.getItem('atmaster_chip_db');
     if(cached){
@@ -616,7 +611,6 @@ async function loadChipDatabase(){
       }
     }
   }catch(e){}
-  // ② 外部 JSON
   try{
     const resp=await fetch('./chip-database.json',{cache:'no-store'});
     if(resp.ok){
@@ -630,7 +624,6 @@ async function loadChipDatabase(){
       }
     }
   }catch(e){console.log('[芯片库] 外部 JSON 加载失败，使用内置');}
-  // ③ fallback
   CHIP_DATABASE=compileChipDatabase(FALLBACK_CHIP_DATABASE_RAW);
   window.__chipDbSource='fallback';
   window.__chipDbVersion=FALLBACK_CHIP_DATABASE_RAW.version;
@@ -970,12 +963,17 @@ async function queryFirstAvailable(cmds,waitMs=1500,stopRegex=null){
   }
   return null;
 }
+
+/* ★ v8.1 修复：isErrorResponse 使用宽松匹配，避免"回显+ERROR"漏判
+   旧逻辑只匹配整段 === 'ERROR'，导致 "AT+XXX?\nERROR" 被判为"非错误"。
+   新逻辑只要响应中出现独立的 ERROR 词，即判定为失败。 */
 function isErrorResponse(r){
   if(!r)return true;
   const t=r.trim();
-  if(t==='ERROR')return true;
-  if(/^\+CME ERROR/im.test(t))return true;
-  if(/^\+CMS ERROR/im.test(t))return true;
+  if(t==='')return true;
+  if(/\bERROR\b/i.test(t))return true;
+  if(/\+CME ERROR/i.test(t))return true;
+  if(/\+CMS ERROR/i.test(t))return true;
   return false;
 }
 function isValidResponse(r){
@@ -997,12 +995,9 @@ function setNetworkType(type,subText){
   if(type==='5g'){i.className='icon g5';i.textContent='5G';v.className='value g5';v.textContent='5G NR';s.textContent=subText||'已接入 5G';}
   else if(type==='4g'){i.className='icon g4';i.textContent='4G';v.className='value g4';v.textContent='4G LTE';s.textContent=subText||'已接入 4G';}
   else{i.className='icon unknown';i.textContent='?';v.className='value unknown';v.textContent=state.connected?'识别中...':'未连接';s.textContent=subText||(state.connected?'正在查询':'请连接设备');}
-
-  // ASR 4G 平台即使为 4G 也展示 RSRP/SINR 行
   const showSignal = (type==='5g') || (state.detectedChip === 'asr4g');
   document.getElementById('rowRSRP').style.display = showSignal ? 'flex' : 'none';
   document.getElementById('rowSINR').style.display = showSignal ? 'flex' : 'none';
-
   if(changed||subText)renderBandLockSection();
 }
 async function detectNetworkType(){
@@ -1537,13 +1532,8 @@ function setInfo(id,value,cls='ok'){
 function parseDeviceInfo(line){
   let m;
 
-  /* ═══════════════════════════════════════════════════════════════════════
-     ASR 4G 专属实时数据解析
-     拦截 +CESQ / *CESQ / +EEMLTESVC，直接提取物理层数据
-     ═══════════════════════════════════════════════════════════════════════ */
+  /* ═══ ASR 4G 专属实时数据解析（v8.0 已添加，v8.1 不变） ═══ */
   if (state.detectedChip === 'asr4g') {
-    // 1. +CESQ —— 精准 RSRP（第6参数）
-    // 例: +CESQ: 62,99,255,255,21,63  → RSRP = -140 + 63 = -77 dBm
     m = line.match(/\+CESQ:\s*(\d+),(\d+),(\d+),(\d+),(\d+),(\d+)/i);
     if (m) {
       const rsrpRaw = parseInt(m[6]);
@@ -1553,9 +1543,6 @@ function parseDeviceInfo(line){
         document.getElementById('rowRSRP').style.display = 'flex';
       }
     }
-
-    // 2. *CESQ —— 精准 SINR（第7参数）
-    // 例: *CESQ: 62,99,255,255,21,63,19  → SINR = 19 dB
     m = line.match(/\*CESQ:\s*(\d+),(\d+),(\d+),(\d+),(\d+),(\d+),(\d+)/i);
     if (m) {
       const sinr = parseInt(m[7]);
@@ -1564,10 +1551,6 @@ function parseDeviceInfo(line){
         document.getElementById('rowSINR').style.display = 'flex';
       }
     }
-
-    // 3. +EEMLTESVC —— PCI / EARFCN / RSRP / SINR
-    // 例: +EEMLTESVC: 1120, 2, 1, 31338, 288, 1850, 19850, 3, 5, 63, 19, 18, ...
-    //     parts[4]=PCI(288)  parts[5]=EARFCN(1850)  parts[9]=RSRP(63)  parts[10]=SINR(19)
     m = line.match(/\+EEMLTESVC:\s*([\d\s,]+)/i);
     if (m) {
       const parts = m[1].split(',').map(s => parseInt(s.trim()));
@@ -1576,8 +1559,6 @@ function parseDeviceInfo(line){
         const earfcn = parts[5];
         const rsrpRaw = parts[9];
         const sinr = parts[10];
-
-        // 根据 EARFCN 换算真实频段（3GPP TS 36.101 标准）
         let band = '';
         if (earfcn >= 0 && earfcn <= 599) band = 'B1';
         else if (earfcn >= 600 && earfcn <= 1199) band = 'B2';
@@ -1590,14 +1571,12 @@ function parseDeviceInfo(line){
         else if (earfcn >= 38250 && earfcn <= 38649) band = 'B39';
         else if (earfcn >= 38650 && earfcn <= 39649) band = 'B40';
         else if (earfcn >= 39650 && earfcn <= 41589) band = 'B41';
-
         if (band) {
           const elBand = document.getElementById('infoBand');
           elBand.textContent = `LTE ${band}`;
           elBand.className = 'info-value net4g';
           elBand.title = `PCI: ${pci}, EARFCN: ${earfcn} (ASR 实时数据)`;
         }
-
         if (rsrpRaw > 0 && rsrpRaw < 100) {
           const rsrpDbm = -140 + rsrpRaw;
           setInfo('infoRSRP', `${rsrpDbm} dBm`, 'ipv4');
@@ -1609,9 +1588,7 @@ function parseDeviceInfo(line){
         }
       }
     }
-    // 注意：不在此处 return，ICCID/IMEI/SN/MAC 等通用解析仍需继续
   }
-  /* ═══════════════════════════════════════════════════════════════════════ */
 
   m=line.match(/\+ZULI[:\s]+\d+,\s*"?([0-9A-Za-z,]+?)"?\s*$/i);
   if(m){
@@ -1643,15 +1620,13 @@ function parseDeviceInfo(line){
     ||line.match(/([0-9A-Fa-f]{2}[:\-]){5}[0-9A-Fa-f]{2}/);
   if(m)setInfo('infoMAC',m[1]||m[0]);
 
-  /* ─────── CSQ 解析（按芯片平台分支） ─────── */
+  /* CSQ 解析（按芯片平台分支） */
   m=line.match(/\+CSQ[:\s]*([\d,\-]+)/);
   if(m){
     const parts=m[1].split(',').map(s=>s.trim());
     const first=parseInt(parts[0]);
     const el=document.getElementById('infoCSQ');
-
     if (state.detectedChip === 'asr4g') {
-      // ASR 4G 专属：只显示等级，不换算成虚假的 dBm
       if(first===99){el.textContent='无信号';el.className='info-value empty';}
       else if(first>=0&&first<=31){
         let level = first >= 20 ? '强' : first >= 15 ? '良' : first >= 10 ? '中' : '弱';
@@ -1660,7 +1635,6 @@ function parseDeviceInfo(line){
         el.title = `原始响应: ${line}。注：ASR 的 CSQ 为等级非 RSRP，真实 RSRP 请看上方 RSRP 栏`;
       }
     } else {
-      // 原有中兴微/通用逻辑保持不变
       if(first===99){el.textContent='无信号';el.className='info-value empty';}
       else if(first>=0&&first<=31){
         const dbm=-113+first*2;
@@ -1698,11 +1672,8 @@ function parseDeviceInfo(line){
     el.className='info-value '+(slot===0?'ok':'warn');
   }
 
-  /* ─────── +ZBAND 解析（按芯片平台分支） ─────── */
   m=line.match(/\+ZBAND[:\s]*(.+)/i);
   if(m){
-    // ASR 4G 平台：ZBAND 的含义不可靠，且这台 ASR 设备 ZBAND 可能直接返回 ERROR，
-    // 直接忽略，让 +EEMLTESVC 的 EARFCN 负责真实频段
     if (state.detectedChip !== 'asr4g') {
       const parts=m[1].split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n));
       if(parts.length>0){
@@ -2036,7 +2007,6 @@ async function checkCloudControl(){
   document.getElementById('btnCheckCloud').disabled=false;
 }
 
-/* ── 云控弹窗 ── */
 function openCloudModal(){
   document.getElementById('cloudModal').classList.add('show');
   document.getElementById('cloudCmdResult').style.display='none';
@@ -2131,32 +2101,27 @@ async function closeADB(){
    全局事件 & 初始化
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* 点击遮罩关闭弹窗 */
 document.getElementById('writeModal').addEventListener('click',e=>{
   if(e.target.id==='writeModal'&&!state.writeInProgress)closeWriteModal();
 });
 document.getElementById('cloudModal').addEventListener('click',e=>{
   if(e.target.id==='cloudModal')closeCloudModal();
 });
-/* ESC 关闭弹窗 */
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
     if(document.getElementById('writeModal').classList.contains('show')&&!state.writeInProgress)closeWriteModal();
     if(document.getElementById('cloudModal').classList.contains('show'))closeCloudModal();
   }
 });
-/* 页面关闭时释放串口 */
 window.addEventListener('beforeunload',()=>{
   try{ if(state.port) state.port.close(); }catch(e){}
 });
 
-/* 启动 */
 (async function init(){
   await loadChipDatabase();
   initChipDropdown();
   updateChipDbInfo();
 
-  /* 恢复上次配置 */
   const lb=localStorage.getItem('atmaster_last_baud');
   if(lb){
     const s=document.getElementById('baudRate');
@@ -2180,7 +2145,7 @@ window.addEventListener('beforeunload',()=>{
   updateConnectionUI(false,'未连接');
   enableQuickButtons(false);
 
-  termWrite(`随身WiFi调试助手 v8.0 已就绪 · 芯片库 ${CHIP_DATABASE.length} 条 · 来源 ${
+  termWrite(`随身WiFi调试助手 v8.1 已就绪 · 芯片库 ${CHIP_DATABASE.length} 条 · 来源 ${
     {json:'外部文件',localStorage:'本地缓存',fallback:'内置'}[window.__chipDbSource]||'未知'
   }`,'info');
   termWrite('请点击「🔌 选择串口并连接」开始调试。','info');

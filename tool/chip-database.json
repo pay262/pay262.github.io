@@ -1,7 +1,7 @@
 {
-  "version": "2.2",
+  "version": "2.3",
   "updated": "2026-09-26",
-  "description": "随身WiFi调试助手芯片数据库。新增芯片时在 chips 数组末尾追加一条记录即可。detectKeywords 和 probe.kw 使用正则字符串（忽略大小写），AT 指令中的双引号需转义为 \\\"。数据来源：各芯片厂商AT手册 + 全网技术社区整理。",
+  "description": "随身WiFi调试助手芯片数据库。新增芯片时在 chips 数组末尾追加一条记录即可。detectKeywords 和 probe.kw 使用正则字符串（忽略大小写），AT 指令中的双引号需转义为 \\\"。数据来源：各芯片厂商AT手册 + 全网技术社区整理。v2.3 修正 zxic/asr4g 的 probe.kw 匹配（防止指令回显误触发），扩展 asr4g 的 detectKeywords。",
   "chips": [
     {
       "id": "zxic",
@@ -20,7 +20,7 @@
       ],
       "probe": {
         "cmd": "AT+ZICCID?",
-        "kw": "ZICCID"
+        "kw": "\\+ZICCID"
       },
       "simSwitch": {
         "external": "AT+ZCARDSWITCH=0",
@@ -77,10 +77,10 @@
       "name": "ASR 4G",
       "fullName": "翱捷科技 ASR1802 / ASR1803 / ASR1806 / ASR8861 / ASR7801",
       "generation": "4G",
-      "detectKeywords": ["ASR1806", "ASR1803", "ASR1802", "ASR180", "ASR8861", "ASR7801", "Air720", "Air724"],
+      "detectKeywords": ["ASR, Inc.", "Nezha", "ASR", "ASR1806", "ASR1803", "ASR1802", "ASR180", "ASR8861", "ASR7801", "Air720", "Air724"],
       "probe": {
         "cmd": "AT+SWSIM?",
-        "kw": "SWSIM"
+        "kw": "\\+SWSIM"
       },
       "simSwitch": {
         "external": "AT+SWSIM=0",
