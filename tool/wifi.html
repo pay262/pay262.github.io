@@ -51,7 +51,7 @@
     background: var(--success); box-shadow: 0 0 8px rgba(46,204,113,.6);
   }
   .main {
-    flex: 1; display: grid; grid-template-columns: 300px 1fr 320px;
+    flex: 1; display: grid; grid-template-columns: 300px 1fr 340px;
     gap: 0; overflow: hidden; height: calc(100vh - 57px);
   }
   @media (max-width: 1100px) {
@@ -173,13 +173,13 @@
   }
   .info-item {
     display: flex; justify-content: space-between; align-items: flex-start;
-    padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,.04); font-size: 12px;
+    padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.04); font-size: 12px;
     gap: 8px;
   }
   .info-item:last-child { border-bottom: none; }
-  .info-label { color: var(--text-dim); flex-shrink: 0; min-width: 64px; }
+  .info-label { color: var(--text-dim); flex-shrink: 0; min-width: 68px; }
   .info-value {
-    font-family: var(--font-mono); font-size: 11.5px;
+    font-family: var(--font-mono); font-size: 11px;
     text-align: right; word-break: break-all; color: var(--text);
     flex: 1; cursor: help;
   }
@@ -195,8 +195,10 @@
   .info-value.qci-mid  { color: #f39c12; font-weight: 600; }
   .info-value.qci-low  { color: #4f7cff; font-weight: 600; }
   .info-value.qci-custom { color: #a78bfa; font-weight: 600; }
-  .info-value.public-ip { color: #6ee7b7; font-weight: 600; }
-  .info-value.local-ip { color: #fbbf24; font-weight: 600; }
+  .info-value.ipv4 { color: #6ee7b7; font-weight: 600; }
+  .info-value.ipv6 { color: #c084fc; font-weight: 600; }
+  .info-value.net5g { color: #22d3ee; font-weight: 600; }
+  .info-value.net4g { color: #fbbf24; font-weight: 600; }
   .eye-btn {
     background: none; border: none; color: var(--text-dim);
     cursor: pointer; font-size: 13px; padding: 0 2px; line-height: 1;
@@ -283,9 +285,9 @@
   .badge-tag.orange { background: rgba(243,156,18,.15); color: var(--warn); }
   .badge-tag.gray { background: rgba(139,145,165,.12); color: var(--text-dim); }
   .badge-tag.red { background: rgba(231,76,60,.15); color: var(--error); }
+  .badge-tag.cyan { background: rgba(34,211,238,.15); color: #22d3ee; }
   .btn-stop { background: var(--error) !important; box-shadow: 0 2px 10px rgba(231,76,60,.3) !important; }
   .btn-stop:hover:not(:disabled) { background: #ff6b5b !important; }
-
   .validation-hint {
     font-size: 11px; margin-top: 4px; min-height: 16px;
     font-family: var(--font-mono);
@@ -330,7 +332,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v3.4</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v4.0</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -386,9 +388,6 @@
           </select>
         </div>
         <button class="btn btn-primary" id="btnConnectWiFi" onclick="connectWiFi()">📶 检测设备可达性</button>
-        <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          浏览器安全策略限制，无法直接通过 WiFi 发送 AT 指令。<br>此模式用于检测设备网关是否可达。
-        </div>
       </div>
     </div>
   </div>
@@ -405,7 +404,7 @@
       <div class="terminal" id="terminal">
         <div class="line">
           <span class="prefix info">●</span>
-          <span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v3.4 已就绪。新增公网 IP / 内网 IP 查询显示。</span>
+          <span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v4.0 已就绪。支持 5G 设备 + IPv4/IPv6 分别显示。</span>
         </div>
       </div>
       <div class="terminal-input-row">
@@ -426,9 +425,13 @@
         <h4>设备信息</h4>
         <div>
           <div class="info-item"><span class="info-label">芯片平台</span><span class="info-value empty" id="infoChip">—</span></div>
+          <div class="info-item"><span class="info-label">网络类型</span><span class="info-value empty" id="infoNetType">—</span></div>
           <div class="info-item"><span class="info-label">运营商</span><span class="info-value empty" id="infoOperator">—</span></div>
           <div class="info-item"><span class="info-label">当前卡槽</span><span class="info-value empty" id="infoCardSlot">—</span></div>
           <div class="info-item"><span class="info-label">当前频段</span><span class="info-value empty" id="infoBand">—</span></div>
+          <div class="info-item"><span class="info-label">信号/质量</span><span class="info-value empty" id="infoCSQ">—</span></div>
+          <div class="info-item"><span class="info-label">5G RSRP</span><span class="info-value empty" id="infoRSRP">—</span></div>
+          <div class="info-item"><span class="info-label">5G SINR</span><span class="info-value empty" id="infoSINR">—</span></div>
           <div class="info-item"><span class="info-label">QCI 等级</span><span class="info-value empty" id="infoQCI">—</span></div>
           <div class="info-item">
             <span class="info-label">ICCID</span>
@@ -447,12 +450,25 @@
           </div>
           <div class="info-item"><span class="info-label">WiFi MAC</span><span class="info-value empty" id="infoMAC">—</span></div>
           <div class="info-item"><span class="info-label">固件版本</span><span class="info-value empty" id="infoVER">—</span></div>
-          <div class="info-item"><span class="info-label">信号质量</span><span class="info-value empty" id="infoCSQ">—</span></div>
-          <div class="info-item"><span class="info-label">公网 IP</span><span class="info-value empty" id="infoPublicIP">—</span></div>
-          <div class="info-item"><span class="info-label">内网 IP</span><span class="info-value empty" id="infoLocalIP">—</span></div>
         </div>
       </div>
 
+      <!-- IP 地址 -->
+      <div class="quick-section">
+        <h4>IP 地址</h4>
+        <div>
+          <div class="info-item"><span class="info-label">公网 IPv4</span><span class="info-value empty" id="infoPubV4">—</span></div>
+          <div class="info-item"><span class="info-label">公网 IPv6</span><span class="info-value empty" id="infoPubV6">—</span></div>
+          <div class="info-item"><span class="info-label">内网 IPv4</span><span class="info-value empty" id="infoLocV4">—</span></div>
+          <div class="info-item"><span class="info-label">内网 IPv6</span><span class="info-value empty" id="infoLocV6">—</span></div>
+        </div>
+        <button class="btn btn-primary" style="margin-top:8px;background:rgba(110,231,183,.12);color:#6ee7b7;border:1px solid rgba(110,231,183,.3);box-shadow:none;" 
+                onclick="refreshIPs()" disabled id="btnRefreshIP">
+          🌐 刷新 IP 地址
+        </button>
+      </div>
+
+      <!-- SIM 卡切换 -->
       <div class="quick-section">
         <h4>SIM 卡切换 <span class="badge-tag blue" style="font-size:9px;">核心</span></h4>
         <div class="form-group" style="margin-bottom:8px;">
@@ -487,31 +503,26 @@
         <div style="margin-top:8px;font-size:11px;color:var(--text-dim);line-height:1.6;" id="switchTip"></div>
       </div>
 
+      <!-- 写入操作 -->
       <div class="quick-section">
         <h4>写入操作 <span class="badge-tag red" style="font-size:9px;">危险</span></h4>
         <div class="quick-grid">
           <button class="quick-btn" onclick="openWriteModal('IMEI')" disabled id="btnWriteIMEI">
-            ✏️ 改写 IMEI
-            <span class="cmd-hint">AT*MRD_IMEI</span>
+            ✏️ 改写 IMEI<span class="cmd-hint">AT*MRD_IMEI</span>
           </button>
           <button class="quick-btn" onclick="openWriteModal('SN')" disabled id="btnWriteSN">
-            ✏️ 改写 SN
-            <span class="cmd-hint">AT*MRD_SN</span>
+            ✏️ 改写 SN<span class="cmd-hint">AT*MRD_SN</span>
           </button>
           <button class="quick-btn danger" onclick="openWriteModal('DEL_IMEI')" disabled id="btnDelIMEI">
-            🗑️ 删除 IMEI
-            <span class="cmd-hint">D 参数</span>
+            🗑️ 删除 IMEI<span class="cmd-hint">D 参数</span>
           </button>
           <button class="quick-btn danger" onclick="openWriteModal('DEL_SN')" disabled id="btnDelSN">
-            🗑️ 删除 SN
-            <span class="cmd-hint">D 参数</span>
+            🗑️ 删除 SN<span class="cmd-hint">D 参数</span>
           </button>
-        </div>
-        <div style="margin-top:8px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          <b style="color:var(--warn);">⚠ 警告：</b>改写 IMEI/SN 需先进入工厂模式，操作有风险。
         </div>
       </div>
 
+      <!-- 限速检测 -->
       <div class="quick-section">
         <h4>限速检测</h4>
         <div class="speedtest-box">
@@ -529,6 +540,7 @@
         </button>
       </div>
 
+      <!-- 云控状态 -->
       <div class="quick-section">
         <h4>云控状态</h4>
         <div class="cloud-status unknown" id="cloudStatus">
@@ -541,36 +553,45 @@
         </div>
       </div>
 
+      <!-- 信息查询 -->
       <div class="quick-section">
         <h4>信息查询</h4>
         <div class="quick-grid">
-          <button class="quick-btn" onclick="refreshIPs()" disabled id="btnRefreshIP"
-                  style="grid-column:1/-1;color:#6ee7b7;border-color:rgba(110,231,183,.3);">
-            🌐 刷新 IP 地址
-            <span class="cmd-hint">公网 + 内网</span>
-          </button>
-          <button class="quick-btn" onclick="quickCmd('AT+QCCID')" disabled>ICCID 查询<span class="cmd-hint">AT+QCCID</span></button>
-          <button class="quick-btn" onclick="quickCmd('AT+CRSM=176,12258,0,0,0')" disabled>ICCID(CRSM)<span class="cmd-hint">底层读取</span></button>
-          <button class="quick-btn" onclick="quickCmd('AT+CGEQOSRDP')" disabled>QCI 查询<span class="cmd-hint">AT+CGEQOSRDP</span></button>
-          <button class="quick-btn" onclick="quickCmd('AT+CGSN')" disabled>IMEI 查询<span class="cmd-hint">AT+CGSN</span></button>
-          <button class="quick-btn" onclick="quickCmd('AT*MRD_SN?')" disabled>SN 查询<span class="cmd-hint">AT*MRD_SN?</span></button>
-          <button class="quick-btn" onclick="quickCmd('AT*MRD_WIFIID?')" disabled>MAC 查询<span class="cmd-hint">AT*MRD_WIFIID?</span></button>
-          <button class="quick-btn" onclick="quickCmd('AT+CGMR')" disabled>版本查询<span class="cmd-hint">AT+CGMR</span></button>
-          <button class="quick-btn" onclick="quickCmd('AT+CSQ')" disabled>信号质量<span class="cmd-hint">AT+CSQ</span></button>
-          <button class="quick-btn" onclick="quickCmd('AT*BANDIND?')" disabled>频段查询<span class="cmd-hint">AT*BANDIND?</span></button>
-          <button class="quick-btn" onclick="quickCmd('AT+COPS?')" disabled>运营商<span class="cmd-hint">AT+COPS?</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT+QCCID')" disabled>ICCID<span class="cmd-hint">AT+QCCID</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT+CRSM=176,12258,0,0,0')" disabled>ICCID(CRSM)<span class="cmd-hint">底层</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT+CGSN')" disabled>IMEI<span class="cmd-hint">AT+CGSN</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT*MRD_SN?')" disabled>SN<span class="cmd-hint">AT*MRD_SN?</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT*MRD_WIFIID?')" disabled>MAC<span class="cmd-hint">AT*MRD_WIFIID?</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT+CGMR')" disabled>版本<span class="cmd-hint">AT+CGMR</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT+CSQ')" disabled>信号<span class="cmd-hint">AT+CSQ</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT+CGEQOSRDP')" disabled>QCI<span class="cmd-hint">AT+CGEQOSRDP</span></button>
         </div>
       </div>
 
+      <!-- 5G 专用查询 -->
+      <div class="quick-section">
+        <h4>5G 查询 <span class="badge-tag cyan" style="font-size:9px;">NR</span></h4>
+        <div class="quick-grid">
+          <button class="quick-btn" onclick="quickCmd('AT+C5GREG?')" disabled>5G 注册<span class="cmd-hint">AT+C5GREG?</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT+QENG=\"servingcell\"')" disabled>服务小区<span class="cmd-hint">QENG</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT+QCAINFO')" disabled>载波聚合<span class="cmd-hint">AT+QCAINFO</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT+QRSRP')" disabled>RSRP<span class="cmd-hint">AT+QRSRP</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT+QSINR')" disabled>SINR<span class="cmd-hint">AT+QSINR</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT+QNWINFO')" disabled>网络信息<span class="cmd-hint">AT+QNWINFO</span></button>
+        </div>
+      </div>
+
+      <!-- 常用操作 -->
       <div class="quick-section">
         <h4>常用操作</h4>
         <div class="quick-grid">
-          <button class="quick-btn" onclick="quickCmd('AT+RESET')" disabled>重启设备<span class="cmd-hint">AT+RESET</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT+RESET')" disabled>重启<span class="cmd-hint">AT+RESET</span></button>
           <button class="quick-btn" onclick="quickCmd('AT*PROD=1')" disabled>进入工厂<span class="cmd-hint">AT*PROD=1</span></button>
           <button class="quick-btn" onclick="quickCmd('AT*PROD=0')" disabled>退出工厂<span class="cmd-hint">AT*PROD=0</span></button>
         </div>
       </div>
 
+      <!-- 频段锁定 -->
       <div class="quick-section">
         <h4>频段锁定</h4>
         <div class="quick-grid" id="bandGrid"></div>
@@ -584,38 +605,32 @@
   <div class="modal">
     <h3 id="writeModalTitle">改写 IMEI</h3>
     <div class="modal-sub" id="writeModalSub"></div>
-
     <div class="warn-box" id="writeWarnBox">
       <b>⚠ 操作风险：</b><br>
       • 改写 IMEI 在部分国家/地区属违法行为<br>
       • 操作不当可能导致设备无法入网<br>
       • 写入前请确保设备已进入工厂模式
     </div>
-
     <div class="step-indicator" id="stepIndicator" style="display:none;">
       <div class="step" id="step1"></div>
       <div class="step" id="step2"></div>
       <div class="step" id="step3"></div>
     </div>
-
     <div id="writeFormArea">
       <div class="form-group">
         <label id="writeLabel">新 IMEI（15 位数字）</label>
         <input class="form-control" id="writeInput" placeholder="" autocomplete="off">
         <div class="validation-hint" id="validationHint"></div>
       </div>
-
       <div class="info-box" id="cmdPreviewBox">
         即将发送：<code id="cmdPreview">—</code>
       </div>
     </div>
-
     <div id="writeProgressArea" style="display:none;">
       <div class="info-box" style="min-height:60px;">
         <div id="progressLog" style="font-family:var(--font-mono);font-size:11.5px;line-height:1.8;"></div>
       </div>
     </div>
-
     <div class="btn-row">
       <button class="btn btn-outline" id="writeCancelBtn" onclick="closeWriteModal()">取消</button>
       <button class="btn btn-primary" id="writeConfirmBtn" onclick="confirmWrite()">确认写入</button>
@@ -629,7 +644,7 @@
     <div class="modal-sub">云控是厂商通过远程服务对设备进行限速或断网的手段。</div>
     <div style="display:flex;flex-direction:column;gap:10px;">
       <button class="btn btn-warn" onclick="genRemoveCloudCmd()">📋 生成去云控指令</button>
-      <button class="btn btn-outline" onclick="showAdbGuide()">📖 查看 ADB 去云控详细步骤</button>
+      <button class="btn btn-outline" onclick="showAdbGuide()">📖 查看 ADB 去云控步骤</button>
     </div>
     <div id="cloudCmdResult" style="margin-top:14px;display:none;">
       <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;">已生成指令，点击发送：</div>
@@ -637,12 +652,12 @@
       <button class="btn btn-primary" style="margin-top:10px;" onclick="sendCloudCmd()">发送指令</button>
     </div>
     <div id="cloudAdbGuide" style="margin-top:14px;display:none;font-size:12px;color:var(--text-dim);line-height:1.8;">
-      <b style="color:var(--text);">ADB 去云控步骤（需先开启 ADB）：</b><br>
-      1. 发送 <code>AT+ZMODE=1</code> 开启 ADB 和串口<br>
-      2. 电脑连接设备 ADB，执行：<br>
+      <b style="color:var(--text);">ADB 去云控步骤：</b><br>
+      1. 发送 <code>AT+ZMODE=1</code> 开启 ADB<br>
+      2. ADB 执行：<br>
       <code style="display:block;background:var(--bg-input);padding:8px;border-radius:6px;margin:6px 0;">adb shell mount -o remount -o rw /</code>
       <code style="display:block;background:var(--bg-input);padding:8px;border-radius:6px;margin:6px 0;">adb shell rm -f /sbin/yiming_1028.sh</code>
-      3. 重启设备即可。
+      3. 重启设备。
     </div>
     <div class="btn-row">
       <button class="btn btn-outline" onclick="closeCloudModal()">关闭</button>
@@ -684,7 +699,7 @@ const SWITCH_CMD_MAP = {
     name: 'ASR',
     external: 'AT+SWSIM=0', internal: 'AT+SWSIM=1', query: 'AT+SWSIM?',
     repeat: 1,
-    tip: '<b>ASR 平台：</b>发送 <code>AT+SWSIM=0</code> 切外置卡，<code>AT+SWSIM=1</code> 切内置卡。<br>发送后设备会自动重启。',
+    tip: '<b>ASR 平台：</b>发送 <code>AT+SWSIM=0</code> 切外置卡，<code>AT+SWSIM=1</code> 切内置卡。',
   },
   unisoc: {
     name: '紫光展锐',
@@ -700,10 +715,18 @@ const SWITCH_CMD_MAP = {
   },
 };
 
+/* LTE 频段映射 */
 const LTE_BAND_MAP = {
   1: 'B1', 2: 'B2', 3: 'B3', 4: 'B4', 5: 'B5', 7: 'B7', 8: 'B8',
   20: 'B20', 28: 'B28', 34: 'B34', 38: 'B38', 39: 'B39',
-  40: 'B40', 41: 'B41', 71: 'B71', 77: 'B77', 78: 'B78', 79: 'B79'
+  40: 'B40', 41: 'B41', 71: 'B71'
+};
+
+/* 5G NR 频段映射 */
+const NR_BAND_MAP = {
+  1: 'n1', 2: 'n2', 3: 'n3', 5: 'n5', 7: 'n7', 8: 'n8',
+  20: 'n20', 28: 'n28', 38: 'n38', 41: 'n41', 48: 'n48',
+  66: 'n66', 71: 'n71', 77: 'n77', 78: 'n78', 79: 'n79'
 };
 
 const OPERATOR_MAP = {
@@ -869,7 +892,6 @@ async function connectUSB() {
     setTimeout(async () => {
       await autoDetectChip();
       await autoQueryDeviceInfo();
-      // 设备信息查询完成后自动刷新 IP
       refreshIPs();
     }, 500);
   } catch (err) {
@@ -960,7 +982,6 @@ async function connectWiFi() {
     await fetch(url, { mode: 'no-cors', signal: controller.signal, cache: 'no-store' });
     clearTimeout(timeout);
     termWrite(`设备网关 ${gateway} 可达 ✓`, 'resp');
-    termWrite(`浏览器安全策略限制，无法通过 WiFi 发送 AT 指令。`, 'info');
     toast('设备网关可达，WiFi 模式不支持 AT 指令', 'info', 5000);
   } catch (err) {
     if (err.name === 'AbortError') {
@@ -1014,17 +1035,16 @@ async function queryAndCollect(cmd, waitMs = 800) {
 }
 
 /* ═══════════════════════════════════════════════════
-   ★ IP 地址查询：公网 IP + 内网 IP
+   ★ IP 地址查询：分别获取 IPv4 / IPv6
    ═══════════════════════════════════════════════════ */
 
-/* 公网 IP：通过外部 API 查询 */
-async function queryPublicIP() {
+/* 公网 IPv4：通过 IPv4-only API */
+async function queryPublicIPv4() {
   const apis = [
     { url: 'https://api.ipify.org?format=json', type: 'json', key: 'ip' },
-    { url: 'https://api64.ipify.org?format=json', type: 'json', key: 'ip' },
-    { url: 'https://api.ip.sb/ip', type: 'text' },
-    { url: 'https://ifconfig.me/ip', type: 'text' },
-    { url: 'https://ipinfo.io/ip', type: 'text' },
+    { url: 'https://ipv4.icanhazip.com', type: 'text' },
+    { url: 'https://ipv4.ident.me', type: 'text' },
+    { url: 'https://4.ipw.cn', type: 'text' },
   ];
   for (const api of apis) {
     try {
@@ -1033,35 +1053,61 @@ async function queryPublicIP() {
       const res = await fetch(api.url, { cache: 'no-store', signal: controller.signal });
       clearTimeout(timeout);
       const text = (await res.text()).trim();
-      let ip = '';
-      if (api.type === 'json') {
-        try { ip = JSON.parse(text)[api.key] || ''; } catch { ip = ''; }
-      } else {
-        ip = text;
-      }
-      ip = ip.replace(/[^0-9a-fA-F:.]/g, '');
-      if (ip && (/(\d{1,3}\.){3}\d{1,3}/.test(ip) || /^[0-9a-fA-F:]+$/.test(ip))) {
+      let ip = api.type === 'json' ? (JSON.parse(text)[api.key] || '') : text;
+      ip = ip.replace(/[^0-9.]/g, '');
+      if (/^(\d{1,3}\.){3}\d{1,3}$/.test(ip) && !/^0\./.test(ip)) {
         return { ip, source: new URL(api.url).hostname };
       }
-    } catch (e) { /* 尝试下一个 API */ }
+    } catch (e) { /* 下一个 */ }
   }
   return null;
 }
 
-/* 内网 IP：通过 WebRTC 获取本机局域网地址 */
-function queryLocalIPViaWebRTC() {
+/* 公网 IPv6：通过 IPv6-only API */
+async function queryPublicIPv6() {
+  const apis = [
+    { url: 'https://api64.ipify.org?format=json', type: 'json', key: 'ip' },
+    { url: 'https://ipv6.icanhazip.com', type: 'text' },
+    { url: 'https://v6.ident.me', type: 'text' },
+    { url: 'https://6.ipw.cn', type: 'text' },
+  ];
+  for (const api of apis) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 4000);
+      const res = await fetch(api.url, { cache: 'no-store', signal: controller.signal });
+      clearTimeout(timeout);
+      const text = (await res.text()).trim();
+      let ip = api.type === 'json' ? (JSON.parse(text)[api.key] || '') : text;
+      ip = ip.replace(/[^0-9a-fA-F:]/g, '');
+      // IPv6 必须包含冒号，且至少有 2 个冒号
+      if (ip.includes(':') && (ip.match(/:/g) || []).length >= 2) {
+        return { ip, source: new URL(api.url).hostname };
+      }
+    } catch (e) { /* 下一个 */ }
+  }
+  return null;
+}
+
+/* 内网 IP：通过 WebRTC 获取本机局域网 IPv4 和 IPv6 */
+function queryLocalIPsViaWebRTC() {
   return new Promise((resolve) => {
-    const ips = new Set();
+    const ipv4Set = new Set();
+    const ipv6Set = new Set();
     let resolved = false;
     const finish = () => {
       if (resolved) return;
       resolved = true;
-      const arr = [...ips];
-      // 优先局域网私有地址段
-      const lan = arr.find(ip =>
-        /^(10\.|172\.(1[6-9]|2[0-9]|3[01])\.|192\.168\.)/.test(ip)
-      );
-      resolve(lan || arr[0] || null);
+      const v4 = [...ipv4Set];
+      const v6 = [...ipv6Set];
+      // 优先私有 IPv4 段
+      const lan4 = v4.find(ip => /^(10\.|172\.(1[6-9]|2[0-9]|3[01])\.|192\.168\.)/.test(ip));
+      // IPv6 优先全局地址（非 fe80 开头）
+      const global6 = v6.find(ip => !/^fe80:/i.test(ip));
+      resolve({
+        ipv4: lan4 || v4[0] || null,
+        ipv6: global6 || v6[0] || null,
+      });
     };
     try {
       const pc = new RTCPeerConnection({ iceServers: [] });
@@ -1072,66 +1118,102 @@ function queryLocalIPViaWebRTC() {
           finish();
           return;
         }
-        const m = e.candidate.candidate.match(/(\d{1,3}\.){3}\d{1,3}/);
-        if (m && !/^0\.0\.0\.0$/.test(m[0])) ips.add(m[0]);
+        const cand = e.candidate.candidate;
+        // 提取 IPv4
+        const v4m = cand.match(/(\d{1,3}\.){3}\d{1,3}/);
+        if (v4m && !/^0\.0\.0\.0$/.test(v4m[0])) ipv4Set.add(v4m[0]);
+        // 提取 IPv6（ICE candidate 中的 mDNS 主机名不会匹配）
+        const v6m = cand.match(/([0-9a-fA-F]{1,4}:){2,}[0-9a-fA-F]{0,4}/);
+        if (v6m) ipv6Set.add(v6m[0]);
       };
       pc.createOffer()
         .then(o => pc.setLocalDescription(o))
         .catch(() => finish());
-      // 3 秒超时
       setTimeout(() => {
         try { pc.close(); } catch (err) {}
         finish();
-      }, 3000);
+      }, 3500);
     } catch (e) {
       finish();
     }
   });
 }
 
-/* 刷新 IP：并行查询公网 + 内网 */
+/* 刷新四个 IP 字段 */
 async function refreshIPs() {
-  const pubEl = document.getElementById('infoPublicIP');
-  const locEl = document.getElementById('infoLocalIP');
+  const pubV4El = document.getElementById('infoPubV4');
+  const pubV6El = document.getElementById('infoPubV6');
+  const locV4El = document.getElementById('infoLocV4');
+  const locV6El = document.getElementById('infoLocV6');
 
-  pubEl.textContent = '查询中...';
-  pubEl.className = 'info-value warn';
-  locEl.textContent = '查询中...';
-  locEl.className = 'info-value warn';
+  pubV4El.textContent = '查询中...'; pubV4El.className = 'info-value warn';
+  pubV6El.textContent = '查询中...'; pubV6El.className = 'info-value warn';
+  locV4El.textContent = '查询中...'; locV4El.className = 'info-value warn';
+  locV6El.textContent = '查询中...'; locV6El.className = 'info-value warn';
 
-  termWrite('正在查询公网 IP...', 'info');
-  termWrite('正在通过 WebRTC 获取内网 IP...', 'info');
+  termWrite('正在查询公网 IPv4 / IPv6 和内网 IPv4 / IPv6...', 'info');
 
-  const [pub, loc] = await Promise.all([queryPublicIP(), queryLocalIPViaWebRTC()]);
+  const [pub4, pub6, local] = await Promise.all([
+    queryPublicIPv4(),
+    queryPublicIPv6(),
+    queryLocalIPsViaWebRTC(),
+  ]);
 
-  if (pub) {
-    pubEl.textContent = pub.ip;
-    pubEl.className = 'info-value public-ip';
-    pubEl.title = `公网 IP: ${pub.ip}\n数据来源: ${pub.source}`;
-    termWrite(`✓ 公网 IP: ${pub.ip} (来自 ${pub.source})`, 'resp');
+  // 公网 IPv4
+  if (pub4) {
+    pubV4El.textContent = pub4.ip;
+    pubV4El.className = 'info-value ipv4';
+    pubV4El.title = `公网 IPv4: ${pub4.ip}\n来源: ${pub4.source}`;
+    termWrite(`✓ 公网 IPv4: ${pub4.ip} (来自 ${pub4.source})`, 'resp');
   } else {
-    pubEl.textContent = '查询失败';
-    pubEl.className = 'info-value warn';
-    pubEl.title = '所有公网 IP API 均不可用，请检查网络连接';
-    termWrite('✗ 公网 IP 查询失败，请检查网络', 'err');
+    pubV4El.textContent = '不可用';
+    pubV4El.className = 'info-value warn';
+    pubV4El.title = '所有 IPv4 API 均不可用，可能运营商未分配 IPv4 或网络受限';
+    termWrite('✗ 公网 IPv4 查询失败', 'err');
   }
 
-  if (loc) {
-    locEl.textContent = loc;
-    locEl.className = 'info-value local-ip';
-    locEl.title = `内网 IP: ${loc}\n来源: WebRTC ICE candidate`;
-    termWrite(`✓ 内网 IP: ${loc}`, 'resp');
+  // 公网 IPv6
+  if (pub6) {
+    pubV6El.textContent = pub6.ip;
+    pubV6El.className = 'info-value ipv6';
+    pubV6El.title = `公网 IPv6: ${pub6.ip}\n来源: ${pub6.source}`;
+    termWrite(`✓ 公网 IPv6: ${pub6.ip} (来自 ${pub6.source})`, 'resp');
   } else {
-    // WebRTC 被 mDNS 保护时返回 .local 主机名，浏览器无法获取真实内网 IP
-    locEl.textContent = '受限';
-    locEl.className = 'info-value warn';
-    locEl.title = '现代浏览器为保护隐私，WebRTC 已用 mDNS 主机名替换真实内网 IP。可在 chrome://flags 中禁用 "Anonymize local IPs exposed by WebRTC" 后重试。';
-    termWrite('⚠ 内网 IP 查询受限：浏览器 WebRTC 隐私保护阻止获取真实内网 IP', 'info');
+    pubV6El.textContent = '不可用';
+    pubV6El.className = 'info-value warn';
+    pubV6El.title = '未获取到公网 IPv6，可能运营商未分配 IPv6 或网络受限';
+    termWrite('✗ 公网 IPv6 查询失败（运营商可能未分配 IPv6）', 'info');
+  }
+
+  // 内网 IPv4
+  if (local.ipv4) {
+    locV4El.textContent = local.ipv4;
+    locV4El.className = 'info-value ipv4';
+    locV4El.title = `内网 IPv4: ${local.ipv4}\n来源: WebRTC ICE candidate`;
+    termWrite(`✓ 内网 IPv4: ${local.ipv4}`, 'resp');
+  } else {
+    locV4El.textContent = '受限';
+    locV4El.className = 'info-value warn';
+    locV4El.title = 'WebRTC 被浏览器 mDNS 隐私保护限制，可访问 chrome://flags 禁用 "Anonymize local IPs exposed by WebRTC" 后重试';
+    termWrite('⚠ 内网 IPv4 受限：浏览器 WebRTC 隐私保护', 'info');
+  }
+
+  // 内网 IPv6
+  if (local.ipv6) {
+    locV6El.textContent = local.ipv6;
+    locV6El.className = 'info-value ipv6';
+    locV6El.title = `内网 IPv6: ${local.ipv6}\n来源: WebRTC ICE candidate`;
+    termWrite(`✓ 内网 IPv6: ${local.ipv6}`, 'resp');
+  } else {
+    locV6El.textContent = '受限';
+    locV6El.className = 'info-value warn';
+    locV6El.title = 'WebRTC 未返回 IPv6 候选地址，可能设备未分配 IPv6';
+    termWrite('⚠ 内网 IPv6 未获取（设备可能未分配 IPv6）', 'info');
   }
 }
 
 /* ═══════════════════════════════════════════════════
-   芯片识别
+   芯片识别（含 5G 芯片）
    ═══════════════════════════════════════════════════ */
 function setChipDetectStatus(status, name) {
   const el = document.getElementById('chipDetectStatus');
@@ -1152,7 +1234,7 @@ function detectChipFromText(text) {
   if (/ASR\s*18\d{2}/i.test(text) || /\bASR\b/i.test(text)) return 'asr';
   if (/ZXIC|中兴微|\bZTE\b|ZCARDSWITCH/i.test(text)) return 'zxic';
   if (/Unisoc|Spreadtrum|\bSPRD\b|UIS\d{4}|展锐/i.test(text)) return 'unisoc';
-  if (/Qualcomm|\bMDM\d|QDSIM|SDX/i.test(text)) return 'qualcomm';
+  if (/Qualcomm|\bMDM\d|QDSIM|SDX\d+/i.test(text)) return 'qualcomm';
   return null;
 }
 
@@ -1201,7 +1283,9 @@ async function autoDetectChip() {
   return null;
 }
 
-/* 写入操作 */
+/* ═══════════════════════════════════════════════════
+   写入操作
+   ═══════════════════════════════════════════════════ */
 let writeContext = { type: null, value: '', isDelete: false };
 
 function openWriteModal(type) {
@@ -1210,7 +1294,6 @@ function openWriteModal(type) {
 
   writeContext.type = type;
   writeContext.isDelete = type.startsWith('DEL_');
-
   const baseType = type.replace('DEL_', '');
   const titles = {
     IMEI: writeContext.isDelete ? '删除 IMEI' : '改写 IMEI',
@@ -1236,11 +1319,8 @@ function openWriteModal(type) {
       <div class="warn-box" style="background:rgba(231,76,60,.08);border-color:rgba(231,76,60,.3);color:#ff8a80;">
         <b>⚠ 危险操作：</b>此操作将清空设备上的 ${baseType} 值，可能导致设备无法正常联网。
       </div>
-      <div class="info-box" id="cmdPreviewBox">
-        即将发送：<code id="cmdPreview">—</code>
-      </div>
+      <div class="info-box"><即将发送：<code>${baseType === 'IMEI' ? 'AT*MRD_IMEI=D' : 'AT*MRD_SN=D'}</code></div>
     `;
-    updateCmdPreviewForDelete(baseType);
   } else {
     document.getElementById('writeFormArea').innerHTML = `
       <div class="form-group">
@@ -1248,27 +1328,16 @@ function openWriteModal(type) {
         <input class="form-control" id="writeInput" placeholder="${baseType === 'IMEI' ? '例如 866766071561673' : '例如 CW26020101879'}" autocomplete="off">
         <div class="validation-hint" id="validationHint"></div>
       </div>
-      <div class="info-box" id="cmdPreviewBox">
-        即将发送：<code id="cmdPreview">—</code>
-      </div>
+      <div class="info-box" id="cmdPreviewBox">即将发送：<code id="cmdPreview">—</code></div>
     `;
-
     const currentVal = state.rawValues[baseType] || '';
-    if (baseType === 'IMEI') {
-      document.getElementById('writeInput').value = currentVal;
-      if (currentVal && currentVal.length === 15) {
-        const newPrefix = currentVal.substring(0, 12);
-        document.getElementById('writeInput').value = newPrefix + '000';
-      }
+    if (baseType === 'IMEI' && currentVal && currentVal.length === 15) {
+      document.getElementById('writeInput').value = currentVal.substring(0, 12) + '000';
     } else if (currentVal) {
       document.getElementById('writeInput').value = currentVal;
     }
-
     const input = document.getElementById('writeInput');
-    input.addEventListener('input', () => {
-      validateWriteInput(baseType);
-      updateCmdPreviewForWrite(baseType);
-    });
+    input.addEventListener('input', () => { validateWriteInput(baseType); updateCmdPreviewForWrite(baseType); });
     validateWriteInput(baseType);
     updateCmdPreviewForWrite(baseType);
   }
@@ -1279,103 +1348,60 @@ function updateCmdPreviewForWrite(baseType) {
   const preview = document.getElementById('cmdPreview');
   if (!preview) return;
   if (!val) { preview.textContent = '—'; return; }
-  if (baseType === 'IMEI') {
-    preview.textContent = `AT*MRD_IMEI=W,0,01JAN1970,${val}`;
-  } else {
-    preview.textContent = `AT*MRD_SN=W,0,01JAN1970,${val}`;
-  }
-}
-
-function updateCmdPreviewForDelete(baseType) {
-  const preview = document.getElementById('cmdPreview');
-  if (!preview) return;
-  preview.textContent = baseType === 'IMEI' ? 'AT*MRD_IMEI=D' : 'AT*MRD_SN=D';
+  preview.textContent = baseType === 'IMEI'
+    ? `AT*MRD_IMEI=W,0,01JAN1970,${val}`
+    : `AT*MRD_SN=W,0,01JAN1970,${val}`;
 }
 
 function validateWriteInput(baseType) {
   const input = document.getElementById('writeInput');
   const hint = document.getElementById('validationHint');
   if (!input || !hint) return false;
-
   const val = input.value.trim();
   input.className = 'form-control';
-
-  if (!val) {
-    hint.textContent = '请输入值';
-    hint.className = 'validation-hint info';
-    return false;
-  }
-
+  if (!val) { hint.textContent = '请输入值'; hint.className = 'validation-hint info'; return false; }
   if (baseType === 'IMEI') {
     if (!/^\d{15}$/.test(val)) {
       hint.textContent = `长度错误：IMEI 必须为 15 位数字，当前 ${val.length} 位`;
-      hint.className = 'validation-hint err';
-      input.className = 'form-control invalid';
-      return false;
+      hint.className = 'validation-hint err'; input.className = 'form-control invalid'; return false;
     }
     if (!validateIMEI(val)) {
-      hint.textContent = '⚠ Luhn 校验失败';
-      hint.className = 'validation-hint err';
-      input.className = 'form-control invalid';
       const first14 = val.substring(0, 14);
       const correct = calcLuhnCheckDigit(first14);
-      if (correct !== null) {
-        hint.innerHTML = `⚠ Luhn 校验失败，最后一位应为 <b>${correct}</b><br>
-          <a href="#" onclick="event.preventDefault();document.getElementById('writeInput').value='${first14}${correct}';validateWriteInput('IMEI');updateCmdPreviewForWrite('IMEI');" style="color:var(--accent);">点击自动修正</a>`;
-      }
-      return false;
+      hint.innerHTML = `⚠ Luhn 校验失败，最后一位应为 <b>${correct}</b><br><a href="#" onclick="event.preventDefault();document.getElementById('writeInput').value='${first14}${correct}';validateWriteInput('IMEI');updateCmdPreviewForWrite('IMEI');" style="color:var(--accent);">点击自动修正</a>`;
+      hint.className = 'validation-hint err'; input.className = 'form-control invalid'; return false;
     }
     hint.textContent = '✓ IMEI 格式与 Luhn 校验均通过';
-    hint.className = 'validation-hint ok';
-    input.className = 'form-control valid';
-    return true;
+    hint.className = 'validation-hint ok'; input.className = 'form-control valid'; return true;
   }
-
   if (baseType === 'SN') {
     if (!/^[A-Za-z0-9]{8,20}$/.test(val)) {
       hint.textContent = 'SN 必须为 8~20 位字母数字组合';
-      hint.className = 'validation-hint err';
-      input.className = 'form-control invalid';
-      return false;
+      hint.className = 'validation-hint err'; input.className = 'form-control invalid'; return false;
     }
     hint.textContent = '✓ SN 格式通过';
-    hint.className = 'validation-hint ok';
-    input.className = 'form-control valid';
-    return true;
+    hint.className = 'validation-hint ok'; input.className = 'form-control valid'; return true;
   }
-
   return true;
 }
 
 function closeWriteModal() {
-  if (state.writeInProgress) {
-    toast('写入进行中，请等待完成', 'error');
-    return;
-  }
+  if (state.writeInProgress) { toast('写入进行中，请等待完成', 'error'); return; }
   document.getElementById('writeModal').classList.remove('show');
 }
 
 async function confirmWrite() {
   if (state.writeInProgress) return;
-
   const baseType = writeContext.type.replace('DEL_', '');
   const isDelete = writeContext.isDelete;
-
   if (!isDelete && !validateWriteInput(baseType)) {
     toast('请检查输入内容', 'error');
     return;
   }
-
   const val = isDelete ? '' : document.getElementById('writeInput').value.trim();
-
-  let writeCmd = '';
-  if (isDelete) {
-    writeCmd = `AT*MRD_${baseType}=D`;
-  } else if (baseType === 'IMEI') {
-    writeCmd = `AT*MRD_IMEI=W,0,01JAN1970,${val}`;
-  } else {
-    writeCmd = `AT*MRD_SN=W,0,01JAN1970,${val}`;
-  }
+  let writeCmd = isDelete
+    ? `AT*MRD_${baseType}=D`
+    : (baseType === 'IMEI' ? `AT*MRD_IMEI=W,0,01JAN1970,${val}` : `AT*MRD_SN=W,0,01JAN1970,${val}`);
 
   state.writeInProgress = true;
   document.getElementById('writeFormArea').style.display = 'none';
@@ -1386,14 +1412,12 @@ async function confirmWrite() {
 
   const logEl = document.getElementById('progressLog');
   logEl.innerHTML = '';
-
   const appendLog = (msg, cls = '') => {
     const div = document.createElement('div');
     div.textContent = msg;
     if (cls) div.style.color = `var(--${cls})`;
     logEl.appendChild(div);
   };
-
   const setStep = (idx, status) => {
     document.getElementById('step' + idx).className = 'step ' + status;
   };
@@ -1425,7 +1449,6 @@ async function confirmWrite() {
     setStep(3, 'done');
     appendLog('✓ 已退出工厂模式', 'success');
     appendLog('', '');
-    appendLog('━━━━━━━━━━━━━━━━━━━━━━', 'info');
     appendLog('🎉 写入流程完成', 'success');
 
     toast(`${baseType} ${isDelete ? '删除' : '写入'}成功`, 'success', 5000);
@@ -1439,24 +1462,17 @@ async function confirmWrite() {
       setTimeout(() => autoQueryDeviceInfo(), 500);
     };
     document.getElementById('writeCancelBtn').style.display = 'none';
-
   } catch (err) {
     appendLog('', '');
     appendLog('✗ 写入失败: ' + err.message, 'error');
     toast('写入失败: ' + err.message, 'error', 5000);
     termWrite(`❌ 写入失败: ${err.message}`, 'err');
-
-    try {
-      appendLog('尝试退出工厂模式以恢复设备...', 'warn');
-      await writeToPort('AT*PROD=0');
-    } catch (e) { /* ignore */ }
-
+    try { await writeToPort('AT*PROD=0'); } catch (e) {}
     document.getElementById('writeConfirmBtn').textContent = '关闭';
     document.getElementById('writeConfirmBtn').disabled = false;
     document.getElementById('writeConfirmBtn').onclick = () => closeWriteModalForce();
     document.getElementById('writeCancelBtn').style.display = 'none';
   }
-
   state.writeInProgress = false;
 }
 
@@ -1472,20 +1488,15 @@ function closeWriteModalForce() {
 /* 隐私保护 */
 function maskValue(val, type) {
   if (!val || val === '—' || val.length < 6) return val;
-  if (type === 'IMEI') {
-    return val.substring(0, 4) + '********' + val.substring(val.length - 4);
-  } else if (type === 'ICCID') {
-    return val.substring(0, 6) + '********' + val.substring(val.length - 4);
-  } else {
-    return val.substring(0, 3) + '*****' + val.substring(val.length - 3);
-  }
+  if (type === 'IMEI') return val.substring(0, 4) + '********' + val.substring(val.length - 4);
+  if (type === 'ICCID') return val.substring(0, 6) + '********' + val.substring(val.length - 4);
+  return val.substring(0, 3) + '*****' + val.substring(val.length - 3);
 }
 
 function toggleSensitive(type) {
   state.sensitiveHidden[type] = !state.sensitiveHidden[type];
   const eyeBtn = document.getElementById('eye' + type);
   eyeBtn.textContent = state.sensitiveHidden[type] ? '👁️' : '🙈';
-  eyeBtn.title = state.sensitiveHidden[type] ? '显示原始值' : '隐藏敏感信息';
   updateSensitiveDisplay(type);
 }
 
@@ -1493,11 +1504,7 @@ function updateSensitiveDisplay(type) {
   const el = document.getElementById('info' + type);
   const raw = state.rawValues[type];
   if (!raw) return;
-  if (state.sensitiveHidden[type]) {
-    el.textContent = maskValue(raw, type);
-  } else {
-    el.textContent = raw;
-  }
+  el.textContent = state.sensitiveHidden[type] ? maskValue(raw, type) : raw;
 }
 
 function setInfoValue(type, rawValue) {
@@ -1506,13 +1513,8 @@ function setInfoValue(type, rawValue) {
   el.setAttribute('data-raw', rawValue);
   el.className = 'info-value ok';
   if (type === 'ICCID') el.className = 'info-value iccid';
-  const eyeBtn = document.getElementById('eye' + type);
-  eyeBtn.style.display = 'inline-block';
-  if (state.sensitiveHidden[type]) {
-    el.textContent = maskValue(rawValue, type);
-  } else {
-    el.textContent = rawValue;
-  }
+  document.getElementById('eye' + type).style.display = 'inline-block';
+  el.textContent = state.sensitiveHidden[type] ? maskValue(rawValue, type) : rawValue;
   if (type === 'ICCID') {
     const carrier = guessCarrierFromICCID(rawValue);
     el.title = carrier ? `ICCID: ${rawValue}\n推测运营商: ${carrier}` : `ICCID: ${rawValue}`;
@@ -1534,16 +1536,146 @@ function setOperator(name, cls) {
 }
 
 function parseDeviceInfo(line) {
-  // QCI
-  let m = line.match(/\+CGEQOSRDP[:\s]*(\d+),(\d+)/i);
+  // ═══ 5G 网络信息 ═══
+  // AT+QNWINFO: "NR5G",...  或  "LTE",...
+  let m = line.match(/\+QNWINFO[:\s]*"([^"]+)"/i);
   if (m) {
-    const cid = parseInt(m[1]);
+    const netType = m[1].toUpperCase();
+    const el = document.getElementById('infoNetType');
+    if (netType.includes('NR5G') || netType.includes('5G')) {
+      el.textContent = '5G NR';
+      el.className = 'info-value net5g';
+    } else if (netType.includes('LTE')) {
+      el.textContent = '4G LTE';
+      el.className = 'info-value net4g';
+    } else {
+      el.textContent = m[1];
+      el.className = 'info-value ok';
+    }
+    el.title = `原始响应: ${line}`;
+  }
+
+  // 5G 注册状态：+C5GREG: <n>,<stat>[,<lac>,<ci>,<AcT>]
+  m = line.match(/\+C5GREG[:\s]*(\d+),(\d+)/i);
+  if (m) {
+    const stat = parseInt(m[2]);
+    const el = document.getElementById('infoNetType');
+    if (stat === 1 || stat === 5) {
+      if (!el.textContent.includes('5G')) {
+        el.textContent = '5G';
+        el.className = 'info-value net5g';
+        el.title = `5GS 已注册\n原始响应: ${line}`;
+      }
+    }
+  }
+
+  // ═══ AT+QENG="servingcell" 解析 ═══
+  // 格式: +QENG: "servingcell",<state>,"NR5G",<duplex_mode>,<MCC>,<MNC>,<cellID>,<PCID>,<TAC>,<ARFCN>,<band>,<NR_DL_bw>,<RSRP>,<RSRQ>,<SINR>,<tx_power>,<srxlev>
+  m = line.match(/\+QENG[:\s]*"servingcell"\s*,\s*"[^"]*"\s*,\s*"NR5G"\s*,\s*"([^"]*)"\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*(\d+)\s*,\s*[^,]+,\s*(-?\d+)\s*,\s*(-?\d+)\s*,\s*(-?\d+)/i);
+  if (m) {
+    const duplex = m[1];
+    const mcc = m[2], mnc = m[3];
+    const band = parseInt(m[4]);
+    const rsrp = parseInt(m[5]);
+    const rsrq = parseInt(m[6]);
+    const sinr = parseInt(m[7]);
+
+    // 运营商
+    const code5 = mcc + mnc.padStart(2, '0');
+    const op = OPERATOR_MAP[code5.substring(0, 5)];
+    if (op) setOperator(op.name, op.cls);
+
+    // 频段：NR n78 等
+    const bandEl = document.getElementById('infoBand');
+    const bandName = NR_BAND_MAP[band] || `n${band}`;
+    bandEl.textContent = `5G ${bandName} (${duplex})`;
+    bandEl.className = 'info-value net5g';
+    bandEl.title = `原始响应: ${line}`;
+
+    // RSRP
+    const rsrpEl = document.getElementById('infoRSRP');
+    rsrpEl.textContent = `${rsrp} dBm`;
+    rsrpEl.className = 'info-value ' + (rsrp > -90 ? 'ok' : rsrp > -105 ? 'warn' : '');
+    rsrpEl.title = `NR5G RSRP: ${rsrp} dBm\n原始响应: ${line}`;
+
+    // SINR
+    const sinrEl = document.getElementById('infoSINR');
+    sinrEl.textContent = `${sinr} dB`;
+    sinrEl.className = 'info-value ' + (sinr > 20 ? 'ok' : sinr > 0 ? 'warn' : '');
+    sinrEl.title = `NR5G SINR: ${sinr} dB\n原始响应: ${line}`;
+
+    // 网络类型
+    const netEl = document.getElementById('infoNetType');
+    if (!netEl.textContent.includes('5G')) {
+      netEl.textContent = '5G NR';
+      netEl.className = 'info-value net5g';
+    }
+  }
+
+  // LTE servingcell
+  m = line.match(/\+QENG[:\s]*"servingcell"\s*,\s*"[^"]*"\s*,\s*"LTE"\s*,\s*"([^"]*)"\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*(\d+)\s*,\s*[^,]+,\s*[^,]+,\s*(-?\d+)\s*,\s*(-?\d+)/i);
+  if (m) {
+    const band = parseInt(m[4]);
+    const rsrp = parseInt(m[5]);
+    const rsrq = parseInt(m[6]);
+    const bandEl = document.getElementById('infoBand');
+    if (bandEl.textContent === '—' || bandEl.textContent === '查询中...') {
+      const bandName = LTE_BAND_MAP[band] || `B${band}`;
+      bandEl.textContent = `4G ${bandName}`;
+      bandEl.className = 'info-value net4g';
+      bandEl.title = `原始响应: ${line}`;
+    }
+    const netEl = document.getElementById('infoNetType');
+    if (netEl.textContent === '—') {
+      netEl.textContent = '4G LTE';
+      netEl.className = 'info-value net4g';
+    }
+  }
+
+  // ═══ 5G RSRP 独立响应 ═══
+  // AT+QRSRP 返回: +QRSRP: -85,-90,-95,-100
+  m = line.match(/\+QRSRP[:\s]*(-?\d+)/i);
+  if (m) {
+    const rsrp = parseInt(m[1]);
+    const el = document.getElementById('infoRSRP');
+    if (el.textContent === '—') {
+      el.textContent = `${rsrp} dBm`;
+      el.className = 'info-value ' + (rsrp > -90 ? 'ok' : rsrp > -105 ? 'warn' : '');
+      el.title = `RSRP: ${rsrp} dBm\n原始响应: ${line}`;
+    }
+  }
+
+  // ═══ 5G SINR 独立响应 ═══
+  m = line.match(/\+QSINR[:\s]*(-?\d+)/i);
+  if (m) {
+    const sinr = parseInt(m[1]);
+    const el = document.getElementById('infoSINR');
+    if (el.textContent === '—') {
+      el.textContent = `${sinr} dB`;
+      el.className = 'info-value ' + (sinr > 20 ? 'ok' : sinr > 0 ? 'warn' : '');
+      el.title = `SINR: ${sinr} dB\n原始响应: ${line}`;
+    }
+  }
+
+  // ═══ QCI ═══
+  m = line.match(/\+CGEQOSRDP[:\s]*(\d+),(\d+)/i);
+  if (m) {
     const qci = parseInt(m[2]);
     const el = document.getElementById('infoQCI');
     const info = mapQci(qci);
     el.textContent = `QCI ${qci} · ${info.desc}`;
     el.className = 'info-value ' + info.cls;
-    el.title = `原始响应: ${line}\nCID: ${cid}\nQCI: ${qci}\n${info.desc}`;
+    el.title = `原始响应: ${line}`;
+  }
+  // 5G 5QI: +C5GQOSRDP 或 +C5GQOSRDP
+  m = line.match(/\+C5GQOSRDP[:\s]*(\d+),(\d+)/i);
+  if (m) {
+    const qci = parseInt(m[2]);
+    const el = document.getElementById('infoQCI');
+    const info = mapQci(qci);
+    el.textContent = `5QI ${qci} · ${info.desc}`;
+    el.className = 'info-value ' + info.cls;
+    el.title = `5GS QoS 参数\n原始响应: ${line}`;
   }
   m = line.match(/\+QNWCFG[:\s]*"qci"[,\s]*(\d+),(\d+)/i);
   if (m) {
@@ -1554,17 +1686,8 @@ function parseDeviceInfo(line) {
     el.className = 'info-value ' + info.cls;
     el.title = `原始响应: ${line}`;
   }
-  m = line.match(/\+CGQREQ[:\s]*(\d+),(\d+)/i);
-  if (m && !document.getElementById('infoQCI').textContent.includes('QCI')) {
-    const qci = parseInt(m[2]);
-    const el = document.getElementById('infoQCI');
-    const info = mapQci(qci);
-    el.textContent = `QCI ${qci} · ${info.desc}`;
-    el.className = 'info-value ' + info.cls;
-    el.title = `原始响应: ${line}\nQCI: ${qci}`;
-  }
 
-  // ICCID：多格式兼容
+  // ═══ ICCID ═══
   m = line.match(/[+*](?:QCCID|ICCID|CCID|ICID)[:\s]*"?([0-9A-Za-z]{18,22})"?/i);
   if (m) {
     setInfoValue('ICCID', m[1]);
@@ -1574,29 +1697,21 @@ function parseDeviceInfo(line) {
     m = line.match(/\+CRSM[:\s]*\d+,\d+,"([0-9A-Fa-f]+)"/i);
     if (m) {
       const hexStr = m[1];
-      // 交换每两个字符的顺序（CRSM 返回的字节序为颠倒的）
       let swapped = '';
-      for (let i = 0; i < hexStr.length - 1; i += 2) {
-        swapped += hexStr[i+1] + hexStr[i];
-      }
-      // 十六进制转 ASCII
+      for (let i = 0; i < hexStr.length - 1; i += 2) swapped += hexStr[i+1] + hexStr[i];
       let ascii = '';
-      for (let i = 0; i < swapped.length; i += 2) {
-        ascii += String.fromCharCode(parseInt(swapped.substring(i, i + 2), 16));
-      }
-      if (ascii.length >= 18 && /^\d/.test(ascii)) setInfoValue('ICCID', ascii);
-      // 若交换后无效，尝试直接转换（兼容部分模块）
-      else {
+      for (let i = 0; i < swapped.length; i += 2) ascii += String.fromCharCode(parseInt(swapped.substring(i, i + 2), 16));
+      if (ascii.length >= 18 && /^\d/.test(ascii)) {
+        setInfoValue('ICCID', ascii);
+      } else {
         let ascii2 = '';
-        for (let i = 0; i < hexStr.length; i += 2) {
-          ascii2 += String.fromCharCode(parseInt(hexStr.substring(i, i + 2), 16));
-        }
+        for (let i = 0; i < hexStr.length; i += 2) ascii2 += String.fromCharCode(parseInt(hexStr.substring(i, i + 2), 16));
         if (ascii2.length >= 18 && /^\d/.test(ascii2)) setInfoValue('ICCID', ascii2);
       }
     }
   }
 
-  // IMEI
+  // ═══ IMEI ═══
   m = line.match(/\+CGSN[:\s]+(\d{14,16})/i);
   if (m) {
     setInfoValue('IMEI', m[1]);
@@ -1604,24 +1719,22 @@ function parseDeviceInfo(line) {
     setInfoValue('IMEI', line);
   }
 
-  // SN
-  m = line.match(/[*+]MRD_SN[:\s]+([A-Za-z0-9]+)/i) ||
-      line.match(/\+SN[:\s]+([A-Za-z0-9]+)/i);
+  // ═══ SN ═══
+  m = line.match(/[*+]MRD_SN[:\s]+([A-Za-z0-9]+)/i) || line.match(/\+SN[:\s]+([A-Za-z0-9]+)/i);
   if (m) setInfoValue('SN', m[1]);
 
-  // 固件版本
-  m = line.match(/\+CGMR[:\s]+"?([^"\r\n]+)"?/i) ||
-      line.match(/[+*]VER[:\s]+"?([^"\r\n]+)"?/i);
+  // ═══ 固件版本 ═══
+  m = line.match(/\+CGMR[:\s]+"?([^"\r\n]+)"?/i) || line.match(/[+*]VER[:\s]+"?([^"\r\n]+)"?/i);
   if (m) setInfo('infoVER', m[1].trim());
 
-  // MAC
+  // ═══ MAC ═══
   m = line.match(/[*+]MRD_WIFIID[:\s]+([0-9A-Fa-f:]{12,20})/i) ||
       line.match(/[+*]WIFIID[:\s]+([0-9A-Fa-f:]{12,20})/i) ||
       line.match(/[+*]MAC[:\s]+([0-9A-Fa-f:]{12,20})/i) ||
       line.match(/([0-9A-Fa-f]{2}[:\-]){5}[0-9A-Fa-f]{2}/);
   if (m) setInfo('infoMAC', m[1] || m[0]);
 
-  // 信号质量
+  // ═══ 信号质量 ═══
   m = line.match(/\+CSQ[:\s]*(\d+)/);
   if (m) {
     const csq = parseInt(m[1]);
@@ -1630,7 +1743,7 @@ function parseDeviceInfo(line) {
     el.className = 'info-value ' + (csq === 99 ? 'empty' : csq >= 10 ? 'ok' : 'warn');
   }
 
-  // 运营商
+  // ═══ 运营商 ═══
   m = line.match(/\+COPS[:\s]*(\d+)(?:,\s*(\d+)\s*,\s*(?:"([^"]*)"|(\d+)))?/i);
   if (m) {
     const mode = parseInt(m[1]);
@@ -1641,16 +1754,16 @@ function parseDeviceInfo(line) {
       el.textContent = '未注册'; el.className = 'info-value warn'; el.title = `原始响应: ${line}`;
     } else if (nameStr) {
       const op = mapOperatorName(nameStr);
-      if (op) { setOperator(op.name, op.cls); el.title = `原始响应: ${line}\nMCC/MNC名: ${nameStr}`; }
+      if (op) { setOperator(op.name, op.cls); el.title = `原始响应: ${line}`; }
     } else if (numStr) {
       const code5 = numStr.substring(0, 5);
       const op = OPERATOR_MAP[code5];
-      if (op) { setOperator(op.name, op.cls); el.title = `原始响应: ${line}\nMCC/MNC: ${numStr}`; }
+      if (op) { setOperator(op.name, op.cls); el.title = `原始响应: ${line}`; }
       else { el.textContent = `未知 (${numStr})`; el.className = 'info-value warn'; el.title = `原始响应: ${line}`; }
     }
   }
 
-  // 卡槽
+  // ═══ 卡槽 ═══
   m = line.match(/\+SimX[:\s]*(\d+)/i);
   if (m) {
     const slot = parseInt(m[1]);
@@ -1674,7 +1787,7 @@ function parseDeviceInfo(line) {
     }
   }
 
-  // 频段
+  // ═══ 4G 频段（ASR 专用）═══
   m = line.match(/[*+]BANDIND[:\s]*(.+)/i);
   if (m) {
     const parts = m[1].split(',').map(s => s.trim());
@@ -1689,35 +1802,21 @@ function parseDeviceInfo(line) {
       bandNum = parseInt(parts[0]);
     }
     const el = document.getElementById('infoBand');
-    if (!isNaN(bandNum) && bandNum > 0) {
-      let bandName = '';
-      if (act === 7 || act === null || act === undefined) {
-        bandName = LTE_BAND_MAP[bandNum] || `B${bandNum}`;
-      } else if (act >= 2 && act <= 6) {
-        bandName = `UMTS B${bandNum}`;
-      } else {
-        bandName = `B${bandNum}`;
+    // 只在没有 5G 信息时更新
+    if (el.textContent === '—' || el.textContent === '查询中...') {
+      if (!isNaN(bandNum) && bandNum > 0) {
+        let bandName = '';
+        if (act === 7 || act === null || act === undefined) bandName = LTE_BAND_MAP[bandNum] || `B${bandNum}`;
+        else if (act >= 2 && act <= 6) bandName = `UMTS B${bandNum}`;
+        else bandName = `B${bandNum}`;
+        el.textContent = bandName;
+        el.title = `原始响应: ${line}`;
+        el.className = 'info-value ok';
+      } else if (bandNum === 0) {
+        el.textContent = '未注册';
+        el.title = `原始响应: ${line}`;
+        el.className = 'info-value warn';
       }
-      el.textContent = bandName;
-      el.title = `原始响应: ${line}`;
-      el.className = 'info-value ok';
-    } else if (bandNum === 0) {
-      el.textContent = '未注册';
-      el.title = `原始响应: ${line}`;
-      el.className = 'info-value warn';
-    } else {
-      el.textContent = '解析失败';
-      el.title = `原始响应: ${line}`;
-      el.className = 'info-value warn';
-    }
-  }
-  m = line.match(/[*+]BAND[:\s]*(?!IND)(.+)/i);
-  if (m) {
-    const bandEl = document.getElementById('infoBand');
-    if (bandEl.textContent === '—') {
-      bandEl.textContent = '查询中...';
-      bandEl.title = `频段配置掩码: *BAND:${m[1].trim()}`;
-      bandEl.className = 'info-value';
     }
   }
 }
@@ -1726,40 +1825,29 @@ async function autoQueryDeviceInfo() {
   termWrite('正在查询设备信息...', 'info');
   const chip = state.detectedChip || 'asr';
 
-  // ICCID：多指令尝试 + CRSM 兜底
+  // ICCID
   termWrite('尝试查询 ICCID...', 'info');
   let iccidFound = false;
-  const iccidCmds = ['AT+QCCID', 'AT+ICCID', 'AT+CCID', 'AT+ICID?', 'AT*MRD_ICCID?'];
-  for (const cmd of iccidCmds) {
+  for (const cmd of ['AT+QCCID', 'AT+ICCID', 'AT+CCID', 'AT+ICID?', 'AT*MRD_ICCID?']) {
     const r = await queryAndCollect(cmd, 600);
     if (/[+*](?:QCCID|ICCID|CCID|ICID)/i.test(r) || /^89\d{17,19}[A-Za-z0-9]*/m.test(r)) {
-      iccidFound = true;
-      break;
+      iccidFound = true; break;
     }
   }
   if (!iccidFound) {
-    termWrite('常规 ICCID 指令无响应，尝试 CRSM 读取 SIM 卡 EF_ICCID 文件...', 'info');
+    termWrite('常规 ICCID 指令无响应，尝试 CRSM 读取...', 'info');
     await queryAndCollect('AT+CRSM=176,12258,0,0,0', 800);
-    if (!state.rawValues.ICCID) {
-      // 备选：带长度参数的旧格式
-      await queryAndCollect('AT+CRSM=176,12258,0,0,27', 800);
-    }
+    if (!state.rawValues.ICCID) await queryAndCollect('AT+CRSM=176,12258,0,0,27', 800);
   }
 
   let resp = await queryAndCollect('AT+CGSN', 600);
-  if (!/\+CGSN|^\d{15}/.test(resp)) {
-    await queryAndCollect('AT*MRD_IMEI?', 600);
-  }
+  if (!/\+CGSN|^\d{15}/.test(resp)) await queryAndCollect('AT*MRD_IMEI?', 600);
 
   resp = await queryAndCollect('AT*MRD_SN?', 600);
-  if (/^\s*ERROR\s*$/im.test(resp) || !resp) {
-    await queryAndCollect('AT+SN?', 600);
-  }
+  if (/^\s*ERROR\s*$/im.test(resp) || !resp) await queryAndCollect('AT+SN?', 600);
 
   resp = await queryAndCollect('AT+VER', 600);
-  if (/^\s*ERROR\s*$/im.test(resp) || !resp) {
-    await queryAndCollect('AT+CGMR', 600);
-  }
+  if (/^\s*ERROR\s*$/im.test(resp) || !resp) await queryAndCollect('AT+CGMR', 600);
 
   await queryAndCollect('AT+CSQ', 600);
   await queryAndCollect('AT+COPS=3,0', 400);
@@ -1769,41 +1857,44 @@ async function autoQueryDeviceInfo() {
   resp = await queryAndCollect('AT*MRD_WIFIID?', 600);
   if (!/WIFIID|MAC|[0-9A-Fa-f]{2}:/i.test(resp)) {
     resp = await queryAndCollect('AT+WIFIMAC?', 600);
-    if (!/MAC|[0-9A-Fa-f]{2}:/i.test(resp)) {
-      await queryAndCollect('AT+MAC?', 600);
-    }
+    if (!/MAC|[0-9A-Fa-f]{2}:/i.test(resp)) await queryAndCollect('AT+MAC?', 600);
   }
 
   const cfg = SWITCH_CMD_MAP[chip];
   if (cfg) await queryAndCollect(cfg.query, 600);
 
+  // ── 5G 查询（高通优先）──
+  if (chip === 'qualcomm') {
+    termWrite('检测到高通平台，尝试查询 5G 网络信息...', 'info');
+    await queryAndCollect('AT+QNWINFO', 600);
+    await queryAndCollect('AT+C5GREG?', 600);
+    await queryAndCollect('AT+QENG="servingcell"', 1200);
+    await queryAndCollect('AT+QCAINFO', 800);
+    await queryAndCollect('AT+QRSRP', 600);
+    await queryAndCollect('AT+QSINR', 600);
+  } else {
+    // 非高通平台也尝试通用 5G 指令
+    await queryAndCollect('AT+C5GREG?', 600);
+  }
+
+  // 4G 频段查询（ASR 专用）
   termWrite('尝试查询当前频段...', 'info');
   resp = await queryAndCollect('AT*BANDIND?', 600);
   if (/ERROR|^\s*$/m.test(resp) || !/BANDIND/i.test(resp)) {
-    termWrite('AT*BANDIND? 无响应，尝试 AT+BANDIND?', 'info');
     resp = await queryAndCollect('AT+BANDIND?', 600);
-    if (/ERROR|^\s*$/m.test(resp) || !/BANDIND/i.test(resp)) {
-      termWrite('设备可能不支持 BANDIND 指令。', 'info');
-    }
   }
 
+  // QCI
   termWrite('尝试查询 QCI 等级...', 'info');
   resp = await queryAndCollect('AT+CGEQOSRDP', 800);
   if (!/CGEQOSRDP/i.test(resp) || /^\s*ERROR\s*$/im.test(resp)) {
-    termWrite('AT+CGEQOSRDP 无响应，尝试平台专用指令...', 'info');
     if (chip === 'qualcomm') {
-      // 5G 场景尝试 C5GQOSRDP（5GS 动态 QoS 参数）
       resp = await queryAndCollect('AT+C5GQOSRDP', 800);
       if (!/C5GQOSRDP/i.test(resp) || /^\s*ERROR\s*$/im.test(resp)) {
         await queryAndCollect('AT+QNWCFG="qci"', 800);
       }
     } else if (chip === 'unisoc') {
-      resp = await queryAndCollect('AT+CGQREQ?', 800);
-      if (!/CGQREQ/i.test(resp) || /^\s*ERROR\s*$/im.test(resp)) {
-        termWrite('AT+CGQREQ? 无响应。', 'info');
-      }
-    } else {
-      termWrite('该平台暂无可用的 QCI 查询指令。', 'info');
+      await queryAndCollect('AT+CGQREQ?', 800);
     }
   }
 
@@ -1811,7 +1902,8 @@ async function autoQueryDeviceInfo() {
 }
 
 function resetDeviceInfo() {
-  ['infoChip','infoOperator','infoCardSlot','infoBand','infoQCI','infoMAC','infoVER','infoCSQ','infoPublicIP','infoLocalIP'].forEach(id => {
+  ['infoChip','infoNetType','infoOperator','infoCardSlot','infoBand','infoCSQ','infoRSRP','infoSINR','infoQCI','infoMAC','infoVER',
+   'infoPubV4','infoPubV6','infoLocV4','infoLocV6'].forEach(id => {
     const el = document.getElementById(id);
     el.textContent = '—';
     el.className = 'info-value empty';
@@ -1847,6 +1939,7 @@ function enableQuickButtons(enable) {
   document.getElementById('btnSpeedtest').disabled = !enable;
   document.getElementById('btnCheckCloud').disabled = !enable;
   document.getElementById('btnRemoveCloud').disabled = !enable;
+  document.getElementById('btnRefreshIP').disabled = !enable;
   document.getElementById('chipPlatform').disabled = !enable;
 }
 
@@ -1881,8 +1974,7 @@ async function switchToExternalCard() {
     }
   } else {
     termWrite(cfg.external, 'cmd');
-    try { await writeToPort(cfg.external); }
-    catch (err) { termWrite(`发送失败: ${err.message}`, 'err'); }
+    try { await writeToPort(cfg.external); } catch (err) { termWrite(`发送失败: ${err.message}`, 'err'); }
   }
   toast('切卡指令已发送，设备即将重启', 'success', 5000);
   setCloudStatus('unknown');
@@ -1911,17 +2003,13 @@ async function queryCurrentCard() {
 }
 
 async function toggleSpeedtest() {
-  if (state.speedtesting) {
-    if (state.speedtestAbort) state.speedtestAbort.abort();
-    return;
-  }
+  if (state.speedtesting) { if (state.speedtestAbort) state.speedtestAbort.abort(); return; }
   await startSpeedtest();
 }
 
 async function startSpeedtest() {
   if (!state.connected) { toast('请先连接设备', 'error'); return; }
   state.speedtesting = true;
-
   const btn = document.getElementById('btnSpeedtest');
   btn.disabled = false;
   btn.textContent = '⏹ 停止测速';
@@ -1932,13 +2020,9 @@ async function startSpeedtest() {
 
   const controller = new AbortController();
   state.speedtestAbort = controller;
-
   let lastDataTime = Date.now();
   const timeoutTimer = setInterval(() => {
-    if (Date.now() - lastDataTime > 10000) {
-      controller.abort();
-      clearInterval(timeoutTimer);
-    }
+    if (Date.now() - lastDataTime > 10000) { controller.abort(); clearInterval(timeoutTimer); }
   }, 2000);
 
   try {
@@ -1948,7 +2032,6 @@ async function startSpeedtest() {
     const reader = response.body.getReader();
     let receivedBytes = 0;
     const totalBytes = 10 * 1024 * 1024;
-
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
@@ -1961,31 +2044,25 @@ async function startSpeedtest() {
       document.getElementById('speedDownload').innerHTML = `${speedMbps.toFixed(1)} <small>Mbps</small>`;
       document.getElementById('speedStatus').textContent = `已下载 ${(receivedBytes/1024/1024).toFixed(1)} MB / 10 MB`;
     }
-
     const elapsed = (performance.now() - startTime) / 1000;
     const finalSpeed = (receivedBytes * 8) / (elapsed * 1000000);
     document.getElementById('speedDownload').innerHTML = `${finalSpeed.toFixed(1)} <small>Mbps</small>`;
     document.getElementById('speedStatus').textContent = `完成 · 耗时 ${elapsed.toFixed(1)}s`;
-
     if (finalSpeed < 5) {
       toast(`下载速度 ${finalSpeed.toFixed(1)} Mbps，可能被限速`, 'error', 5000);
       setCloudStatus('risk');
-      termWrite(`测速结果: ${finalSpeed.toFixed(1)} Mbps — 速率偏低，疑似云控限速`, 'err');
+      termWrite(`测速结果: ${finalSpeed.toFixed(1)} Mbps — 速率偏低`, 'err');
     } else if (finalSpeed < 20) {
       toast(`下载速度 ${finalSpeed.toFixed(1)} Mbps，速率一般`, 'info', 4000);
-      termWrite(`测速结果: ${finalSpeed.toFixed(1)} Mbps`, 'resp');
     } else {
       toast(`下载速度 ${finalSpeed.toFixed(1)} Mbps，速率正常`, 'success', 4000);
-      termWrite(`测速结果: ${finalSpeed.toFixed(1)} Mbps — 速率正常`, 'resp');
     }
   } catch (err) {
     if (err.name === 'AbortError') {
       document.getElementById('speedStatus').textContent = '已停止测速';
-      termWrite('测速已手动停止或超时中断。', 'info');
     } else {
       document.getElementById('speedStatus').textContent = '测速失败: ' + err.message;
-      termWrite(`测速失败: ${err.message}`, 'err');
-      toast('测速失败，请检查网络连接', 'error');
+      toast('测速失败', 'error');
     }
   } finally {
     clearInterval(timeoutTimer);
@@ -2018,24 +2095,19 @@ async function checkCloudControl() {
     await sleep(800);
     const currentSpeed = document.getElementById('speedDownload').textContent;
     if (currentSpeed.includes('—')) {
-      termWrite('提示: 建议先执行一次测速，以便更准确判断限速状态。', 'info');
       setCloudStatus('unknown');
-      toast('未获取到速率数据，建议先测速', 'info');
+      toast('建议先测速', 'info');
     } else {
       const speedVal = parseFloat(currentSpeed);
       if (speedVal < 5) {
         setCloudStatus('risk');
-        termWrite(`云控检测: 当前速率 ${speedVal} Mbps，低于正常水平。`, 'err');
-        toast('疑似被限速，建议尝试去云控', 'error', 5000);
+        toast('疑似被限速', 'error', 5000);
       } else {
         setCloudStatus('safe');
-        termWrite(`云控检测: 当前速率 ${speedVal} Mbps，未发现明显限速特征。`, 'resp');
         toast('未发现明显限速特征', 'success');
       }
     }
-  } catch (err) {
-    termWrite(`云控检测出错: ${err.message}`, 'err');
-  }
+  } catch (err) { termWrite(`云控检测出错: ${err.message}`, 'err'); }
   document.getElementById('btnCheckCloud').disabled = false;
 }
 
@@ -2056,20 +2128,17 @@ function genRemoveCloudCmd() {
   let cmds = platform === 'asr' ? ['AT*PROD=1', 'AT+ZMODE=1'] : ['AT+ZMODE=1'];
   cmdText.textContent = cmds.join('  →  ');
   resultDiv.style.display = 'block';
-  termWrite(`已生成去云控指令: ${cmds.join(' → ')}`, 'info');
 }
 
 async function sendCloudCmd() {
   const platform = document.getElementById('chipPlatform').value;
   if (platform === 'asr') {
-    termWrite('AT*PROD=1', 'cmd');
     await writeToPort('AT*PROD=1');
     await sleep(400);
   }
-  termWrite('AT+ZMODE=1', 'cmd');
   await writeToPort('AT+ZMODE=1');
   closeCloudModal();
-  toast('指令已发送，请按 ADB 步骤继续操作', 'info', 4000);
+  toast('指令已发送', 'info', 4000);
   setCloudStatus('safe');
 }
 
@@ -2112,14 +2181,12 @@ setChipDetectStatus('idle');
 if (!('serial' in navigator)) {
   document.getElementById('btnConnectUSB').disabled = true;
   document.getElementById('btnConnectUSB').textContent = '⚠ 浏览器不支持 Web Serial';
-  termWrite('当前浏览器不支持 Web Serial API。请使用 Chrome 89+ 或 Edge 89+ 浏览器。', 'err');
+  termWrite('当前浏览器不支持 Web Serial API。请使用 Chrome 89+ 或 Edge 89+。', 'err');
 }
 
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
   overlay.addEventListener('click', (e) => {
-    if (e.target === overlay && !state.writeInProgress) {
-      overlay.classList.remove('show');
-    }
+    if (e.target === overlay && !state.writeInProgress) overlay.classList.remove('show');
   });
 });
 
@@ -2129,7 +2196,7 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-console.log('随身WiFi调试助手 v3.4 已加载 | 新增公网 IP / 内网 IP 查询');
+console.log('随身WiFi调试助手 v4.0 已加载 | 5G 支持 + IPv4/IPv6 分列');
 </script>
 </body>
 </html>
