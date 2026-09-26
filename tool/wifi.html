@@ -55,8 +55,6 @@
   .status-badge.connected .status-dot {
     background: var(--success); box-shadow: 0 0 8px rgba(46,204,113,.6);
   }
-
-  /* ★ 主布局：桌面端严格撑满，移动端在媒体查询里改成自然流 */
   .main {
     flex: 1;
     display: grid;
@@ -132,8 +130,6 @@
   .btn-outline:hover:not(:disabled) { color: var(--text); border-color: var(--text-dim); }
   .btn-row { display: flex; gap: 8px; margin-top: 10px; }
   .btn-row .btn { flex: 1; }
-
-  /* ★ 终端区域 */
   .terminal-wrap {
     flex: 1;
     display: flex; flex-direction: column;
@@ -181,7 +177,6 @@
     flex-shrink: 0;
   }
   .terminal-send:hover { background: #6b92ff; }
-
   .quick-section { margin-bottom: 16px; }
   .quick-section h4 {
     font-size: 11px; color: var(--text-dim); text-transform: uppercase;
@@ -381,87 +376,24 @@
   .net-type-card .value.g5 { color: #22d3ee; }
   .net-type-card .sub { font-size: 10.5px; color: var(--text-dim); margin-top: 2px; font-family: var(--font-mono); }
 
-  /* ═══════════════════════════════════════════════════════════════════
-     ★★★ 移动端布局修复（关键）
-     - 取消 flex 撑满，改为自然流式布局
-     - 页面整体可滚动
-     - 终端区域固定高度，内部滚动
-     ═══════════════════════════════════════════════════════════════════ */
   @media (max-width: 1100px) {
-    html, body {
-      height: auto !important;
-      min-height: 100% !important;
-      overflow: auto !important;
-    }
-    body {
-      display: block !important;
-    }
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    .main {
-      display: block !important;
-      height: auto !important;
-      min-height: auto !important;
-      overflow: visible !important;
-      grid-template-columns: none !important;
-    }
-    .panel {
-      display: block !important;
-      overflow: visible !important;
-      min-height: auto !important;
-      min-width: auto !important;
-    }
-    .panel-left,
-    .panel-center,
-    .panel-right {
-      border: none !important;
-      border-bottom: 1px solid var(--border) !important;
-    }
+    html, body { height: auto !important; min-height: 100% !important; overflow: auto !important; }
+    body { display: block !important; }
+    .topbar { position: sticky; top: 0; z-index: 100; }
+    .main { display: block !important; height: auto !important; min-height: auto !important; overflow: visible !important; grid-template-columns: none !important; }
+    .panel { display: block !important; overflow: visible !important; min-height: auto !important; min-width: auto !important; }
+    .panel-left, .panel-center, .panel-right { border: none !important; border-bottom: 1px solid var(--border) !important; }
     .panel-right { border-bottom: none !important; }
-    .panel-body {
-      overflow: visible !important;
-      max-height: none !important;
-      padding: 14px 16px;
-    }
-    /* ★ 终端区域：移动端给固定高度，内部滚动，不撑破页面 */
-    .terminal-wrap {
-      height: 420px !important;
-      flex: none !important;
-      overflow: hidden !important;
-    }
-    .terminal {
-      height: 100% !important;
-      max-height: calc(420px - 45px) !important;
-      overflow-y: auto !important;
-      -webkit-overflow-scrolling: touch;
-    }
-    .terminal-input-row {
-      flex-shrink: 0;
-    }
-    /* 移动端右栏不再内部滚动，跟页面一起滚 */
-    .panel-right .panel-body {
-      max-height: none !important;
-      overflow: visible !important;
-    }
-    /* 通知器位置调整 */
-    .toast-container {
-      top: 66px;
-      right: 12px;
-      left: 12px;
-    }
-    .toast {
-      max-width: 100%;
-    }
-    /* 模态框在移动端留边距 */
-    .modal {
-      padding: 20px;
-    }
+    .panel-body { overflow: visible !important; max-height: none !important; padding: 14px 16px; }
+    .terminal-wrap { height: 420px !important; flex: none !important; overflow: hidden !important; }
+    .terminal { height: 100% !important; max-height: calc(420px - 45px) !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
+    .terminal-input-row { flex-shrink: 0; }
+    .panel-right .panel-body { max-height: none !important; overflow: visible !important; }
+    .toast-container { top: 66px; right: 12px; left: 12px; }
+    .toast { max-width: 100%; }
+    .modal { padding: 20px; }
   }
 
-  /* 更小屏幕（手机竖屏） */
   @media (max-width: 480px) {
     body { font-size: 13px; }
     .topbar { padding: 10px 14px; height: 52px; }
@@ -482,7 +414,6 @@
     .modal { width: 92vw; padding: 18px; }
   }
 
-  /* 极窄屏（横屏手机）时限制终端高度 */
   @media (max-height: 600px) and (max-width: 1100px) {
     .terminal-wrap { height: 300px !important; }
     .terminal { max-height: calc(300px - 45px) !important; }
@@ -494,7 +425,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v5.4</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v5.5</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -583,7 +514,7 @@
       <div class="terminal" id="terminal">
         <div class="line">
           <span class="prefix info">●</span>
-          <span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v5.4 已就绪。移动端布局已修复。</span>
+          <span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v5.5 已就绪。中兴微指令集已完善。</span>
         </div>
       </div>
       <div class="terminal-input-row">
@@ -635,6 +566,7 @@
             <button class="eye-btn" onclick="toggleSensitive('SN')" id="eyeSN" title="显示/隐藏" style="display:none;">👁️</button>
           </div>
           <div class="info-item"><span class="info-label">WiFi MAC</span><span class="info-value empty" id="infoMAC">—</span></div>
+          <div class="info-item"><span class="info-label">有线 MAC</span><span class="info-value empty" id="infoWiredMAC">—</span></div>
           <div class="info-item"><span class="info-label">固件版本</span><span class="info-value empty" id="infoVER">—</span></div>
         </div>
       </div>
@@ -853,13 +785,41 @@
 <script>
 /* ═══════════════════════════════════════════════════════════════════════════
    芯片数据库 —— 外挂加载机制
+   优先级：localStorage > chip-database.json > 内置 fallback
    ═══════════════════════════════════════════════════════════════════════════ */
 
 let CHIP_DATABASE = [];
 
 const FALLBACK_CHIP_DATABASE_RAW = {
-  "version": "1.5", "updated": "2026-09-26",
+  "version": "1.6", "updated": "2026-09-26",
   "chips": [
+    {
+      "id": "zxic",
+      "name": "中兴微",
+      "fullName": "中兴微电子 ZX297520 / ZX297520V3",
+      "generation": "4G",
+      "detectKeywords": ["ZXIC", "ZX2975", "中兴微", "ZCARDSWITCH", "ZLTEBAND", "ZLTEAMTBAND"],
+      "probe": { "cmd": "AT+ZLTEBAND?", "kw": "ZLTEBAND" },
+      "simSwitch": {
+        "external": "AT+ZCARDSWITCH=0",
+        "internal": "AT+ZCARDSWITCH=1",
+        "query": "AT+ZCARDSWITCH?",
+        "repeat": 5,
+        "tip": "<b>中兴微平台：</b><code>AT+ZCARDSWITCH=0</code> 切外置卡，<code>AT+ZCARDSWITCH=1</code> 切内置卡。<br>该指令通常需连续发送 3~10 次才生效，工具自动连发 5 次。"
+      },
+      "adb": {
+        "enable": ["AT+ZADB=1", "AT+ZADBKEY=1"],
+        "disable": ["AT+ZADB=0", "AT+ZADBKEY=0"],
+        "tip": "中兴微平台优先尝试 <code>AT+ZADB=1</code>，其次 <code>AT+ZADBKEY=1</code>。"
+      },
+      "iccid": ["AT+ZICCID?", "AT+ICCID", "AT+ZICCID", "AT+CCID"],
+      "imei": ["AT+ZULI=1", "AT+CGSN", "AT+READIMEI?"],
+      "sn": ["AT+ZULI=1", "AT+CGSN", "AT*MRD_SN?"],
+      "ver": ["AT+CGMR", "AT+VER", "AT+ZVER?"],
+      "band": ["AT+ZLTEBAND?", "AT+ZLTEAMTBAND?", "AT*BANDIND?"],
+      "qci": ["AT+CGEQOSRDP"],
+      "network5g": []
+    },
     {
       "id": "asr5g", "name": "ASR 5G", "fullName": "翱捷科技 ASR1901 / ASR1903 / ASR8603", "generation": "5G",
       "detectKeywords": ["ASR1901", "ASR1903", "ASR8603"],
@@ -909,17 +869,6 @@ const FALLBACK_CHIP_DATABASE_RAW = {
       "ver": ["AT+CGMR", "AT+VER"], "band": ["AT+QENG=\"servingcell\"", "AT+QNWINFO", "AT*BANDIND?"],
       "qci": ["AT+CGEQOSRDP", "AT+C5GQOSRDP", "AT+QNWCFG=\"qci\""],
       "network5g": ["AT+QNWINFO", "AT+C5GREG?", "AT+QENG=\"servingcell\"", "AT+CPSI?"]
-    },
-    {
-      "id": "zxic", "name": "中兴微", "fullName": "中兴微电子 ZX297520 / ZX297520V3", "generation": "4G",
-      "detectKeywords": ["ZXIC", "ZX2975", "中兴微", "ZCARDSWITCH"],
-      "probe": { "cmd": "AT+ZCARDSWITCH?", "kw": "ZCARDSWITCH" },
-      "simSwitch": { "external": "AT+ZCARDSWITCH=0", "internal": "AT+ZCARDSWITCH=1", "query": "AT+ZCARDSWITCH?", "repeat": 5, "tip": "<b>中兴微平台：</b>需连续发送 3~10 次才生效。" },
-      "adb": { "enable": ["AT+ZADB=1"], "disable": ["AT+ZADB=0"], "tip": "<code>AT+ZADB=1</code> 开启 ADB。" },
-      "iccid": ["AT+ICCID", "AT+ZICCID?", "AT+NCCID?", "AT+CCID"],
-      "imei": ["AT+CGSN", "AT+ZULI=1", "AT+READIMEI?"], "sn": ["AT+CGSN", "AT*MRD_SN?"],
-      "ver": ["AT+VER", "AT+CGMR"], "band": ["AT+ZLTEAMTBAND?", "AT*BANDIND?"],
-      "qci": ["AT+CGEQOSRDP"], "network5g": []
     },
     {
       "id": "mtk", "name": "联发科", "fullName": "联发科 MediaTek MT2735 / T750 / T800", "generation": "5G",
@@ -1117,6 +1066,16 @@ const LTE_BAND_MAP = {
   40: 'B40', 41: 'B41', 71: 'B71'
 };
 
+/* 中兴微 ZLTEBAND 频段位掩码映射（按位位置索引） */
+const ZLTEBAND_BIT_MAP = [
+  'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8',
+  'B9', 'B10', 'B11', 'B12', 'B13', 'B14', 'B15', 'B16',
+  'B17', 'B18', 'B19', 'B20', 'B21', 'B22', 'B23', 'B24',
+  'B25', 'B26', 'B27', 'B28', 'B29', 'B30', 'B31', 'B32',
+  'B33', 'B34', 'B35', 'B36', 'B37', 'B38', 'B39', 'B40',
+  'B41', 'B42', 'B43', 'B44', 'B45', 'B46', 'B47', 'B48'
+];
+
 const NR_BAND_MAP = {
   1: 'n1', 2: 'n2', 3: 'n3', 5: 'n5', 7: 'n7', 8: 'n8',
   20: 'n20', 28: 'n28', 38: 'n38', 41: 'n41', 48: 'n48',
@@ -1156,6 +1115,24 @@ const QCI_MAP = {
 function mapQci(qci) {
   if (qci >= 128 && qci <= 254) return { desc: `运营商自定义 (${qci})`, cls: 'qci-custom' };
   return QCI_MAP[qci] || { desc: `未知等级 (${qci})`, cls: '' };
+}
+
+/* 解码 ZLTEBAND 响应
+   格式: +ZLTEBAND: 149,0,0,0,224,1,0,0,0
+   每个元素是一个 32 位掩码，位 i 为 1 表示支持频段 (idx*32+i+1)
+*/
+function decodeZLteband(raw) {
+  const parts = raw.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+  const bands = [];
+  parts.forEach((mask, idx) => {
+    for (let bit = 0; bit < 32; bit++) {
+      if ((mask >>> bit) & 1) {
+        const bandNum = idx * 32 + bit + 1;
+        if (bandNum <= 48) bands.push(`B${bandNum}`);
+      }
+    }
+  });
+  return bands;
 }
 
 function decodeCRSMICCID(hexStr) {
@@ -1495,6 +1472,7 @@ async function queryFirstAvailable(cmds, waitMs = 600, stopRegex = null) {
     const r = await queryAndCollect(cmd, waitMs);
     if (!r) continue;
     if (/^\s*ERROR\s*$/im.test(r) && r.trim() === 'ERROR') continue;
+    if (/^\s*\+CME ERROR/im.test(r)) continue;
     if (stopRegex && !stopRegex.test(r)) continue;
     return { cmd, resp: r };
   }
@@ -1557,8 +1535,14 @@ async function detectNetworkType() {
     }
   }
 
-  const bandind = await queryAndCollect('AT*BANDIND?', 600);
-  if (/BANDIND/i.test(bandind)) {
+  const bandind = await queryAndCollect('AT+ZLTEBAND?', 700);
+  if (/ZLTEBAND/i.test(bandind)) {
+    setNetworkType('4g', `${chip.name} ZLTEBAND 响应`);
+    return '4g';
+  }
+
+  const bandind2 = await queryAndCollect('AT*BANDIND?', 700);
+  if (/BANDIND/i.test(bandind2)) {
     setNetworkType('4g', `${chip.name} BANDIND 响应`);
     return '4g';
   }
@@ -1585,6 +1569,9 @@ function renderNetQuerySection() {
   grid.innerHTML = '';
   let btns = [];
 
+  const chipId = document.getElementById('chipPlatform').value;
+  const isZXIC = chipId === 'zxic';
+
   if (state.networkType === '5g') {
     headerText.textContent = '网络查询';
     badge.className = 'badge-tag cyan';
@@ -1603,22 +1590,33 @@ function renderNetQuerySection() {
     headerText.textContent = '网络查询';
     badge.className = 'badge-tag orange';
     badge.textContent = '4G';
-    btns = [
-      { cmd: 'AT+QNWINFO',                    label: '网络信息', hint: 'QNWINFO' },
-      { cmd: 'AT+CREG?',                      label: '4G 注册', hint: 'CREG?' },
-      { cmd: 'AT*BANDIND?',                   label: '当前频段', hint: 'BANDIND?' },
-      { cmd: 'AT*BAND?',                      label: '频段配置', hint: '*BAND?' },
-      { cmd: 'AT+CGEQOSRDP',                  label: 'QCI 等级', hint: 'CGEQOSRDP' },
-      { cmd: 'AT+QNWCFG="lte_band"',          label: '4G 频段配置', hint: 'lte_band' },
-    ];
+    if (isZXIC) {
+      btns = [
+        { cmd: 'AT+ZLTEBAND?',      label: 'LTE 频段', hint: 'ZLTEBAND?' },
+        { cmd: 'AT+ZLTEAMTBAND?',   label: '频段配置', hint: 'ZLTEAMTBAND?' },
+        { cmd: 'AT+CREG?',          label: '4G 注册', hint: 'CREG?' },
+        { cmd: 'AT+CSQ',            label: '信号质量', hint: 'AT+CSQ' },
+        { cmd: 'AT+COPS?',          label: '运营商', hint: 'AT+COPS?' },
+        { cmd: 'AT+CGSN',           label: 'IMEI', hint: 'AT+CGSN' },
+      ];
+    } else {
+      btns = [
+        { cmd: 'AT+QNWINFO',                    label: '网络信息', hint: 'QNWINFO' },
+        { cmd: 'AT+CREG?',                      label: '4G 注册', hint: 'CREG?' },
+        { cmd: 'AT*BANDIND?',                   label: '当前频段', hint: 'BANDIND?' },
+        { cmd: 'AT*BAND?',                      label: '频段配置', hint: '*BAND?' },
+        { cmd: 'AT+CGEQOSRDP',                  label: 'QCI 等级', hint: 'CGEQOSRDP' },
+        { cmd: 'AT+QNWCFG="lte_band"',          label: '4G 频段配置', hint: 'lte_band' },
+      ];
+    }
   } else {
     headerText.textContent = '网络查询';
     badge.className = 'badge-tag gray';
     badge.textContent = '未识别';
     btns = [
+      { cmd: 'AT+ZLTEBAND?',                  label: 'ZLTEBAND', hint: '中兴微' },
       { cmd: 'AT+QNWINFO',                    label: '网络信息', hint: 'QNWINFO' },
       { cmd: 'AT+CREG?',                      label: '4G 注册', hint: 'CREG?' },
-      { cmd: 'AT+C5GREG?',                    label: '5G 注册', hint: 'C5GREG?' },
       { cmd: 'AT+CSQ',                        label: '信号质量', hint: 'AT+CSQ' },
     ];
   }
@@ -1640,6 +1638,9 @@ function renderBandLockSection() {
   const tip = document.getElementById('bandTip');
   grid.innerHTML = '';
   headerText.textContent = '频段锁定';
+
+  const chipId = document.getElementById('chipPlatform').value;
+  const isZXIC = chipId === 'zxic';
 
   if (state.networkType === '5g') {
     badge.className = 'badge-tag cyan';
@@ -1670,40 +1671,71 @@ function renderBandLockSection() {
   } else if (state.networkType === '4g') {
     badge.className = 'badge-tag orange';
     badge.textContent = '4G LTE';
-    tip.innerHTML = '<b>4G 锁频（ASR）：</b>使用 <code>AT*BAND=,0,&lt;mask&gt;,0,2,2,0</code> 锁定 LTE 频段。<br><b>4G 锁频（高通）：</b><code>AT+QNWPREFCFG="lte_band",&lt;band&gt;</code>。<br><b>解除：</b><code>AT*BAND=0</code> 恢复自动。';
 
-    Object.entries(BAND_MAP_4G).forEach(([key, info]) => {
-      const btn = document.createElement('button');
-      btn.className = 'quick-btn';
-      btn.disabled = !state.connected;
-      btn.style.borderColor = 'rgba(251,191,36,.25)';
-      btn.innerHTML = `${info.label}<span class="cmd-hint">锁频</span>`;
-      btn.onclick = () => {
+    if (isZXIC) {
+      tip.innerHTML = '<b>中兴微锁频：</b>使用 <code>AT+ZLTEBAND=,0,&lt;mask1&gt;,&lt;mask2&gt;...</code> 或 <code>AT+ZLTEAMTBAND=0,&lt;mask&gt;</code> 锁定频段。<br>位掩码按位对应频段，例如 B1=1，B3=4，B5=16，B8=128。<br><b>解除：</b>发送 <code>AT+ZLTEBAND=0</code>。';
+
+      Object.entries(BAND_MAP_4G).forEach(([key, info]) => {
+        const btn = document.createElement('button');
+        btn.className = 'quick-btn';
+        btn.disabled = !state.connected;
+        btn.style.borderColor = 'rgba(251,191,36,.25)';
+        btn.innerHTML = `${info.label}<span class="cmd-hint">ZLTEBAND</span>`;
+        // 中兴微用位掩码方式，取 param 中间的值
+        const maskVal = info.param.split(',')[2];
+        btn.title = `${info.label} · mask=${maskVal}\n命令: AT+ZLTEBAND=,0,${maskVal},0,0,0,0,0,0`;
+        btn.onclick = () => {
+          quickCmd(`AT+ZLTEBAND=,0,${maskVal},0,0,0,0,0,0`);
+        };
+        grid.appendChild(btn);
+      });
+
+      const clearBtn = document.createElement('button');
+      clearBtn.className = 'quick-btn';
+      clearBtn.style.gridColumn = '1 / -1';
+      clearBtn.style.color = '#fbbf24';
+      clearBtn.style.borderColor = 'rgba(251,191,36,.3)';
+      clearBtn.disabled = !state.connected;
+      clearBtn.innerHTML = `解除中兴微锁频<span class="cmd-hint">AT+ZLTEBAND=0</span>`;
+      clearBtn.onclick = () => quickCmd('AT+ZLTEBAND=0');
+      grid.appendChild(clearBtn);
+
+    } else {
+      tip.innerHTML = '<b>4G 锁频（ASR）：</b>使用 <code>AT*BAND=,0,&lt;mask&gt;,0,2,2,0</code> 锁定 LTE 频段。<br><b>4G 锁频（高通）：</b><code>AT+QNWPREFCFG="lte_band",&lt;band&gt;</code>。<br><b>解除：</b><code>AT*BAND=0</code> 恢复自动。';
+
+      Object.entries(BAND_MAP_4G).forEach(([key, info]) => {
+        const btn = document.createElement('button');
+        btn.className = 'quick-btn';
+        btn.disabled = !state.connected;
+        btn.style.borderColor = 'rgba(251,191,36,.25)';
+        btn.innerHTML = `${info.label}<span class="cmd-hint">锁频</span>`;
+        btn.onclick = () => {
+          if (state.detectedChip === 'qualcomm') {
+            const bandNum = parseInt(info.label.replace('B', ''));
+            lockBand4G(bandNum, info.label);
+          } else {
+            quickCmd(`AT*BAND=${info.param}`);
+          }
+        };
+        grid.appendChild(btn);
+      });
+
+      const clearBtn = document.createElement('button');
+      clearBtn.className = 'quick-btn';
+      clearBtn.style.gridColumn = '1 / -1';
+      clearBtn.style.color = '#fbbf24';
+      clearBtn.style.borderColor = 'rgba(251,191,36,.3)';
+      clearBtn.disabled = !state.connected;
+      clearBtn.innerHTML = `解除 4G 锁频<span class="cmd-hint">AT*BAND=0 / lte_band,0</span>`;
+      clearBtn.onclick = () => {
         if (state.detectedChip === 'qualcomm') {
-          const bandNum = parseInt(info.label.replace('B', ''));
-          lockBand4G(bandNum, info.label);
+          quickCmd('AT+QNWPREFCFG="lte_band",0');
         } else {
-          quickCmd(`AT*BAND=${info.param}`);
+          quickCmd('AT*BAND=0');
         }
       };
-      grid.appendChild(btn);
-    });
-
-    const clearBtn = document.createElement('button');
-    clearBtn.className = 'quick-btn';
-    clearBtn.style.gridColumn = '1 / -1';
-    clearBtn.style.color = '#fbbf24';
-    clearBtn.style.borderColor = 'rgba(251,191,36,.3)';
-    clearBtn.disabled = !state.connected;
-    clearBtn.innerHTML = `解除 4G 锁频<span class="cmd-hint">AT*BAND=0 / lte_band,0</span>`;
-    clearBtn.onclick = () => {
-      if (state.detectedChip === 'qualcomm') {
-        quickCmd('AT+QNWPREFCFG="lte_band",0');
-      } else {
-        quickCmd('AT*BAND=0');
-      }
-    };
-    grid.appendChild(clearBtn);
+      grid.appendChild(clearBtn);
+    }
 
   } else {
     badge.className = 'badge-tag gray';
@@ -1945,10 +1977,12 @@ async function autoDetectChip() {
   termWrite('开始自动识别芯片平台...', 'info');
   let chipId = null;
 
+  /* 第1步：ATI */
   const atiResp = await queryAndCollect('ATI', 1000);
   chipId = detectChipFromText(atiResp);
   if (chipId) termWrite(`✓ 从 ATI 识别到芯片`, 'resp');
 
+  /* 第2步：替代指令 */
   if (!chipId) {
     termWrite('ATI 未能识别，尝试其他芯片信息指令...', 'info');
     const altCmds = ['AT+CGMM', 'AT+GMM', 'AT+CGMI', 'AT+GMI', 'AT+CGMR', 'AT+GMR'];
@@ -1964,6 +1998,7 @@ async function autoDetectChip() {
     }
   }
 
+  /* 第3步：各平台特征指令探测 */
   if (!chipId) {
     termWrite('尝试探测各平台特有指令...', 'info');
     for (const chip of CHIP_DATABASE) {
@@ -1977,6 +2012,7 @@ async function autoDetectChip() {
     }
   }
 
+  /* 第4步：localStorage 记忆 */
   if (!chipId) {
     const savedChip = localStorage.getItem('atmaster_last_chip');
     if (savedChip && CHIP_DATABASE.find(c => c.id === savedChip)) {
@@ -1997,6 +2033,8 @@ async function autoDetectChip() {
     termWrite(`✓ 芯片平台: ${chip.name} (${chip.fullName})`, 'resp');
     toast(`芯片平台: ${chip.name}`, 'success');
     localStorage.setItem('atmaster_last_chip', chipId);
+    renderNetQuerySection();
+    renderBandLockSection();
     return chipId;
   }
 
@@ -2265,6 +2303,35 @@ function parseDeviceInfo(line) {
     if (state.networkType === 'unknown') setNetworkType('4g', 'servingcell: LTE');
   }
 
+  /* ★ 中兴微 ZLTEBAND 响应解析 */
+  m = line.match(/\+ZLTEBAND[:\s]*(.+)/i);
+  if (m) {
+    const bands = decodeZLteband(m[1]);
+    if (bands.length > 0) {
+      const bandEl = document.getElementById('infoBand');
+      bandEl.textContent = `LTE ${bands.join(' ')}`;
+      bandEl.className = 'info-value net4g';
+      bandEl.title = `原始响应: +ZLTEBAND:${m[1]}`;
+      state.currentBand = bands.join(' ');
+      if (state.networkType === 'unknown') setNetworkType('4g', 'ZLTEBAND 响应');
+    }
+  }
+
+  /* 中兴微 ZLTEAMTBAND 响应 */
+  m = line.match(/\+ZLTEAMTBAND[:\s]*(.+)/i);
+  if (m) {
+    const bands = decodeZLteband(m[1]);
+    if (bands.length > 0) {
+      const bandEl = document.getElementById('infoBand');
+      if (bandEl.textContent === '—' || bandEl.textContent === '查询中...') {
+        bandEl.textContent = `LTE ${bands.join(' ')}`;
+        bandEl.className = 'info-value net4g';
+        bandEl.title = `原始响应: +ZLTEAMTBAND:${m[1]}`;
+        state.currentBand = bands.join(' ');
+      }
+    }
+  }
+
   m = line.match(/\+QENG[:\s]*"servingcell"\s*,\s*"[^"]*"\s*,\s*"NR5G"\s*,\s*"([^"]*)"\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*(\d+)\s*,\s*[^,]+,\s*(-?\d+)\s*,\s*(-?\d+)\s*,\s*(-?\d+)/i);
   if (m) {
     const duplex = m[1];
@@ -2343,7 +2410,7 @@ function parseDeviceInfo(line) {
     el.className = 'info-value ' + info.cls;
   }
 
-  m = line.match(/[+*](?:QCCID|ICCID|CCID|ICID)[:\s]*"?([0-9A-Za-z]{18,22})"?/i);
+  m = line.match(/[+*](?:QCCID|ICCID|CCID|ICID|ZICCID)[:\s]*"?([0-9A-Za-z]{18,22})"?/i);
   if (m) {
     setInfoValue('ICCID', m[1]);
   } else if (/^89\d{17,19}[A-Za-z0-9]*$/.test(line)) {
@@ -2357,9 +2424,23 @@ function parseDeviceInfo(line) {
     }
   }
 
+  /* IMEI - 支持 ZULI 和标准 CGSN */
   m = line.match(/\+CGSN[:\s]+(\d{14,16})/i);
   if (m) setInfoValue('IMEI', m[1]);
   else if (/^\d{15}$/.test(line)) setInfoValue('IMEI', line);
+
+  /* ZULI 响应可能包含 IMEI+SN */
+  m = line.match(/\+ZULI[:\s]+([A-Za-z0-9,]+)/i);
+  if (m) {
+    const parts = m[1].split(',').map(s => s.trim());
+    for (const p of parts) {
+      if (/^\d{15}$/.test(p)) {
+        setInfoValue('IMEI', p);
+      } else if (/^[A-Z0-9]{8,20}$/.test(p) && state.rawValues.SN === '') {
+        setInfoValue('SN', p);
+      }
+    }
+  }
 
   m = line.match(/[*+]MRD_SN[:\s]+([A-Za-z0-9]+)/i) || line.match(/\+SN[:\s]+([A-Za-z0-9]+)/i);
   if (m) setInfoValue('SN', m[1]);
@@ -2367,11 +2448,16 @@ function parseDeviceInfo(line) {
   m = line.match(/\+CGMR[:\s]+"?([^"\r\n]+)"?/i) || line.match(/[+*]VER[:\s]+"?([^"\r\n]+)"?/i);
   if (m) setInfo('infoVER', m[1].trim());
 
+  /* 无线 MAC */
   m = line.match(/[*+]MRD_WIFIID[:\s]+([0-9A-Fa-f:]{12,20})/i) ||
       line.match(/[+*]WIFIID[:\s]+([0-9A-Fa-f:]{12,20})/i) ||
       line.match(/[+*]MAC[:\s]+([0-9A-Fa-f:]{12,20})/i) ||
       line.match(/([0-9A-Fa-f]{2}[:\-]){5}[0-9A-Fa-f]{2}/);
   if (m) setInfo('infoMAC', m[1] || m[0]);
+
+  /* 有线 MAC - ZWIREDMAC / ZETHMAC / ETHMAC */
+  m = line.match(/[+*](?:ZWIREDMAC|ZETHMAC|ETHMAC|WIREDMAC)[:\s]*([0-9A-Fa-f:]{12,20})/i);
+  if (m) setInfo('infoWiredMAC', m[1]);
 
   m = line.match(/\+CSQ[:\s]*(\d+)/);
   if (m) {
@@ -2454,10 +2540,11 @@ async function autoQueryDeviceInfo() {
   termWrite('正在查询设备信息...', 'info');
   const chip = getChipById(state.detectedChip || 'asr4g');
 
+  /* ICCID */
   termWrite('尝试查询 ICCID...', 'info');
   const iccidResult = await queryFirstAvailable(
     chip.iccid, 700,
-    /[+*](?:QCCID|ICCID|CCID|ICID)|^89\d{17,19}/im
+    /[+*](?:QCCID|ICCID|CCID|ICID|ZICCID)|^89\d{17,19}/im
   );
   if (!iccidResult) {
     termWrite('常规 ICCID 指令无响应，尝试 CRSM 底层读取...', 'info');
@@ -2467,14 +2554,21 @@ async function autoQueryDeviceInfo() {
     }
   }
 
-  await queryFirstAvailable(chip.imei, 600, /\+CGSN|^\d{15}/m);
-  await queryFirstAvailable(chip.sn, 600, /[*+]MRD_SN|\+SN|^[A-Z0-9]{8,20}$/m);
+  /* IMEI */
+  await queryFirstAvailable(chip.imei, 600, /\+CGSN|^\d{15}|\+ZULI/im);
+
+  /* SN */
+  await queryFirstAvailable(chip.sn, 600, /[*+]MRD_SN|\+SN|^[A-Z0-9]{8,20}$|\+ZULI/im);
+
+  /* 固件 */
   await queryFirstAvailable(chip.ver, 600, /[+*]VER|\+CGMR/);
 
+  /* 信号 */
   await queryAndCollect('AT+CSQ', 600);
   await queryAndCollect('AT+COPS=3,0', 400);
   await queryAndCollect('AT+COPS?', 800);
 
+  /* MAC */
   termWrite('尝试查询 WiFi MAC 地址...', 'info');
   let macResult = await queryAndCollect('AT*MRD_WIFIID?', 600);
   if (!/WIFIID|MAC|[0-9A-Fa-f]{2}:/i.test(macResult)) {
@@ -2482,10 +2576,19 @@ async function autoQueryDeviceInfo() {
     if (!/MAC|[0-9A-Fa-f]{2}:/i.test(macResult)) await queryAndCollect('AT+MAC?', 600);
   }
 
+  /* 中兴微有线 MAC */
+  if (state.detectedChip === 'zxic') {
+    termWrite('尝试查询中兴微有线 MAC...', 'info');
+    await queryAndCollect('AT+ZWIREDMAC?', 600);
+    await queryAndCollect('AT+ZETHMAC?', 600);
+  }
+
+  /* 卡槽 */
   if (chip.simSwitch && chip.simSwitch.query) {
     await queryAndCollect(chip.simSwitch.query, 600);
   }
 
+  /* 网络查询 */
   if (chip.generation === '5G') {
     for (const cmd of chip.network5g) {
       await queryAndCollect(cmd, 900);
@@ -2494,9 +2597,11 @@ async function autoQueryDeviceInfo() {
     await queryAndCollect('AT+CREG?', 600);
   }
 
+  /* 频段 */
   termWrite('尝试查询当前频段...', 'info');
-  await queryFirstAvailable(chip.band, 600, /BANDIND|QENG/);
+  await queryFirstAvailable(chip.band, 700, /ZLTEBAND|BANDIND|QENG/);
 
+  /* QCI */
   termWrite('尝试查询 QCI 等级...', 'info');
   await queryFirstAvailable(chip.qci, 800, /CGEQOSRDP|C5GQOSRDP|QNWCFG|CGQREQ/);
 
@@ -2504,7 +2609,7 @@ async function autoQueryDeviceInfo() {
 }
 
 function resetDeviceInfo() {
-  ['infoChip','infoOperator','infoCardSlot','infoBand','infoCSQ','infoRSRP','infoSINR','infoQCI','infoMAC','infoVER',
+  ['infoChip','infoOperator','infoCardSlot','infoBand','infoCSQ','infoRSRP','infoSINR','infoQCI','infoMAC','infoWiredMAC','infoVER',
    'infoPubV4','infoPubV6','infoLocV4','infoLocV6'].forEach(id => {
     const el = document.getElementById(id);
     el.textContent = '—';
@@ -2580,6 +2685,8 @@ document.getElementById('chipPlatform').addEventListener('change', () => {
   chipEl.textContent = chip.name;
   chipEl.className = 'info-value ok';
   toast(`已切换为 ${chip.name}`, 'success');
+  renderNetQuerySection();
+  renderBandLockSection();
   if (state.connected) {
     termWrite(`手动切换芯片为 ${chip.name}，重新查询设备信息...`, 'info');
     resetDeviceInfo();
@@ -2887,6 +2994,8 @@ async function closeADB() {
     setTimeout(() => {
       document.getElementById('chipPlatform').value = lastChip;
       updateCmdHints();
+      renderNetQuerySection();
+      renderBandLockSection();
       const chip = getChipById(lastChip);
       termWrite(`💡 上次使用的芯片：${chip.name}，已自动预选`, 'info');
     }, 100);
@@ -2935,7 +3044,7 @@ async function closeADB() {
     }
   });
 
-  console.log(`随身WiFi调试助手 v5.4 已加载 | 芯片库：${CHIP_DATABASE.length} 条`);
+  console.log(`随身WiFi调试助手 v5.5 已加载 | 芯片库：${CHIP_DATABASE.length} 条`);
 })();
 </script>
 </body>
