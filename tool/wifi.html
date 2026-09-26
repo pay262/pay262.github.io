@@ -276,8 +276,8 @@
           <div class="info-item"><span class="info-label">当前卡槽</span><span class="info-value empty" id="infoCardSlot">—</span></div>
           <div class="info-item"><span class="info-label">当前频段</span><span class="info-value empty" id="infoBand">—</span></div>
           <div class="info-item"><span class="info-label">信号质量</span><span class="info-value empty" id="infoCSQ">—</span></div>
-          <div class="info-item" id="rowRSRP" style="display:none;"><span class="info-label">5G RSRP</span><span class="info-value empty" id="infoRSRP">—</span></div>
-          <div class="info-item" id="rowSINR" style="display:none;"><span class="info-label">5G SINR</span><span class="info-value empty" id="infoSINR">—</span></div>
+          <div class="info-item" id="rowRSRP" style="display:none;"><span class="info-label">RSRP</span><span class="info-value empty" id="infoRSRP">—</span></div>
+          <div class="info-item" id="rowSINR" style="display:none;"><span class="info-label">SINR</span><span class="info-value empty" id="infoSINR">—</span></div>
           <div class="info-item"><span class="info-label">QCI 等级</span><span class="info-value empty" id="infoQCI">—</span></div>
           <div class="info-item">
             <span class="info-label">ICCID</span>
@@ -497,7 +497,7 @@ const FALLBACK_CHIP_DATABASE_RAW = {
     {
       id:'zxic', name:'中兴微', fullName:'中兴微电子 ZX297520 / ZX297520V3', generation:'4G',
       detectKeywords:['ZXIC','ZX2975','中兴微','ZCARDSWITCH','ZLTEBAND','ZBAND','ZICCID','ZULI','MF761'],
-      probe:{cmd:'AT+ZICCID?',kw:'ZICCID'},
+      probe:{cmd:'AT+ZICCID?',kw:'\\+ZICCID'},
       simSwitch:{external:'AT+ZCARDSWITCH=0',internal:'AT+ZCARDSWITCH=1',query:'AT+ZCARDSWITCH?',repeat:5,
         tip:'<b>中兴微平台：</b><code>AT+ZCARDSWITCH=0</code> 切外置卡，<code>AT+ZCARDSWITCH=1</code> 切内置卡。<br>需连发 3~10 次才生效。'},
       adb:{enable:['AT+ZADB=1','AT+ZADBKEY=1','AT+ZMODE=1'],disable:['AT+ZADB=0','AT+ZADBKEY=0','AT+ZMODE=0'],
@@ -526,8 +526,8 @@ const FALLBACK_CHIP_DATABASE_RAW = {
     },
     {
       id:'asr4g', name:'ASR 4G', fullName:'翱捷科技 ASR1802 / ASR1803 / ASR1806 / ASR8861 / ASR7801', generation:'4G',
-      detectKeywords:['ASR1806','ASR1803','ASR1802','ASR180','ASR8861','ASR7801','Air720','Air724'],
-      probe:{cmd:'AT+SWSIM?',kw:'SWSIM'},
+      detectKeywords:['ASR, Inc.','ASR','Nezha','ASR1806','ASR1803','ASR1802','ASR180','ASR8861','ASR7801','Air720','Air724'],
+      probe:{cmd:'AT+SWSIM?',kw:'\\+SWSIM'},
       simSwitch:{external:'AT+SWSIM=0',internal:'AT+SWSIM=1',query:'AT+SWSIM?',repeat:1,tip:''},
       adb:{enable:['AT+ZMODE=1'],disable:['AT+ZMODE=0'],tip:''},
       iccid:['AT+CCID','AT+ICCID','AT+UTICCID?','AT+ICID?','AT*MRD_ICCID?'],
@@ -997,8 +997,10 @@ function setNetworkType(type,subText){
   if(type==='5g'){i.className='icon g5';i.textContent='5G';v.className='value g5';v.textContent='5G NR';s.textContent=subText||'已接入 5G';}
   else if(type==='4g'){i.className='icon g4';i.textContent='4G';v.className='value g4';v.textContent='4G LTE';s.textContent=subText||'已接入 4G';}
   else{i.className='icon unknown';i.textContent='?';v.className='value unknown';v.textContent=state.connected?'识别中...':'未连接';s.textContent=subText||(state.connected?'正在查询':'请连接设备');}
-  document.getElementById('rowRSRP').style.display=type==='5g'?'flex':'none';
-  document.getElementById('rowSINR').style.display=type==='5g'?'flex':'none';
+  // ASR 4G 平台即使为 4G 也展示 RSRP/SINR 行
+  const showSignal = (type==='5g') || (state.detectedChip === 'asr4g');
+  document.getElementById('rowRSRP').style.display = showSignal ? 'flex' : 'none';
+  document.getElementById('rowSINR').style.display = showSignal ? 'flex' : 'none';
   if(changed||subText)renderBandLockSection();
 }
 async function detectNetworkType(){
@@ -1533,6 +1535,82 @@ function setInfo(id,value,cls='ok'){
 function parseDeviceInfo(line){
   let m;
 
+  /* ═══════════════════════════════════════════════════════════════════════
+     ASR 4G 专属实时数据解析
+     拦截 +CESQ / *CESQ / +EEMLTESVC，直接提取物理层数据
+     ═══════════════════════════════════════════════════════════════════════ */
+  if (state.detectedChip === 'asr4g') {
+    // 1. +CESQ —— 提取精准 RSRP（第6个参数）
+    // 例: +CESQ: 62,99,255,255,21,63  → RSRP = -140 + 63 = -77 dBm
+    m = line.match(/\+CESQ:\s*(\d+),(\d+),(\d+),(\d+),(\d+),(\d+)/i);
+    if (m) {
+      const rsrpRaw = parseInt(m[6]);
+      if (rsrpRaw > 0 && rsrpRaw < 100) {
+        const rsrpDbm = -140 + rsrpRaw;
+        setInfo('infoRSRP', `${rsrpDbm} dBm`, 'ipv4');
+        document.getElementById('rowRSRP').style.display = 'flex';
+      }
+    }
+
+    // 2. *CESQ —— 提取精准 SINR（第7个参数）
+    // 例: *CESQ: 62,99,255,255,21,63,19  → SINR = 19 dB
+    m = line.match(/\*CESQ:\s*(\d+),(\d+),(\d+),(\d+),(\d+),(\d+),(\d+)/i);
+    if (m) {
+      const sinr = parseInt(m[7]);
+      if (sinr >= 0 && sinr < 100) {
+        setInfo('infoSINR', `${sinr} dB`, 'ipv4');
+        document.getElementById('rowSINR').style.display = 'flex';
+      }
+    }
+
+    // 3. +EEMLTESVC —— 提取 PCI / EARFCN / RSRP / SINR
+    // 例: +EEMLTESVC: 1120, 2, 1, 31338, 288, 1850, 19850, 3, 5, 63, 19, 18, ...
+    //     parts[4]=PCI(288)  parts[5]=EARFCN(1850)  parts[9]=RSRP(63)  parts[10]=SINR(19)
+    m = line.match(/\+EEMLTESVC:\s*([\d\s,]+)/i);
+    if (m) {
+      const parts = m[1].split(',').map(s => parseInt(s.trim()));
+      if (parts.length > 12) {
+        const pci = parts[4];
+        const earfcn = parts[5];
+        const rsrpRaw = parts[9];
+        const sinr = parts[10];
+
+        // 根据 EARFCN 换算真实频段（3GPP TS 36.101）
+        let band = '';
+        if (earfcn >= 0 && earfcn <= 599) band = 'B1';
+        else if (earfcn >= 600 && earfcn <= 1199) band = 'B2';
+        else if (earfcn >= 1200 && earfcn <= 1949) band = 'B3';
+        else if (earfcn >= 1950 && earfcn <= 2399) band = 'B4';
+        else if (earfcn >= 2400 && earfcn <= 2649) band = 'B5';
+        else if (earfcn >= 2750 && earfcn <= 3449) band = 'B7';
+        else if (earfcn >= 3450 && earfcn <= 3799) band = 'B8';
+        else if (earfcn >= 37750 && earfcn <= 38249) band = 'B38';
+        else if (earfcn >= 38250 && earfcn <= 38649) band = 'B39';
+        else if (earfcn >= 38650 && earfcn <= 39649) band = 'B40';
+        else if (earfcn >= 39650 && earfcn <= 41589) band = 'B41';
+
+        if (band) {
+          const elBand = document.getElementById('infoBand');
+          elBand.textContent = `LTE ${band}`;
+          elBand.className = 'info-value net4g';
+          elBand.title = `PCI: ${pci}, EARFCN: ${earfcn} (ASR 实时数据)`;
+        }
+
+        if (rsrpRaw > 0 && rsrpRaw < 100) {
+          const rsrpDbm = -140 + rsrpRaw;
+          setInfo('infoRSRP', `${rsrpDbm} dBm`, 'ipv4');
+          document.getElementById('rowRSRP').style.display = 'flex';
+        }
+        if (sinr >= 0 && sinr < 100) {
+          setInfo('infoSINR', `${sinr} dB`, 'ipv4');
+          document.getElementById('rowSINR').style.display = 'flex';
+        }
+      }
+    }
+    // 注意：不在此处 return，ICCID/IMEI/SN/MAC 等通用解析仍需继续
+  }
+  /* ═══════════════════════════════════════════════════════════════════════ */
+
   m=line.match(/\+ZULI[:\s]+\d+,\s*"?([0-9A-Za-z,]+?)"?\s*$/i);
   if(m){
     const parts=m[1].split(',').map(s=>s.trim().replace(/"/g,''));
@@ -1563,29 +1641,41 @@ function parseDeviceInfo(line){
     ||line.match(/([0-9A-Fa-f]{2}[:\-]){5}[0-9A-Fa-f]{2}/);
   if(m)setInfo('infoMAC',m[1]||m[0]);
 
+  /* ─────── CSQ 解析（按芯片平台分支） ─────── */
   m=line.match(/\+CSQ[:\s]*([\d,\-]+)/);
   if(m){
     const parts=m[1].split(',').map(s=>s.trim());
     const first=parseInt(parts[0]);
     const el=document.getElementById('infoCSQ');
-    if(first===99){el.textContent='无信号';el.className='info-value empty';}
-    else if(first>=0&&first<=31){
-      const dbm=-113+first*2;
-      el.textContent=`${first} (${dbm} dBm, ${first>=20?'强':first>=10?'中':'弱'})`;
-      el.className='info-value '+(first>=10?'ok':'warn');
+
+    if (state.detectedChip === 'asr4g') {
+      // ASR 4G 专属：只显示等级，不换算成虚假的 dBm
+      if(first===99){el.textContent='无信号';el.className='info-value empty';}
+      else if(first>=0&&first<=31){
+        let level = first >= 20 ? '强' : first >= 15 ? '良' : first >= 10 ? '中' : '弱';
+        el.textContent = `${first} (等级 ${level})`;
+        el.className = 'info-value ' + (first >= 15 ? 'ok' : first >= 10 ? 'warn' : 'err');
+        el.title = `原始响应: ${line}。注：ASR 的 CSQ 为等级非 RSRP，真实 RSRP 请看上方 RSRP 栏`;
+      }
     } else {
-      const dbm = -(first / 2);
-      let strength;
-      if (dbm >= -70) strength = '优';
-      else if (dbm >= -80) strength = '良';
-      else if (dbm >= -90) strength = '中';
-      else if (dbm >= -100) strength = '差';
-      else strength = '极差';
-    
-      el.textContent = `${first} (${dbm.toFixed(1)} dBm, ${strength})`;
-      // 颜色：≥-80 绿色(ok)，-80~-90 黄色(warn)，<-90 红色(err)
-      el.className = 'info-value ' + (dbm >= -80 ? 'ok' : dbm >= -90 ? 'warn' : 'err');
-      el.title = `原始响应: ${line}`;
+      // 原有中兴微/通用逻辑保持不变
+      if(first===99){el.textContent='无信号';el.className='info-value empty';}
+      else if(first>=0&&first<=31){
+        const dbm=-113+first*2;
+        el.textContent=`${first} (${dbm} dBm, ${first>=20?'强':first>=10?'中':'弱'})`;
+        el.className='info-value '+(first>=10?'ok':'warn');
+      } else {
+        const dbm = -(first / 2);
+        let strength;
+        if (dbm >= -70) strength = '优';
+        else if (dbm >= -80) strength = '良';
+        else if (dbm >= -90) strength = '中';
+        else if (dbm >= -100) strength = '差';
+        else strength = '极差';
+        el.textContent = `${first} (${dbm.toFixed(1)} dBm, ${strength})`;
+        el.className = 'info-value ' + (dbm >= -80 ? 'ok' : dbm >= -90 ? 'warn' : 'err');
+        el.title = `原始响应: ${line}`;
+      }
     }
   }
 
@@ -1606,35 +1696,41 @@ function parseDeviceInfo(line){
     el.className='info-value '+(slot===0?'ok':'warn');
   }
 
+  /* ─────── +ZBAND 解析（按芯片平台分支） ─────── */
   m=line.match(/\+ZBAND[:\s]*(.+)/i);
   if(m){
-    const parts=m[1].split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n));
-    if(parts.length>0){
-      const el=document.getElementById('infoBand');
-      if(parts.length===2&&parts[1]<=8){
-        const band=parts[1];
-        if(band>0&&band<300){
-          el.textContent=`LTE B${band}`;
-          el.className='info-value net4g';
-          el.title=`原始响应: ${line}`;
-        }
-      }else if(parts.length>=3&&[1,2,3,4,5,6,7].includes(parts[0])){
-        const bands=parts.slice(1).filter(b=>b>0&&b<300).map(b=>`B${b}`);
-        if(bands.length>0){
-          el.textContent=`LTE ${bands.join(' ')}`;
-          el.className='info-value net4g';
-          el.title=`原始响应: ${line}`;
-        }
-      }else{
-        const bands=parts.filter(b=>b>0&&b<300).map(b=>`B${b}`);
-        if(bands.length>0){
-          el.textContent=`LTE ${bands.join(' ')}`;
-          el.className='info-value net4g';
-          el.title=`原始响应: ${line}`;
+    // ASR 4G 平台：ZBAND 的含义不可靠（可能是数量而非频段），
+    // 且这台 ASR 设备 ZBAND 直接返回 ERROR，直接忽略，让 +EEMLTESVC 的 EARFCN 负责真实频段
+    if (state.detectedChip !== 'asr4g') {
+      const parts=m[1].split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n));
+      if(parts.length>0){
+        const el=document.getElementById('infoBand');
+        if(parts.length===2&&parts[1]<=8){
+          const band=parts[1];
+          if(band>0&&band<300){
+            el.textContent=`LTE B${band}`;
+            el.className='info-value net4g';
+            el.title=`原始响应: ${line}`;
+          }
+        }else if(parts.length>=3&&[1,2,3,4,5,6,7].includes(parts[0])){
+          const bands=parts.slice(1).filter(b=>b>0&&b<300).map(b=>`B${b}`);
+          if(bands.length>0){
+            el.textContent=`LTE ${bands.join(' ')}`;
+            el.className='info-value net4g';
+            el.title=`原始响应: ${line}`;
+          }
+        }else{
+          const bands=parts.filter(b=>b>0&&b<300).map(b=>`B${b}`);
+          if(bands.length>0){
+            el.textContent=`LTE ${bands.join(' ')}`;
+            el.className='info-value net4g';
+            el.title=`原始响应: ${line}`;
+          }
         }
       }
     }
   }
+
   m=line.match(/\+ZLTE(?:AMT)?BAND[:\s]*(.+)/i);
   if(m&&(document.getElementById('infoBand').textContent==='—')){
     const parts=m[1].split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n));
@@ -1938,7 +2034,7 @@ async function checkCloudControl(){
   document.getElementById('btnCheckCloud').disabled=false;
 }
 
-/* ── 云控弹窗（补全部分） ─────────────────────────────────────────────── */
+/* ── 云控弹窗 ── */
 function openCloudModal(){
   document.getElementById('cloudModal').classList.add('show');
   document.getElementById('cloudCmdResult').style.display='none';
@@ -1953,7 +2049,6 @@ function showAdbGuide(){
   el.style.display=el.style.display==='none'?'block':'none';
 }
 
-/* 各平台去云控指令表 */
 const CLOUD_REMOVE_MAP = {
   zxic:    ['AT*PROD=1','AT+ZCLOUD=0','AT+ZCLOUDCFG=0','AT+ZCLOUDURL=""','AT*PROD=0','AT+RESET'],
   asr5g:   ['AT*PROD=1','AT+CLOUD=0','AT+CLOUDSWITCH=0','AT*PROD=0','AT+RESET'],
