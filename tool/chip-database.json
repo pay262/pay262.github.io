@@ -1,5 +1,5 @@
 {
-  "version": "1.3",
+  "version": "1.4",
   "updated": "2026-09-26",
   "description": "随身WiFi调试助手芯片数据库。新增芯片时，在 chips 数组末尾追加一条记录即可。detectKeywords 和 probe.kw 使用正则字符串（忽略大小写），AT 指令中的双引号需转义为 \\\"。数据来源：各芯片厂商AT手册 + 全网技术社区整理。",
   "chips": [
@@ -115,6 +115,71 @@
       "network5g": []
     },
     {
+      "id": "unisoc",
+      "name": "紫光展锐",
+      "fullName": "紫光展锐 Unisoc UDX710 / V510 / UIS8910 / UIS8910DM / 8910 / 8978",
+      "generation": "5G",
+      "detectKeywords": [
+        "UDX710",
+        "V510",
+        "UIS8910DM",
+        "UIS8910",
+        "8910",
+        "8978",
+        "Unisoc",
+        "Spreadtrum",
+        "SPRD",
+        "展锐"
+      ],
+      "probe": {
+        "cmd": "AT+CGSN",
+        "kw": "^\\d{15}$"
+      },
+      "simSwitch": {
+        "external": "AT+SIMSWITCH=0,0",
+        "internal": "AT+SIMSWITCH=1,0",
+        "query": "AT+SIMSWITCH?",
+        "repeat": 1,
+        "tip": "<b>紫光展锐平台：</b><code>AT+SIMSWITCH=0,0</code> 切外置卡，<code>AT+SIMSWITCH=1,0</code> 切内置卡。<br>部分模块也支持 <code>AT+SIMCROSS</code> 虚拟卡切换。发送后设备可能自动重启。"
+      },
+      "iccid": [
+        "AT+ICCID",
+        "AT+ICID?",
+        "AT+CCID",
+        "AT+QCCID",
+        "AT*MRD_ICCID?"
+      ],
+      "imei": [
+        "AT+CGSN",
+        "AT*MRD_IMEI?"
+      ],
+      "sn": [
+        "AT+SN?",
+        "AT+CGSN",
+        "AT*MRD_SN?"
+      ],
+      "ver": [
+        "AT+CGMR",
+        "AT+GMR",
+        "AT+VER"
+      ],
+      "band": [
+        "AT*BANDIND?",
+        "AT+BANDIND?",
+        "AT*BAND?"
+      ],
+      "qci": [
+        "AT+CGEQOSRDP",
+        "AT+C5GQOSRDP"
+      ],
+      "network5g": [
+        "AT+C5GREG?",
+        "AT+QENG=\"servingcell\"",
+        "AT+QNWINFO",
+        "AT+CPSI?"
+      ]
+    },
+    {
       "id": "qualcomm",
       "name": "高通",
       "fullName": "高通 Qualcomm SDX55 / SDX62 / SDX65 / SDX75",
@@ -142,12 +207,12 @@
         "internal": "AT+QDSIM=1",
         "query": "AT+QDSIM?",
         "repeat": 1,
-        "tip": "<b>高通平台：</b>SIM1 为内置卡，SIM2 为外置卡。<br><code>AT+QDSIM=2</code> 切外置卡，<code>AT+QDSIM=1</code> 切内置卡。"
+        "tip": "<b>高通平台：</b>SIM1 为内置卡，SIM2 为外置卡。<br><code>AT+QDSIM=2</code> 切外置卡，<code>AT+QDSIM=1</code> 切内置卡。<br>部分模块也支持 <code>AT^SWITCH_SLOT=0</code>（SIM1）/ <code>AT^SWITCH_SLOT=1</code>（SIM2）。"
       },
       "iccid": [
         "AT+QCCID",
-        "AT+ICCID",
-        "AT+CCID"
+        "AT+CCID",
+        "AT+ICCID"
       ],
       "imei": [
         "AT+CGSN"
@@ -174,70 +239,6 @@
         "AT+QNWINFO",
         "AT+C5GREG?",
         "AT+QENG=\"servingcell\"",
-        "AT+CPSI?"
-      ]
-    },
-    {
-      "id": "unisoc",
-      "name": "紫光展锐",
-      "fullName": "紫光展锐 Unisoc UDX710 / V510 / UIS8910",
-      "generation": "5G",
-      "detectKeywords": [
-        "UDX710",
-        "V510",
-        "UIS8910",
-        "UIS8910DM",
-        "8910",
-        "8978",
-        "Unisoc",
-        "Spreadtrum",
-        "SPRD",
-        "展锐"
-      ],
-      "probe": {
-        "cmd": "AT+SIMSWITCH?",
-        "kw": "SIMSWITCH"
-      },
-      "simSwitch": {
-        "external": "AT+SIMSWITCH=0,0",
-        "internal": "AT+SIMSWITCH=1,0",
-        "query": "AT+SIMSWITCH?",
-        "repeat": 1,
-        "tip": "<b>紫光展锐平台：</b><code>AT+SIMSWITCH=0,0</code> 切外置卡，<code>AT+SIMSWITCH=1,0</code> 切内置卡。<br>发送后设备可能自动重启。"
-      },
-      "iccid": [
-        "AT+CCID",
-        "AT+ICCID",
-        "AT+QCCID",
-        "AT+ICID?",
-        "AT*MRD_ICCID?"
-      ],
-      "imei": [
-        "AT+CGSN",
-        "AT*MRD_IMEI?"
-      ],
-      "sn": [
-        "AT+CGSN",
-        "AT*MRD_SN?",
-        "AT+SN?"
-      ],
-      "ver": [
-        "AT+CGMR",
-        "AT+VER"
-      ],
-      "band": [
-        "AT*BANDIND?",
-        "AT+BANDIND?",
-        "AT*BAND?"
-      ],
-      "qci": [
-        "AT+CGEQOSRDP",
-        "AT+C5GQOSRDP"
-      ],
-      "network5g": [
-        "AT+C5GREG?",
-        "AT+QENG=\"servingcell\"",
-        "AT+QNWINFO",
         "AT+CPSI?"
       ]
     },
@@ -313,7 +314,7 @@
         "internal": "AT+ESIMSWITCH=1",
         "query": "AT+ESIMSWITCH?",
         "repeat": 1,
-        "tip": "<b>联发科平台：</b><code>AT+ESIMSWITCH=0</code> 切外置卡，<code>AT+ESIMSWITCH=1</code> 切内置卡。<br>指令可能因固件不同有差异，请以模块手册为准。"
+        "tip": "<b>联发科平台：</b><code>AT+ESIMSWITCH=0</code> 切外置卡，<code>AT+ESIMSWITCH=1</code> 切内置卡。<br>部分模块也支持 <code>AT^SWITCH_SLOT=0/1</code>。指令可能因固件不同有差异，请以模块手册为准。"
       },
       "iccid": [
         "AT+CCID",
