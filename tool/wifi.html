@@ -6,77 +6,53 @@
 <title>随身WiFi调试助手</title>
 <style>
   :root {
-    --bg: #0f1117;
-    --bg-panel: #1a1d27;
-    --bg-card: #222633;
-    --bg-input: #2a2e3d;
-    --border: #343a4d;
-    --text: #e8eaf0;
-    --text-dim: #8b91a5;
-    --accent: #4f7cff;
-    --accent-glow: rgba(79,124,255,.25);
-    --success: #2ecc71;
-    --error: #e74c3c;
-    --warn: #f39c12;
+    --bg: #0f1117; --bg-panel: #1a1d27; --bg-card: #222633;
+    --bg-input: #2a2e3d; --border: #343a4d; --text: #e8eaf0;
+    --text-dim: #8b91a5; --accent: #4f7cff; --accent-glow: rgba(79,124,255,.25);
+    --success: #2ecc71; --error: #e74c3c; --warn: #f39c12;
     --font-mono: 'SF Mono','Cascadia Code','JetBrains Mono',Consolas,monospace;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
-    background: var(--bg);
-    color: var(--text);
+    background: var(--bg); color: var(--text);
     font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-    font-size: 14px;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+    font-size: 14px; min-height: 100vh;
+    display: flex; flex-direction: column;
   }
   .topbar {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 12px 20px;
-    background: var(--bg-panel);
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
+    padding: 12px 20px; background: var(--bg-panel);
+    border-bottom: 1px solid var(--border); flex-shrink: 0;
   }
   .topbar-left { display: flex; align-items: center; gap: 12px; }
   .logo {
     width: 32px; height: 32px;
     background: linear-gradient(135deg, var(--accent), #7c5cff);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px; font-weight: 700;
-    box-shadow: 0 0 16px var(--accent-glow);
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 700; box-shadow: 0 0 16px var(--accent-glow);
   }
   .topbar h1 { font-size: 15px; font-weight: 600; }
   .topbar h1 span { color: var(--text-dim); font-weight: 400; font-size: 12px; margin-left: 6px; }
   .status-badge {
     display: flex; align-items: center; gap: 6px;
     padding: 5px 12px; border-radius: 20px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    font-size: 12px; color: var(--text-dim);
-    transition: all .3s;
+    background: var(--bg-card); border: 1px solid var(--border);
+    font-size: 12px; color: var(--text-dim); transition: all .3s;
   }
   .status-badge.connected {
-    border-color: rgba(46,204,113,.4);
-    color: var(--success);
+    border-color: rgba(46,204,113,.4); color: var(--success);
     background: rgba(46,204,113,.08);
   }
   .status-dot {
     width: 8px; height: 8px; border-radius: 50%;
-    background: var(--text-dim);
-    transition: background .3s;
+    background: var(--text-dim); transition: background .3s;
   }
   .status-badge.connected .status-dot {
-    background: var(--success);
-    box-shadow: 0 0 8px rgba(46,204,113,.6);
+    background: var(--success); box-shadow: 0 0 8px rgba(46,204,113,.6);
   }
   .main {
-    flex: 1;
-    display: grid;
-    grid-template-columns: 300px 1fr 300px;
-    gap: 0;
-    overflow: hidden;
-    height: calc(100vh - 57px);
+    flex: 1; display: grid; grid-template-columns: 300px 1fr 320px;
+    gap: 0; overflow: hidden; height: calc(100vh - 57px);
   }
   @media (max-width: 1100px) {
     .main { grid-template-columns: 1fr; height: auto; overflow: auto; }
@@ -86,13 +62,10 @@
   .panel-left { border-right: 1px solid var(--border); }
   .panel-right { border-left: 1px solid var(--border); }
   .panel-header {
-    padding: 14px 16px;
-    font-size: 12px; font-weight: 600;
+    padding: 14px 16px; font-size: 12px; font-weight: 600;
     text-transform: uppercase; letter-spacing: .8px;
-    color: var(--text-dim);
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
-    display: flex; align-items: center; justify-content: space-between;
+    color: var(--text-dim); border-bottom: 1px solid var(--border);
+    flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
   }
   .panel-body { flex: 1; overflow-y: auto; padding: 14px 16px; }
   .conn-tabs {
@@ -101,42 +74,31 @@
   }
   .conn-tab {
     flex: 1; padding: 7px 0; text-align: center;
-    font-size: 12px; font-weight: 500;
-    color: var(--text-dim); border-radius: 6px;
-    cursor: pointer; transition: all .2s;
+    font-size: 12px; font-weight: 500; color: var(--text-dim);
+    border-radius: 6px; cursor: pointer; transition: all .2s;
     border: none; background: none;
   }
-  .conn-tab.active {
-    background: var(--accent); color: #fff;
-    box-shadow: 0 2px 8px var(--accent-glow);
-  }
+  .conn-tab.active { background: var(--accent); color: #fff; box-shadow: 0 2px 8px var(--accent-glow); }
   .conn-tab:hover:not(.active) { color: var(--text); background: rgba(255,255,255,.04); }
   .form-group { margin-bottom: 12px; }
   .form-group label {
-    display: block; font-size: 11px;
-    color: var(--text-dim); margin-bottom: 5px; font-weight: 500;
+    display: block; font-size: 11px; color: var(--text-dim);
+    margin-bottom: 5px; font-weight: 500;
   }
   .form-control {
-    width: 100%; padding: 8px 11px;
-    background: var(--bg-input);
-    border: 1px solid var(--border);
-    border-radius: 7px; color: var(--text);
-    font-size: 13px; font-family: var(--font-mono);
-    outline: none; transition: border-color .2s;
+    width: 100%; padding: 8px 11px; background: var(--bg-input);
+    border: 1px solid var(--border); border-radius: 7px; color: var(--text);
+    font-size: 13px; font-family: var(--font-mono); outline: none; transition: border-color .2s;
   }
   .form-control:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
   select.form-control { cursor: pointer; }
   .btn {
-    width: 100%; padding: 9px; border: none;
-    border-radius: 8px; font-size: 13px; font-weight: 600;
-    cursor: pointer; transition: all .2s; font-family: inherit;
-    display: flex; align-items: center; justify-content: center; gap: 6px;
+    width: 100%; padding: 9px; border: none; border-radius: 8px;
+    font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s;
+    font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px;
   }
   .btn:disabled { opacity: .45; cursor: not-allowed; }
-  .btn-primary {
-    background: var(--accent); color: #fff;
-    box-shadow: 0 2px 10px var(--accent-glow);
-  }
+  .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 2px 10px var(--accent-glow); }
   .btn-primary:hover:not(:disabled) { background: #6b92ff; transform: translateY(-1px); }
   .btn-danger {
     background: rgba(231,76,60,.15); color: var(--error);
@@ -150,16 +112,12 @@
   .btn-warn:hover:not(:disabled) { background: rgba(243,156,18,.22); }
   .btn-sm { padding: 6px 10px; font-size: 11px; width: auto; }
   .btn-outline {
-    background: transparent; color: var(--text-dim);
-    border: 1px solid var(--border);
+    background: transparent; color: var(--text-dim); border: 1px solid var(--border);
   }
   .btn-outline:hover:not(:disabled) { color: var(--text); border-color: var(--text-dim); }
   .btn-row { display: flex; gap: 8px; margin-top: 10px; }
   .btn-row .btn { flex: 1; }
-  .terminal-wrap {
-    flex: 1; display: flex; flex-direction: column;
-    overflow: hidden; background: #0a0c12;
-  }
+  .terminal-wrap { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #0a0c12; }
   .terminal {
     flex: 1; overflow-y: auto; padding: 12px 16px;
     font-family: var(--font-mono); font-size: 12.5px;
@@ -174,8 +132,7 @@
   .terminal .content { word-break: break-all; white-space: pre-wrap; }
   .terminal .content.err { color: #ff8a80; }
   .terminal-input-row {
-    display: flex; gap: 0;
-    border-top: 1px solid var(--border);
+    display: flex; gap: 0; border-top: 1px solid var(--border);
     background: var(--bg-panel); padding: 8px 12px; align-items: center;
   }
   .terminal-input-row .prompt {
@@ -183,77 +140,76 @@
     font-size: 13px; font-weight: 600; margin-right: 8px; flex-shrink: 0;
   }
   .terminal-input {
-    flex: 1; background: transparent; border: none;
-    outline: none; color: var(--text);
-    font-family: var(--font-mono); font-size: 13px; padding: 4px 0;
+    flex: 1; background: transparent; border: none; outline: none;
+    color: var(--text); font-family: var(--font-mono); font-size: 13px; padding: 4px 0;
   }
   .terminal-input::placeholder { color: #4a5060; }
   .terminal-send {
-    padding: 5px 14px; background: var(--accent);
-    border: none; border-radius: 6px; color: #fff;
-    font-size: 12px; font-weight: 600; cursor: pointer;
-    margin-left: 8px; transition: background .2s;
+    padding: 5px 14px; background: var(--accent); border: none;
+    border-radius: 6px; color: #fff; font-size: 12px; font-weight: 600;
+    cursor: pointer; margin-left: 8px; transition: background .2s;
   }
   .terminal-send:hover { background: #6b92ff; }
   .quick-section { margin-bottom: 16px; }
   .quick-section h4 {
-    font-size: 11px; color: var(--text-dim);
-    text-transform: uppercase; letter-spacing: .6px;
-    margin-bottom: 8px; font-weight: 600;
+    font-size: 11px; color: var(--text-dim); text-transform: uppercase;
+    letter-spacing: .6px; margin-bottom: 8px; font-weight: 600;
   }
   .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
   .quick-btn {
-    padding: 8px 6px; background: var(--bg-card);
-    border: 1px solid var(--border); border-radius: 7px;
-    color: var(--text); font-size: 11.5px; cursor: pointer;
-    transition: all .2s; text-align: center;
+    padding: 8px 6px; background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 7px; color: var(--text); font-size: 11.5px;
+    cursor: pointer; transition: all .2s; text-align: center;
     font-family: inherit; line-height: 1.4;
   }
   .quick-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(79,124,255,.06); }
   .quick-btn:disabled { opacity: .35; cursor: not-allowed; }
   .quick-btn.danger:hover { border-color: var(--error); color: var(--error); background: rgba(231,76,60,.06); }
   .quick-btn .cmd-hint {
-    display: block; font-size: 9.5px;
-    color: var(--text-dim); font-family: var(--font-mono); margin-top: 2px;
+    display: block; font-size: 9.5px; color: var(--text-dim);
+    font-family: var(--font-mono); margin-top: 2px;
   }
   .info-item {
-    display: flex; justify-content: space-between;
-    padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,.04);
-    font-size: 12px;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,.04); font-size: 12px;
+    gap: 8px;
   }
   .info-item:last-child { border-bottom: none; }
-  .info-label { color: var(--text-dim); flex-shrink: 0; margin-right: 8px; }
+  .info-label { color: var(--text-dim); flex-shrink: 0; min-width: 64px; }
   .info-value {
     font-family: var(--font-mono); font-size: 11.5px;
     text-align: right; word-break: break-all; color: var(--text);
+    flex: 1; cursor: help;
   }
   .info-value.ok { color: var(--success); }
   .info-value.empty { color: #4a5060; }
   .info-value.warn { color: var(--warn); }
+  .info-value.operator-cm { color: #4f7cff; font-weight: 600; }
+  .info-value.operator-cu { color: #ff8a80; font-weight: 600; }
+  .info-value.operator-ct { color: #52d0d0; font-weight: 600; }
+  .info-value.operator-cbn { color: #a78bfa; font-weight: 600; }
   ::-webkit-scrollbar { width: 5px; height: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #2e3342; border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: #3e455a; }
   .toast-container {
-    position: fixed; top: 70px; right: 20px;
-    z-index: 9999; display: flex; flex-direction: column; gap: 8px;
-    pointer-events: none;
+    position: fixed; top: 70px; right: 20px; z-index: 9999;
+    display: flex; flex-direction: column; gap: 8px; pointer-events: none;
   }
   .toast {
-    padding: 10px 16px; border-radius: 8px;
-    font-size: 12.5px; font-weight: 500; color: #fff;
-    background: var(--bg-card); border: 1px solid var(--border);
-    box-shadow: 0 4px 20px rgba(0,0,0,.4);
+    padding: 10px 16px; border-radius: 8px; font-size: 12.5px;
+    font-weight: 500; color: #fff; background: var(--bg-card);
+    border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,.4);
     animation: slideIn .3s ease; pointer-events: auto; max-width: 320px;
   }
   .toast.success { border-color: rgba(46,204,113,.4); background: rgba(46,204,113,.12); color: var(--success); }
   .toast.error   { border-color: rgba(231,76,60,.4);  background: rgba(231,76,60,.12);  color: var(--error); }
-  .toast.info    { border-color: rgba(79,124,255,.4);  background: rgba(79,124,255,.12);  color: #7fa4ff; }
+  .toast.info    { border-color: rgba(79,124,255,.4); background: rgba(79,124,255,.12); color: #7fa4ff; }
   @keyframes slideIn { from { transform: translateX(40px); opacity: 0; } to { transform: none; opacity: 1; } }
   .modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,.6); backdrop-filter: blur(4px);
-    z-index: 9998; display: none; align-items: center; justify-content: center;
+    position: fixed; inset: 0; background: rgba(0,0,0,.6);
+    backdrop-filter: blur(4px); z-index: 9998; display: none;
+    align-items: center; justify-content: center;
   }
   .modal-overlay.show { display: flex; }
   .modal {
@@ -270,8 +226,7 @@
     padding: 14px; border: 1px solid var(--border);
   }
   .speedtest-metric {
-    display: flex; justify-content: space-between; align-items: baseline;
-    margin-bottom: 10px;
+    display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px;
   }
   .speedtest-metric:last-child { margin-bottom: 0; }
   .speedtest-label { font-size: 11px; color: var(--text-dim); }
@@ -281,18 +236,14 @@
   }
   .speedtest-value small { font-size: 11px; font-weight: 400; color: var(--text-dim); }
   .speedtest-progress {
-    height: 4px; background: var(--bg-input);
-    border-radius: 2px; margin: 12px 0 6px;
-    overflow: hidden;
+    height: 4px; background: var(--bg-input); border-radius: 2px;
+    margin: 12px 0 6px; overflow: hidden;
   }
   .speedtest-progress-bar {
     height: 100%; background: linear-gradient(90deg, var(--accent), #7c5cff);
-    width: 0%; transition: width .3s;
-    border-radius: 2px;
+    width: 0%; transition: width .3s; border-radius: 2px;
   }
-  .speedtest-status {
-    font-size: 11px; color: var(--text-dim); text-align: center;
-  }
+  .speedtest-status { font-size: 11px; color: var(--text-dim); text-align: center; }
   .cloud-status {
     display: flex; align-items: center; gap: 8px;
     padding: 10px 12px; border-radius: 8px;
@@ -307,10 +258,8 @@
   .cloud-status.risk .indicator { background: var(--error); box-shadow: 0 0 8px rgba(231,76,60,.5); }
   .cloud-status.unknown .indicator { background: var(--warn); box-shadow: 0 0 8px rgba(243,156,18,.5); }
   .badge-tag {
-    display: inline-block; padding: 2px 7px;
-    border-radius: 4px; font-size: 10px; font-weight: 600;
-    font-family: var(--font-mono);
-    transition: all .3s;
+    display: inline-block; padding: 2px 7px; border-radius: 4px;
+    font-size: 10px; font-weight: 600; font-family: var(--font-mono); transition: all .3s;
   }
   .badge-tag.blue { background: rgba(79,124,255,.15); color: #7fa4ff; }
   .badge-tag.green { background: rgba(46,204,113,.15); color: var(--success); }
@@ -325,7 +274,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v2.3</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v2.6</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -335,7 +284,6 @@
 
 <div class="main">
 
-  <!-- ══════════ 左侧：连接面板 ══════════ -->
   <div class="panel panel-left">
     <div class="panel-header">连接设置</div>
     <div class="panel-body">
@@ -389,7 +337,6 @@
     </div>
   </div>
 
-  <!-- ══════════ 中间：终端 ══════════ -->
   <div class="panel panel-center">
     <div class="panel-header">
       <span>AT 指令终端</span>
@@ -402,7 +349,7 @@
       <div class="terminal" id="terminal">
         <div class="line">
           <span class="prefix info">●</span>
-          <span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v2.3 已就绪。修复设备信息读取、频段卡槽显示、测速中断。</span>
+          <span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v2.6 已就绪。新增运营商显示（AT+COPS?）。</span>
         </div>
       </div>
       <div class="terminal-input-row">
@@ -414,15 +361,12 @@
     </div>
   </div>
 
-  <!-- ══════════ 右侧：快捷工具 ══════════ -->
   <div class="panel panel-right">
     <div class="panel-header">快捷工具</div>
     <div class="panel-body">
 
-      <!-- ── SIM 卡切换 ── -->
       <div class="quick-section">
         <h4>SIM 卡切换 <span class="badge-tag blue" style="font-size:9px;">核心</span></h4>
-
         <div class="form-group" style="margin-bottom:8px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
             <label style="margin-bottom:0;">基带芯片平台</label>
@@ -435,7 +379,6 @@
             <option value="qualcomm">高通 — AT+QDSIM</option>
           </select>
         </div>
-
         <div class="quick-grid">
           <button class="quick-btn" onclick="switchToExternalCard()" disabled id="btnSwitchExternal"
                   style="grid-column:1/-1;padding:10px;font-size:12.5px;">
@@ -453,11 +396,9 @@
             <span class="cmd-hint" id="queryCmdHint">AT+SWSIM?</span>
           </button>
         </div>
-
         <div style="margin-top:8px;font-size:11px;color:var(--text-dim);line-height:1.6;" id="switchTip"></div>
       </div>
 
-      <!-- ── 限速检测 ── -->
       <div class="quick-section">
         <h4>限速检测</h4>
         <div class="speedtest-box">
@@ -478,7 +419,6 @@
         </div>
       </div>
 
-      <!-- ── 云控状态 ── -->
       <div class="quick-section">
         <h4>云控状态</h4>
         <div class="cloud-status unknown" id="cloudStatus">
@@ -491,11 +431,11 @@
         </div>
       </div>
 
-      <!-- ── 设备信息 ── -->
       <div class="quick-section">
         <h4>设备信息</h4>
         <div>
           <div class="info-item"><span class="info-label">芯片平台</span><span class="info-value empty" id="infoChip">—</span></div>
+          <div class="info-item"><span class="info-label">运营商</span><span class="info-value empty" id="infoOperator">—</span></div>
           <div class="info-item"><span class="info-label">当前卡槽</span><span class="info-value empty" id="infoCardSlot">—</span></div>
           <div class="info-item"><span class="info-label">当前频段</span><span class="info-value empty" id="infoBand">—</span></div>
           <div class="info-item"><span class="info-label">IMEI</span><span class="info-value empty" id="infoIMEI">—</span></div>
@@ -506,20 +446,19 @@
         </div>
       </div>
 
-      <!-- ── 信息查询 ── -->
       <div class="quick-section">
         <h4>信息查询</h4>
         <div class="quick-grid">
           <button class="quick-btn" onclick="quickCmd('AT+CGSN')" disabled>IMEI 查询<span class="cmd-hint">AT+CGSN</span></button>
           <button class="quick-btn" onclick="quickCmd('AT*MRD_SN?')" disabled>SN 查询<span class="cmd-hint">AT*MRD_SN?</span></button>
           <button class="quick-btn" onclick="quickCmd('AT*MRD_WIFIID?')" disabled>MAC 查询<span class="cmd-hint">AT*MRD_WIFIID?</span></button>
-          <button class="quick-btn" onclick="quickCmd('AT+VER')" disabled>版本查询<span class="cmd-hint">AT+VER</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT+CGMR')" disabled>版本查询<span class="cmd-hint">AT+CGMR</span></button>
           <button class="quick-btn" onclick="quickCmd('AT+CSQ')" disabled>信号质量<span class="cmd-hint">AT+CSQ</span></button>
-          <button class="quick-btn" onclick="quickCmd('AT*BAND?')" disabled>频段查询<span class="cmd-hint">AT*BAND?</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT*BANDIND?')" disabled>频段查询<span class="cmd-hint">AT*BANDIND?</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT+COPS?')" disabled>运营商<span class="cmd-hint">AT+COPS?</span></button>
         </div>
       </div>
 
-      <!-- ── 常用操作 ── -->
       <div class="quick-section">
         <h4>常用操作</h4>
         <div class="quick-grid">
@@ -530,7 +469,6 @@
         </div>
       </div>
 
-      <!-- ── 频段锁定 ── -->
       <div class="quick-section">
         <h4>频段锁定</h4>
         <div class="quick-grid" id="bandGrid"></div>
@@ -539,7 +477,6 @@
   </div>
 </div>
 
-<!-- ══════════ 去云控弹窗 ══════════ -->
 <div class="modal-overlay" id="cloudModal">
   <div class="modal" style="width:440px;">
     <h3>去云控 / 解除限速</h3>
@@ -569,7 +506,6 @@
   </div>
 </div>
 
-<!-- ══════════ 确认弹窗 ══════════ -->
 <div class="modal-overlay" id="confirmModal">
   <div class="modal">
     <h3 id="confirmModalTitle">确认操作</h3>
@@ -584,20 +520,10 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
-/* ═══════════════════════════════════════════════════
-   全局状态
-   ═══════════════════════════════════════════════════ */
 const state = {
-  mode: 'usb',
-  connected: false,
-  port: null,
-  reader: null,
-  readLoopActive: false,
-  logBuffer: [],
-  speedtestAbort: null,      // AbortController 用于中断测速
-  speedtesting: false,
-  responseBuffer: '',
-  detectedChip: null,
+  mode: 'usb', connected: false, port: null, reader: null,
+  readLoopActive: false, logBuffer: [], speedtestAbort: null,
+  speedtesting: false, responseBuffer: '', detectedChip: null,
 };
 
 const BAND_MAP = {
@@ -614,41 +540,77 @@ const BAND_MAP = {
 const SWITCH_CMD_MAP = {
   zxic: {
     name: '中兴微',
-    external: 'AT+ZCARDSWITCH=0',
-    internal: 'AT+ZCARDSWITCH=1',
-    query:    'AT+ZCARDSWITCH?',
-    repeat:   5,
+    external: 'AT+ZCARDSWITCH=0', internal: 'AT+ZCARDSWITCH=1', query: 'AT+ZCARDSWITCH?',
+    repeat: 5,
     tip: '<b>中兴微平台：</b>发送 <code>AT+ZCARDSWITCH=0</code> 切外置卡，<code>AT+ZCARDSWITCH=1</code> 切内置卡。<br><b>重点：</b>该指令通常需连续发送 3~10 次才生效，工具会自动连发 5 次。',
   },
   asr: {
     name: 'ASR',
-    external: 'AT+SWSIM=0',
-    internal: 'AT+SWSIM=1',
-    query:    'AT+SWSIM?',
-    repeat:   1,
+    external: 'AT+SWSIM=0', internal: 'AT+SWSIM=1', query: 'AT+SWSIM?',
+    repeat: 1,
     tip: '<b>ASR 平台：</b>发送 <code>AT+SWSIM=0</code> 切外置卡，<code>AT+SWSIM=1</code> 切内置卡。<br>发送后设备会自动重启，等待重新枚举即可。',
   },
   unisoc: {
     name: '紫光展锐',
-    external: 'AT+SIMSWITCH=0,0',
-    internal: 'AT+SIMSWITCH=1,0',
-    query:    'AT+SIMSWITCH?',
-    repeat:   1,
+    external: 'AT+SIMSWITCH=0,0', internal: 'AT+SIMSWITCH=1,0', query: 'AT+SIMSWITCH?',
+    repeat: 1,
     tip: '<b>紫光展锐平台：</b><code>AT+SIMSWITCH=0,0</code> 切外置卡，<code>AT+SIMSWITCH=1,0</code> 切内置卡。<br>部分模块指令为 <code>AT+SPCARD=0</code>，请以模块手册为准。',
   },
   qualcomm: {
     name: '高通',
-    external: 'AT+QDSIM=2',
-    internal: 'AT+QDSIM=1',
-    query:    'AT+QDSIM?',
-    repeat:   1,
+    external: 'AT+QDSIM=2', internal: 'AT+QDSIM=1', query: 'AT+QDSIM?',
+    repeat: 1,
     tip: '<b>高通平台：</b>SIM1 为内置卡，SIM2 为外置卡。<br><code>AT+QDSIM=2</code> 切外置卡，<code>AT+QDSIM=1</code> 切内置卡。',
   },
 };
 
-/* ═══════════════════════════════════════════════════
-   Toast
-   ═══════════════════════════════════════════════════ */
+/* LTE 频段编号映射 */
+const LTE_BAND_MAP = {
+  1: 'B1', 2: 'B2', 3: 'B3', 4: 'B4', 5: 'B5', 7: 'B7', 8: 'B8',
+  20: 'B20', 28: 'B28', 34: 'B34', 38: 'B38', 39: 'B39',
+  40: 'B40', 41: 'B41'
+};
+
+/* 中国运营商 MCC/MNC 映射 */
+const OPERATOR_MAP = {
+  // 中国移动
+  '46000': { name: '中国移动', cls: 'operator-cm' },
+  '46002': { name: '中国移动', cls: 'operator-cm' },
+  '46004': { name: '中国移动', cls: 'operator-cm' },
+  '46007': { name: '中国移动', cls: 'operator-cm' },
+  '46008': { name: '中国移动', cls: 'operator-cm' },
+  '46020': { name: '中国铁通', cls: 'operator-cm' },
+  // 中国联通
+  '46001': { name: '中国联通', cls: 'operator-cu' },
+  '46006': { name: '中国联通', cls: 'operator-cu' },
+  '46009': { name: '中国联通', cls: 'operator-cu' },
+  '46010': { name: '中国联通', cls: 'operator-cu' },
+  // 中国电信
+  '46003': { name: '中国电信', cls: 'operator-ct' },
+  '46005': { name: '中国电信', cls: 'operator-ct' },
+  '46011': { name: '中国电信', cls: 'operator-ct' },
+  '46012': { name: '中国电信', cls: 'operator-ct' },
+  // 中国广电
+  '46015': { name: '中国广电', cls: 'operator-cbn' },
+};
+
+/* 运营商名称关键词 → 中文映射 */
+function mapOperatorName(name) {
+  if (!name) return null;
+  const n = name.toUpperCase();
+  if (/UNICOM|CHN-UNICOM|CHINA\s*UNICOM/i.test(n)) return { name: '中国联通', cls: 'operator-cu' };
+  if (/MOBILE|CMCC|CHINA\s*MOBILE|CHN-?CMCC/i.test(n)) return { name: '中国移动', cls: 'operator-cm' };
+  if (/TELECOM|CTCC|CHINA\s*TELECOM|CHN-?CT/i.test(n)) return { name: '中国电信', cls: 'operator-ct' };
+  if (/BROADNET|CBN|CHINA\s*BROADNET|广电/i.test(n)) return { name: '中国广电', cls: 'operator-cbn' };
+  // 已识别的中文
+  if (/中国移动/.test(name)) return { name: '中国移动', cls: 'operator-cm' };
+  if (/中国联通/.test(name)) return { name: '中国联通', cls: 'operator-cu' };
+  if (/中国电信/.test(name)) return { name: '中国电信', cls: 'operator-ct' };
+  if (/中国广电/.test(name)) return { name: '中国广电', cls: 'operator-cbn' };
+  // 未识别的直接返回原名称
+  return { name: name, cls: 'ok' };
+}
+
 function toast(msg, type = 'info', duration = 3000) {
   const container = document.getElementById('toastContainer');
   const el = document.createElement('div');
@@ -656,15 +618,11 @@ function toast(msg, type = 'info', duration = 3000) {
   el.textContent = msg;
   container.appendChild(el);
   setTimeout(() => {
-    el.style.opacity = '0';
-    el.style.transition = 'opacity .3s';
+    el.style.opacity = '0'; el.style.transition = 'opacity .3s';
     setTimeout(() => el.remove(), 300);
   }, duration);
 }
 
-/* ═══════════════════════════════════════════════════
-   终端
-   ═══════════════════════════════════════════════════ */
 function termWrite(text, type = 'resp') {
   const terminal = document.getElementById('terminal');
   const line = document.createElement('div');
@@ -701,9 +659,6 @@ function exportLog() {
   toast('日志已导出', 'success');
 }
 
-/* ═══════════════════════════════════════════════════
-   模式切换
-   ═══════════════════════════════════════════════════ */
 function switchMode(mode) {
   if (state.connected) { toast('请先断开当前连接', 'error'); return; }
   state.mode = mode;
@@ -712,9 +667,6 @@ function switchMode(mode) {
   document.getElementById('panelWiFi').classList.toggle('hidden', mode !== 'wifi');
 }
 
-/* ═══════════════════════════════════════════════════
-   USB 连接
-   ═══════════════════════════════════════════════════ */
 async function connectUSB() {
   if (!('serial' in navigator)) {
     toast('当前浏览器不支持 Web Serial API，请使用 Chrome 89+ / Edge 89+', 'error', 5000);
@@ -732,12 +684,10 @@ async function connectUSB() {
     toast(`USB 串口连接成功 @ ${baud}`, 'success');
     enableQuickButtons(true);
     startReadLoop();
-
     setTimeout(async () => {
       await autoDetectChip();
       await autoQueryDeviceInfo();
     }, 500);
-
   } catch (err) {
     if (err.name === 'NotFoundError') {
       termWrite('用户取消了串口选择。', 'err');
@@ -813,9 +763,6 @@ async function disconnect() {
   document.getElementById('chipPlatform').disabled = true;
 }
 
-/* ═══════════════════════════════════════════════════
-   WiFi 连接
-   ═══════════════════════════════════════════════════ */
 async function connectWiFi() {
   const protocol = document.getElementById('wifiProtocol').value;
   const gateway = document.getElementById('wifiGateway').value.trim();
@@ -842,9 +789,6 @@ async function connectWiFi() {
   }
 }
 
-/* ═══════════════════════════════════════════════════
-   AT 指令
-   ═══════════════════════════════════════════════════ */
 async function sendAT() {
   const input = document.getElementById('atInput');
   const cmd = input.value.trim();
@@ -870,9 +814,6 @@ function quickCmd(cmd) {
   sendAT();
 }
 
-/* ═══════════════════════════════════════════════════
-   响应收集：发送指令并等待返回
-   ═══════════════════════════════════════════════════ */
 async function queryAndCollect(cmd, waitMs = 800) {
   state.responseBuffer = '';
   termWrite(cmd, 'cmd');
@@ -888,9 +829,6 @@ async function queryAndCollect(cmd, waitMs = 800) {
   return result;
 }
 
-/* ═══════════════════════════════════════════════════
-   芯片自动识别
-   ═══════════════════════════════════════════════════ */
 function setChipDetectStatus(status, name) {
   const el = document.getElementById('chipDetectStatus');
   const map = {
@@ -926,7 +864,7 @@ async function autoDetectChip() {
     termWrite('ATI 未能识别，尝试探测平台特有指令...', 'info');
     const probes = [
       { p: 'zxic',     cmd: 'AT+ZCARDSWITCH?', kw: /ZCARDSWITCH/i },
-      { p: 'asr',      cmd: 'AT+SWSIM?',       kw: /SWSIM/i },
+      { p: 'asr',      cmd: 'AT+SWSIM?',       kw: /SWSIM|SimX/i },
       { p: 'unisoc',   cmd: 'AT+SIMSWITCH?',   kw: /SIMSWITCH/i },
       { p: 'qualcomm', cmd: 'AT+QDSIM?',       kw: /QDSIM/i },
     ];
@@ -960,159 +898,209 @@ async function autoDetectChip() {
 }
 
 /* ═══════════════════════════════════════════════════
-   设备信息解析（增强版）
+   设备信息解析
    ═══════════════════════════════════════════════════ */
+function setInfo(id, value, cls = 'ok') {
+  const el = document.getElementById(id);
+  el.textContent = value;
+  el.className = 'info-value ' + cls;
+}
+
+function setOperator(name, cls) {
+  const el = document.getElementById('infoOperator');
+  el.textContent = name;
+  el.className = 'info-value ' + cls;
+  el.title = `运营商: ${name}`;
+}
+
 function parseDeviceInfo(line) {
-  // IMEI（15位数字）
-  if (/^\d{15}$/.test(line)) {
-    document.getElementById('infoIMEI').textContent = line;
-    document.getElementById('infoIMEI').className = 'info-value ok';
+  // IMEI
+  let m = line.match(/\+CGSN[:\s]+(\d{14,16})/i);
+  if (m) {
+    setInfo('infoIMEI', m[1]);
+  } else if (/^\d{15}$/.test(line)) {
+    setInfo('infoIMEI', line);
   }
 
-  // SN（字母数字组合，排除 IMEI）
-  if (/^[A-Z0-9]{8,20}$/.test(line) && !/^\d{15}$/.test(line)) {
-    const snEl = document.getElementById('infoSN');
-    if (snEl.textContent === '—') {
-      snEl.textContent = line;
-      snEl.className = 'info-value ok';
-    }
+  // SN
+  m = line.match(/[*+]MRD_SN[:\s]+([A-Za-z0-9]+)/i);
+  if (m) {
+    setInfo('infoSN', m[1]);
+  } else {
+    m = line.match(/\+SN[:\s]+([A-Za-z0-9]+)/i);
+    if (m) setInfo('infoSN', m[1]);
   }
 
-  // MAC 地址
-  const macMatch = line.match(/([0-9A-Fa-f]{2}[:\-]){5}[0-9A-Fa-f]{2}/);
-  if (macMatch) {
-    document.getElementById('infoMAC').textContent = macMatch[0];
-    document.getElementById('infoMAC').className = 'info-value ok';
+  // 固件版本
+  m = line.match(/\+CGMR[:\s]+"?([^"\r\n]+)"?/i);
+  if (m) {
+    setInfo('infoVER', m[1].trim());
+  } else {
+    m = line.match(/[+*]VER[:\s]+"?([^"\r\n]+)"?/i);
+    if (m) setInfo('infoVER', m[1].trim());
   }
 
-  // 固件版本（多格式兼容）
-  const verMatch = line.match(/^(?:Revision|VER|Version|Firmware)[:\s]*(.+)/i) ||
-                   line.match(/(?:^|\s)(?:VER|Revision)[\s:=]+([A-Za-z0-9._\-]+)/i);
-  if (verMatch) {
-    document.getElementById('infoVER').textContent = verMatch[1].trim();
-    document.getElementById('infoVER').className = 'info-value ok';
+  // MAC
+  m = line.match(/[*+]MRD_WIFIID[:\s]+([0-9A-Fa-f:]{12,20})/i) ||
+      line.match(/([0-9A-Fa-f]{2}[:\-]){5}[0-9A-Fa-f]{2}/);
+  if (m) {
+    setInfo('infoMAC', m[1] || m[0]);
   }
 
-  // 信号质量 +CSQ: 23,99
-  const csqMatch = line.match(/\+CSQ:\s*(\d+)/);
-  if (csqMatch) {
-    const csq = parseInt(csqMatch[1]);
+  // 信号质量
+  m = line.match(/\+CSQ[:\s]*(\d+)/);
+  if (m) {
+    const csq = parseInt(m[1]);
     const el = document.getElementById('infoCSQ');
     el.textContent = csq === 99 ? '无信号' : `${csq} (${csq >= 20 ? '强' : csq >= 10 ? '中' : '弱'})`;
     el.className = 'info-value ' + (csq === 99 ? 'empty' : csq >= 10 ? 'ok' : 'warn');
   }
 
-  // 当前卡槽：+SWSIM: 0 / +SWSIM: 1 / *SWSIM: 0
-  const swsimMatch = line.match(/[*+]SWSIM[:\s]*(\d+)/i);
-  if (swsimMatch) {
-    const slot = parseInt(swsimMatch[1]);
-    const el = document.getElementById('infoCardSlot');
-    el.textContent = slot === 0 ? '外置卡 (SIM2)' : '内置卡 (SIM1)';
-    el.className = 'info-value ' + (slot === 0 ? 'ok' : 'warn');
+  // ── 运营商：解析 +COPS ──
+  // 格式1（带名称）: +COPS: 0,0,"CHN-UNICOM",7
+  // 格式2（数字码）:  +COPS: 0,2,46001,7
+  // 格式3（无卡）:    +COPS: 0
+  m = line.match(/\+COPS[:\s]*(\d+)(?:,\s*(\d+)\s*,\s*(?:"([^"]*)"|(\d+)))?/i);
+  if (m) {
+    const mode = parseInt(m[1]);
+    const format = m[2] !== undefined ? parseInt(m[2]) : null;
+    const nameStr = m[3] || '';
+    const numStr = m[4] || '';
+    const el = document.getElementById('infoOperator');
+
+    if (mode === 0 && !nameStr && !numStr) {
+      // 未注册或飞行模式
+      el.textContent = '未注册';
+      el.className = 'info-value warn';
+      el.title = `原始响应: ${line}`;
+    } else if (nameStr) {
+      // 带名称的响应
+      const op = mapOperatorName(nameStr);
+      if (op) {
+        setOperator(op.name, op.cls);
+        el.title = `原始响应: ${line}\nMCC/MNC名: ${nameStr}`;
+      }
+    } else if (numStr) {
+      // 数字 MCC/MNC
+      const code5 = numStr.substring(0, 5);
+      const op = OPERATOR_MAP[code5];
+      if (op) {
+        setOperator(op.name, op.cls);
+        el.title = `原始响应: ${line}\nMCC/MNC: ${numStr}`;
+      } else {
+        el.textContent = `未知 (${numStr})`;
+        el.className = 'info-value warn';
+        el.title = `原始响应: ${line}`;
+      }
+    }
   }
 
-  // 中兴微卡槽：+ZCARDSWITCH: 0 / 1
-  const zcardMatch = line.match(/\+ZCARDSWITCH[:\s]*(\d+)/i);
-  if (zcardMatch) {
-    const slot = parseInt(zcardMatch[1]);
+  // 卡槽
+  m = line.match(/\+SimX[:\s]*(\d+)/i);
+  if (m) {
+    const slot = parseInt(m[1]);
     const el = document.getElementById('infoCardSlot');
     el.textContent = slot === 0 ? '外置卡' : '内置卡';
     el.className = 'info-value ' + (slot === 0 ? 'ok' : 'warn');
+    el.title = `原始响应: ${line}`;
+  } else {
+    let cardMatch = line.match(/\+ZCARDSWITCH[:\s]*(\d+)/i) ||
+                    line.match(/\+SIMSWITCH[:\s]*(\d+)/i) ||
+                    line.match(/\+QDSIM[:\s]*(\d+)/i) ||
+                    line.match(/[*+]SWSIM[:\s]*(\d+)/i);
+    if (cardMatch) {
+      const platform = document.getElementById('chipPlatform').value;
+      const slot = parseInt(cardMatch[1]);
+      const el = document.getElementById('infoCardSlot');
+      let isExternal = false;
+      if (platform === 'qualcomm') isExternal = (slot === 2);
+      else isExternal = (slot === 0);
+      el.textContent = isExternal ? '外置卡' : '内置卡';
+      el.className = 'info-value ' + (isExternal ? 'ok' : 'warn');
+      el.title = `原始响应: ${line}`;
+    }
   }
 
-  // 紫光展锐卡槽：+SIMSWITCH: 0,0 / 1,0
-  const simswitchMatch = line.match(/\+SIMSWITCH[:\s]*(\d+)/i);
-  if (simswitchMatch) {
-    const slot = parseInt(simswitchMatch[1]);
-    const el = document.getElementById('infoCardSlot');
-    el.textContent = slot === 0 ? '外置卡' : '内置卡';
-    el.className = 'info-value ' + (slot === 0 ? 'ok' : 'warn');
-  }
-
-  // 高通卡槽：+QDSIM: 2 / 1
-  const qdsimMatch = line.match(/\+QDSIM[:\s]*(\d+)/i);
-  if (qdsimMatch) {
-    const slot = parseInt(qdsimMatch[1]);
-    const el = document.getElementById('infoCardSlot');
-    el.textContent = slot === 2 ? '外置卡 (SIM2)' : '内置卡 (SIM1)';
-    el.className = 'info-value ' + (slot === 2 ? 'ok' : 'warn');
-  }
-
-  // 频段：*BAND: 1,3,8 或 +BAND: 1
-  const bandMatch = line.match(/[*+]BAND[:\s]*([0-9,]+)/i);
-  if (bandMatch) {
-    const bandStr = bandMatch[1].trim();
-    const bands = bandStr.split(',').map(b => {
-      const n = parseInt(b);
-      if (n === 1) return 'B1';
-      if (n === 4) return 'B3';
-      if (n === 16) return 'B5';
-      if (n === 128 && bandStr.split(',').length > 1) return 'B8';
-      if (n === 32) return 'B38';
-      if (n === 64) return 'B39';
-      if (n === 128 && bandStr.split(',').length === 1) return 'B40';
-      if (n === 256) return 'B41';
-      return 'B' + n;
-    }).filter(b => b !== 'B0');
+  // 当前频段
+  m = line.match(/\*BANDIND[:\s]*(\d+),(\d+)(?:,(\d+))?/i);
+  if (m) {
+    const bandNum = parseInt(m[2]);
+    const act = m[3] ? parseInt(m[3]) : null;
     const el = document.getElementById('infoBand');
-    el.textContent = bands.length > 0 ? bands.join(', ') : bandStr;
+    let bandName = '';
+    if (act === 7 || act === null) {
+      bandName = LTE_BAND_MAP[bandNum] || `B${bandNum}`;
+    } else if (act >= 2 && act <= 6) {
+      bandName = `UMTS B${bandNum}`;
+    } else {
+      bandName = `B${bandNum}`;
+    }
+    el.textContent = bandName;
+    el.title = `原始响应: ${line}`;
     el.className = 'info-value ok';
+  }
+  m = line.match(/[*+]BAND[:\s]*(?!IND)(.+)/i);
+  if (m) {
+    const bandEl = document.getElementById('infoBand');
+    if (bandEl.textContent === '—') {
+      bandEl.textContent = '查询中...';
+      bandEl.title = `频段配置掩码: *BAND:${m[1].trim()}\n当前频段需通过 AT*BANDIND? 查询`;
+      bandEl.className = 'info-value';
+    }
   }
 }
 
-/* ═══════════════════════════════════════════════════
-   自动查询设备信息（增强探测）
-   ═══════════════════════════════════════════════════ */
 async function autoQueryDeviceInfo() {
   termWrite('正在查询设备信息...', 'info');
-
   const chip = state.detectedChip || 'asr';
 
-  // IMEI：先试标准 AT+CGSN，无响应则试 ASR 私有指令
-  let imeiResp = await queryAndCollect('AT+CGSN', 600);
-  if (!/\d{15}/.test(imeiResp)) {
+  // IMEI
+  let resp = await queryAndCollect('AT+CGSN', 600);
+  if (!/\+CGSN|^\d{15}/.test(resp)) {
     await queryAndCollect('AT*MRD_IMEI?', 600);
   }
 
-  // SN：先试 AT*MRD_SN?，无响应则试 AT+CGSN（部分模块 SN 和 IMEI 合一）
-  let snResp = await queryAndCollect('AT*MRD_SN?', 600);
-  if (!snResp || /^\s*ERROR\s*$/im.test(snResp)) {
+  // SN
+  resp = await queryAndCollect('AT*MRD_SN?', 600);
+  if (/^\s*ERROR\s*$/im.test(resp) || !resp) {
     await queryAndCollect('AT+SN?', 600);
   }
 
-  // 固件版本：先试 AT+VER，无响应则试 AT+CGMR / ATI
-  let verResp = await queryAndCollect('AT+VER', 600);
-  if (!verResp || /^\s*ERROR\s*$/im.test(verResp)) {
+  // 固件版本
+  resp = await queryAndCollect('AT+VER', 600);
+  if (/^\s*ERROR\s*$/im.test(resp) || !resp) {
     await queryAndCollect('AT+CGMR', 600);
   }
 
   // 信号质量
   await queryAndCollect('AT+CSQ', 600);
 
+  // 运营商（先设置长名称格式，再查询）
+  await queryAndCollect('AT+COPS=3,0', 400);
+  await queryAndCollect('AT+COPS?', 800);
+
   // 当前卡槽
   const cfg = SWITCH_CMD_MAP[chip];
   if (cfg) await queryAndCollect(cfg.query, 600);
 
-  // 当前频段
-  await queryAndCollect('AT*BAND?', 600);
+  // 当前实际频段
+  await queryAndCollect('AT*BANDIND?', 600);
 
   termWrite('设备信息查询完成。', 'info');
 }
 
 function resetDeviceInfo() {
-  ['infoChip','infoCardSlot','infoBand','infoIMEI','infoSN','infoMAC','infoVER','infoCSQ'].forEach(id => {
+  ['infoChip','infoOperator','infoCardSlot','infoBand','infoIMEI','infoSN','infoMAC','infoVER','infoCSQ'].forEach(id => {
     const el = document.getElementById(id);
     el.textContent = '—';
     el.className = 'info-value empty';
+    el.title = '';
   });
   setCloudStatus('unknown');
 }
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-/* ═══════════════════════════════════════════════════
-   UI 状态
-   ═══════════════════════════════════════════════════ */
 function updateConnectionUI(connected, text) {
   state.connected = connected;
   const badge = document.getElementById('statusBadge');
@@ -1132,9 +1120,6 @@ function enableQuickButtons(enable) {
   document.getElementById('chipPlatform').disabled = !enable;
 }
 
-/* ═══════════════════════════════════════════════════
-   SIM 卡切换
-   ═══════════════════════════════════════════════════ */
 function getPlatformConfig() {
   const platform = document.getElementById('chipPlatform').value;
   return SWITCH_CMD_MAP[platform] || SWITCH_CMD_MAP.asr;
@@ -1161,12 +1146,8 @@ async function switchToExternalCard() {
     termWrite(`${cfg.name} 平台切外置卡，将连续发送 ${cfg.repeat} 次指令...`, 'info');
     for (let i = 0; i < cfg.repeat; i++) {
       termWrite(`[${i+1}/${cfg.repeat}] ${cfg.external}`, 'cmd');
-      try {
-        await writeToPort(cfg.external);
-      } catch (err) {
-        termWrite(`发送失败: ${err.message}`, 'err');
-        break;
-      }
+      try { await writeToPort(cfg.external); }
+      catch (err) { termWrite(`发送失败: ${err.message}`, 'err'); break; }
       await sleep(800);
     }
     termWrite(`已连续发送 ${cfg.repeat} 次切卡指令，设备可能重启。`, 'info');
@@ -1175,13 +1156,10 @@ async function switchToExternalCard() {
     try {
       await writeToPort(cfg.external);
       termWrite('切卡指令已发送，设备将自动重启。', 'info');
-    } catch (err) {
-      termWrite(`发送失败: ${err.message}`, 'err');
-    }
+    } catch (err) { termWrite(`发送失败: ${err.message}`, 'err'); }
   }
   toast('切卡指令已发送，设备即将重启', 'success', 5000);
   setCloudStatus('unknown');
-  // 2 秒后查询卡槽状态
   setTimeout(() => queryCurrentCard(), 2000);
 }
 
@@ -1193,9 +1171,7 @@ async function switchToInternalCard() {
     await writeToPort(cfg.internal);
     termWrite('已发送切回内置卡指令。', 'info');
     toast('切回内置卡指令已发送', 'success');
-  } catch (err) {
-    termWrite(`发送失败: ${err.message}`, 'err');
-  }
+  } catch (err) { termWrite(`发送失败: ${err.message}`, 'err'); }
   setTimeout(() => queryCurrentCard(), 2000);
 }
 
@@ -1206,21 +1182,14 @@ async function queryCurrentCard() {
   try {
     await writeToPort(cfg.query);
     termWrite('查询指令已发送，请查看终端响应。', 'info');
-  } catch (err) {
-    termWrite(`发送失败: ${err.message}`, 'err');
-  }
+  } catch (err) { termWrite(`发送失败: ${err.message}`, 'err'); }
 }
 
-/* ═══════════════════════════════════════════════════
-   限速检测（带停止按钮 + 超时保护）
-   ═══════════════════════════════════════════════════ */
 async function toggleSpeedtest() {
   if (state.speedtesting) {
-    // 当前正在测速，点击停止
     if (state.speedtestAbort) state.speedtestAbort.abort();
     return;
   }
-  // 开始测速
   await startSpeedtest();
 }
 
@@ -1239,7 +1208,6 @@ async function startSpeedtest() {
   const controller = new AbortController();
   state.speedtestAbort = controller;
 
-  // 10 秒无数据超时保护
   let lastDataTime = Date.now();
   const timeoutTimer = setInterval(() => {
     if (Date.now() - lastDataTime > 10000) {
@@ -1303,9 +1271,6 @@ async function startSpeedtest() {
   }
 }
 
-/* ═══════════════════════════════════════════════════
-   云控检测与去云控
-   ═══════════════════════════════════════════════════ */
 function setCloudStatus(status) {
   const el = document.getElementById('cloudStatus');
   const text = document.getElementById('cloudStatusText');
@@ -1365,12 +1330,7 @@ function genRemoveCloudCmd() {
   const resultDiv = document.getElementById('cloudCmdResult');
   const cmdText = document.getElementById('cloudCmdText');
   const platform = document.getElementById('chipPlatform').value;
-  let cmds = [];
-  if (platform === 'asr') {
-    cmds = ['AT*PROD=1', 'AT+ZMODE=1'];
-  } else {
-    cmds = ['AT+ZMODE=1'];
-  }
+  let cmds = platform === 'asr' ? ['AT*PROD=1', 'AT+ZMODE=1'] : ['AT+ZMODE=1'];
   cmdText.textContent = cmds.join('  →  ');
   resultDiv.style.display = 'block';
   termWrite(`已生成去云控指令: ${cmds.join(' → ')}`, 'info');
@@ -1395,9 +1355,6 @@ function showAdbGuide() {
   document.getElementById('cloudCmdResult').style.display = 'none';
 }
 
-/* ═══════════════════════════════════════════════════
-   确认弹窗
-   ═══════════════════════════════════════════════════ */
 let pendingDangerCmd = null;
 
 function confirmDanger(title, cmd) {
@@ -1419,9 +1376,6 @@ document.getElementById('confirmModalBtn').addEventListener('click', () => {
   }
 });
 
-/* ═══════════════════════════════════════════════════
-   频段锁定
-   ═══════════════════════════════════════════════════ */
 function buildBandGrid() {
   const grid = document.getElementById('bandGrid');
   grid.innerHTML = '';
@@ -1449,9 +1403,6 @@ function updateBandButtons() {
   });
 }
 
-/* ═══════════════════════════════════════════════════
-   初始化
-   ═══════════════════════════════════════════════════ */
 buildBandGrid();
 updateCmdHints();
 setChipDetectStatus('idle');
@@ -1478,7 +1429,7 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-console.log('随身WiFi调试助手 v2.3 已加载 | 增强设备信息 + 卡槽频段 + 可停止测速');
+console.log('随身WiFi调试助手 v2.6 已加载 | 新增运营商显示');
 </script>
 </body>
 </html>
