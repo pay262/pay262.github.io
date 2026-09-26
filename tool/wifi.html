@@ -164,7 +164,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v8.1</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v8.2</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -212,7 +212,7 @@
           <button class="btn btn-danger" id="btnDisconnectUSB" onclick="disconnect()" disabled>断开连接</button>
         </div>
         <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          <b style="color:var(--warn);">v8.1：</b>修正 isErrorResponse 通用判定 bug，避免指令回显误触发芯片探测。
+          <b style="color:var(--warn);">v8.2：</b>ASR 4G 追加 +SimX 卡槽识别与 CRSM 底层 ICCID 兜底。
         </div>
       </div>
       <div id="panelWiFi" class="hidden">
@@ -234,7 +234,7 @@
     </div>
     <div class="terminal-wrap">
       <div class="terminal" id="terminal">
-        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v8.1 已就绪。</span></div>
+        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v8.2 已就绪。</span></div>
       </div>
       <div class="terminal-input-row">
         <span class="prompt">AT&gt;</span>
@@ -743,6 +743,45 @@ function guessCarrierFromICCID(iccid){
   if(/^898604/.test(p))return '中国广电';
   return null;
 }
+
+/* ★ v8.2 新增：CRSM ICCID 十六进制响应解码
+   支持多种编码格式：BCD nibble swap、ASCII、去 F 直接取数字
+   用于 ASR 4G 等不支持常规 ICCID 指令的固件底层读取 SIM 卡 ICCID */
+function decodeCRSMICCID(hexStr){
+  if(!hexStr)return null;
+  hexStr=hexStr.replace(/[\s":]/g,'').toUpperCase();
+  if(hexStr.length<18||!/^[0-9A-F]+$/.test(hexStr))return null;
+
+  // 方法1：BCD nibble swap（SIM卡标准编码，如 98 86 00 ...）
+  let swapped='';
+  for(let i=0;i<hexStr.length-1;i+=2){
+    swapped+=hexStr[i+1]+hexStr[i];
+  }
+  const digits=swapped.replace(/[^0-9]/g,'');
+  if(digits.length>=18&&digits.length<=22&&digits.startsWith('89'))return digits;
+
+  // 方法2：ASCII 编码
+  if(hexStr.startsWith('38')||hexStr.startsWith('39')){
+    let ascii='';let valid=true;
+    for(let i=0;i<hexStr.length;i+=2){
+      const code=parseInt(hexStr.substring(i,i+2),16);
+      if(code<32||code>126){valid=false;break;}
+      ascii+=String.fromCharCode(code);
+    }
+    if(valid&&/^89\d{14,19}$/.test(ascii))return ascii;
+  }
+
+  // 方法3：去 F 后取数字
+  const directDigits=hexStr.replace(/F/g,'').replace(/[^0-9]/g,'');
+  if(directDigits.length>=18&&directDigits.length<=22&&directDigits.startsWith('89'))return directDigits;
+
+  // 方法4：仅保留数字
+  const simpleDigits=hexStr.replace(/[^0-9]/g,'');
+  if(simpleDigits.length>=18&&simpleDigits.length<=22&&simpleDigits.startsWith('89'))return simpleDigits;
+
+  return null;
+}
+
 function mapOperatorName(name){
   if(!name)return null;
   const n=name.toUpperCase();
@@ -963,10 +1002,6 @@ async function queryFirstAvailable(cmds,waitMs=1500,stopRegex=null){
   }
   return null;
 }
-
-/* ★ v8.1 修复：isErrorResponse 使用宽松匹配，避免"回显+ERROR"漏判
-   旧逻辑只匹配整段 === 'ERROR'，导致 "AT+XXX?\nERROR" 被判为"非错误"。
-   新逻辑只要响应中出现独立的 ERROR 词，即判定为失败。 */
 function isErrorResponse(r){
   if(!r)return true;
   const t=r.trim();
@@ -1367,6 +1402,22 @@ async function autoQueryDeviceInfo(){
 
   termWrite('查询 ICCID...','info');
   await queryFirstAvailable(chip.iccid,1800,/[+*](?:QCCID|ICCID|CCID|ICID|ZICCID)|^89\d{17,19}/im);
+  /* ★ v8.2 新增：ASR 4G 平台常规 ICCID 指令全失败时，追加备用指令 + CRSM 底层读取 */
+  if (state.detectedChip === 'asr4g' && !state.rawValues.ICCID) {
+    termWrite('常规 ICCID 指令无响应，尝试备用指令与 CRSM 底层读取...','info');
+    const fallbackCmds = [
+      'AT+CCID?',
+      'AT+ICCID?',
+      'AT+CICCID',
+      'AT+CRSM=176,12258,0,0,0',
+      'AT+CRSM=176,12258,0,0,10',
+      'AT+CRSM=176,12258,0,0,20'
+    ];
+    for (const cmd of fallbackCmds) {
+      if (state.rawValues.ICCID) break;
+      await queryAndCollect(cmd, 1500);
+    }
+  }
   await sleep(200);
 
   termWrite('查询 IMEI...','info');
@@ -1532,7 +1583,7 @@ function setInfo(id,value,cls='ok'){
 function parseDeviceInfo(line){
   let m;
 
-  /* ═══ ASR 4G 专属实时数据解析（v8.0 已添加，v8.1 不变） ═══ */
+  /* ═══ ASR 4G 专属实时数据解析（v8.0 已添加，v8.1/v8.2 不变） ═══ */
   if (state.detectedChip === 'asr4g') {
     m = line.match(/\+CESQ:\s*(\d+),(\d+),(\d+),(\d+),(\d+),(\d+)/i);
     if (m) {
@@ -1598,9 +1649,18 @@ function parseDeviceInfo(line){
     }
   }
 
+  /* ★ v8.2 修改：ICCID 解析追加 CRSM 响应分支 */
   m=line.match(/[+*](?:QCCID|ICCID|CCID|ICID|ZICCID)[:\s]*"?([0-9A-Za-z]{18,22})"?/i);
   if(m)setInfoValue('ICCID',m[1]);
   else if(/^89\d{17,19}[A-Za-z0-9]*$/.test(line))setInfoValue('ICCID',line);
+  else {
+    m = line.match(/\+CRSM:\s*\d+,\d+,\s*(?:"([0-9A-Fa-f\s]+)"|([0-9A-Fa-f]+))/i);
+    if (m) {
+      const hexStr = m[1] || m[2];
+      const iccid = decodeCRSMICCID(hexStr);
+      if (iccid) setInfoValue('ICCID', iccid);
+    }
+  }
 
   m=line.match(/\+CGSN[:\s]+"?(\d{14,16})"?/i);
   if(m)setInfoValue('IMEI',m[1]);
@@ -1664,12 +1724,22 @@ function parseDeviceInfo(line){
     else if(numStr){const c5=numStr.substring(0,5);const op=OPERATOR_MAP[c5];if(op){el.textContent=op.name;el.className='info-value '+op.cls;}}
   }
 
-  m=line.match(/\+ZCARDSWITCH[:\s]*(\d+)/i)||line.match(/[*+]SWSIM[:\s]*(\d+)/i);
+  /* ★ v8.2 修改：卡槽解析，前置检查 +SimX（ASR 云齐品等），原 ZCARDSWITCH/SWSIM 逻辑保留为 else 分支 */
+  m=line.match(/\+SimX[:\s]*(\d+)/i);
   if(m){
     const slot=parseInt(m[1]);
     const el=document.getElementById('infoCardSlot');
     el.textContent=slot===0?'外置卡':'内置卡';
     el.className='info-value '+(slot===0?'ok':'warn');
+    el.title=`原始响应: ${line}`;
+  } else {
+    m=line.match(/\+ZCARDSWITCH[:\s]*(\d+)/i)||line.match(/[*+]SWSIM[:\s]*(\d+)/i);
+    if(m){
+      const slot=parseInt(m[1]);
+      const el=document.getElementById('infoCardSlot');
+      el.textContent=slot===0?'外置卡':'内置卡';
+      el.className='info-value '+(slot===0?'ok':'warn');
+    }
   }
 
   m=line.match(/\+ZBAND[:\s]*(.+)/i);
@@ -2145,7 +2215,7 @@ window.addEventListener('beforeunload',()=>{
   updateConnectionUI(false,'未连接');
   enableQuickButtons(false);
 
-  termWrite(`随身WiFi调试助手 v8.1 已就绪 · 芯片库 ${CHIP_DATABASE.length} 条 · 来源 ${
+  termWrite(`随身WiFi调试助手 v8.2 已就绪 · 芯片库 ${CHIP_DATABASE.length} 条 · 来源 ${
     {json:'外部文件',localStorage:'本地缓存',fallback:'内置'}[window.__chipDbSource]||'未知'
   }`,'info');
   termWrite('请点击「🔌 选择串口并连接」开始调试。','info');
