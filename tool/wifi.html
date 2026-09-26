@@ -156,7 +156,7 @@
   .quick-section h4 {
     font-size: 11px; color: var(--text-dim); text-transform: uppercase;
     letter-spacing: .6px; margin-bottom: 8px; font-weight: 600;
-    display: flex; align-items: center; gap: 6px;
+    display: flex; align-items: center; justify-content: space-between;
   }
   .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
   .quick-btn {
@@ -200,12 +200,14 @@
   .info-value.ipv6 { color: #c084fc; font-weight: 600; }
   .info-value.net5g { color: #22d3ee; font-weight: 600; }
   .info-value.net4g { color: #fbbf24; font-weight: 600; }
+  .info-value.masked { color: #6b7280; letter-spacing: 1px; }
   .eye-btn {
     background: none; border: none; color: var(--text-dim);
     cursor: pointer; font-size: 13px; padding: 0 2px; line-height: 1;
     transition: color .2s; flex-shrink: 0;
   }
   .eye-btn:hover { color: var(--accent); }
+  .eye-btn.active { color: var(--accent); }
   ::-webkit-scrollbar { width: 5px; height: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #2e3342; border-radius: 3px; }
@@ -368,24 +370,8 @@
     font-family: var(--font-mono);
   }
 
-  /* ═══ 频段区域切换动画 ═══ */
-  .band-panel {
-    transition: opacity .3s;
-  }
-  .band-panel.fade {
-    opacity: 0;
-  }
-
-  /* ═══ 频段按钮分组标题 ═══ */
-  .band-group-label {
-    font-size: 10px; color: var(--text-dim);
-    padding: 4px 0; grid-column: 1/-1;
-    font-family: var(--font-mono);
-    border-bottom: 1px dashed rgba(255,255,255,.06);
-    margin-bottom: 2px;
-  }
-  .band-group-label.g4 { color: #fbbf24; }
-  .band-group-label.g5 { color: #22d3ee; }
+  /* ═══ 频段锁定 ═══ */
+  .band-panel { transition: opacity .3s; }
 </style>
 </head>
 <body>
@@ -393,7 +379,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v4.1</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v4.2</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -465,7 +451,7 @@
       <div class="terminal" id="terminal">
         <div class="line">
           <span class="prefix info">●</span>
-          <span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v4.1 已就绪。网络类型自动识别，功能随 4G/5G 自动切换。</span>
+          <span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v4.2 已就绪。IP 自动加载 + 隐藏按钮，修复频段锁定区识别。</span>
         </div>
       </div>
       <div class="terminal-input-row">
@@ -481,7 +467,7 @@
     <div class="panel-header">快捷工具</div>
     <div class="panel-body">
 
-      <!-- ═══ 网络类型大卡片（置顶）═══ -->
+      <!-- ═══ 网络类型大卡片 ═══ -->
       <div class="net-type-card" id="netTypeCard">
         <div class="icon unknown" id="netTypeIcon">?</div>
         <div class="info">
@@ -525,12 +511,15 @@
 
       <!-- ═══ IP 地址 ═══ -->
       <div class="quick-section">
-        <h4>IP 地址</h4>
+        <h4>
+          <span>IP 地址</span>
+          <button class="eye-btn active" onclick="toggleIPVisibility()" id="eyeIP" title="隐藏/显示 IP">👁️</button>
+        </h4>
         <div>
-          <div class="info-item"><span class="info-label">公网 IPv4</span><span class="info-value empty" id="infoPubV4">—</span></div>
-          <div class="info-item"><span class="info-label">公网 IPv6</span><span class="info-value empty" id="infoPubV6">—</span></div>
-          <div class="info-item"><span class="info-label">内网 IPv4</span><span class="info-value empty" id="infoLocV4">—</span></div>
-          <div class="info-item"><span class="info-label">内网 IPv6</span><span class="info-value empty" id="infoLocV6">—</span></div>
+          <div class="info-item"><span class="info-label">公网 IPv4</span><span class="info-value empty" id="infoPubV4" data-raw="">—</span></div>
+          <div class="info-item"><span class="info-label">公网 IPv6</span><span class="info-value empty" id="infoPubV6" data-raw="">—</span></div>
+          <div class="info-item"><span class="info-label">内网 IPv4</span><span class="info-value empty" id="infoLocV4" data-raw="">—</span></div>
+          <div class="info-item"><span class="info-label">内网 IPv6</span><span class="info-value empty" id="infoLocV6" data-raw="">—</span></div>
         </div>
         <button class="btn btn-primary" style="margin-top:8px;background:rgba(110,231,183,.12);color:#6ee7b7;border:1px solid rgba(110,231,183,.3);box-shadow:none;" 
                 onclick="refreshIPs()" disabled id="btnRefreshIP">
@@ -623,7 +612,7 @@
         </div>
       </div>
 
-      <!-- ═══ 信息查询（通用）═══ -->
+      <!-- ═══ 信息查询 ═══ -->
       <div class="quick-section">
         <h4>信息查询</h4>
         <div class="quick-grid">
@@ -638,12 +627,13 @@
         </div>
       </div>
 
-      <!-- ═══ 网络查询（动态：4G/5G 切换）═══ -->
+      <!-- ═══ 网络查询（动态） ═══ -->
       <div class="quick-section">
-        <h4 id="netQueryHeader">网络查询</h4>
-        <div class="quick-grid" id="netQueryGrid">
-          <!-- 动态生成 -->
-        </div>
+        <h4>
+          <span id="netQueryHeaderText">网络查询</span>
+          <span id="netQueryModeBadge" class="badge-tag gray" style="font-size:9px;">未识别</span>
+        </h4>
+        <div class="quick-grid" id="netQueryGrid"></div>
       </div>
 
       <!-- ═══ 常用操作 ═══ -->
@@ -656,10 +646,10 @@
         </div>
       </div>
 
-      <!-- ═══ 频段锁定（动态：4G/5G 切换）═══ -->
+      <!-- ═══ 频段锁定（动态） ═══ -->
       <div class="quick-section band-panel" id="bandPanel">
-        <h4 id="bandHeader">
-          频段锁定
+        <h4>
+          <span id="bandHeaderText">频段锁定</span>
           <span id="bandModeBadge" class="badge-tag gray" style="font-size:9px;">未识别</span>
         </h4>
         <div class="quick-grid" id="bandGrid"></div>
@@ -743,12 +733,13 @@ const state = {
   speedtesting: false, responseBuffer: '', detectedChip: null,
   sensitiveHidden: { IMEI: true, SN: true, ICCID: true },
   rawValues: { IMEI: '', SN: '', ICCID: '' },
+  ipHidden: true,       // IP 默认打码
+  ipRaw: { pubV4: '', pubV6: '', locV4: '', locV6: '' },
   writeInProgress: false,
-  networkType: 'unknown',   // 'unknown' | '4g' | '5g'
+  networkType: 'unknown',
   currentBand: null,
 };
 
-/* ═══ 4G LTE 频段映射 ═══ */
 const BAND_MAP_4G = {
   B1:  { label: 'B1',  param: ',0,1,0,2,2,0'   },
   B3:  { label: 'B3',  param: ',0,4,0,2,2,0'   },
@@ -760,7 +751,6 @@ const BAND_MAP_4G = {
   B41: { label: 'B41', param: ',256,0,0,2,2,0' },
 };
 
-/* ═══ 5G NR 频段列表（中国常用）═══ */
 const BAND_MAP_5G = {
   n1:  { label: 'n1',  band: 1,  freq: '2100MHz', desc: '联通/电信' },
   n3:  { label: 'n3',  band: 3,  freq: '1800MHz', desc: '联通/电信' },
@@ -966,11 +956,17 @@ async function connectUSB() {
     toast(`USB 串口连接成功 @ ${baud}`, 'success');
     enableQuickButtons(true);
     startReadLoop();
-    setTimeout(async () => {
-      await autoDetectChip();
-      await autoQueryDeviceInfo();
-      await detectNetworkType();
+
+    // ★ 关键修复：IP 查询与 AT 流程并行启动，不互相等待
+    setTimeout(() => {
+      // IP 地址独立异步查询，立即开始
       refreshIPs();
+      // AT 指令流程并行执行
+      (async () => {
+        await autoDetectChip();
+        await autoQueryDeviceInfo();
+        await detectNetworkType();
+      })();
     }, 500);
   } catch (err) {
     if (err.name === 'NotFoundError') {
@@ -1114,10 +1110,10 @@ async function queryAndCollect(cmd, waitMs = 800) {
 }
 
 /* ═══════════════════════════════════════════════════
-   ★ 网络类型管理：4G / 5G / unknown
+   网络类型管理
    ═══════════════════════════════════════════════════ */
 function setNetworkType(type, subText) {
-  if (state.networkType === type && !subText) return;
+  const changed = (state.networkType !== type);
   state.networkType = type;
 
   const iconEl = document.getElementById('netTypeIcon');
@@ -1144,80 +1140,60 @@ function setNetworkType(type, subText) {
     subEl.textContent = subText || (state.connected ? '正在查询网络类型' : '请连接设备');
   }
 
-  // 根据网络类型重新渲染频段网格和网络查询区
-  buildBandGrid();
-  buildNetQueryGrid();
-
   // 显示/隐藏 5G 信号行
   const show5G = (type === '5g');
   document.getElementById('rowRSRP').style.display = show5G ? 'flex' : 'none';
   document.getElementById('rowSINR').style.display = show5G ? 'flex' : 'none';
 
-  termWrite(`⚡ 网络类型切换为: ${type === '5g' ? '5G NR' : type === '4g' ? '4G LTE' : '未识别'}`, 'info');
+  // 每次网络类型变化都重新渲染动态区
+  if (changed || subText) {
+    renderNetQuerySection();
+    renderBandLockSection();
+    termWrite(`⚡ 网络类型: ${type === '5g' ? '5G NR' : type === '4g' ? '4G LTE' : '未识别'} — ${subText || ''}`, 'info');
+  }
 }
 
-/* ═══ 主动探测网络类型 ═══ */
 async function detectNetworkType() {
   const chip = state.detectedChip || 'asr';
   termWrite('开始探测当前网络类型...', 'info');
 
   if (chip === 'qualcomm') {
-    // 高通优先
     const qnwinfo = await queryAndCollect('AT+QNWINFO', 800);
-    if (/NR5G|"NR"/i.test(qnwinfo)) {
-      setNetworkType('5g', '来自 AT+QNWINFO');
-      return '5g';
-    }
-    if (/LTE/i.test(qnwinfo)) {
-      setNetworkType('4g', '来自 AT+QNWINFO');
-      return '4g';
-    }
+    if (/NR5G|"NR"/i.test(qnwinfo)) { setNetworkType('5g', 'QNWINFO: NR5G'); return '5g'; }
+    if (/LTE/i.test(qnwinfo)) { setNetworkType('4g', 'QNWINFO: LTE'); return '4g'; }
 
-    // 尝试 5G 注册查询
     const c5greg = await queryAndCollect('AT+C5GREG?', 800);
     const c5m = c5greg.match(/\+C5GREG[:\s]*\d+,(\d+)/i);
     if (c5m && (parseInt(c5m[1]) === 1 || parseInt(c5m[1]) === 5)) {
-      setNetworkType('5g', '5GS 已注册');
-      return '5g';
+      setNetworkType('5g', '5GS 已注册'); return '5g';
     }
 
-    // 尝试服务小区
     const qeng = await queryAndCollect('AT+QENG="servingcell"', 1200);
-    if (/"NR5G"/i.test(qeng)) {
-      setNetworkType('5g', 'servingcell: NR5G');
-      return '5g';
-    }
-    if (/"LTE"/i.test(qeng)) {
-      setNetworkType('4g', 'servingcell: LTE');
-      return '4g';
-    }
+    if (/"NR5G"/i.test(qeng)) { setNetworkType('5g', 'servingcell: NR5G'); return '5g'; }
+    if (/"LTE"/i.test(qeng)) { setNetworkType('4g', 'servingcell: LTE'); return '4g'; }
   } else {
-    // 非高通：尝试通用 5G 注册
     const c5greg = await queryAndCollect('AT+C5GREG?', 800);
     const c5m = c5greg.match(/\+C5GREG[:\s]*\d+,(\d+)/i);
     if (c5m && (parseInt(c5m[1]) === 1 || parseInt(c5m[1]) === 5)) {
-      setNetworkType('5g', '5GS 已注册');
-      return '5g';
+      setNetworkType('5g', '5GS 已注册'); return '5g';
     }
 
-    // 4G 频段探测（ASR 专用）
+    // ASR 等 4G 平台：BANDIND 响应即表示 4G
     const bandind = await queryAndCollect('AT*BANDIND?', 600);
     if (/BANDIND/i.test(bandind)) {
-      setNetworkType('4g', 'ASR BANDIND 响应');
-      return '4g';
-    }
-
-    // 默认 4G（ASR 通常只支持 4G）
-    if (chip === 'asr' || chip === 'zxic' || chip === 'unisoc') {
-      setNetworkType('4g', `${SWITCH_CMD_MAP[chip].name} 平台`);
-      return '4g';
+      setNetworkType('4g', 'ASR BANDIND 响应'); return '4g';
     }
   }
 
-  // 兜底：根据 CSQ 判断设备已联网
+  // 兜底：CSQ 有值表示已联网，默认判定 4G
   const csq = await queryAndCollect('AT+CSQ', 600);
   if (/\+CSQ:\s*\d+/i.test(csq)) {
-    setNetworkType('4g', '默认判定为 4G');
+    setNetworkType('4g', 'CSQ 响应，默认 4G'); return '4g';
+  }
+
+  // 最后兜底：已知芯片平台
+  if (chip === 'asr' || chip === 'zxic' || chip === 'unisoc') {
+    setNetworkType('4g', `${SWITCH_CMD_MAP[chip].name} 平台默认 4G`);
     return '4g';
   }
 
@@ -1226,18 +1202,21 @@ async function detectNetworkType() {
 }
 
 /* ═══════════════════════════════════════════════════
-   ★ 动态渲染：网络查询区
+   动态渲染：网络查询区
    ═══════════════════════════════════════════════════ */
-function buildNetQueryGrid() {
+function renderNetQuerySection() {
   const grid = document.getElementById('netQueryGrid');
-  const header = document.getElementById('netQueryHeader');
+  const headerText = document.getElementById('netQueryHeaderText');
+  const badge = document.getElementById('netQueryModeBadge');
   grid.innerHTML = '';
 
-  const btns = [];
+  let btns = [];
 
   if (state.networkType === '5g') {
-    header.innerHTML = '网络查询 <span class="badge-tag cyan" style="font-size:9px;">5G</span>';
-    btns.push(
+    headerText.textContent = '网络查询';
+    badge.className = 'badge-tag cyan';
+    badge.textContent = '5G';
+    btns = [
       { cmd: 'AT+QNWINFO',                    label: '网络信息', hint: 'QNWINFO' },
       { cmd: 'AT+C5GREG?',                    label: '5G 注册', hint: 'C5GREG?' },
       { cmd: 'AT+QENG="servingcell"',         label: '服务小区', hint: 'QENG' },
@@ -1246,25 +1225,29 @@ function buildNetQueryGrid() {
       { cmd: 'AT+QSINR',                      label: 'SINR 信号', hint: 'QSINR' },
       { cmd: 'AT+C5GQOSRDP',                  label: '5QI 等级', hint: 'C5GQOSRDP' },
       { cmd: 'AT+QNWCFG="nr5g_band"',         label: '5G 频段配置', hint: 'nr5g_band' },
-    );
+    ];
   } else if (state.networkType === '4g') {
-    header.innerHTML = '网络查询 <span class="badge-tag orange" style="font-size:9px;">4G</span>';
-    btns.push(
+    headerText.textContent = '网络查询';
+    badge.className = 'badge-tag orange';
+    badge.textContent = '4G';
+    btns = [
       { cmd: 'AT+QNWINFO',                    label: '网络信息', hint: 'QNWINFO' },
       { cmd: 'AT+CREG?',                      label: '4G 注册', hint: 'CREG?' },
       { cmd: 'AT*BANDIND?',                   label: '当前频段', hint: 'BANDIND?' },
       { cmd: 'AT*BAND?',                      label: '频段配置', hint: '*BAND?' },
       { cmd: 'AT+CGEQOSRDP',                  label: 'QCI 等级', hint: 'CGEQOSRDP' },
       { cmd: 'AT+QNWCFG="lte_band"',          label: '4G 频段配置', hint: 'lte_band' },
-    );
+    ];
   } else {
-    header.innerHTML = '网络查询';
-    btns.push(
+    headerText.textContent = '网络查询';
+    badge.className = 'badge-tag gray';
+    badge.textContent = '未识别';
+    btns = [
       { cmd: 'AT+QNWINFO',                    label: '网络信息', hint: 'QNWINFO' },
       { cmd: 'AT+CREG?',                      label: '4G 注册', hint: 'CREG?' },
       { cmd: 'AT+C5GREG?',                    label: '5G 注册', hint: 'C5GREG?' },
       { cmd: 'AT+CSQ',                        label: '信号质量', hint: 'AT+CSQ' },
-    );
+    ];
   }
 
   btns.forEach(b => {
@@ -1278,22 +1261,22 @@ function buildNetQueryGrid() {
 }
 
 /* ═══════════════════════════════════════════════════
-   ★ 动态渲染：频段锁定区
+   ★ 动态渲染：频段锁定区（修复 badge 被覆盖问题）
    ═══════════════════════════════════════════════════ */
-function buildBandGrid() {
+function renderBandLockSection() {
   const grid = document.getElementById('bandGrid');
-  const header = document.getElementById('bandHeader');
+  const headerText = document.getElementById('bandHeaderText');
   const badge = document.getElementById('bandModeBadge');
   const tip = document.getElementById('bandTip');
   grid.innerHTML = '';
 
+  headerText.textContent = '频段锁定';
+
   if (state.networkType === '5g') {
-    header.innerHTML = '频段锁定 <span class="badge-tag cyan" style="font-size:9px;">5G</span>';
     badge.className = 'badge-tag cyan';
     badge.textContent = '5G NR';
-    tip.innerHTML = '<b>5G 锁频（高通）：</b>使用 <code>AT+QNWPREFCFG="nr5g_band",&lt;band&gt;</code> 锁定单个 NR 频段，多个频段用冒号分隔。<br><b>解除：</b><code>AT+QNWPREFCFG="nr5g_band",0</code> 恢复自动。';
+    tip.innerHTML = '<b>5G 锁频（高通）：</b>使用 <code>AT+QNWPREFCFG="nr5g_band",&lt;band&gt;</code> 锁定单个 NR 频段。<br><b>解除：</b><code>AT+QNWPREFCFG="nr5g_band",0</code> 恢复自动。';
 
-    // 5G 频段锁定
     Object.entries(BAND_MAP_5G).forEach(([key, info]) => {
       const btn = document.createElement('button');
       btn.className = 'quick-btn';
@@ -1305,7 +1288,6 @@ function buildBandGrid() {
       grid.appendChild(btn);
     });
 
-    // 解除锁频
     const clearBtn = document.createElement('button');
     clearBtn.className = 'quick-btn';
     clearBtn.style.gridColumn = '1 / -1';
@@ -1317,7 +1299,6 @@ function buildBandGrid() {
     grid.appendChild(clearBtn);
 
   } else if (state.networkType === '4g') {
-    header.innerHTML = '频段锁定 <span class="badge-tag orange" style="font-size:9px;">4G</span>';
     badge.className = 'badge-tag orange';
     badge.textContent = '4G LTE';
     tip.innerHTML = '<b>4G 锁频（ASR）：</b>使用 <code>AT*BAND=,0,&lt;mask&gt;,0,2,2,0</code> 锁定 LTE 频段。<br><b>4G 锁频（高通）：</b><code>AT+QNWPREFCFG="lte_band",&lt;band&gt;</code>。<br><b>解除：</b><code>AT*BAND=0</code> 恢复自动。';
@@ -1356,7 +1337,6 @@ function buildBandGrid() {
     grid.appendChild(clearBtn);
 
   } else {
-    header.innerHTML = '频段锁定';
     badge.className = 'badge-tag gray';
     badge.textContent = '未识别';
     tip.innerHTML = '网络类型未识别，无法确定频段锁定指令。请先连接设备并等待自动探测。';
@@ -1371,7 +1351,6 @@ function buildBandGrid() {
   }
 }
 
-/* 5G 锁频：AT+QNWPREFCFG="nr5g_band",<band> */
 function lockBand5G(bandNum, label) {
   if (!state.connected) { toast('请先连接设备', 'error'); return; }
   const cmd = `AT+QNWPREFCFG="nr5g_band",${bandNum}`;
@@ -1380,7 +1359,6 @@ function lockBand5G(bandNum, label) {
   termWrite(`⚠ 锁定 5G ${label}（n${bandNum}），设备可能短暂断网`, 'info');
 }
 
-/* 4G 锁频（高通）：AT+QNWPREFCFG="lte_band",<band> */
 function lockBand4G(bandNum, label) {
   if (!state.connected) { toast('请先连接设备', 'error'); return; }
   const cmd = `AT+QNWPREFCFG="lte_band",${bandNum}`;
@@ -1390,7 +1368,7 @@ function lockBand4G(bandNum, label) {
 }
 
 /* ═══════════════════════════════════════════════════
-   IP 查询
+   IP 地址查询 + 隐藏
    ═══════════════════════════════════════════════════ */
 async function queryPublicIPv4() {
   const apis = [
@@ -1475,16 +1453,59 @@ function queryLocalIPsViaWebRTC() {
   });
 }
 
+function setIPValue(field, value, cls, title) {
+  state.ipRaw[field] = value;
+  const el = document.getElementById('info' + field.charAt(0).toUpperCase() + field.slice(1));
+  el.setAttribute('data-raw', value);
+  el.className = 'info-value ' + cls;
+  el.title = title || value;
+  // 根据隐藏状态显示
+  if (state.ipHidden) {
+    el.textContent = '••••••••';
+    el.classList.add('masked');
+  } else {
+    el.textContent = value;
+  }
+}
+
+function toggleIPVisibility() {
+  state.ipHidden = !state.ipHidden;
+  const btn = document.getElementById('eyeIP');
+  btn.textContent = state.ipHidden ? '🙈' : '👁️';
+  btn.title = state.ipHidden ? '显示 IP' : '隐藏 IP';
+  
+  // 更新四个字段
+  const fields = [
+    { field: 'pubV4', elId: 'infoPubV4', raw: state.ipRaw.pubV4 },
+    { field: 'pubV6', elId: 'infoPubV6', raw: state.ipRaw.pubV6 },
+    { field: 'locV4', elId: 'infoLocV4', raw: state.ipRaw.locV4 },
+    { field: 'locV6', elId: 'infoLocV6', raw: state.ipRaw.locV6 },
+  ];
+  fields.forEach(f => {
+    const el = document.getElementById(f.elId);
+    if (!f.raw) return;
+    if (state.ipHidden) {
+      el.textContent = '••••••••';
+      el.classList.add('masked');
+    } else {
+      el.textContent = f.raw;
+      el.classList.remove('masked');
+    }
+  });
+  toast(state.ipHidden ? 'IP 已隐藏' : 'IP 已显示', 'info', 1500);
+}
+
 async function refreshIPs() {
   const pubV4El = document.getElementById('infoPubV4');
   const pubV6El = document.getElementById('infoPubV6');
   const locV4El = document.getElementById('infoLocV4');
   const locV6El = document.getElementById('infoLocV6');
 
-  pubV4El.textContent = '查询中...'; pubV4El.className = 'info-value warn';
-  pubV6El.textContent = '查询中...'; pubV6El.className = 'info-value warn';
-  locV4El.textContent = '查询中...'; locV4El.className = 'info-value warn';
-  locV6El.textContent = '查询中...'; locV6El.className = 'info-value warn';
+  [pubV4El, pubV6El, locV4El, locV6El].forEach(el => {
+    el.textContent = '查询中...';
+    el.className = 'info-value warn';
+    el.classList.remove('masked');
+  });
 
   termWrite('正在查询公网/内网 IPv4/IPv6...', 'info');
 
@@ -1495,9 +1516,7 @@ async function refreshIPs() {
   ]);
 
   if (pub4) {
-    pubV4El.textContent = pub4.ip;
-    pubV4El.className = 'info-value ipv4';
-    pubV4El.title = `公网 IPv4: ${pub4.ip}\n来源: ${pub4.source}`;
+    setIPValue('pubV4', pub4.ip, 'ipv4', `公网 IPv4: ${pub4.ip}\n来源: ${pub4.source}`);
     termWrite(`✓ 公网 IPv4: ${pub4.ip}`, 'resp');
   } else {
     pubV4El.textContent = '不可用';
@@ -1505,9 +1524,7 @@ async function refreshIPs() {
   }
 
   if (pub6) {
-    pubV6El.textContent = pub6.ip;
-    pubV6El.className = 'info-value ipv6';
-    pubV6El.title = `公网 IPv6: ${pub6.ip}\n来源: ${pub6.source}`;
+    setIPValue('pubV6', pub6.ip, 'ipv6', `公网 IPv6: ${pub6.ip}\n来源: ${pub6.source}`);
     termWrite(`✓ 公网 IPv6: ${pub6.ip}`, 'resp');
   } else {
     pubV6El.textContent = '不可用';
@@ -1515,8 +1532,7 @@ async function refreshIPs() {
   }
 
   if (local.ipv4) {
-    locV4El.textContent = local.ipv4;
-    locV4El.className = 'info-value ipv4';
+    setIPValue('locV4', local.ipv4, 'ipv4', `内网 IPv4: ${local.ipv4}`);
     termWrite(`✓ 内网 IPv4: ${local.ipv4}`, 'resp');
   } else {
     locV4El.textContent = '受限';
@@ -1524,8 +1540,7 @@ async function refreshIPs() {
   }
 
   if (local.ipv6) {
-    locV6El.textContent = local.ipv6;
-    locV6El.className = 'info-value ipv6';
+    setIPValue('locV6', local.ipv6, 'ipv6', `内网 IPv6: ${local.ipv6}`);
     termWrite(`✓ 内网 IPv6: ${local.ipv6}`, 'resp');
   } else {
     locV6El.textContent = '受限';
@@ -1795,7 +1810,7 @@ function closeWriteModalForce() {
   document.getElementById('writeCancelBtn').disabled = false;
 }
 
-/* 隐私保护 */
+/* 隐私保护（IMEI/SN/ICCID） */
 function maskValue(val, type) {
   if (!val || val === '—' || val.length < 6) return val;
   if (type === 'IMEI') return val.substring(0, 4) + '********' + val.substring(val.length - 4);
@@ -1846,8 +1861,7 @@ function setOperator(name, cls) {
 }
 
 function parseDeviceInfo(line) {
-  /* ═══ 网络类型检测：实时更新 ═══ */
-  // AT+QNWINFO 判断
+  /* 网络类型检测 */
   let m = line.match(/\+QNWINFO[:\s]*"([^"]+)"/i);
   if (m) {
     const netType = m[1].toUpperCase();
@@ -1858,7 +1872,6 @@ function parseDeviceInfo(line) {
     }
   }
 
-  // 5G 注册状态
   m = line.match(/\+C5GREG[:\s]*(\d+),(\d+)/i);
   if (m) {
     const stat = parseInt(m[2]);
@@ -1867,16 +1880,14 @@ function parseDeviceInfo(line) {
     }
   }
 
-  // QENG servingcell: NR5G
   if (/\+QENG[:\s]*"servingcell"/i.test(line) && /"NR5G"/i.test(line)) {
     setNetworkType('5g', 'servingcell: NR5G');
   }
-  // QENG servingcell: LTE
   if (/\+QENG[:\s]*"servingcell"/i.test(line) && /"LTE"/i.test(line) && !/"NR5G"/i.test(line)) {
     if (state.networkType === 'unknown') setNetworkType('4g', 'servingcell: LTE');
   }
 
-  /* ═══ 5G QENG 解析 ═══ */
+  /* 5G QENG */
   m = line.match(/\+QENG[:\s]*"servingcell"\s*,\s*"[^"]*"\s*,\s*"NR5G"\s*,\s*"([^"]*)"\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*(\d+)\s*,\s*[^,]+,\s*(-?\d+)\s*,\s*(-?\d+)\s*,\s*(-?\d+)/i);
   if (m) {
     const duplex = m[1];
@@ -1893,21 +1904,15 @@ function parseDeviceInfo(line) {
     const bandName = NR_BAND_MAP[band] || `n${band}`;
     bandEl.textContent = `5G ${bandName} (${duplex})`;
     bandEl.className = 'info-value net5g';
-    bandEl.title = `原始响应: ${line}`;
     state.currentBand = `5G ${bandName}`;
 
-    const rsrpEl = document.getElementById('infoRSRP');
-    rsrpEl.textContent = `${rsrp} dBm`;
-    rsrpEl.className = 'info-value ' + (rsrp > -90 ? 'ok' : rsrp > -105 ? 'warn' : '');
-    rsrpEl.title = `NR5G RSRP: ${rsrp} dBm`;
-
-    const sinrEl = document.getElementById('infoSINR');
-    sinrEl.textContent = `${sinr} dB`;
-    sinrEl.className = 'info-value ' + (sinr > 20 ? 'ok' : sinr > 0 ? 'warn' : '');
-    sinrEl.title = `NR5G SINR: ${sinr} dB`;
+    document.getElementById('infoRSRP').textContent = `${rsrp} dBm`;
+    document.getElementById('infoRSRP').className = 'info-value ' + (rsrp > -90 ? 'ok' : rsrp > -105 ? 'warn' : '');
+    document.getElementById('infoSINR').textContent = `${sinr} dB`;
+    document.getElementById('infoSINR').className = 'info-value ' + (sinr > 20 ? 'ok' : sinr > 0 ? 'warn' : '');
   }
 
-  /* ═══ 4G QENG 解析 ═══ */
+  /* 4G QENG */
   m = line.match(/\+QENG[:\s]*"servingcell"\s*,\s*"[^"]*"\s*,\s*"LTE"\s*,\s*"([^"]*)"\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*(\d+)\s*,\s*[^,]+,\s*[^,]+,\s*(-?\d+)\s*,\s*(-?\d+)/i);
   if (m) {
     const band = parseInt(m[4]);
@@ -1917,17 +1922,10 @@ function parseDeviceInfo(line) {
       const bandName = LTE_BAND_MAP[band] || `B${band}`;
       bandEl.textContent = `4G ${bandName}`;
       bandEl.className = 'info-value net4g';
-      bandEl.title = `原始响应: ${line}`;
       state.currentBand = `4G ${bandName}`;
-    }
-    const rsrpEl = document.getElementById('infoRSRP');
-    if (rsrpEl.textContent === '—') {
-      rsrpEl.textContent = `${rsrp} dBm`;
-      rsrpEl.className = 'info-value ' + (rsrp > -90 ? 'ok' : rsrp > -105 ? 'warn' : '');
     }
   }
 
-  // QRSRP 独立响应
   m = line.match(/\+QRSRP[:\s]*(-?\d+)/i);
   if (m) {
     const rsrp = parseInt(m[1]);
@@ -1938,7 +1936,6 @@ function parseDeviceInfo(line) {
     }
   }
 
-  // QSINR 独立响应
   m = line.match(/\+QSINR[:\s]*(-?\d+)/i);
   if (m) {
     const sinr = parseInt(m[1]);
@@ -1949,7 +1946,7 @@ function parseDeviceInfo(line) {
     }
   }
 
-  /* ═══ QCI / 5QI ═══ */
+  /* QCI / 5QI */
   m = line.match(/\+CGEQOSRDP[:\s]*(\d+),(\d+)/i);
   if (m) {
     const qci = parseInt(m[2]);
@@ -1957,7 +1954,6 @@ function parseDeviceInfo(line) {
     const info = mapQci(qci);
     el.textContent = `QCI ${qci} · ${info.desc}`;
     el.className = 'info-value ' + info.cls;
-    el.title = `原始响应: ${line}`;
   }
   m = line.match(/\+C5GQOSRDP[:\s]*(\d+),(\d+)/i);
   if (m) {
@@ -1966,7 +1962,6 @@ function parseDeviceInfo(line) {
     const info = mapQci(qci);
     el.textContent = `5QI ${qci} · ${info.desc}`;
     el.className = 'info-value ' + info.cls;
-    el.title = `5GS QoS\n原始响应: ${line}`;
   }
   m = line.match(/\+QNWCFG[:\s]*"qci"[,\s]*(\d+),(\d+)/i);
   if (m) {
@@ -1975,10 +1970,9 @@ function parseDeviceInfo(line) {
     const info = mapQci(qci);
     el.textContent = `QCI ${qci} · ${info.desc}`;
     el.className = 'info-value ' + info.cls;
-    el.title = `原始响应: ${line}`;
   }
 
-  /* ═══ ICCID ═══ */
+  /* ICCID */
   m = line.match(/[+*](?:QCCID|ICCID|CCID|ICID)[:\s]*"?([0-9A-Za-z]{18,22})"?/i);
   if (m) {
     setInfoValue('ICCID', m[1]);
@@ -2001,27 +1995,27 @@ function parseDeviceInfo(line) {
     }
   }
 
-  /* ═══ IMEI ═══ */
+  /* IMEI */
   m = line.match(/\+CGSN[:\s]+(\d{14,16})/i);
   if (m) setInfoValue('IMEI', m[1]);
   else if (/^\d{15}$/.test(line)) setInfoValue('IMEI', line);
 
-  /* ═══ SN ═══ */
+  /* SN */
   m = line.match(/[*+]MRD_SN[:\s]+([A-Za-z0-9]+)/i) || line.match(/\+SN[:\s]+([A-Za-z0-9]+)/i);
   if (m) setInfoValue('SN', m[1]);
 
-  /* ═══ 固件版本 ═══ */
+  /* 固件 */
   m = line.match(/\+CGMR[:\s]+"?([^"\r\n]+)"?/i) || line.match(/[+*]VER[:\s]+"?([^"\r\n]+)"?/i);
   if (m) setInfo('infoVER', m[1].trim());
 
-  /* ═══ MAC ═══ */
+  /* MAC */
   m = line.match(/[*+]MRD_WIFIID[:\s]+([0-9A-Fa-f:]{12,20})/i) ||
       line.match(/[+*]WIFIID[:\s]+([0-9A-Fa-f:]{12,20})/i) ||
       line.match(/[+*]MAC[:\s]+([0-9A-Fa-f:]{12,20})/i) ||
       line.match(/([0-9A-Fa-f]{2}[:\-]){5}[0-9A-Fa-f]{2}/);
   if (m) setInfo('infoMAC', m[1] || m[0]);
 
-  /* ═══ 信号质量 ═══ */
+  /* 信号 */
   m = line.match(/\+CSQ[:\s]*(\d+)/);
   if (m) {
     const csq = parseInt(m[1]);
@@ -2030,7 +2024,7 @@ function parseDeviceInfo(line) {
     el.className = 'info-value ' + (csq === 99 ? 'empty' : csq >= 10 ? 'ok' : 'warn');
   }
 
-  /* ═══ 运营商 ═══ */
+  /* 运营商 */
   m = line.match(/\+COPS[:\s]*(\d+)(?:,\s*(\d+)\s*,\s*(?:"([^"]*)"|(\d+)))?/i);
   if (m) {
     const mode = parseInt(m[1]);
@@ -2050,7 +2044,7 @@ function parseDeviceInfo(line) {
     }
   }
 
-  /* ═══ 卡槽 ═══ */
+  /* 卡槽 */
   m = line.match(/\+SimX[:\s]*(\d+)/i);
   if (m) {
     const slot = parseInt(m[1]);
@@ -2072,17 +2066,15 @@ function parseDeviceInfo(line) {
     }
   }
 
-  /* ═══ 4G 频段（ASR BANDIND）═══ */
+  /* 4G BANDIND */
   m = line.match(/[*+]BANDIND[:\s]*(.+)/i);
   if (m) {
     const parts = m[1].split(',').map(s => s.trim());
     let bandNum = null, act = null;
     if (parts.length >= 3 && (parts[0] === '0' || parts[0] === '1')) {
-      bandNum = parseInt(parts[1]);
-      act = parseInt(parts[2]);
+      bandNum = parseInt(parts[1]); act = parseInt(parts[2]);
     } else if (parts.length >= 2) {
-      bandNum = parseInt(parts[0]);
-      act = parseInt(parts[1]);
+      bandNum = parseInt(parts[0]); act = parseInt(parts[1]);
     } else if (parts.length === 1) {
       bandNum = parseInt(parts[0]);
     }
@@ -2145,9 +2137,7 @@ async function autoQueryDeviceInfo() {
   const cfg = SWITCH_CMD_MAP[chip];
   if (cfg) await queryAndCollect(cfg.query, 600);
 
-  // 网络查询（根据芯片平台）
   if (chip === 'qualcomm') {
-    termWrite('高通平台：查询 5G/4G 网络信息...', 'info');
     await queryAndCollect('AT+QNWINFO', 600);
     await queryAndCollect('AT+C5GREG?', 600);
     await queryAndCollect('AT+CREG?', 600);
@@ -2157,14 +2147,12 @@ async function autoQueryDeviceInfo() {
     await queryAndCollect('AT+CREG?', 600);
   }
 
-  // 4G 频段
   termWrite('尝试查询当前频段...', 'info');
   resp = await queryAndCollect('AT*BANDIND?', 600);
   if (/ERROR|^\s*$/m.test(resp) || !/BANDIND/i.test(resp)) {
     await queryAndCollect('AT+BANDIND?', 600);
   }
 
-  // QCI
   termWrite('尝试查询 QCI 等级...', 'info');
   resp = await queryAndCollect('AT+CGEQOSRDP', 800);
   if (!/CGEQOSRDP/i.test(resp) || /^\s*ERROR\s*$/im.test(resp)) {
@@ -2188,6 +2176,7 @@ function resetDeviceInfo() {
     el.textContent = '—';
     el.className = 'info-value empty';
     el.title = '';
+    el.removeAttribute('data-raw');
   });
   ['IMEI', 'SN', 'ICCID'].forEach(type => {
     state.rawValues[type] = '';
@@ -2198,6 +2187,8 @@ function resetDeviceInfo() {
     document.getElementById('eye' + type).style.display = 'none';
     document.getElementById('eye' + type).textContent = '👁️';
   });
+  // 重置 IP
+  state.ipRaw = { pubV4: '', pubV6: '', locV4: '', locV6: '' };
   setCloudStatus('unknown');
 }
 
@@ -2215,19 +2206,13 @@ function updateConnectionUI(connected, text) {
 
 function enableQuickButtons(enable) {
   document.querySelectorAll('.quick-btn').forEach(btn => { btn.disabled = !enable; });
-  updateBandButtons();
-  buildNetQueryGrid();  // 重新渲染网络查询区
+  renderNetQuerySection();
+  renderBandLockSection();
   document.getElementById('btnSpeedtest').disabled = !enable;
   document.getElementById('btnCheckCloud').disabled = !enable;
   document.getElementById('btnRemoveCloud').disabled = !enable;
   document.getElementById('btnRefreshIP').disabled = !enable;
   document.getElementById('chipPlatform').disabled = !enable;
-}
-
-function updateBandButtons() {
-  document.querySelectorAll('#bandGrid .quick-btn').forEach(btn => {
-    btn.disabled = !state.connected;
-  });
 }
 
 function getPlatformConfig() {
@@ -2435,8 +2420,8 @@ function showAdbGuide() {
 }
 
 /* 初始化 */
-buildBandGrid();
-buildNetQueryGrid();
+renderBandLockSection();
+renderNetQuerySection();
 updateCmdHints();
 setChipDetectStatus('idle');
 
@@ -2458,7 +2443,7 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-console.log('随身WiFi调试助手 v4.1 已加载 | 4G/5G 自动切换');
+console.log('随身WiFi调试助手 v4.2 已加载 | IP 自动加载 + 隐藏按钮，频段锁定区修复');
 </script>
 </body>
 </html>
