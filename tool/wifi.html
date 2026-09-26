@@ -188,6 +188,11 @@
   .info-value.operator-cu { color: #ff8a80; font-weight: 600; }
   .info-value.operator-ct { color: #52d0d0; font-weight: 600; }
   .info-value.operator-cbn { color: #a78bfa; font-weight: 600; }
+  .info-value.iccid { color: #e8c67a; font-weight: 600; }
+  .info-value.qci-high { color: #2ecc71; font-weight: 600; }
+  .info-value.qci-mid  { color: #f39c12; font-weight: 600; }
+  .info-value.qci-low  { color: #4f7cff; font-weight: 600; }
+  .info-value.qci-custom { color: #a78bfa; font-weight: 600; }
   .eye-btn {
     background: none; border: none; color: var(--text-dim);
     cursor: pointer; font-size: 13px; padding: 0 2px; line-height: 1;
@@ -280,7 +285,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v2.7</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v2.9</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -355,7 +360,7 @@
       <div class="terminal" id="terminal">
         <div class="line">
           <span class="prefix info">●</span>
-          <span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v2.7 已就绪。新增隐私保护，增强MAC和频段解析。</span>
+          <span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v2.9 已就绪。新增 QCI 服务质量等级查询与显示。</span>
         </div>
       </div>
       <div class="terminal-input-row">
@@ -444,6 +449,12 @@
           <div class="info-item"><span class="info-label">运营商</span><span class="info-value empty" id="infoOperator">—</span></div>
           <div class="info-item"><span class="info-label">当前卡槽</span><span class="info-value empty" id="infoCardSlot">—</span></div>
           <div class="info-item"><span class="info-label">当前频段</span><span class="info-value empty" id="infoBand">—</span></div>
+          <div class="info-item"><span class="info-label">QCI 等级</span><span class="info-value empty" id="infoQCI">—</span></div>
+          <div class="info-item">
+            <span class="info-label">ICCID</span>
+            <span class="info-value empty" id="infoICCID" data-raw="">—</span>
+            <button class="eye-btn" onclick="toggleSensitive('ICCID')" id="eyeICCID" title="显示/隐藏" style="display:none;">👁️</button>
+          </div>
           <div class="info-item">
             <span class="info-label">IMEI</span>
             <span class="info-value empty" id="infoIMEI" data-raw="">—</span>
@@ -463,6 +474,8 @@
       <div class="quick-section">
         <h4>信息查询</h4>
         <div class="quick-grid">
+          <button class="quick-btn" onclick="quickCmd('AT+CGEQOSRDP')" disabled>QCI 查询<span class="cmd-hint">AT+CGEQOSRDP</span></button>
+          <button class="quick-btn" onclick="quickCmd('AT+ICCID')" disabled>ICCID 查询<span class="cmd-hint">AT+ICCID</span></button>
           <button class="quick-btn" onclick="quickCmd('AT+CGSN')" disabled>IMEI 查询<span class="cmd-hint">AT+CGSN</span></button>
           <button class="quick-btn" onclick="quickCmd('AT*MRD_SN?')" disabled>SN 查询<span class="cmd-hint">AT*MRD_SN?</span></button>
           <button class="quick-btn" onclick="quickCmd('AT*MRD_WIFIID?')" disabled>MAC 查询<span class="cmd-hint">AT*MRD_WIFIID?</span></button>
@@ -538,8 +551,8 @@ const state = {
   mode: 'usb', connected: false, port: null, reader: null,
   readLoopActive: false, logBuffer: [], speedtestAbort: null,
   speedtesting: false, responseBuffer: '', detectedChip: null,
-  sensitiveHidden: { IMEI: true, SN: true }, // 默认隐藏
-  rawValues: { IMEI: '', SN: '' }
+  sensitiveHidden: { IMEI: true, SN: true, ICCID: true },
+  rawValues: { IMEI: '', SN: '', ICCID: '' }
 };
 
 const BAND_MAP = {
@@ -603,6 +616,34 @@ const OPERATOR_MAP = {
   '46012': { name: '中国电信', cls: 'operator-ct' },
   '46015': { name: '中国广电', cls: 'operator-cbn' },
 };
+
+/* QCI 等级映射 */
+const QCI_MAP = {
+  1:  { desc: 'VoLTE 语音',       cls: 'qci-high' },
+  2:  { desc: '会话视频',         cls: 'qci-high' },
+  3:  { desc: '实时游戏',         cls: 'qci-high' },
+  4:  { desc: '缓冲流媒体',       cls: 'qci-high' },
+  5:  { desc: 'IMS 信令',         cls: 'qci-mid' },
+  6:  { desc: '流媒体/TCP业务',   cls: 'qci-mid' },
+  7:  { desc: '语音/视频/游戏',   cls: 'qci-mid' },
+  8:  { desc: '普通上网数据',     cls: 'qci-low' },
+  9:  { desc: '普通上网数据',     cls: 'qci-low' },
+};
+
+function mapQci(qci) {
+  if (qci >= 128 && qci <= 254) return { desc: `运营商自定义 (${qci})`, cls: 'qci-custom' };
+  return QCI_MAP[qci] || { desc: `未知等级 (${qci})`, cls: '' };
+}
+
+function guessCarrierFromICCID(iccid) {
+  if (!iccid || iccid.length < 6) return null;
+  const prefix = iccid.substring(0, 6);
+  if (/^898600|^898602|^898607|^898608/.test(prefix)) return '中国移动';
+  if (/^898601|^898606|^898609/.test(prefix)) return '中国联通';
+  if (/^898603|^898605|^898611/.test(prefix)) return '中国电信';
+  if (/^898604/.test(prefix)) return '中国广电';
+  return null;
+}
 
 function mapOperatorName(name) {
   if (!name) return null;
@@ -905,15 +946,15 @@ async function autoDetectChip() {
 }
 
 /* ═══════════════════════════════════════════════════
-   ★ 隐私保护：隐藏/显示 IMEI 和 SN
+   隐私保护
    ═══════════════════════════════════════════════════ */
 function maskValue(val, type) {
   if (!val || val === '—' || val.length < 6) return val;
   if (type === 'IMEI') {
-    // 显示前4后4，中间打码
     return val.substring(0, 4) + '********' + val.substring(val.length - 4);
+  } else if (type === 'ICCID') {
+    return val.substring(0, 6) + '********' + val.substring(val.length - 4);
   } else {
-    // SN 显示前3后3
     return val.substring(0, 3) + '*****' + val.substring(val.length - 3);
   }
 }
@@ -942,13 +983,17 @@ function setInfoValue(type, rawValue) {
   const el = document.getElementById('info' + type);
   el.setAttribute('data-raw', rawValue);
   el.className = 'info-value ok';
+  if (type === 'ICCID') el.className = 'info-value iccid';
   const eyeBtn = document.getElementById('eye' + type);
   eyeBtn.style.display = 'inline-block';
-  // 默认隐藏
   if (state.sensitiveHidden[type]) {
     el.textContent = maskValue(rawValue, type);
   } else {
     el.textContent = rawValue;
+  }
+  if (type === 'ICCID') {
+    const carrier = guessCarrierFromICCID(rawValue);
+    el.title = carrier ? `ICCID: ${rawValue}\n推测运营商: ${carrier}` : `ICCID: ${rawValue}`;
   }
 }
 
@@ -969,8 +1014,53 @@ function setOperator(name, cls) {
 }
 
 function parseDeviceInfo(line) {
+  // ── QCI：解析 +CGEQOSRDP ──
+  // 格式: +CGEQOSRDP: 1,9,"",""
+  let m = line.match(/\+CGEQOSRDP[:\s]*(\d+),(\d+)/i);
+  if (m) {
+    const cid = parseInt(m[1]);
+    const qci = parseInt(m[2]);
+    const el = document.getElementById('infoQCI');
+    const info = mapQci(qci);
+    el.textContent = `QCI ${qci} · ${info.desc}`;
+    el.className = 'info-value ' + info.cls;
+    el.title = `原始响应: ${line}\nCID: ${cid}\nQCI: ${qci}\n${info.desc}`;
+  }
+
+  // ── QCI：解析 +QNWCFG="qci" ──
+  // 格式: +QNWCFG: "qci",1,9
+  m = line.match(/\+QNWCFG[:\s]*"qci"[,\s]*(\d+),(\d+)/i);
+  if (m) {
+    const cid = parseInt(m[1]);
+    const qci = parseInt(m[2]);
+    const el = document.getElementById('infoQCI');
+    const info = mapQci(qci);
+    el.textContent = `QCI ${qci} · ${info.desc}`;
+    el.className = 'info-value ' + info.cls;
+    el.title = `原始响应: ${line}\nCID: ${cid}\nQCI: ${qci}\n${info.desc}`;
+  }
+
+  // ── QCI：解析 +CGQREQ ──
+  m = line.match(/\+CGQREQ[:\s]*(\d+),(\d+)/i);
+  if (m && !document.getElementById('infoQCI').textContent.includes('QCI')) {
+    const qci = parseInt(m[2]);
+    const el = document.getElementById('infoQCI');
+    const info = mapQci(qci);
+    el.textContent = `QCI ${qci} · ${info.desc}`;
+    el.className = 'info-value ' + info.cls;
+    el.title = `原始响应: ${line}\nQCI: ${qci}`;
+  }
+
+  // ICCID
+  m = line.match(/[+*](?:ICCID|CCID)[:\s]+([0-9]{18,22})/i);
+  if (m) {
+    setInfoValue('ICCID', m[1]);
+  } else if (/^89\d{17,19}$/.test(line)) {
+    setInfoValue('ICCID', line);
+  }
+
   // IMEI
-  let m = line.match(/\+CGSN[:\s]+(\d{14,16})/i);
+  m = line.match(/\+CGSN[:\s]+(\d{14,16})/i);
   if (m) {
     setInfoValue('IMEI', m[1]);
   } else if (/^\d{15}$/.test(line)) {
@@ -995,7 +1085,7 @@ function parseDeviceInfo(line) {
     if (m) setInfo('infoVER', m[1].trim());
   }
 
-  // MAC：扩展匹配格式
+  // MAC
   m = line.match(/[*+]MRD_WIFIID[:\s]+([0-9A-Fa-f:]{12,20})/i) ||
       line.match(/[+*]WIFIID[:\s]+([0-9A-Fa-f:]{12,20})/i) ||
       line.match(/[+*]MAC[:\s]+([0-9A-Fa-f:]{12,20})/i) ||
@@ -1071,10 +1161,7 @@ function parseDeviceInfo(line) {
     }
   }
 
-  // 当前频段：优化解析，兼容多种返回格式
-  // 格式1: *BANDIND: 1,3,7 (使能,频段,接入技术)
-  // 格式2: *BANDIND: 3,7 (频段,接入技术)
-  // 格式3: *BANDIND: 3 (只有频段)
+  // 当前频段
   m = line.match(/[*+]BANDIND[:\s]*(.+)/i);
   if (m) {
     const parts = m[1].split(',').map(s => s.trim());
@@ -1082,8 +1169,6 @@ function parseDeviceInfo(line) {
     let act = null;
 
     if (parts.length >= 3) {
-      // 格式1：可能包含使能状态
-      // 如果第一个数字是 0 或 1，则第二个是频段
       if (parts[0] === '0' || parts[0] === '1') {
         bandNum = parseInt(parts[1]);
         act = parseInt(parts[2]);
@@ -1119,7 +1204,6 @@ function parseDeviceInfo(line) {
     }
   }
 
-  // 频段配置掩码（兜底显示）
   m = line.match(/[*+]BAND[:\s]*(?!IND)(.+)/i);
   if (m) {
     const bandEl = document.getElementById('infoBand');
@@ -1135,8 +1219,21 @@ async function autoQueryDeviceInfo() {
   termWrite('正在查询设备信息...', 'info');
   const chip = state.detectedChip || 'asr';
 
+  // ICCID
+  termWrite('尝试查询 ICCID...', 'info');
+  let resp = await queryAndCollect('AT+ICCID', 600);
+  if (!/ICCID|CCID|^89\d{17,}/im.test(resp)) {
+    resp = await queryAndCollect('AT+CCID', 600);
+    if (!/ICCID|CCID|^89\d{17,}/im.test(resp)) {
+      resp = await queryAndCollect('AT*ICCID?', 600);
+      if (!/ICCID|CCID|^89\d{17,}/im.test(resp)) {
+        await queryAndCollect('AT*MRD_ICCID?', 600);
+      }
+    }
+  }
+
   // IMEI
-  let resp = await queryAndCollect('AT+CGSN', 600);
+  resp = await queryAndCollect('AT+CGSN', 600);
   if (!/\+CGSN|^\d{15}/.test(resp)) {
     await queryAndCollect('AT*MRD_IMEI?', 600);
   }
@@ -1160,7 +1257,7 @@ async function autoQueryDeviceInfo() {
   await queryAndCollect('AT+COPS=3,0', 400);
   await queryAndCollect('AT+COPS?', 800);
 
-  // MAC：多指令尝试
+  // MAC
   termWrite('尝试查询 WiFi MAC 地址...', 'info');
   resp = await queryAndCollect('AT*MRD_WIFIID?', 600);
   if (!/WIFIID|MAC|[0-9A-Fa-f]{2}:/i.test(resp)) {
@@ -1174,7 +1271,7 @@ async function autoQueryDeviceInfo() {
   const cfg = SWITCH_CMD_MAP[chip];
   if (cfg) await queryAndCollect(cfg.query, 600);
 
-  // 当前实际频段：先试 ASR 私有指令，再试通用指令
+  // 当前实际频段
   termWrite('尝试查询当前频段...', 'info');
   resp = await queryAndCollect('AT*BANDIND?', 600);
   if (/ERROR|^\s*$/m.test(resp) || !/BANDIND/i.test(resp)) {
@@ -1185,18 +1282,37 @@ async function autoQueryDeviceInfo() {
     }
   }
 
+  // ── QCI：多指令尝试 ──
+  termWrite('尝试查询 QCI 等级...', 'info');
+  resp = await queryAndCollect('AT+CGEQOSRDP', 800);
+  if (!/CGEQOSRDP/i.test(resp) || /^\s*ERROR\s*$/im.test(resp)) {
+    termWrite('AT+CGEQOSRDP 无响应，尝试平台专用指令...', 'info');
+    if (chip === 'qualcomm') {
+      resp = await queryAndCollect('AT+QNWCFG="qci"', 800);
+      if (!/QNWCFG/i.test(resp) || /^\s*ERROR\s*$/im.test(resp)) {
+        termWrite('AT+QNWCFG="qci" 无响应（5G 模块可能不支持）。', 'info');
+      }
+    } else if (chip === 'unisoc') {
+      resp = await queryAndCollect('AT+CGQREQ?', 800);
+      if (!/CGQREQ/i.test(resp) || /^\s*ERROR\s*$/im.test(resp)) {
+        termWrite('AT+CGQREQ? 无响应。', 'info');
+      }
+    } else {
+      termWrite('该平台暂无可用的 QCI 查询指令。', 'info');
+    }
+  }
+
   termWrite('设备信息查询完成。', 'info');
 }
 
 function resetDeviceInfo() {
-  ['infoChip','infoOperator','infoCardSlot','infoBand','infoMAC','infoVER','infoCSQ'].forEach(id => {
+  ['infoChip','infoOperator','infoCardSlot','infoBand','infoQCI','infoMAC','infoVER','infoCSQ'].forEach(id => {
     const el = document.getElementById(id);
     el.textContent = '—';
     el.className = 'info-value empty';
     el.title = '';
   });
-  // 重置 IMEI 和 SN 并隐藏眼睛
-  ['IMEI', 'SN'].forEach(type => {
+  ['IMEI', 'SN', 'ICCID'].forEach(type => {
     state.rawValues[type] = '';
     state.sensitiveHidden[type] = true;
     const el = document.getElementById('info' + type);
@@ -1538,7 +1654,7 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-console.log('随身WiFi调试助手 v2.7 已加载 | 新增隐私保护，增强 MAC 和频段解析');
+console.log('随身WiFi调试助手 v2.9 已加载 | 新增 QCI 查询');
 </script>
 </body>
 </html>
