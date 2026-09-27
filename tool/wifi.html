@@ -198,7 +198,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v0.9.13</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v0.9.14</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -263,7 +263,7 @@
           <button class="btn btn-danger" id="btnDisconnectUSB" onclick="disconnect()" disabled>断开连接</button>
         </div>
         <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          <b style="color:var(--accent);">v0.9.13：</b>+ZBAND 按 p[1] 解析当前频段；URC 过滤；多候选频段回退。
+          <b style="color:var(--accent);">v0.9.14：</b>CESQ 精确解码（RSRP + RSRQ）；AMBR 兼容裸数据格式；ZBAND 当前频段修复。
         </div>
       </div>
       <div id="panelWiFi" class="hidden">
@@ -305,7 +305,7 @@
     </div>
     <div class="terminal-wrap">
       <div class="terminal" id="terminal">
-        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.13。</span></div>
+        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.14。</span></div>
       </div>
       <div class="terminal-input-row">
         <span class="prompt">AT&gt;</span>
@@ -801,7 +801,7 @@ const CAPABILITY_PROBES = {
     { cmd:'AT+SPLBAND?', pattern:/\+SPLBAND:/i, writeTest:null, platform:'unisoc' },
   ]},
   csq:{ label:'信号', candidates:[
-    { cmd:'AT+CESQ',   pattern:/\+CESQ:\s*(\d+)/i },
+    { cmd:'AT+CESQ',   pattern:/\+CESQ:\s*([\d,\s]+)/i },
     { cmd:'AT+CSQ',    pattern:/\+CSQ:\s*(\d+)/i },
     { cmd:'AT+ZCSQ?',  pattern:/\+ZCSQ:\s*(\d+)/i },
   ]},
@@ -926,7 +926,6 @@ const DECODERS = {
     if(!b||b<=0||b>=300)return null;
     return 'LTE B'+b;
   },
-  /* ★ +ZBAND: <type>,<band> —— 第二个值是频段号 */
   zbndCurrent:(r)=>{
     const p=r.split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n));
     if(!p.length)return null;
@@ -1357,7 +1356,6 @@ async function startReadLoop(){
           for(const line of lines){
             const trimmed=line.trim();
             if(!trimmed)continue;
-            /* ★ URC 先处理，避免刷屏 */
             if(handleURC(trimmed)){ state.responseBuffer+=trimmed+'\n'; continue; }
             termWrite(trimmed,'resp'); parseAnyResponse(trimmed); state.responseBuffer+=trimmed+'\n';
           }
@@ -1590,17 +1588,47 @@ function parseAnyResponse(line){
     if(m)setInfo('infoMAC',m[1].replace(/:/g,'').toUpperCase(),'ok');
   }
 
+  /* ★ CSQ（2G/3G 通用，单值） */
   m=line.match(/\+CSQ[:\s]*(\d+)/);
   if(m){
     const csq=parseInt(m[1]); const el=document.getElementById('infoCSQ');
     if(csq===99){ el.textContent='无信号'; el.className='info-value empty'; }
     else{ let lvl=csq>=20?'强':csq>=15?'良':csq>=10?'中':'弱'; el.textContent=`${csq} (等级 ${lvl})`; el.className='info-value '+(csq>=15?'ok':csq>=10?'warn':'err'); }
-  }else{
-    m=line.match(/\+CESQ[:\s]*(\d+)/);
+  } else {
+    /* ★★ CESQ（LTE 精确信号）
+       格式：+CESQ: <rxlev>,<ber>,<rscp>,<ecno>,<rsrq>,<rsrp>
+       - rxlev: GSM 用（0~63），99=未知
+       - ber:   99=未知
+       - rscp:  WCDMA 用，255=不可测
+       - ecno:  WCDMA 用，255=不可测
+       - rsrq:  LTE RSRQ 索引，0~34 有效 → (idx/2 - 19.5) dB，255=不可测
+       - rsrp:  LTE RSRP 索引，0~97 有效 → (-140 + idx) dBm，99/255=不可测 */
+    m=line.match(/\+CESQ[:\s]*([\d,\s]+)/i);
     if(m){
-      const rsrpIdx=parseInt(m[1]); const el=document.getElementById('infoCSQ');
-      if(rsrpIdx===99){ el.textContent='无信号'; el.className='info-value empty'; }
-      else{ const rsrp=-140+rsrpIdx; el.textContent=`RSRP ${rsrp} dBm`; el.className='info-value '+(rsrp>=-100?'ok':rsrp>=-110?'warn':'err'); }
+      const p=m[1].split(',').map(x=>parseInt(x.trim())).filter(n=>!isNaN(n));
+      const el=document.getElementById('infoCSQ');
+      const rsrqIdx = p[4];
+      const rsrpIdx = p[5];
+      let rsrpDbm = null, rsrqDb = null;
+      if(rsrpIdx!==undefined && rsrpIdx>=0 && rsrpIdx<=97) rsrpDbm = -140 + rsrpIdx;
+      if(rsrqIdx!==undefined && rsrqIdx>=0 && rsrqIdx<=34) rsrqDb = (rsrqIdx/2 - 19.5);
+
+      if(rsrpDbm!==null){
+        let lvl, cls;
+        if(rsrpDbm >= -85){ lvl='极佳'; cls='ok'; }
+        else if(rsrpDbm >= -95){ lvl='良好'; cls='ok'; }
+        else if(rsrpDbm >= -105){ lvl='中等'; cls='warn'; }
+        else if(rsrpDbm >= -115){ lvl='较差'; cls='warn'; }
+        else { lvl='极差'; cls='err'; }
+        let txt = `RSRP ${rsrpDbm} dBm`;
+        if(rsrqDb !== null) txt += ` · RSRQ ${rsrqDb.toFixed(1)} dB`;
+        txt += ` (${lvl})`;
+        el.textContent = txt;
+        el.className = 'info-value ' + cls;
+        el.title = `原始：+CESQ: ${m[1]}\nRSRP 索引 ${rsrpIdx} → ${rsrpDbm} dBm\nRSRQ 索引 ${rsrqIdx} → ${rsrqDb!==null?rsrqDb.toFixed(1)+' dB':'不可测'}`;
+      } else {
+        el.textContent='无信号'; el.className='info-value empty';
+      }
     }
   }
 
@@ -1637,7 +1665,6 @@ function parseAnyResponse(line){
     }
   }
 
-  /* ★ 锁定配置 +ZLTEBAND */
   m=line.match(/\+ZLTEBAND[:\s]*([\d,\s]+)/i);
   if(m){
     const el=document.getElementById('infoLockBand');
@@ -1648,7 +1675,6 @@ function parseAnyResponse(line){
       el.title='原始掩码: '+m[1];
     }
   }
-  /* ★ 支持频段 +ZLTEAMTBAND */
   m=line.match(/\+ZLTEAMTBAND[:\s]*([\d,\s]+)/i);
   if(m){
     const el=document.getElementById('infoSupportBand');
@@ -1658,7 +1684,7 @@ function parseAnyResponse(line){
       else{ el.textContent='—'; el.className='info-value empty'; }
     }
   }
-  /* ★ 当前真实频段：BANDIND / ZBANDIND 优先 */
+  /* 当前真实频段：BANDIND / ZBANDIND 优先 */
   let handled=false;
   m=line.match(/[*+](?:BANDIND|ZBANDIND)[:\s]*([\d,\s]+)/i);
   if(m){
@@ -1673,7 +1699,6 @@ function parseAnyResponse(line){
       handled=true;
     }
   }
-  /* ★ +ZBAND: <type>,<band> —— 第二个值是频段号 */
   if(!handled){
     m=line.match(/\+ZBAND[:\s]*([\d,\s]+)/i);
     if(m){
@@ -1689,7 +1714,6 @@ function parseAnyResponse(line){
       }
     }
   }
-  /* ★ CPSI / ZCELLINFO 回退 */
   if(!handled){
     m=line.match(/\+CPSI[:\s]*([^\r\n]+)/i);
     if(m){
@@ -1718,6 +1742,7 @@ function parseAnyResponse(line){
     }
   }
 
+  /* ★ QCI + AMBR —— 兼容带引号 / 裸数据两种格式 */
   m=line.match(/\+CGEQOSRDP[:\s]*(\d+),(\d+)/i);
   if(m){
     const qci=parseInt(m[2]);
@@ -1725,10 +1750,23 @@ function parseAnyResponse(line){
     const info=mapQci(qci);
     el.textContent=`QCI ${qci} · ${info.desc}`;
     el.className='info-value '+info.cls;
-    const ambrMatch=line.match(/"(\d+),(\d+)"/);
+
+    let dlAmbr=null, ulAmbr=null;
+    /* 格式1：带引号 "300000,75000" */
+    let ambrMatch = line.match(/"(\d+),(\d+)"/);
     if(ambrMatch){
-      const dlAmbr=parseInt(ambrMatch[1]);
-      const ulAmbr=parseInt(ambrMatch[2]);
+      dlAmbr=parseInt(ambrMatch[1]);
+      ulAmbr=parseInt(ambrMatch[2]);
+    } else {
+      /* 格式2：裸数据 2,9,150000,75000 —— 末尾两个大数字是 AMBR */
+      const tail = line.match(/,\s*(\d{4,}),(\d{4,})\s*$/);
+      if(tail){
+        dlAmbr=parseInt(tail[1]);
+        ulAmbr=parseInt(tail[2]);
+      }
+    }
+
+    if(dlAmbr!==null && ulAmbr!==null){
       const dlMbps=(dlAmbr/1000).toFixed(1);
       const ulMbps=(ulAmbr/1000).toFixed(1);
       const ambrEl=document.getElementById('infoAMBR');
@@ -2753,8 +2791,8 @@ window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close
   setCloudOpStatus(null,null);
   renderRightPanel();
 
-  termWrite('随身WiFi调试助手 v0.9.13 · ZBAND 当前频段修复版','info');
-  termWrite('v0.9.13：+ZBAND 按 p[1] 解析当前频段；URC 过滤；当前频段多候选回退','info');
+  termWrite('随身WiFi调试助手 v0.9.14 · CESQ 精确解码 + AMBR 裸数据版','info');
+  termWrite('v0.9.14：CESQ 解析 RSRP+RSRQ；AMBR 兼容带引号/裸数据两种格式；ZBAND 当前频段；URC 过滤','info');
 
   if(!('serial' in navigator)){
     termWrite('⚠ 当前浏览器不支持 Web Serial API，请使用 Chrome / Edge 89+ 桌面版。','err');
