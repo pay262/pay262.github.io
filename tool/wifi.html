@@ -198,7 +198,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v0.9.16</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v0.9.17</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -263,7 +263,7 @@
           <button class="btn btn-danger" id="btnDisconnectUSB" onclick="disconnect()" disabled>断开连接</button>
         </div>
         <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          <b style="color:var(--accent);">v0.9.16：</b>ASR 锁频完整修复（4G 9字段 / 5G 参数修正）；URC 隔离；真bug 修复。
+          <b style="color:var(--accent);">v0.9.17：</b>ASR1803 支持频段 9 字段解析（FDD/TDD 掩码）。
         </div>
       </div>
       <div id="panelWiFi" class="hidden">
@@ -283,7 +283,7 @@
             <option value="192.168.43.1">192.168.43.1 (GlocalMe/Skyroam)</option>
             <option value="192.168.21.1">192.168.21.1 (联通部分型号)</option>
             <option value="10.10.10.254">10.10.10.254 (Skyroam部分型号)</option>
-            <option value="10.10.10.100.254">10.10.100.254 (部分工业设备)</option>
+            <option value="10.10.100.254">10.10.100.254 (部分工业设备)</option>
             <option value="192.168.5.1">192.168.5.1 (中兴/小米组网模式)</option>
             <option value="192.168.123.254">192.168.123.254 (其他常见)</option>
           </datalist>
@@ -305,7 +305,7 @@
     </div>
     <div class="terminal-wrap">
       <div class="terminal" id="terminal">
-        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.16。</span></div>
+        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.17。</span></div>
       </div>
       <div class="terminal-input-row">
         <span class="prompt">AT&gt;</span>
@@ -569,7 +569,7 @@
     <h3>去云控 / 解除限速</h3>
     <div class="modal-sub">分三层级，按可靠性从高到低。建议从上到下依次尝试。</div>
     <div class="warn-box">
-      <b>⚠ 重要说明：</b>本工具只能尝试清除设备本地的云控脚本，**无法解除厂商/运营商后台侧的云控订阅或限速策略**。若后台已下发限速，本操作无效。
+      <b>⚠ 重要说明：</b>本工具只能尝试清除设备本地的云控脚本，无法解除厂商/运营商后台侧的云控订阅或限速策略。
     </div>
     <div class="cloud-layer" id="cloudLayer1">
       <h5>① AT 层指令 <span class="badge-tag blue" style="font-size:9px;">最简单</span></h5>
@@ -667,10 +667,12 @@ const CN_4G_BANDS = [
   { label:'B34',band:34 },{ label:'B38',band:38 },{ label:'B39',band:39 },{ label:'B40',band:40 },{ label:'B41',band:41 },
 ];
 
-/* ★ v0.9.16：ASR 4G 恢复到可写（9字段格式 + 工厂前置）
-   格式: AT*BAND=<LTE_FDD>,<LTE_TDD>,<WCDMA>,<GSM>,<PREF>,<lock>,<prio>,<save>,<rsv>
-   FDD掩码: B1=1,B3=2,B5=16,B7=32,B8=8,B20=128
-   TDD掩码: B38=2,B39=4,B40=8,B41=64 */
+/* ★ ASR1803 掩码位表（官方定义）
+   FDD: B1=1, B3=2, B5=16, B7=32, B8=8, B20=128
+   TDD: B38=2, B39=4, B40=8, B41=64 */
+const ASR_FDD_MASK = { 1:1, 3:2, 5:16, 7:32, 8:8, 20:128 };
+const ASR_TDD_MASK = { 38:2, 39:4, 40:8, 41:64 };
+
 const BAND_LOCK_CONFIG = {
   zxic: {
     mode:'4g', supportWrite:true,
@@ -694,7 +696,7 @@ const BAND_LOCK_CONFIG = {
   },
   asr4g: {
     mode:'4g', supportWrite:true,
-    tip:'<b>ASR1803 锁频（9字段）：</b><code>AT*BAND=&lt;FDD&gt;,&lt;TDD&gt;,0,0,0,0,2,2,0</code><br>工具会先发 <code>AT*PROD=1</code> 进入工厂模式，写完退出。<br>FDD: B1=1,B3=2,B5=16,B7=32,B8=8,B20=128<br>TDD: B38=2,B39=4,B40=8,B41=64<br>例：锁B3+B8 = <code>AT*BAND=10,0,0,0,0,0,2,2,0</code>',
+    tip:'<b>ASR1803 锁频（9字段）：</b><code>AT*BAND=&lt;FDD&gt;,&lt;TDD&gt;,0,0,0,0,2,2,0</code><br>工具会先发 <code>AT*PROD=1</code> 进入工厂模式，写完退出。<br>FDD 掩码：B1=1,B3=2,B5=16,B7=32,B8=8,B20=128<br>TDD 掩码：B38=2,B39=4,B40=8,B41=64<br>例：锁 B3+B8 = <code>AT*BAND=10,0,0,0,0,0,2,2,0</code>',
     preCmd:'AT*PROD=1',
     postCmd:'AT*PROD=0',
     queryCmd:'AT*BAND?',
@@ -704,28 +706,24 @@ const BAND_LOCK_CONFIG = {
       {label:'B38',band:38},{label:'B39',band:39},{label:'B40',band:40},{label:'B41',band:41},
     ],
     build4g:(band)=>{
-      const fddMap={1:1,3:2,5:16,7:32,8:8,20:128};
-      const tddMap={38:2,39:4,40:8,41:64};
       let fdd=0, tdd=0;
-      if(fddMap[band]) fdd=fddMap[band];
-      else if(tddMap[band]) tdd=tddMap[band];
+      if(ASR_FDD_MASK[band]) fdd=ASR_FDD_MASK[band];
+      else if(ASR_TDD_MASK[band]) tdd=ASR_TDD_MASK[band];
       else return null;
       return `AT*BAND=${fdd},${tdd},0,0,0,0,2,2,0`;
     },
     build4gMulti:(bands)=>{
-      const fddMap={1:1,3:2,5:16,7:32,8:8,20:128};
-      const tddMap={38:2,39:4,40:8,41:64};
       let fdd=0, tdd=0;
       bands.forEach(b=>{
-        if(fddMap[b]) fdd |= fddMap[b];
-        else if(tddMap[b]) tdd |= tddMap[b];
+        if(ASR_FDD_MASK[b]) fdd |= ASR_FDD_MASK[b];
+        else if(ASR_TDD_MASK[b]) tdd |= ASR_TDD_MASK[b];
       });
       return `AT*BAND=${fdd},${tdd},0,0,0,0,2,2,0`;
     },
   },
   asr5g: {
     mode:'4g5g', supportWrite:true,
-    tip:'<b>ASR 5G 锁频：</b>4G 用 <code>AT*BAND=&lt;LTE_mask&gt;,0,0,2,2,0,0</code>；5G 用 <code>AT+QNWPREFCFG="nr5g_band",&lt;N&gt;</code>。<br>若指令无效，可尝试原 <code>AT*BAND=,0,&lt;mask&gt;,0,2,2,0</code> 格式。',
+    tip:'<b>ASR 5G 锁频：</b>4G 用 <code>AT*BAND=&lt;LTE_mask&gt;,0,0,2,2,0,0</code>；5G 用 <code>AT+QNWPREFCFG="nr5g_band",&lt;N&gt;</code>。',
     unlock:{ cmd:'AT*BAND=0,0,0,2,2,0,0', label:'解除 4G 锁频' },
     unlock5g:{ cmd:'AT+QNWPREFCFG="nr5g_band",0', label:'解除 5G 锁频' },
     bands4g:CN_4G_BANDS.slice(0,4),
@@ -765,7 +763,6 @@ const BAND_LOCK_CONFIG = {
   },
 };
 
-/* ★ v0.9.16：工厂模式候选新增 AT*PROD=2 */
 const FACTORY_CANDIDATES = {
   enter: [
     { cmd:'AT*PROD=1',    label:'通用 *PROD' },
@@ -778,7 +775,6 @@ const FACTORY_CANDIDATES = {
   ],
   exit: [
     { cmd:'AT*PROD=0',    label:'通用 *PROD' },
-    { cmd:'AT*PROD=0',    label:'ASR 高权限PROD' },
     { cmd:'AT+PROD=0',    label:'通用 +PROD' },
     { cmd:'AT+QPROD=0',   label:'高通 QPROD' },
     { cmd:'AT+SPPROD=0',  label:'紫光展锐 SPPROD' },
@@ -849,9 +845,11 @@ const CAPABILITY_PROBES = {
     { cmd:'AT+CPSI?',       pattern:/\+CPSI:\s*([^\r\n]+)/i,       decoder:'cpsiBand' },
     { cmd:'AT+ZCELLINFO?',  pattern:/\+ZCELLINFO:\s*([^\r\n]+)/i,  decoder:'zcellinfoBand' },
   ]},
+  /* ★ v0.9.17：支持频段候选新增 ASR1803 的 AT*BAND?（9字段解析） */
   supportBand:{ label:'支持频段', candidates:[
     { cmd:'AT+ZLTEAMTBAND?', pattern:/\+ZLTEAMTBAND:\s*([\d,\s]+)/i, decoder:'zband' },
     { cmd:'AT+ZLTEBAND?',    pattern:/\+ZLTEBAND:\s*([\d,\s]+)/i,    decoder:'zband' },
+    { cmd:'AT*BAND?',        pattern:/[*]BAND[:\s]+([\d,\s]+)/i,     decoder:'asrBandText' },
   ]},
   cardSlot:{ label:'当前卡槽', candidates:[
     { cmd:'AT+ZCARDSWITCH?', pattern:/\+ZCARDSWITCH:\s*(\d+)/i, decoder:'zcardswitch' },
@@ -908,7 +906,6 @@ const WRITE_SN_CANDIDATES = {
   mtk:{ enter:null, write:(v)=>`AT*MRD_SN=W,0,01JAN1970,${v}`, exit:null, label:'联发科（MRD_SN）' },
 };
 
-/* ★ v0.9.16：切卡新增 AT^CARDSEL */
 const SIM_SWITCH_CANDIDATES = {
   external:[
     { cmd:'AT+ZCARDSWITCH=0', repeat:5, label:'中兴微' },
@@ -966,7 +963,6 @@ const CLOUD_REMOVE_AT = {
   mtk:      ['AT*PROD=1','AT+ECLOUD=0','AT+ECLOUDSWITCH=0','AT*PROD=0','AT+RESET'],
 };
 
-/* ★ Air720 保留：合宙 Air720 系列 = ASR1803 方案，不是高通 */
 const CHIP_IDENTIFIERS = [
   { id:'zxic', name:'中兴微', patterns:[/ZXIC/i,/ZX2975/i,/中兴微/i,/ZCARDSWITCH/i,/ZICCID/i,/ZLTEBAND/i,/ZLTEAMTBAND/i,/XFNJ.*MF761W/i,/7520V3/i] },
   { id:'asr4g', name:'ASR 4G', patterns:[/ASR,\s*Inc/i,/^ASR$/im,/Nezha/i,/ASR180/i,/ASR8861/i,/Air720/i] },
@@ -976,7 +972,6 @@ const CHIP_IDENTIFIERS = [
   { id:'mtk', name:'联发科', patterns:[/MediaTek/i,/MT27\d+/i,/MTK/i] },
 ];
 
-/* ★ v0.9.16：zband 加长度校验，避免 undefined >> k 产生 NaN */
 const DECODERS = {
   crsm:(h)=>{
     if(!h)return null;
@@ -1021,7 +1016,7 @@ const DECODERS = {
     if(p.length===1)return 'LTE B'+p[0];
     return null;
   },
-  /* ★ v0.9.16：加长度校验 */
+  /* 中兴微 zband 掩码：8 字节有效，第 9 位标志 */
   zband:(r)=>{
     const p=r.split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n));
     if(p.length<8)return [];
@@ -1037,6 +1032,25 @@ const DECODERS = {
   zbandText:(r)=>{
     const bs=DECODERS.zband(r);
     return bs.length?'LTE '+bs.map(n=>'B'+n).join(' '):null;
+  },
+  /* ★ ASR1803 *BAND 9字段解析
+     格式: <LTE_FDD>,<LTE_TDD>,<WCDMA>,<GSM>,<PREF>,<lock_mode>,<scan_prio>,<save_flag>,<rsv> */
+  asrBandParse:(r)=>{
+    const p=r.split(',').map(s=>parseInt(s.trim()));
+    if(p.length<9)return null;
+    const fdd=p[0], tdd=p[1], wcdma=p[2], gsm=p[3], pref=p[4], lockMode=p[5], scanPrio=p[6], saveFlag=p[7], rsv=p[8];
+    const bands=[];
+    /* LTE FDD */
+    Object.keys(ASR_FDD_MASK).forEach(b=>{ if(fdd & ASR_FDD_MASK[b]) bands.push(parseInt(b)); });
+    /* LTE TDD */
+    Object.keys(ASR_TDD_MASK).forEach(b=>{ if(tdd & ASR_TDD_MASK[b]) bands.push(parseInt(b)); });
+    return { bands, fdd, tdd, wcdma, gsm, pref, lockMode, scanPrio, saveFlag, rsv };
+  },
+  /* ★ 用于"支持频段"字段：返回 LTE 频段列表文本 */
+  asrBandText:(r)=>{
+    const res=DECODERS.asrBandParse(r);
+    if(!res||!res.bands.length)return null;
+    return res.bands.map(n=>'B'+n).join(' ');
   },
   zcardswitch:(v)=>{ const n=parseInt(v); return n===0?'外置卡':n===1?'内置卡':'模式 '+n; },
   cardmode_asr:(v)=>{ const n=parseInt(v); return n===0?'内置卡':n===1?'外置卡':'模式 '+n; },
@@ -1069,7 +1083,6 @@ function updateNetFromURC(st){
   if(!i||!v||!s)return;
   if(st===4){ i.className='icon unknown'; i.textContent='?'; v.className='value unknown'; v.textContent='无服务'; s.textContent='搜索中…'; }
 }
-/* ★ v0.9.16：URC 处理返回 true 时不再放入 responseBuffer（由调用方处理） */
 function handleURC(line){
   for(const p of URC_PATTERNS){
     const m=line.match(p.re);
@@ -1149,19 +1162,16 @@ function switchMode(mode){
   document.getElementById('panelUSB').classList.toggle('hidden',mode!=='usb');
   document.getElementById('panelWiFi').classList.toggle('hidden',mode!=='wifi');
 }
-/* ★ v0.9.16：isErrorResponse 精确匹配行首的 ERROR，不误判日志里的 "error" 单词 */
 function isErrorResponse(r){
   if(!r)return true;
   const t=r.trim();
   if(t==='')return true;
-  /* 精确匹配：整行就是 ERROR */
   if(/^ERROR\s*$/im.test(t))return true;
   if(/\r?\nERROR\s*(\r?\n|$)/i.test(t))return true;
   if(/\+CME ERROR/i.test(t))return true;
   if(/\+CMS ERROR/i.test(t))return true;
   return false;
 }
-/* ★ v0.9.16：isValidResponse 优先判断错误 */
 function isValidResponse(r){
   if(!r)return false;
   if(isErrorResponse(r))return false;
@@ -1369,7 +1379,6 @@ function renderBandLockSection(){
   tip.innerHTML=cfg.tip;
 }
 
-/* ★ v0.9.16：带工厂模式前置的锁频发送 */
 async function sendBandCmd(cmd, cfg){
   if(!state.connected){ toast('请先连接','error'); return; }
   setBandStatus(`准备发送：${cmd}`,'warn');
@@ -1413,7 +1422,6 @@ function openCustomBandModal(){
   setTimeout(()=>input.focus(),100);
 }
 function closeCustomBandModal(){ document.getElementById('customBandModal').classList.remove('show'); }
-/* ★ v0.9.16：剥离 B/n 前缀 */
 function parseCustomBands(){
   const raw=document.getElementById('customBandInput').value.trim();
   if(!raw)return [];
@@ -1479,7 +1487,6 @@ async function connectUSB(){
     else{ termWrite(`连接失败: ${err.message}`,'err'); toast(`连接失败`,'error',5000); }
   }
 }
-/* ★ v0.9.16：URC 命中后不再污染 responseBuffer */
 async function startReadLoop(){
   if(!state.port||!state.port.readable)return;
   state.readLoopActive=true;
@@ -1497,7 +1504,7 @@ async function startReadLoop(){
           for(const line of lines){
             const trimmed=line.trim();
             if(!trimmed)continue;
-            if(handleURC(trimmed)){ continue; }  /* ★ URC 不进 responseBuffer */
+            if(handleURC(trimmed)){ continue; }
             termWrite(trimmed,'resp'); parseAnyResponse(trimmed); state.responseBuffer+=trimmed+'\n';
           }
         }
@@ -1797,6 +1804,7 @@ function parseAnyResponse(line){
     }
   }
 
+  /* ★ 中兴微锁频配置 */
   m=line.match(/\+ZLTEBAND[:\s]*([\d,\s]+)/i);
   if(m){
     const el=document.getElementById('infoLockBand');
@@ -1807,6 +1815,7 @@ function parseAnyResponse(line){
       el.title='原始掩码: '+m[1];
     }
   }
+  /* ★ 中兴微支持频段 */
   m=line.match(/\+ZLTEAMTBAND[:\s]*([\d,\s]+)/i);
   if(m){
     const el=document.getElementById('infoSupportBand');
@@ -1816,6 +1825,34 @@ function parseAnyResponse(line){
       else{ el.textContent='—'; el.className='info-value empty'; }
     }
   }
+
+  /* ★ ASR1803 *BAND? 9字段解析（区分于 +ZLTEBAND / +ZBAND 中兴微格式） */
+  m=line.match(/^\*BAND[:\s]+([\d,\s]+)\s*$/im);
+  if(m){
+    const res=DECODERS.asrBandParse(m[1]);
+    if(res){
+      /* 支持频段：从 FDD + TDD 掩码解析 LTE 频段列表 */
+      const elSup=document.getElementById('infoSupportBand');
+      if(elSup && res.bands.length){
+        elSup.textContent=res.bands.map(n=>'B'+n).join(' ');
+        elSup.className='info-value ok';
+        elSup.title=`ASR *BAND 原始：${m[1].trim()}\nFDD 掩码=${res.fdd} TDD 掩码=${res.tdd}\nWCDMA 掩码=${res.wcdma} GSM 掩码=${res.gsm}\n优先掩码=${res.pref} lock=${res.lockMode} prio=${res.scanPrio} save=${res.saveFlag}`;
+      }
+      /* 锁定配置：从 lockMode 判断 */
+      const elLock=document.getElementById('infoLockBand');
+      if(elLock){
+        if(res.lockMode===0){
+          elLock.textContent='未锁定（自动搜网）';
+          elLock.className='info-value empty';
+        } else {
+          elLock.textContent='锁定 '+res.bands.map(n=>'B'+n).join(' ');
+          elLock.className='info-value warn';
+        }
+        elLock.title=`lock_mode=${res.lockMode}（0=自动搜网，非0=锁定指定频段）`;
+      }
+    }
+  }
+
   let handled=false;
   m=line.match(/[*+](?:BANDIND|ZBANDIND)[:\s]*([\d,\s]+)/i);
   if(m){
@@ -1967,7 +2004,6 @@ async function switchCard(direction){
   toast(`切卡指令已发送（${success.label}）`,'success',5000);
   termWrite(`✓ 使用的指令：${success.cmd}`,'resp');
 
-  /* ★ v0.9.16：切卡后循环重试查询卡槽（最多 5 次，间隔 3 秒） */
   termWrite('切卡后等待设备重连，开始循环验证...','info');
   let verify={ verified:null, reason:'未执行' };
   for(let attempt=1; attempt<=5; attempt++){
@@ -2980,8 +3016,8 @@ window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close
   setCloudOpStatus(null,null);
   renderRightPanel();
 
-  termWrite('随身WiFi调试助手 v0.9.16 · ASR 全面修复版','info');
-  termWrite('v0.9.16：ASR 4G 9字段锁频；ASR 5G 参数修正；URC 隔离；Air720 保留；加 AT*PROD=2 / AT^CARDSEL 候选；切卡循环验证；zband 越界校验','info');
+  termWrite('随身WiFi调试助手 v0.9.17 · ASR1803 支持频段解析版','info');
+  termWrite('v0.9.17：新增 ASR1803 9字段 *BAND 解析，FDD/TDD 掩码分别展开为频段列表','info');
 
   if(!('serial' in navigator)){
     termWrite('⚠ 当前浏览器不支持 Web Serial API，请使用 Chrome / Edge 89+ 桌面版。','err');
