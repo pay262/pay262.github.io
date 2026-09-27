@@ -198,7 +198,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v0.9.12</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v0.9.13</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -263,7 +263,7 @@
           <button class="btn btn-danger" id="btnDisconnectUSB" onclick="disconnect()" disabled>断开连接</button>
         </div>
         <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          <b style="color:var(--accent);">v0.9.12：</b>URC 过滤（CREG/CEREG/ZLTENOCELL），当前频段多候选回退。
+          <b style="color:var(--accent);">v0.9.13：</b>+ZBAND 按 p[1] 解析当前频段；URC 过滤；多候选频段回退。
         </div>
       </div>
       <div id="panelWiFi" class="hidden">
@@ -305,7 +305,7 @@
     </div>
     <div class="terminal-wrap">
       <div class="terminal" id="terminal">
-        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.12。</span></div>
+        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.13。</span></div>
       </div>
       <div class="terminal-input-row">
         <span class="prompt">AT&gt;</span>
@@ -778,9 +778,9 @@ const CAPABILITY_PROBES = {
   band:{ label:'当前频段', candidates:[
     { cmd:'AT*BANDIND?',    pattern:/[*]BANDIND:\s*([\d,\s]+)/i,    decoder:'bandind' },
     { cmd:'AT+ZBANDIND?',   pattern:/\+ZBANDIND:\s*([\d,\s]+)/i,   decoder:'bandind' },
+    { cmd:'AT+ZBAND?',      pattern:/\+ZBAND:\s*([\d,\s]+)/i,      decoder:'zbndCurrent' },
     { cmd:'AT+CPSI?',       pattern:/\+CPSI:\s*([^\r\n]+)/i,       decoder:'cpsiBand' },
     { cmd:'AT+ZCELLINFO?',  pattern:/\+ZCELLINFO:\s*([^\r\n]+)/i,  decoder:'zcellinfoBand' },
-    { cmd:'AT+ZBAND?',      pattern:/\+ZBAND:\s*([\d,\s]+)/i,      decoder:'bandind' },
   ]},
   supportBand:{ label:'支持频段', candidates:[
     { cmd:'AT+ZLTEAMTBAND?', pattern:/\+ZLTEAMTBAND:\s*([\d,\s]+)/i, decoder:'zband' },
@@ -926,6 +926,14 @@ const DECODERS = {
     if(!b||b<=0||b>=300)return null;
     return 'LTE B'+b;
   },
+  /* ★ +ZBAND: <type>,<band> —— 第二个值是频段号 */
+  zbndCurrent:(r)=>{
+    const p=r.split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n));
+    if(!p.length)return null;
+    const b = p.length>=2 ? p[1] : p[0];
+    if(b<1 || b>64)return null;
+    return 'LTE B'+b;
+  },
   cpsiBand:(s)=>{
     const str=(s||'').trim();
     let m=str.match(/BAND(\d+)/i);
@@ -973,7 +981,7 @@ const FALLBACK_CHIPS = [
   { id:'mtk', name:'联发科', detection:'MT' },
 ];
 
-/* ★ URC 过滤器（避免 +CREG / +CEREG / +ZLTENOCELL 刷屏） */
+/* ★ URC 过滤器 */
 const URC_PATTERNS = [
   { re:/^\+ZLTENOCELL\s*$/i,                    handler:'nocell' },
   { re:/^\+CREG:\s*(\d+)/i,                     handler:'creg' },
@@ -1650,7 +1658,8 @@ function parseAnyResponse(line){
       else{ el.textContent='—'; el.className='info-value empty'; }
     }
   }
-  /* ★ 当前真实频段（多源） */
+  /* ★ 当前真实频段：BANDIND / ZBANDIND 优先 */
+  let handled=false;
   m=line.match(/[*+](?:BANDIND|ZBANDIND)[:\s]*([\d,\s]+)/i);
   if(m){
     const el=document.getElementById('infoBand');
@@ -1661,12 +1670,27 @@ function parseAnyResponse(line){
       const bm=v.match(/B(\d+)/);
       state.activeBands = bm ? [parseInt(bm[1])] : [];
       if(state.connected && state.detectedChipId) renderBandLockSection();
-    }else{
-      el.textContent='未注册'; el.className='info-value warn';
-      state.activeBands = [];
+      handled=true;
     }
-  }else{
-    /* CPSI / ZCELLINFO 回退 */
+  }
+  /* ★ +ZBAND: <type>,<band> —— 第二个值是频段号 */
+  if(!handled){
+    m=line.match(/\+ZBAND[:\s]*([\d,\s]+)/i);
+    if(m){
+      const el=document.getElementById('infoBand');
+      const v=DECODERS.zbndCurrent(m[1]);
+      if(v){
+        el.textContent=v;
+        el.className='info-value net4g';
+        const bm=v.match(/B(\d+)/);
+        state.activeBands = bm ? [parseInt(bm[1])] : [];
+        if(state.connected && state.detectedChipId) renderBandLockSection();
+        handled=true;
+      }
+    }
+  }
+  /* ★ CPSI / ZCELLINFO 回退 */
+  if(!handled){
     m=line.match(/\+CPSI[:\s]*([^\r\n]+)/i);
     if(m){
       const v=DECODERS.cpsiBand(m[1]);
@@ -1676,18 +1700,20 @@ function parseAnyResponse(line){
         const bm=v.match(/B(\d+)/);
         state.activeBands = bm ? [parseInt(bm[1])] : [];
         if(state.connected && state.detectedChipId) renderBandLockSection();
+        handled=true;
       }
-    }else{
-      m=line.match(/\+ZCELLINFO[:\s]*([^\r\n]+)/i);
-      if(m){
-        const v=DECODERS.zcellinfoBand(m[1]);
-        if(v){
-          const el=document.getElementById('infoBand');
-          el.textContent=v; el.className='info-value net4g';
-          const bm=v.match(/B(\d+)/);
-          state.activeBands = bm ? [parseInt(bm[1])] : [];
-          if(state.connected && state.detectedChipId) renderBandLockSection();
-        }
+    }
+  }
+  if(!handled){
+    m=line.match(/\+ZCELLINFO[:\s]*([^\r\n]+)/i);
+    if(m){
+      const v=DECODERS.zcellinfoBand(m[1]);
+      if(v){
+        const el=document.getElementById('infoBand');
+        el.textContent=v; el.className='info-value net4g';
+        const bm=v.match(/B(\d+)/);
+        state.activeBands = bm ? [parseInt(bm[1])] : [];
+        if(state.connected && state.detectedChipId) renderBandLockSection();
       }
     }
   }
@@ -2727,8 +2753,8 @@ window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close
   setCloudOpStatus(null,null);
   renderRightPanel();
 
-  termWrite('随身WiFi调试助手 v0.9.12 · URC 过滤 + 频段多源版','info');
-  termWrite('v0.9.12：过滤 +CREG/+CEREG/+ZLTENOCELL 刷屏；当前频段支持 AT*BANDIND? / AT+ZBANDIND? / AT+CPSI? / AT+ZCELLINFO? 多候选','info');
+  termWrite('随身WiFi调试助手 v0.9.13 · ZBAND 当前频段修复版','info');
+  termWrite('v0.9.13：+ZBAND 按 p[1] 解析当前频段；URC 过滤；当前频段多候选回退','info');
 
   if(!('serial' in navigator)){
     termWrite('⚠ 当前浏览器不支持 Web Serial API，请使用 Chrome / Edge 89+ 桌面版。','err');
