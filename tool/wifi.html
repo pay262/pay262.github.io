@@ -198,7 +198,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v0.9.14</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v0.9.15</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -263,7 +263,7 @@
           <button class="btn btn-danger" id="btnDisconnectUSB" onclick="disconnect()" disabled>断开连接</button>
         </div>
         <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          <b style="color:var(--accent);">v0.9.14：</b>CESQ 精确解码（RSRP + RSRQ）；AMBR 兼容裸数据格式；ZBAND 当前频段修复。
+          <b style="color:var(--accent);">v0.9.15：</b>常用操作新增工厂模式按钮；ASR 4G 锁频改只读模式。
         </div>
       </div>
       <div id="panelWiFi" class="hidden">
@@ -305,7 +305,7 @@
     </div>
     <div class="terminal-wrap">
       <div class="terminal" id="terminal">
-        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.14。</span></div>
+        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.15。</span></div>
       </div>
       <div class="terminal-input-row">
         <span class="prompt">AT&gt;</span>
@@ -497,12 +497,25 @@
         <div class="quick-grid">
           <button class="quick-btn" onclick="quickCmd('AT+RESET')">重启<span class="cmd-hint">AT+RESET</span></button>
           <button class="quick-btn" onclick="quickCmd('AT+CFUN=1')">激活 AT<span class="cmd-hint">AT+CFUN=1</span></button>
+        </div>
+        <div class="quick-grid" style="margin-top:6px;">
+          <button class="quick-btn" onclick="openFactoryMode()" id="btnOpenFactory" style="color:#a78bfa;border-color:rgba(167,139,250,.3);">🏭 进入工厂模式<span class="cmd-hint" id="factoryOnHint">自动选指令</span></button>
+          <button class="quick-btn" onclick="closeFactoryMode()" id="btnCloseFactory" style="color:#a78bfa;border-color:rgba(167,139,250,.3);">🚪 退出工厂模式<span class="cmd-hint" id="factoryOffHint">自动选指令</span></button>
+        </div>
+        <div class="quick-grid" style="margin-top:6px;">
           <button class="quick-btn" onclick="openADB()" id="btnOpenADB" style="color:#6ee7b7;border-color:rgba(110,231,183,.3);">🔓 开启 ADB<span class="cmd-hint" id="adbOnHint">—</span></button>
           <button class="quick-btn" onclick="closeADB()" id="btnCloseADB" style="color:#f39c12;border-color:rgba(243,156,18,.3);">🔒 关闭 ADB<span class="cmd-hint" id="adbOffHint">—</span></button>
+        </div>
+        <div class="status-line off" id="factoryStatusLine" style="display:none;">
+          <div class="k">工厂模式</div>
+          <div class="v" id="factoryStatusText">未进入</div>
         </div>
         <div class="status-line off" id="adbStatusLine">
           <div class="k">ADB 状态</div>
           <div class="v" id="adbStatusText">未开启</div>
+        </div>
+        <div style="margin-top:8px;font-size:10.5px;color:var(--text-dim);line-height:1.6;">
+          ⓘ 工厂模式用于解锁写 IMEI/SN 等操作，进入后请尽快完成操作并退出。
         </div>
       </div>
 
@@ -675,9 +688,15 @@ const BAND_LOCK_CONFIG = {
       return `AT+ZLTEBAND=${g.join(',')}`;
     },
   },
-  asr4g: { mode:'unsupported', supportWrite:false,
-    tip:'<b>⚠ ASR 4G 定制固件：</b>该固件屏蔽了 AT 锁频接口。请使用原厂后台。',
-    unlock:null, bands4g:[] },
+  /* ★ v0.9.15：ASR 4G 改为只读模式，允许查询但不允许写入 */
+  asr4g: {
+    mode:'readonly', supportWrite:false,
+    tip:'<b>⚠ 影腾 ASR1803 定制固件：</b>允许 <code>AT*BAND?</code> 查询锁频配置，但写入被固件屏蔽（返回 <code>+CME ERROR: 0</code>）。<br>如需锁频请使用原厂后台。',
+    unlock:null, bands4g:[],
+    queryCmd:'AT*BAND?',
+    build4g:(b)=>null,
+    build4gMulti:(bs)=>null,
+  },
   asr5g: {
     mode:'4g5g', supportWrite:true,
     tip:'<b>ASR 5G 锁频：</b>4G 用 <code>AT*BAND=,0,&lt;mask&gt;,0,2,2,0</code>；5G 用 <code>AT+QNWPREFCFG="nr5g_band",&lt;N&gt;</code>。',
@@ -720,9 +739,29 @@ const BAND_LOCK_CONFIG = {
   },
 };
 
+/* ★ v0.9.15：工厂模式候选指令 */
+const FACTORY_CANDIDATES = {
+  enter: [
+    { cmd:'AT*PROD=1',    label:'通用 *PROD' },
+    { cmd:'AT+PROD=1',    label:'通用 +PROD' },
+    { cmd:'AT+QPROD=1',   label:'高通 QPROD' },
+    { cmd:'AT+SPPROD=1',  label:'紫光展锐 SPPROD' },
+    { cmd:'AT+EPROD=1',   label:'联发科 EPROD' },
+    { cmd:'AT+FACTORY=1', label:'通用 FACTORY' },
+  ],
+  exit: [
+    { cmd:'AT*PROD=0',    label:'通用 *PROD' },
+    { cmd:'AT+PROD=0',    label:'通用 +PROD' },
+    { cmd:'AT+QPROD=0',   label:'高通 QPROD' },
+    { cmd:'AT+SPPROD=0',  label:'紫光展锐 SPPROD' },
+    { cmd:'AT+EPROD=0',   label:'联发科 EPROD' },
+    { cmd:'AT+FACTORY=0', label:'通用 FACTORY' },
+  ],
+};
+
 const FUNCTION_MATRIX = {
   zxic:     { '4G':['sim-switch','band-lock','write','common-ops'], '5G':[] },
-  asr4g:    { '4G':['sim-switch','write','common-ops'], '5G':[] },
+  asr4g:    { '4G':['sim-switch','band-lock','write','common-ops'], '5G':[] },
   asr5g:    { '4G':['sim-switch','band-lock','write','common-ops'], '5G':['sim-switch','band-lock','network-5g','write','common-ops'] },
   unisoc:   { '4G':['sim-switch','band-lock','write','common-ops'], '5G':['sim-switch','band-lock','network-5g','write','common-ops'] },
   qualcomm: { '4G':['sim-switch','band-lock','network-5g','write','common-ops'], '5G':['sim-switch','band-lock','network-5g','write','common-ops'] },
@@ -980,7 +1019,7 @@ const FALLBACK_CHIPS = [
   { id:'mtk', name:'联发科', detection:'MT' },
 ];
 
-/* ★ URC 过滤器 */
+/* URC 过滤器 */
 const URC_PATTERNS = [
   { re:/^\+ZLTENOCELL\s*$/i,                    handler:'nocell' },
   { re:/^\+CREG:\s*(\d+)/i,                     handler:'creg' },
@@ -1036,6 +1075,7 @@ const state = {
   detectedChipId:null, detectedChipName:null,
   activeBands:[],
   adbStatus:'unknown', adbStatusCmd:null,
+  factoryStatus:'unknown', factoryCmd:null,
   simSwitchStatus:'unknown', simSwitchCmd:null,
   cloudLastAction:null, cloudLastResult:null,
   lastWriteResult:null,
@@ -1114,6 +1154,17 @@ function setAdbStatus(status,detail){
   if(status==='on'){ badge.className='badge-tag green'; badge.textContent='ADB 已开启'; textEl.style.color='var(--success)'; textEl.textContent=detail||'已开启'; }
   else if(status==='off'){ badge.className='badge-tag gray'; badge.textContent='ADB 已关闭'; textEl.style.color='var(--text-dim)'; textEl.textContent=detail||'已关闭'; }
   else{ badge.className='badge-tag gray'; badge.textContent='ADB 未开启'; textEl.style.color='var(--text-dim)'; textEl.textContent=detail||'未开启'; }
+}
+function setFactoryStatus(status,detail){
+  state.factoryStatus=status;
+  const textEl=document.getElementById('factoryStatusText'), line=document.getElementById('factoryStatusLine');
+  if(!textEl||!line)return;
+  line.style.display='block';
+  line.className='status-line '+(status==='on'?'on':status==='off'?'off':status==='fail'?'err':'');
+  if(status==='on'){ textEl.style.color='var(--success)'; textEl.textContent=detail||'已进入工厂模式'; }
+  else if(status==='off'){ textEl.style.color='var(--text-dim)'; textEl.textContent=detail||'未进入工厂模式'; }
+  else if(status==='fail'){ textEl.style.color='var(--error)'; textEl.textContent=detail||'所有候选失败'; }
+  else{ textEl.style.color='var(--warn)'; textEl.textContent=detail||'尝试中...'; }
 }
 function setSimStatus(status,detail){
   state.simSwitchStatus=status;
@@ -1202,6 +1253,27 @@ function renderBandLockSection(){
     badge.className='badge-tag red'; badge.textContent='不支持'; tip.innerHTML=cfg.tip;
     const ph=document.createElement('div'); ph.style.cssText='padding:16px;text-align:center;color:var(--text-dim);font-size:11.5px;'; ph.textContent='该固件不支持 AT 锁频'; grid.appendChild(ph); return;
   }
+  /* ★ v0.9.15：只读模式 */
+  if(cfg.mode==='readonly'){
+    badge.className='badge-tag orange'; badge.textContent='只读';
+    tip.innerHTML=cfg.tip;
+    const q=document.createElement('button');
+    q.className='quick-btn';
+    q.style.width='100%';
+    q.style.color='#fbbf24';
+    q.style.borderColor='rgba(251,191,36,.3)';
+    q.innerHTML='🔍 查询当前锁频配置<span class="cmd-hint">'+(cfg.queryCmd||'AT*BAND?')+'</span>';
+    q.onclick=()=>{
+      setBandStatus('查询锁频配置...','warn');
+      quickCmd(cfg.queryCmd||'AT*BAND?');
+    };
+    grid.appendChild(q);
+    const info=document.createElement('div');
+    info.style.cssText='padding:10px 12px;margin-top:8px;border-radius:8px;background:rgba(243,156,18,.08);border:1px solid rgba(243,156,18,.25);color:#fbbf24;font-size:11px;line-height:1.7;';
+    info.innerHTML='ⓘ 该固件屏蔽了 AT 层写入，本工具只能读取锁频配置，不能修改。';
+    grid.appendChild(info);
+    return;
+  }
   const cap=state.capabilities&&state.capabilities.bandLock;
   const writable=cap&&cap.writable===true;
   if(cap&&!writable){
@@ -1270,7 +1342,7 @@ function renderBandLockSection(){
 
 function openCustomBandModal(){
   const chipId=state.detectedChipId, cfg=BAND_LOCK_CONFIG[chipId];
-  if(!cfg||cfg.mode==='unsupported'){ toast('该芯片不支持 AT 锁频','error'); return; }
+  if(!cfg||cfg.mode==='unsupported'||cfg.mode==='readonly'){ toast('该芯片不支持 AT 锁频写入','error'); return; }
   const h=document.getElementById('customBandHint');
   h.innerHTML=`当前芯片: <b>${state.detectedChipName||chipId}</b><br>支持单频段或多频段输入（逗号分隔）。<br>参考频段：B1/B3/B5/B8/B34/B38/B39/B40/B41`;
   document.getElementById('customBandInput').value='';
@@ -1588,21 +1660,12 @@ function parseAnyResponse(line){
     if(m)setInfo('infoMAC',m[1].replace(/:/g,'').toUpperCase(),'ok');
   }
 
-  /* ★ CSQ（2G/3G 通用，单值） */
   m=line.match(/\+CSQ[:\s]*(\d+)/);
   if(m){
     const csq=parseInt(m[1]); const el=document.getElementById('infoCSQ');
     if(csq===99){ el.textContent='无信号'; el.className='info-value empty'; }
     else{ let lvl=csq>=20?'强':csq>=15?'良':csq>=10?'中':'弱'; el.textContent=`${csq} (等级 ${lvl})`; el.className='info-value '+(csq>=15?'ok':csq>=10?'warn':'err'); }
   } else {
-    /* ★★ CESQ（LTE 精确信号）
-       格式：+CESQ: <rxlev>,<ber>,<rscp>,<ecno>,<rsrq>,<rsrp>
-       - rxlev: GSM 用（0~63），99=未知
-       - ber:   99=未知
-       - rscp:  WCDMA 用，255=不可测
-       - ecno:  WCDMA 用，255=不可测
-       - rsrq:  LTE RSRQ 索引，0~34 有效 → (idx/2 - 19.5) dB，255=不可测
-       - rsrp:  LTE RSRP 索引，0~97 有效 → (-140 + idx) dBm，99/255=不可测 */
     m=line.match(/\+CESQ[:\s]*([\d,\s]+)/i);
     if(m){
       const p=m[1].split(',').map(x=>parseInt(x.trim())).filter(n=>!isNaN(n));
@@ -1684,7 +1747,6 @@ function parseAnyResponse(line){
       else{ el.textContent='—'; el.className='info-value empty'; }
     }
   }
-  /* 当前真实频段：BANDIND / ZBANDIND 优先 */
   let handled=false;
   m=line.match(/[*+](?:BANDIND|ZBANDIND)[:\s]*([\d,\s]+)/i);
   if(m){
@@ -1742,7 +1804,6 @@ function parseAnyResponse(line){
     }
   }
 
-  /* ★ QCI + AMBR —— 兼容带引号 / 裸数据两种格式 */
   m=line.match(/\+CGEQOSRDP[:\s]*(\d+),(\d+)/i);
   if(m){
     const qci=parseInt(m[2]);
@@ -1752,13 +1813,11 @@ function parseAnyResponse(line){
     el.className='info-value '+info.cls;
 
     let dlAmbr=null, ulAmbr=null;
-    /* 格式1：带引号 "300000,75000" */
     let ambrMatch = line.match(/"(\d+),(\d+)"/);
     if(ambrMatch){
       dlAmbr=parseInt(ambrMatch[1]);
       ulAmbr=parseInt(ambrMatch[2]);
     } else {
-      /* 格式2：裸数据 2,9,150000,75000 —— 末尾两个大数字是 AMBR */
       const tail = line.match(/,\s*(\d{4,}),(\d{4,})\s*$/);
       if(tail){
         dlAmbr=parseInt(tail[1]);
@@ -1893,6 +1952,60 @@ async function queryCurrentCard(){
   const r=await queryAndCollect(cmd,1500);
   if(!r||isErrorResponse(r)){ setSimStatus('unknown','查询失败'); termWrite('⚠ 查询卡槽失败','info'); }
   else{ termWrite('✓ 卡槽状态已更新','resp'); }
+}
+
+/* ═══ v0.9.15：工厂模式开关 ═══ */
+async function openFactoryMode(){
+  if(!state.connected){ toast('请先连接','error'); return; }
+  termWrite('═══ 进入工厂模式（多候选）═══','info');
+  setFactoryStatus('trying','尝试中...');
+  let hit=null;
+  for(const c of FACTORY_CANDIDATES.enter){
+    termWrite(`${c.cmd}  (${c.label})`,'cmd');
+    state.responseBuffer='';
+    try{
+      await writeToPort(c.cmd);
+      const t0=Date.now();
+      while(Date.now()-t0<1500){ await sleep(80); if(/\b(OK|ERROR)\s*$/im.test(state.responseBuffer.trim())){ await sleep(150); break; } }
+    }catch(err){ termWrite(`发送失败: ${err.message}`,'err'); break; }
+    if(isValidResponse(state.responseBuffer)){ hit=c; break; }
+    await sleep(200);
+  }
+  if(hit){
+    state.factoryCmd=hit.cmd;
+    setFactoryStatus('on',`已进入 (${hit.cmd})`);
+    toast(`工厂模式已进入（${hit.label}）`,'success',5000);
+    termWrite(`✓ ${hit.cmd} 返回 OK，已进入工厂模式`,'resp');
+  } else {
+    setFactoryStatus('fail','未找到可用指令');
+    toast('未找到能进入工厂模式的指令','error',5000);
+    termWrite('✗ 所有候选均返回错误','err');
+  }
+}
+async function closeFactoryMode(){
+  if(!state.connected){ toast('请先连接','error'); return; }
+  termWrite('═══ 退出工厂模式（多候选）═══','info');
+  let hit=null;
+  for(const c of FACTORY_CANDIDATES.exit){
+    termWrite(`${c.cmd}  (${c.label})`,'cmd');
+    state.responseBuffer='';
+    try{
+      await writeToPort(c.cmd);
+      const t0=Date.now();
+      while(Date.now()-t0<1500){ await sleep(80); if(/\b(OK|ERROR)\s*$/im.test(state.responseBuffer.trim())){ await sleep(150); break; } }
+    }catch(err){ termWrite(`发送失败: ${err.message}`,'err'); break; }
+    if(isValidResponse(state.responseBuffer)){ hit=c; break; }
+    await sleep(200);
+  }
+  if(hit){
+    state.factoryCmd=null;
+    setFactoryStatus('off',`已退出 (${hit.cmd})`);
+    toast(`工厂模式已退出（${hit.label}）`,'success',4000);
+    termWrite(`✓ ${hit.cmd} 返回 OK，已退出工厂模式`,'resp');
+  } else {
+    setFactoryStatus('fail','未找到可用指令');
+    toast('未找到能退出工厂模式的指令','error',4000);
+  }
 }
 
 async function openADB(){
@@ -2126,7 +2239,7 @@ function updateConnectionUI(connected,text){
 }
 function enableQuickButtons(enable){
   document.querySelectorAll('.quick-btn').forEach(b=>b.disabled=!enable);
-  ['btnSpeedtest','btnCheckCloud','btnRefreshIP','btnProbeCaps','btnClearCaps','btnTestAT'].forEach(id=>{
+  ['btnSpeedtest','btnCheckCloud','btnRefreshIP','btnProbeCaps','btnClearCaps','btnTestAT','btnOpenFactory','btnCloseFactory'].forEach(id=>{
     const e=document.getElementById(id); if(e)e.disabled=!enable;
   });
 }
@@ -2149,11 +2262,12 @@ function resetDeviceInfo(){
   state.activeBands=[];
   lastURCState = { nocell:false, creg:null, creg5g:null };
   setAdbStatus('unknown','未开启');
+  setFactoryStatus('unknown','未进入');
   setSimStatus('unknown','未查询');
   setCloudOpStatus(null,null);
   setBandStatus('—','off');
   const wsl=document.getElementById('writeStatusLine'); if(wsl)wsl.style.display='none';
-  state.adbStatusCmd=null; state.simSwitchCmd=null;
+  state.adbStatusCmd=null; state.simSwitchCmd=null; state.factoryCmd=null;
   renderCapList();
 }
 
@@ -2787,12 +2901,13 @@ window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close
   setCloudStatus('unknown');
   renderCapList();
   setAdbStatus('unknown','未开启');
+  setFactoryStatus('unknown','未进入');
   setSimStatus('unknown','未查询');
   setCloudOpStatus(null,null);
   renderRightPanel();
 
-  termWrite('随身WiFi调试助手 v0.9.14 · CESQ 精确解码 + AMBR 裸数据版','info');
-  termWrite('v0.9.14：CESQ 解析 RSRP+RSRQ；AMBR 兼容带引号/裸数据两种格式；ZBAND 当前频段；URC 过滤','info');
+  termWrite('随身WiFi调试助手 v0.9.15 · 工厂模式 + ASR只读锁频版','info');
+  termWrite('v0.9.15：常用操作新增工厂模式按钮（多候选）；ASR 4G 锁频改为只读模式','info');
 
   if(!('serial' in navigator)){
     termWrite('⚠ 当前浏览器不支持 Web Serial API，请使用 Chrome / Edge 89+ 桌面版。','err');
