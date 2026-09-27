@@ -266,8 +266,27 @@
         </div>
       </div>
       <div id="panelWiFi" class="hidden">
-        <div class="form-group"><label>设备网关地址</label><input class="form-control" id="wifiGateway" value="192.168.0.1"></div>
-        <div class="form-group"><label>管理端口</label><input class="form-control" id="wifiPort" value="80"></div>
+        <div class="form-group">
+            <label>设备网关地址</label>
+            <input class="form-control" id="wifiGateway" list="gatewayList" value="192.168.0.1" autocomplete="off" placeholder="手动输入或点击选择">
+            <datalist id="gatewayList">
+                <option value="192.168.0.1">192.168.0.1 (中兴/TP-Link/Tenda等)</option>
+                <option value="192.168.1.1">192.168.1.1 (Netgear/Zyxel/Inseego等)</option>
+                <option value="192.168.8.1">192.168.8.1 (华为)</option>
+                <option value="192.168.100.1">192.168.100.1 (中兴部分型号)</option>
+                <option value="192.168.31.1">192.168.31.1 (小米)</option>
+                <option value="192.168.43.1">192.168.43.1 (GlocalMe/Skyroam等)</option>
+                <option value="192.168.0.254">192.168.0.254 (TP-Link部分型号)</option>
+                <option value="192.168.2.1">192.168.2.1 (Tenda部分型号)</option>
+                <option value="192.168.9.1">192.168.9.1 (华为部分型号)</option>
+                <option value="192.168.10.1">192.168.10.1 (Netgear Nighthawk M7)</option>
+                <option value="10.0.0.1">10.0.0.1 (其他常见)</option>
+                <option value="10.10.10.254">10.10.10.254 (Skyroam部分型号)</option>
+                <option value="192.168.5.1">192.168.5.1 (其他常见)</option>
+                <option value="192.168.123.254">192.168.123.254 (其他常见)</option>
+            </datalist>
+        </div>
+                <div class="form-group"><label>管理端口</label><input class="form-control" id="wifiPort" value="80"></div>
         <div class="form-group"><label>协议</label><select class="form-control" id="wifiProtocol"><option value="http" selected>HTTP</option><option value="https">HTTPS</option></select></div>
         <button class="btn btn-primary" onclick="connectWiFi()">📶 检测设备</button>
       </div>
@@ -1229,7 +1248,7 @@ async function sendCustomBandCmd(){
 }
 
 async function connectUSB(){
-  if(!('serial' in navigator)){ toast('浏览器不支持 Web Serial','error',5000); return; }
+  if(!('serial' in navigator)){ toast('当前浏览器不支持','error',5000); return; }
   try{
     const baud=getBaudRate(), flowControl=document.getElementById('flowControl').value;
     localStorage.setItem('atmaster_last_baud',baud);
@@ -2565,8 +2584,8 @@ window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close
   termWrite('本次新增：咪咕视频 / 和彩云 / 天翼云桌面 / 联通公免 等运营商专属测速节点','info');
 
   if(!('serial' in navigator)){
-    termWrite('⚠ 当前浏览器不支持 Web Serial API，请使用 Chrome / Edge 89+ 桌面版。','err');
-    toast('浏览器不支持 Web Serial','error',6000);
+    termWrite('⚠ 当前浏览器不支持，请使用 Chrome / Edge 89+ 桌面版。','err');
+    toast('当前浏览器不支持','error',6000);
   }else{
     navigator.serial.addEventListener('disconnect',(e)=>{
       if(state.port&&e.target===state.port){
