@@ -198,7 +198,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v0.9.17</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v0.9.18</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -263,7 +263,7 @@
           <button class="btn btn-danger" id="btnDisconnectUSB" onclick="disconnect()" disabled>断开连接</button>
         </div>
         <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          <b style="color:var(--accent);">v0.9.17：</b>ASR1803 支持频段 9 字段解析（FDD/TDD 掩码）。
+          <b style="color:var(--accent);">v0.9.18：</b>ASR *BAND 语义修正；多频段 continue；手动选芯片重探测；切卡 24s；删除 D/W 回退；测速措辞软化。
         </div>
       </div>
       <div id="panelWiFi" class="hidden">
@@ -305,7 +305,7 @@
     </div>
     <div class="terminal-wrap">
       <div class="terminal" id="terminal">
-        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.17。</span></div>
+        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.18。</span></div>
       </div>
       <div class="terminal-input-row">
         <span class="prompt">AT&gt;</span>
@@ -480,8 +480,8 @@
         <div class="quick-grid">
           <button class="quick-btn" onclick="openWriteModal('IMEI')" id="btnWriteIMEI">✏️ 改写 IMEI<span class="cmd-hint" id="writeImeiHint">自动选语法</span></button>
           <button class="quick-btn" onclick="openWriteModal('SN')" id="btnWriteSN">✏️ 改写 SN<span class="cmd-hint" id="writeSnHint">自动选语法</span></button>
-          <button class="quick-btn danger" onclick="openWriteModal('DEL_IMEI')" id="btnDelIMEI">🗑️ 删除 IMEI<span class="cmd-hint">D 参数</span></button>
-          <button class="quick-btn danger" onclick="openWriteModal('DEL_SN')" id="btnDelSN">🗑️ 删除 SN<span class="cmd-hint">D 参数</span></button>
+          <button class="quick-btn danger" onclick="openWriteModal('DEL_IMEI')" id="btnDelIMEI">🗑️ 删除 IMEI<span class="cmd-hint">D/W 回退</span></button>
+          <button class="quick-btn danger" onclick="openWriteModal('DEL_SN')" id="btnDelSN">🗑️ 删除 SN<span class="cmd-hint">D/W 回退</span></button>
         </div>
         <div class="status-line off" id="writeStatusLine" style="display:none;">
           <div class="k">上次写入</div>
@@ -667,9 +667,6 @@ const CN_4G_BANDS = [
   { label:'B34',band:34 },{ label:'B38',band:38 },{ label:'B39',band:39 },{ label:'B40',band:40 },{ label:'B41',band:41 },
 ];
 
-/* ★ ASR1803 掩码位表（官方定义）
-   FDD: B1=1, B3=2, B5=16, B7=32, B8=8, B20=128
-   TDD: B38=2, B39=4, B40=8, B41=64 */
 const ASR_FDD_MASK = { 1:1, 3:2, 5:16, 7:32, 8:8, 20:128 };
 const ASR_TDD_MASK = { 38:2, 39:4, 40:8, 41:64 };
 
@@ -808,6 +805,7 @@ const SECTION_VISIBILITY = {
   'advanced-chip':{ preConnect:true, postConnect:true },
 };
 
+/* ★ v0.9.18：supportBand 移除 AT*BAND?（ASR 语义修正） */
 const CAPABILITY_PROBES = {
   iccid:{ label:'ICCID', candidates:[
     { cmd:'AT+ZICCID?', pattern:/\+ZICCID:\s*"?([0-9A-Za-z]{18,22})"?/i },
@@ -845,11 +843,9 @@ const CAPABILITY_PROBES = {
     { cmd:'AT+CPSI?',       pattern:/\+CPSI:\s*([^\r\n]+)/i,       decoder:'cpsiBand' },
     { cmd:'AT+ZCELLINFO?',  pattern:/\+ZCELLINFO:\s*([^\r\n]+)/i,  decoder:'zcellinfoBand' },
   ]},
-  /* ★ v0.9.17：支持频段候选新增 ASR1803 的 AT*BAND?（9字段解析） */
   supportBand:{ label:'支持频段', candidates:[
     { cmd:'AT+ZLTEAMTBAND?', pattern:/\+ZLTEAMTBAND:\s*([\d,\s]+)/i, decoder:'zband' },
     { cmd:'AT+ZLTEBAND?',    pattern:/\+ZLTEBAND:\s*([\d,\s]+)/i,    decoder:'zband' },
-    { cmd:'AT*BAND?',        pattern:/[*]BAND[:\s]+([\d,\s]+)/i,     decoder:'asrBandText' },
   ]},
   cardSlot:{ label:'当前卡槽', candidates:[
     { cmd:'AT+ZCARDSWITCH?', pattern:/\+ZCARDSWITCH:\s*(\d+)/i, decoder:'zcardswitch' },
@@ -1016,7 +1012,6 @@ const DECODERS = {
     if(p.length===1)return 'LTE B'+p[0];
     return null;
   },
-  /* 中兴微 zband 掩码：8 字节有效，第 9 位标志 */
   zband:(r)=>{
     const p=r.split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n));
     if(p.length<8)return [];
@@ -1033,24 +1028,14 @@ const DECODERS = {
     const bs=DECODERS.zband(r);
     return bs.length?'LTE '+bs.map(n=>'B'+n).join(' '):null;
   },
-  /* ★ ASR1803 *BAND 9字段解析
-     格式: <LTE_FDD>,<LTE_TDD>,<WCDMA>,<GSM>,<PREF>,<lock_mode>,<scan_prio>,<save_flag>,<rsv> */
   asrBandParse:(r)=>{
     const p=r.split(',').map(s=>parseInt(s.trim()));
     if(p.length<9)return null;
     const fdd=p[0], tdd=p[1], wcdma=p[2], gsm=p[3], pref=p[4], lockMode=p[5], scanPrio=p[6], saveFlag=p[7], rsv=p[8];
     const bands=[];
-    /* LTE FDD */
     Object.keys(ASR_FDD_MASK).forEach(b=>{ if(fdd & ASR_FDD_MASK[b]) bands.push(parseInt(b)); });
-    /* LTE TDD */
     Object.keys(ASR_TDD_MASK).forEach(b=>{ if(tdd & ASR_TDD_MASK[b]) bands.push(parseInt(b)); });
     return { bands, fdd, tdd, wcdma, gsm, pref, lockMode, scanPrio, saveFlag, rsv };
-  },
-  /* ★ 用于"支持频段"字段：返回 LTE 频段列表文本 */
-  asrBandText:(r)=>{
-    const res=DECODERS.asrBandParse(r);
-    if(!res||!res.bands.length)return null;
-    return res.bands.map(n=>'B'+n).join(' ');
   },
   zcardswitch:(v)=>{ const n=parseInt(v); return n===0?'外置卡':n===1?'内置卡':'模式 '+n; },
   cardmode_asr:(v)=>{ const n=parseInt(v); return n===0?'内置卡':n===1?'外置卡':'模式 '+n; },
@@ -1443,6 +1428,7 @@ function updateCustomBandPreview(){
     else{ p.textContent=bands.map(b=>cfg.build4g(b)).filter(Boolean).join('  →  '); v.textContent=`⚠ 将依次发送 ${bands.length} 条`; v.className='validation-hint info'; }
   }
 }
+/* ★ v0.9.18：多频段 break → continue */
 async function sendCustomBandCmd(){
   const bands=parseCustomBands(); if(!bands.length){ toast('请输入有效频段号','error'); return; }
   const chipId=state.detectedChipId, cfg=BAND_LOCK_CONFIG[chipId];
@@ -1451,7 +1437,20 @@ async function sendCustomBandCmd(){
   termWrite(`═══ 自定义频段：${bands.join(',')} ═══`,'info');
   if(bands.length===1){ const cmd=cfg.build4g(bands[0]); setBandStatus(`已发送 ${cmd}`,'on'); await sendBandCmd(cmd, cfg); }
   else if(cfg.build4gMulti){ const cmd=cfg.build4gMulti(bands); setBandStatus(`已发送 ${cmd}`,'on'); await sendBandCmd(cmd, cfg); }
-  else{ for(const b of bands){ const cmd=cfg.build4g(b); if(cmd){ termWrite(cmd,'cmd'); try{ await writeToPort(cmd); }catch(e){break;} await sleep(800);} } setBandStatus(`已依次发送 ${bands.length} 条指令`,'on'); toast(`已依次发送 ${bands.length} 条锁频指令`,'success',4000); }
+  else{
+    let okCount=0, failCount=0;
+    for(const b of bands){
+      const cmd=cfg.build4g(b);
+      if(cmd){
+        termWrite(cmd,'cmd');
+        try{ await writeToPort(cmd); okCount++; }
+        catch(e){ termWrite(`第 ${b} 频段发送失败: ${e.message}，继续下一个`,'err'); failCount++; }
+        await sleep(800);
+      }
+    }
+    setBandStatus(`已发送 ${okCount} 条，失败 ${failCount} 条`,'on');
+    toast(`多频段依次发送完成：成功 ${okCount} 条，失败 ${failCount} 条`,'success',4000);
+  }
 }
 
 async function connectUSB(){
@@ -1804,7 +1803,7 @@ function parseAnyResponse(line){
     }
   }
 
-  /* ★ 中兴微锁频配置 */
+  /* 中兴微锁频配置 */
   m=line.match(/\+ZLTEBAND[:\s]*([\d,\s]+)/i);
   if(m){
     const el=document.getElementById('infoLockBand');
@@ -1815,7 +1814,7 @@ function parseAnyResponse(line){
       el.title='原始掩码: '+m[1];
     }
   }
-  /* ★ 中兴微支持频段 */
+  /* 中兴微支持频段 */
   m=line.match(/\+ZLTEAMTBAND[:\s]*([\d,\s]+)/i);
   if(m){
     const el=document.getElementById('infoSupportBand');
@@ -1826,29 +1825,39 @@ function parseAnyResponse(line){
     }
   }
 
-  /* ★ ASR1803 *BAND? 9字段解析（区分于 +ZLTEBAND / +ZBAND 中兴微格式） */
+  /* ★ v0.9.18：ASR *BAND 语义修正 —— 填"锁定配置"字段，不再冒充"支持频段" */
   m=line.match(/^\*BAND[:\s]+([\d,\s]+)\s*$/im);
   if(m){
     const res=DECODERS.asrBandParse(m[1]);
     if(res){
-      /* 支持频段：从 FDD + TDD 掩码解析 LTE 频段列表 */
-      const elSup=document.getElementById('infoSupportBand');
-      if(elSup && res.bands.length){
-        elSup.textContent=res.bands.map(n=>'B'+n).join(' ');
-        elSup.className='info-value ok';
-        elSup.title=`ASR *BAND 原始：${m[1].trim()}\nFDD 掩码=${res.fdd} TDD 掩码=${res.tdd}\nWCDMA 掩码=${res.wcdma} GSM 掩码=${res.gsm}\n优先掩码=${res.pref} lock=${res.lockMode} prio=${res.scanPrio} save=${res.saveFlag}`;
-      }
-      /* 锁定配置：从 lockMode 判断 */
       const elLock=document.getElementById('infoLockBand');
       if(elLock){
-        if(res.lockMode===0){
-          elLock.textContent='未锁定（自动搜网）';
-          elLock.className='info-value empty';
-        } else {
-          elLock.textContent='锁定 '+res.bands.map(n=>'B'+n).join(' ');
-          elLock.className='info-value warn';
-        }
-        elLock.title=`lock_mode=${res.lockMode}（0=自动搜网，非0=锁定指定频段）`;
+        const bandsTxt = res.bands.length ? res.bands.map(n=>'B'+n).join(' ') : '无';
+        const lockTxt = res.lockMode===0 ? '未锁定' : '锁定';
+        elLock.textContent = `已启用：${bandsTxt} · ${lockTxt}`;
+        elLock.className = 'info-value ' + (res.lockMode===0 ? 'warn' : 'ok');
+        elLock.title =
+          `ASR *BAND 原始：${m[1].trim()}\n` +
+          `字段格式：<FDD>,<TDD>,<WCDMA>,<GSM>,<PREF>,<lock>,<prio>,<save>,<rsv>\n` +
+          `──────────────────\n` +
+          `FDD 掩码=${res.fdd}（已启用 FDD 频段）\n` +
+          `TDD 掩码=${res.tdd}（已启用 TDD 频段）\n` +
+          `WCDMA 掩码=${res.wcdma}\n` +
+          `GSM 掩码=${res.gsm}\n` +
+          `PREF 优先掩码=${res.pref}\n` +
+          `lock_mode=${res.lockMode}（0=未锁定，非0=锁定）\n` +
+          `scan_prio=${res.scanPrio}（2=LTE优先）\n` +
+          `save_flag=${res.saveFlag}（2=已保存到 Flash）\n` +
+          `rsv=${res.rsv}\n` +
+          `──────────────────\n` +
+          `⚠ 这是软件配置层，非硬件支持能力`;
+      }
+      /* ASR 的"支持频段"字段显示 "—" */
+      const elSup=document.getElementById('infoSupportBand');
+      if(elSup && (!state.capabilities || !state.capabilities.supportBand)){
+        elSup.textContent='—（ASR 固件不暴露硬件能力）';
+        elSup.className='info-value empty';
+        elSup.title='AT*BAND? 返回的是软件配置层（可修改），不是芯片硬件支持列表';
       }
     }
   }
@@ -1973,6 +1982,7 @@ function renderCapList(){
 }
 function updateCmdHintsFromCaps(){ updateSimHints(); }
 
+/* ★ v0.9.18：切卡验证循环延长到 8 次×3s=24s */
 async function switchCard(direction){
   if(!state.connected){ toast('请先连接','error'); return; }
   const candidates=SIM_SWITCH_CANDIDATES[direction];
@@ -2004,11 +2014,11 @@ async function switchCard(direction){
   toast(`切卡指令已发送（${success.label}）`,'success',5000);
   termWrite(`✓ 使用的指令：${success.cmd}`,'resp');
 
-  termWrite('切卡后等待设备重连，开始循环验证...','info');
+  termWrite('切卡后等待设备重连，循环验证最多 24 秒...','info');
   let verify={ verified:null, reason:'未执行' };
-  for(let attempt=1; attempt<=5; attempt++){
+  for(let attempt=1; attempt<=8; attempt++){
     await sleep(3000);
-    termWrite(`  验证尝试 ${attempt}/5...`,'info');
+    termWrite(`  验证尝试 ${attempt}/8（已等待 ${attempt*3}s）...`,'info');
     verify=await verifyCardSwitch(direction);
     if(verify.verified!==null)break;
   }
@@ -2584,13 +2594,15 @@ async function startSpeedtest(){
       setCloudStatus('safe');
       toast('多维测速：未发现限速特征','success',4000);
     }else{
-      verdict.textContent = '⚠ 疑似限速：' + speedIssues.join('，');
+      /* ★ v0.9.18：措辞软化，明确非因果判定 */
+      verdict.textContent = '⚠ 疑似限速特征（仅供参考）：' + speedIssues.join('，');
       if (qualityNotes.length > 0){
         verdict.textContent += '｜' + qualityNotes.join('，');
       }
+      verdict.textContent += '｜低速也可能由信号差 / 小区拥塞 / 频段带宽 / 本机 WiFi 干扰导致';
       verdict.className = 'speedtest-verdict risk';
       setCloudStatus('risk');
-      toast(`多维测速：疑似限速（${speedIssues.length} 项异常）`,'error',5000);
+      toast(`多维测速：疑似限速特征（${speedIssues.length} 项）·仅供参考`,'error',5000);
     }
   }catch(err){
     if (err.name === 'AbortError' || err.message === 'user abort'){
@@ -2646,8 +2658,8 @@ async function checkCloudControl(){
         setCloudOpStatus('check','safe',detail);
       }else{
         setCloudStatus('risk');
-        toast('疑似被限速','error',5000);
-        setCloudOpStatus('check','risk',`限速异常：${speedIssues.join('，')}`);
+        toast('疑似存在限速特征（仅供参考）','error',5000);
+        setCloudOpStatus('check','risk',`疑似限速：${speedIssues.join('，')}（不代表运营商后台一定限速）`);
       }
     }
   }catch(err){ termWrite(`云控检测出错: ${err.message}`,'err'); setCloudOpStatus('check','error',`检测出错`); }
@@ -2750,11 +2762,14 @@ function openWriteModal(type){
   overrideSel.onchange=()=>{ updateWriteSyntaxPreview(baseType); updateCmdPreviewForWrite(baseType); };
 
   if(writeContext.isDelete){
+    /* ★ v0.9.18：删除操作显示 D/W 双候选 */
+    const wFallback = baseType==='IMEI' ? 'AT*MRD_IMEI=W,0,01JAN1970,000000000000000' : 'AT*MRD_SN=W,0,01JAN1970,000000000000000';
     document.getElementById('writeFormArea').innerHTML=`
       <div class="warn-box" style="background:rgba(231,76,60,.08);border-color:rgba(231,76,60,.3);color:#ff8a80;">
-        <b>⚠ 危险操作：</b>此操作将清空设备上的 ${baseType} 值。
+        <b>⚠ 危险操作：</b>此操作将清空设备上的 ${baseType} 值。<br>
+        <b>双候选：</b>先尝试 D 参数（部分固件不支持），失败后自动回退为 W 写入 15 个 0。
       </div>
-      <div class="info-box">即将发送：<code id="cmdPreview">AT*MRD_${baseType}=D</code></div>
+      <div class="info-box">首选发送：<code>AT*MRD_${baseType}=D</code><br>回退发送：<code>${wFallback}</code></div>
     `;
   }else{
     document.getElementById('writeFormArea').innerHTML=`
@@ -2839,6 +2854,7 @@ async function readbackVerify(baseType,expectedValue){
   return { verified: actual===expectedValue, actual };
 }
 
+/* ★ v0.9.18：删除操作 D → W 回退 */
 async function confirmWrite(){
   if(state.writeInProgress)return;
   const baseType=writeContext.type.replace('DEL_','');
@@ -2847,7 +2863,6 @@ async function confirmWrite(){
   const val=isDelete?'':document.getElementById('writeInput').value.trim();
   const cand=getWriteCandidate(baseType);
   if(!cand&&!isDelete){ toast('无可用写入语法，请手动覆盖','error',5000); return; }
-  const writeCmd=isDelete?`AT*MRD_${baseType}=D`:cand.write(val);
 
   state.writeInProgress=true;
   document.getElementById('writeFormArea').style.display='none';
@@ -2867,10 +2882,42 @@ async function confirmWrite(){
       setStep(1,'done'); appendLog('✓ 进入成功','success');
     }else{ setStep(1,'done'); appendLog('✓ 无需进入工厂模式','success'); }
 
-    setStep(2,'active'); appendLog(`▶ 步骤 2/4：${writeCmd}`,'warn');
-    termWrite(writeCmd,'cmd');
-    await writeToPort(writeCmd); await sleep(1800);
-    setStep(2,'done'); appendLog(`✓ 已发送`,'success');
+    if(isDelete){
+      /* ★ D → W 双候选 */
+      const wFallback = baseType==='IMEI' ? 'AT*MRD_IMEI=W,0,01JAN1970,000000000000000' : 'AT*MRD_SN=W,0,01JAN1970,000000000000000';
+      const dCmd = `AT*MRD_${baseType}=D`;
+      setStep(2,'active'); appendLog(`▶ 步骤 2/4：尝试 D 参数：${dCmd}`,'warn');
+      termWrite(dCmd,'cmd');
+      state.responseBuffer='';
+      await writeToPort(dCmd);
+      const t0=Date.now();
+      while(Date.now()-t0<2500){ await sleep(80); if(/\b(OK|ERROR)\s*$/im.test(state.responseBuffer.trim())){ await sleep(150); break; } }
+      const dResp=state.responseBuffer;
+
+      if(isValidResponse(dResp)){
+        setStep(2,'done'); appendLog('✓ D 参数删除成功','success');
+      } else {
+        appendLog(`✗ D 参数失败（${dResp.trim().split('\n').pop()||'超时'}），回退 W 参数`,'warn');
+        setStep(2,'active'); appendLog(`▶ 步骤 2/4（回退）：${wFallback}`,'warn');
+        termWrite(wFallback,'cmd');
+        state.responseBuffer='';
+        await writeToPort(wFallback);
+        const t1=Date.now();
+        while(Date.now()-t1<2500){ await sleep(80); if(/\b(OK|ERROR)\s*$/im.test(state.responseBuffer.trim())){ await sleep(150); break; } }
+        const wResp=state.responseBuffer;
+        if(isValidResponse(wResp)){
+          setStep(2,'done'); appendLog('✓ W 参数清零成功','success');
+        } else {
+          setStep(2,'fail'); appendLog('✗ D/W 均失败','error');
+        }
+      }
+    } else {
+      const writeCmd = cand.write(val);
+      setStep(2,'active'); appendLog(`▶ 步骤 2/4：${writeCmd}`,'warn');
+      termWrite(writeCmd,'cmd');
+      await writeToPort(writeCmd); await sleep(1800);
+      setStep(2,'done'); appendLog(`✓ 已发送`,'success');
+    }
 
     if(cand&&cand.exit){
       setStep(3,'active'); appendLog(`▶ 步骤 3/4：${cand.exit}`,'warn');
@@ -2880,7 +2927,7 @@ async function confirmWrite(){
 
     if(isDelete){
       setStep(4,'done'); appendLog('✓ 删除操作无需验证','success');
-      appendLog('🎉 删除完成','success');
+      appendLog('🎉 删除流程结束','success');
       setWriteStatus(`删除 ${baseType} 完成`,'warn');
       toast(`${baseType} 删除完成`,'success',5000);
       state.lastWriteResult={ type:baseType, isDelete:true, success:true };
@@ -2896,9 +2943,9 @@ async function confirmWrite(){
         state.lastWriteResult={ type:baseType, isDelete:false, success:true, actual:verify.actual };
       }else if(verify.verified===false){
         setStep(4,'fail'); appendLog(`✗ 读回值：${verify.actual}（与写入 ${val} 不一致）`,'error');
-        appendLog('⚠ 写入可能未生效','error');
+        appendLog('⚠ 写入可能未生效，可尝试 AT+RESET 重启模组后重新读回','error');
         setWriteStatus(`${baseType} 读回不一致（实际：${verify.actual}）`,'err');
-        toast(`⚠ ${baseType} 写入后读回不一致，可能未生效`,'error',6000);
+        toast(`⚠ ${baseType} 写入后读回不一致，重启后可能生效`,'error',6000);
         state.lastWriteResult={ type:baseType, isDelete:false, success:false, actual:verify.actual, reason:'读回不一致' };
       }else{
         setStep(4,'fail'); appendLog(`⚠ 读回失败：${verify.reason}`,'warn');
@@ -2935,17 +2982,24 @@ function closeWriteModalForce(){
   document.getElementById('writeCancelBtn').disabled=false;
 }
 
+/* ★ v0.9.18：手动选芯片后重跑探测 */
 (function initChipDropdown(){
   const sel=document.getElementById('chipPlatform');
   FALLBACK_CHIPS.forEach(c=>{
     const opt=document.createElement('option'); opt.value=c.id; opt.textContent=`${c.name} (${c.detection})`; sel.appendChild(opt);
   });
-  sel.addEventListener('change',()=>{
+  sel.addEventListener('change',async()=>{
     if(sel.value){
       state.detectedChipId=sel.value;
       state.detectedChipName=FALLBACK_CHIPS.find(c=>c.id===sel.value)?.name||sel.value;
-      toast(`已手动指定芯片: ${state.detectedChipName}`,'info');
+      state.capabilitySource='fresh';  /* 强制不用旧缓存 */
+      toast(`已手动指定芯片: ${state.detectedChipName}，将重新探测`,'info',4000);
       renderRightPanel();
+      if(state.connected){
+        await runFullProbe();
+        await queryAllByCapabilities();
+        renderRightPanel();
+      }
     }
   });
 })();
@@ -3016,8 +3070,8 @@ window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close
   setCloudOpStatus(null,null);
   renderRightPanel();
 
-  termWrite('随身WiFi调试助手 v0.9.17 · ASR1803 支持频段解析版','info');
-  termWrite('v0.9.17：新增 ASR1803 9字段 *BAND 解析，FDD/TDD 掩码分别展开为频段列表','info');
+  termWrite('随身WiFi调试助手 v0.9.18 · 语义修正版','info');
+  termWrite('v0.9.18：ASR *BAND 改为"锁定配置"语义；多频段 continue；手动选芯片重探测；切卡 24s；删除 D/W 回退；测速措辞软化','info');
 
   if(!('serial' in navigator)){
     termWrite('⚠ 当前浏览器不支持 Web Serial API，请使用 Chrome / Edge 89+ 桌面版。','err');
