@@ -197,7 +197,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v0.9.8</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v0.9.9</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -261,19 +261,8 @@
           <button class="btn btn-warn" id="btnTestAT" onclick="testATComms()" disabled>🧪 仅测试 AT</button>
           <button class="btn btn-danger" id="btnDisconnectUSB" onclick="disconnect()" disabled>断开连接</button>
         </div>
-
-        <div class="form-group" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">
-          <label>测速节点（多节点自动切换）</label>
-          <select class="form-control" id="speedtestSource" style="font-size:12px;padding:6px 9px;">
-            <!-- JS 动态填充 -->
-          </select>
-          <div style="font-size:10.5px;color:var(--text-dim);margin-top:4px;line-height:1.5;">
-            优先当前选中节点，失败时自动切换备用。国内 CDN 优先。
-          </div>
-        </div>
-
         <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          <b style="color:var(--accent);">v0.9.8：</b>多节点测速（参考 net.arsn.cn），国内 CDN 优先，延迟取中位数，自动切换备用源。
+          <b style="color:var(--accent);">v0.9.9：</b>国内 CDN 前置（阿里/网易），延迟阈值放宽至 500ms，测速节点移至右侧。
         </div>
       </div>
       <div id="panelWiFi" class="hidden">
@@ -295,7 +284,7 @@
     </div>
     <div class="terminal-wrap">
       <div class="terminal" id="terminal">
-        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.8 · 多节点测速版。</span></div>
+        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.9 · 多节点测速版。</span></div>
       </div>
       <div class="terminal-input-row">
         <span class="prompt">AT&gt;</span>
@@ -428,6 +417,14 @@
 
       <div class="quick-section" id="sectionSpeedtest" data-section="speedtest">
         <h4>限速检测 <span class="badge-tag blue" style="font-size:9px;">多维</span></h4>
+
+        <div class="form-group" style="margin-bottom:8px;">
+          <label style="font-size:10.5px;">测速节点</label>
+          <select class="form-control" id="speedtestSource" style="font-size:11.5px;padding:5px 9px;">
+            <!-- JS 动态填充 -->
+          </select>
+        </div>
+
         <div class="speedtest-box">
           <div class="speedtest-metric">
             <span class="speedtest-label">↓ 下载</span>
@@ -616,15 +613,8 @@ adb shell reboot</pre>
 const LINE_ENDING_MAP = { crlf:'\r\n', cr:'\r', lf:'\n' };
 function getLineEnding(){ return LINE_ENDING_MAP[document.getElementById('lineEnding').value] || '\r\n'; }
 
-/* ★ v0.9.8：多节点测速源（国内 CDN 优先） */
+/* ★ v0.9.9：国内 CDN 前置（阿里/网易），Cloudflare 兜底 */
 const SPEEDTEST_SOURCES = [
-  {
-    id:'tencent', name:'腾讯 CDN', operator:'通用',
-    downloadUrl:'https://dldir1.qq.com/weixin/Windows/WeChatSetup.exe',
-    latencyUrl: 'https://dldir1.qq.com/weixin/Windows/WeChatSetup.exe',
-    downloadRange: 3 * 1024 * 1024,
-    latencyRange: 1024,
-  },
   {
     id:'aliyun', name:'阿里云 CDN', operator:'通用',
     downloadUrl:'https://mirrors.aliyun.com/ubuntu-releases/22.04/ubuntu-22.04.4-desktop-amd64.iso',
@@ -650,13 +640,12 @@ const SPEEDTEST_SOURCES = [
 
 let currentSpeedtestSource = SPEEDTEST_SOURCES[0];
 
-/* ═══ 中国常用 4G 频段 ═══ */
+/* 中国常用 4G 频段 */
 const CN_4G_BANDS = [
   { label:'B1',band:1 },{ label:'B3',band:3 },{ label:'B5',band:5 },{ label:'B8',band:8 },
   { label:'B34',band:34 },{ label:'B38',band:38 },{ label:'B39',band:39 },{ label:'B40',band:40 },{ label:'B41',band:41 },
 ];
 
-/* ═══ 频段锁定配置 ═══ */
 const BAND_LOCK_CONFIG = {
   zxic: {
     mode:'4g', supportWrite:true,
@@ -715,7 +704,6 @@ const BAND_LOCK_CONFIG = {
   },
 };
 
-/* ═══ 功能矩阵 ═══ */
 const FUNCTION_MATRIX = {
   zxic:     { '4G':['sim-switch','band-lock','write','common-ops'], '5G':[] },
   asr4g:    { '4G':['sim-switch','write','common-ops'], '5G':[] },
@@ -741,7 +729,6 @@ const SECTION_VISIBILITY = {
   'advanced-chip':{ preConnect:true, postConnect:true },
 };
 
-/* ═══ 能力探测表 ═══ */
 const CAPABILITY_PROBES = {
   iccid:{ label:'ICCID', candidates:[
     { cmd:'AT+ZICCID?', pattern:/\+ZICCID:\s*"?([0-9A-Za-z]{18,22})"?/i },
@@ -805,7 +792,6 @@ const CAPABILITY_PROBES = {
   ]},
 };
 
-/* 写串号候选 */
 const WRITE_IMEI_CANDIDATES = {
   zxic:{ enter:'AT*PROD=1', write:(v)=>`AT*MRD_IMEI=W,0,01JAN1970,${v}`, exit:'AT*PROD=0', label:'中兴微（MRD_IMEI）' },
   asr4g:{ enter:'AT*PROD=1', write:(v)=>`AT*MRD_IMEI=W,0,01JAN1970,${v}`, exit:'AT*PROD=0', label:'ASR（MRD_IMEI）' },
@@ -823,7 +809,6 @@ const WRITE_SN_CANDIDATES = {
   mtk:{ enter:null, write:(v)=>`AT*MRD_SN=W,0,01JAN1970,${v}`, exit:null, label:'联发科（MRD_SN）' },
 };
 
-/* 切卡候选 */
 const SIM_SWITCH_CANDIDATES = {
   external:[
     { cmd:'AT+ZCARDSWITCH=0', repeat:5, label:'中兴微' },
@@ -841,7 +826,6 @@ const SIM_SWITCH_CANDIDATES = {
   ],
 };
 
-/* 切卡预期值映射 */
 const EXPECTED_SLOT_VALUE = {
   zcardswitch:{ external:0, internal:1 },
   cardmode_asr:{ external:1, internal:0 },
@@ -850,7 +834,6 @@ const EXPECTED_SLOT_VALUE = {
   qdsim:{ external:1, internal:0 },
 };
 
-/* ADB 候选 */
 const ADB_CANDIDATES = {
   enable:[
     { cmd:'AT+ZADB=1', label:'中兴微' },
@@ -872,7 +855,6 @@ const ADB_CANDIDATES = {
   ],
 };
 
-/* 去云控分芯片 AT 层候选 */
 const CLOUD_REMOVE_AT = {
   zxic:     ['AT*PROD=1','AT+ZCLOUD=0','AT+ZCLOUDCFG=0','AT+ZCLOUDURL=""','AT*PROD=0','AT+RESET'],
   asr4g:    ['AT*PROD=1','AT+CLOUD=0','AT+CLOUDSWITCH=0','AT*PROD=0','AT+RESET'],
@@ -949,7 +931,6 @@ const state = {
   lastWriteResult:null,
 };
 
-/* ═══════════════════════════════════════════════════════════════════════════ */
 function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
 function toast(msg,type='info',dur=3000){
   const c=document.getElementById('toastContainer');
@@ -1015,7 +996,6 @@ async function setRTS(value){
   catch(e){ termWrite(`RTS 设置失败: ${e.message}`,'err'); }
 }
 
-/* 状态更新 */
 function setAdbStatus(status,detail){
   state.adbStatus=status;
   const badge=document.getElementById('adbStatusBadge'), textEl=document.getElementById('adbStatusText'), line=document.getElementById('adbStatusLine');
@@ -1060,7 +1040,6 @@ function setWriteStatus(text,cls){
   textEl.textContent=text;
 }
 
-/* 动态面板 */
 function renderRightPanel(){
   const connected=state.connected, chipId=state.detectedChipId;
   const netType=(state.networkType==='5g')?'5G':(state.networkType==='4g'?'4G':null);
@@ -1101,7 +1080,6 @@ function updateSimHints(){
   if(tipEl)tipEl.innerHTML='<b>切卡说明：</b>工具会按候选列表依次尝试，并自动验证切换结果。';
 }
 
-/* 频段锁定渲染 */
 function renderBandLockSection(){
   const grid=document.getElementById('bandGrid'), badge=document.getElementById('bandModeBadge'), tip=document.getElementById('bandTip');
   if(!grid)return; grid.innerHTML='';
@@ -1168,7 +1146,6 @@ function renderBandLockSection(){
   tip.innerHTML=cfg.tip;
 }
 
-/* 自定义频段 */
 function openCustomBandModal(){
   const chipId=state.detectedChipId, cfg=BAND_LOCK_CONFIG[chipId];
   if(!cfg||cfg.mode==='unsupported'){ toast('该芯片不支持 AT 锁频','error'); return; }
@@ -1207,7 +1184,6 @@ async function sendCustomBandCmd(){
   else{ for(const b of bands){ const cmd=cfg.build4g(b); if(cmd){ termWrite(cmd,'cmd'); try{ await writeToPort(cmd); }catch(e){break;} await sleep(800);} } setBandStatus(`已依次发送 ${bands.length} 条指令`,'on'); toast(`已依次发送 ${bands.length} 条锁频指令`,'success',4000); }
 }
 
-/* USB 连接 */
 async function connectUSB(){
   if(!('serial' in navigator)){ toast('浏览器不支持 Web Serial','error',5000); return; }
   try{
@@ -1340,7 +1316,6 @@ async function testATComms(){
   else{ termWrite('✗ AT 无响应','err'); toast('AT 通信失败','error',5000); }
 }
 
-/* 指纹 + 芯片识别 */
 async function wakeAndFingerprint(){
   let woke=false;
   for(let i=0;i<3;i++){ const r=await queryAndCollect('AT',1500); if(isValidResponse(r)){ woke=true; break; } await sleep(300); }
@@ -1459,7 +1434,6 @@ async function queryAllByCapabilities(){
   termWrite('设备信息读取完成。','info');
 }
 
-/* 响应解析 */
 function parseAnyResponse(line){
   let m;
   m=line.match(/[+*](?:QCCID|ICCID|CCID|ICID|ZICCID)[:\s]*"?([0-9A-Za-z]{18,22})"?/i);
@@ -1560,7 +1534,6 @@ function renderCapList(){
 }
 function updateCmdHintsFromCaps(){ updateSimHints(); }
 
-/* 切卡 */
 async function switchCard(direction){
   if(!state.connected){ toast('请先连接','error'); return; }
   const candidates=SIM_SWITCH_CANDIDATES[direction];
@@ -1648,7 +1621,6 @@ async function queryCurrentCard(){
   else{ termWrite('✓ 卡槽状态已更新','resp'); }
 }
 
-/* ADB */
 async function openADB(){
   if(!state.connected){ toast('请先连接','error'); return; }
   termWrite('═══ 开启 ADB（多候选）═══','info');
@@ -1687,7 +1659,6 @@ async function closeADB(){
   else{ setAdbStatus('unknown','未找到可用指令'); toast('未找到能用的 ADB 关闭指令','error',4000); }
 }
 
-/* 网络类型 */
 async function detectNetworkType(){
   termWrite('探测网络类型...','info');
   await sleep(300);
@@ -1710,7 +1681,6 @@ function setNetworkType(type,subText){
   if(state.connected)renderRightPanel();
 }
 
-/* IP */
 async function queryPublicIPv4(){
   const apis=[{url:'https://api.ipify.org?format=json',type:'json',key:'ip'},{url:'https://ipv4.icanhazip.com',type:'text'},{url:'https://ipv4.ident.me',type:'text'},{url:'https://4.ipw.cn',type:'text'}];
   for(const api of apis){
@@ -1789,7 +1759,6 @@ async function refreshIPs(){
   updateIPButtonVisibility();
 }
 
-/* 通用辅助 */
 function mapOperatorName(name){
   if(!name)return null;
   const n=name.toUpperCase();
@@ -1906,13 +1875,12 @@ function resetDeviceInfo(){
   renderCapList();
 }
 
-/* ═══ v0.9.8 多节点测速 ═══ */
+/* ═══ v0.9.9 多节点测速 ═══ */
 async function toggleSpeedtest(){
   if(state.speedtesting){ if(state.speedtestAbort)state.speedtestAbort.abort(); return; }
   await startSpeedtest();
 }
 
-/* 延迟测量：排除首次，取中位数 */
 async function measureLatencyAndLoss(source){
   const times = []; let fails = 0;
   const total = 6;
@@ -1937,7 +1905,6 @@ async function measureLatencyAndLoss(source){
   return { avgLatency: median, lossRate: fails/5, source: source.name };
 }
 
-/* 下载测速：Range 限流 + 硬超时 */
 async function measureDownload(source){
   const ctrl = new AbortController();
   const hardTimer = setTimeout(() => ctrl.abort(), 20000);
@@ -2021,7 +1988,6 @@ async function startSpeedtest(){
   let usedSource = null;
 
   try{
-    /* 阶段 1: 延迟+丢包（优先当前选中源）*/
     document.getElementById('speedStatus').textContent = '① 测量延迟与丢包...';
     const trySources = [currentSpeedtestSource, ...SPEEDTEST_SOURCES.filter(s => s.id !== currentSpeedtestSource.id)];
     let ll = null;
@@ -2038,7 +2004,7 @@ async function startSpeedtest(){
     const latEl = document.getElementById('speedLatency');
     if (ll && ll.avgLatency !== null){
       latEl.innerHTML = `${ll.avgLatency.toFixed(0)} <small>ms</small>`;
-      latEl.className = 'speedtest-value ' + (ll.avgLatency<100?'ok':ll.avgLatency<200?'warn':'err');
+      latEl.className = 'speedtest-value ' + (ll.avgLatency<150?'ok':ll.avgLatency<400?'warn':'err');
       latEl.title = `测试源：${ll.source}`;
     }else{
       latEl.innerHTML = '失败 <small>ms</small>'; latEl.className = 'speedtest-value err';
@@ -2055,7 +2021,6 @@ async function startSpeedtest(){
 
     if (!state.speedtesting) throw new Error('user abort');
 
-    /* 阶段 2: 下载（多源尝试）*/
     document.getElementById('speedStatus').textContent = '② 测量下载速度...';
     let dl = null;
     for (const src of trySources){
@@ -2080,7 +2045,6 @@ async function startSpeedtest(){
 
     if (!state.speedtesting) throw new Error('user abort');
 
-    /* 阶段 3: 上传 */
     document.getElementById('speedStatus').textContent = '③ 测量上传速度...';
     const upSpeed = await measureUpload();
     lastT = Date.now();
@@ -2092,27 +2056,35 @@ async function startSpeedtest(){
       upEl.innerHTML = '失败 <small>Mbps</small>'; upEl.className = 'speedtest-value err';
     }
 
-    /* 综合评估 */
     document.getElementById('speedBar').style.width = '100%';
     document.getElementById('speedStatus').textContent = `完成 · ${usedSource?usedSource.name:''} · 下载 ${dl.elapsed.toFixed(1)}s`;
 
-    const issues = [];
-    if (dl.speed < 5) issues.push(`下载 ${dl.speed.toFixed(1)}<5`);
-    if (upSpeed !== null && upSpeed < 1) issues.push(`上传 ${upSpeed.toFixed(2)}<1`);
-    if (ll && ll.avgLatency !== null && ll.avgLatency > 200) issues.push(`延迟 ${ll.avgLatency.toFixed(0)}>200`);
-    if (ll && ll.lossRate > 0.05) issues.push(`丢包 ${(ll.lossRate*100).toFixed(0)}%>5%`);
+    /* ★ v0.9.9：速度类异常判限速；延迟/丢包只作网络质量提示 */
+    const speedIssues = [];
+    const qualityNotes = [];
+
+    if (dl.speed < 5) speedIssues.push(`下载 ${dl.speed.toFixed(1)}<5`);
+    if (upSpeed !== null && upSpeed < 1) speedIssues.push(`上传 ${upSpeed.toFixed(2)}<1`);
+    if (ll && ll.lossRate > 0.05) qualityNotes.push(`丢包 ${(ll.lossRate*100).toFixed(0)}%>5%`);
+    if (ll && ll.avgLatency !== null && ll.avgLatency > 500) qualityNotes.push(`延迟 ${ll.avgLatency.toFixed(0)}>500ms`);
 
     const verdict = document.getElementById('speedVerdict');
-    if (issues.length === 0){
+    if (speedIssues.length === 0){
       verdict.textContent = '✓ 未检测到明显限速特征';
+      if (qualityNotes.length > 0){
+        verdict.textContent += '（网络质量：' + qualityNotes.join('，') + '）';
+      }
       verdict.className = 'speedtest-verdict ok';
       setCloudStatus('safe');
       toast('多维测速：未发现限速特征','success',4000);
     }else{
-      verdict.textContent = '⚠ 疑似限速：' + issues.join('，');
+      verdict.textContent = '⚠ 疑似限速：' + speedIssues.join('，');
+      if (qualityNotes.length > 0){
+        verdict.textContent += '｜' + qualityNotes.join('，');
+      }
       verdict.className = 'speedtest-verdict risk';
       setCloudStatus('risk');
-      toast(`多维测速：疑似限速（${issues.length} 项异常）`,'error',5000);
+      toast(`多维测速：疑似限速（${speedIssues.length} 项异常）`,'error',5000);
     }
   }catch(err){
     if (err.name === 'AbortError' || err.message === 'user abort'){
@@ -2131,7 +2103,6 @@ async function startSpeedtest(){
   }
 }
 
-/* 云控 */
 function setCloudStatus(status){
   const el=document.getElementById('cloudStatus'), text=document.getElementById('cloudStatusText');
   el.className='cloud-status '+status;
@@ -2156,19 +2127,22 @@ async function checkCloudControl(){
       const upVal=parseFloat(document.getElementById('speedUpload').textContent);
       const latVal=parseFloat(document.getElementById('speedLatency').textContent);
       const lossVal=parseFloat(document.getElementById('speedLoss').textContent);
-      const issues=[];
-      if(!isNaN(dlVal)&&dlVal<5)issues.push(`下载 ${dlVal.toFixed(1)} Mbps`);
-      if(!isNaN(upVal)&&upVal<1)issues.push(`上传 ${upVal.toFixed(2)} Mbps`);
-      if(!isNaN(latVal)&&latVal>200)issues.push(`延迟 ${latVal.toFixed(0)} ms`);
-      if(!isNaN(lossVal)&&lossVal>5)issues.push(`丢包 ${lossVal.toFixed(0)}%`);
-      if(issues.length===0){
+      const speedIssues=[];
+      const qualityNotes=[];
+      if(!isNaN(dlVal)&&dlVal<5)speedIssues.push(`下载 ${dlVal.toFixed(1)} Mbps`);
+      if(!isNaN(upVal)&&upVal<1)speedIssues.push(`上传 ${upVal.toFixed(2)} Mbps`);
+      if(!isNaN(latVal)&&latVal>500)qualityNotes.push(`延迟 ${latVal.toFixed(0)} ms`);
+      if(!isNaN(lossVal)&&lossVal>5)qualityNotes.push(`丢包 ${lossVal.toFixed(0)}%`);
+      if(speedIssues.length===0){
         setCloudStatus('safe');
         toast('未检测到明显限速特征','success');
-        setCloudOpStatus('check','safe','多维测速均正常');
+        let detail='多维测速均正常';
+        if(qualityNotes.length>0)detail='网络质量提示：'+qualityNotes.join('，');
+        setCloudOpStatus('check','safe',detail);
       }else{
         setCloudStatus('risk');
         toast('疑似被限速','error',5000);
-        setCloudOpStatus('check','risk',`异常项：${issues.join('，')}`);
+        setCloudOpStatus('check','risk',`限速异常：${speedIssues.join('，')}`);
       }
     }
   }catch(err){ termWrite(`云控检测出错: ${err.message}`,'err'); setCloudOpStatus('check','error',`检测出错`); }
@@ -2230,7 +2204,6 @@ async function sendCloudCmd(){
   }
 }
 
-/* 写入 IMEI/SN */
 let writeContext={type:null,value:'',isDelete:false};
 function getWriteCandidate(baseType){
   const override=document.getElementById('writeSyntaxOverride');
@@ -2457,7 +2430,6 @@ function closeWriteModalForce(){
   document.getElementById('writeCancelBtn').disabled=false;
 }
 
-/* 初始化 */
 (function initChipDropdown(){
   const sel=document.getElementById('chipPlatform');
   FALLBACK_CHIPS.forEach(c=>{
@@ -2524,8 +2496,8 @@ window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close
   setCloudOpStatus(null,null);
   renderRightPanel();
 
-  termWrite('随身WiFi调试助手 v0.9.8 · 多节点测速版已就绪','info');
-  termWrite('v0.9.8 修复：测速换用国内 CDN（腾讯/阿里/网易），延迟取中位数，多源自动切换','info');
+  termWrite('随身WiFi调试助手 v0.9.9 · 测速节点优化版已就绪','info');
+  termWrite('v0.9.9：测速节点移至右侧限速检测区；国内 CDN 前置（阿里/网易）；延迟阈值放宽至 500ms','info');
 
   if(!('serial' in navigator)){
     termWrite('⚠ 当前浏览器不支持 Web Serial API，请使用 Chrome / Edge 89+ 桌面版。','err');
