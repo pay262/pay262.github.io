@@ -613,7 +613,7 @@ adb shell reboot</pre>
 const LINE_ENDING_MAP = { crlf:'\r\n', cr:'\r', lf:'\n' };
 function getLineEnding(){ return LINE_ENDING_MAP[document.getElementById('lineEnding').value] || '\r\n'; }
 
-/* ★ v0.9.9：国内 CDN 前置（阿里/网易），Cloudflare 兜底 */
+/* ★ v0.9.9：国内 CDN 前置 + 运营商专属测速节点 */
 const SPEEDTEST_SOURCES = [
   {
     id:'aliyun', name:'阿里云 CDN', operator:'通用',
@@ -635,6 +635,50 @@ const SPEEDTEST_SOURCES = [
     latencyUrl: 'https://speed.cloudflare.com/__down?bytes=1024',
     downloadRange: null,
     latencyRange: null,
+  },
+
+  /* ★ 运营商专属测速节点 */
+  {
+    id:'migu', name:'咪咕视频', operator:'中国移动',
+    downloadUrl:'https://img.cmvideo.cn/publish/noms/2023/12/06/1O4SHFIFR36BD.gif',
+    latencyUrl: 'https://img.cmvideo.cn/publish/noms/2023/12/06/1O4SHFIFR36BD.gif',
+    downloadRange: null,
+    latencyRange: null,
+  },
+  {
+    id:'hecaiyun', name:'和彩云', operator:'中国移动',
+    downloadUrl:'https://img.mcloud.139.com/material_prod/material_media/20221128/1669626861087.png',
+    latencyUrl: 'https://img.mcloud.139.com/material_prod/material_media/20221128/1669626861087.png',
+    downloadRange: null,
+    latencyRange: null,
+  },
+  {
+    id:'cmcc', name:'中国移动', operator:'中国移动',
+    downloadUrl:'https://www.10086.cn/',
+    latencyUrl: 'https://www.10086.cn/',
+    downloadRange: 3 * 1024 * 1024,
+    latencyRange: 1024,
+  },
+  {
+    id:'tianyi', name:'天翼云桌面', operator:'中国电信',
+    downloadUrl:'https://desk.ctyun.cn:8999/desktop-prod/software/windows_tob_client/15/64/202010003/CtyunClouddeskUniversal_2.1.0_202010003_x86_20230905151733_Setup_signed.exe',
+    latencyUrl: 'https://desk.ctyun.cn:8999/desktop-prod/software/windows_tob_client/15/64/202010003/CtyunClouddeskUniversal_2.1.0_202010003_x86_20230905151733_Setup_signed.exe',
+    downloadRange: 5 * 1024 * 1024,
+    latencyRange: 1024,
+  },
+  {
+    id:'liantong', name:'联通公免', operator:'中国联通',
+    downloadUrl:'https://m1.ad.10010.com/small_video/uploadImg/1598021193891.jpg',
+    latencyUrl: 'https://m1.ad.10010.com/small_video/uploadImg/1598021193891.jpg',
+    downloadRange: null,
+    latencyRange: null,
+  },
+  {
+    id:'wo', name:'沃视频', operator:'中国联通',
+    downloadUrl:'https://v.wo.cn/',
+    latencyUrl: 'https://v.wo.cn/',
+    downloadRange: 3 * 1024 * 1024,
+    latencyRange: 1024,
   },
 ];
 
@@ -1907,7 +1951,9 @@ async function measureLatencyAndLoss(source){
 
 async function measureDownload(source){
   const ctrl = new AbortController();
-  const hardTimer = setTimeout(() => ctrl.abort(), 20000);
+  /* 大文件源给 40s，普通源 15s */
+  const timeoutMs = (source.downloadRange && source.downloadRange >= 5*1024*1024) ? 40000 : 15000;
+  const hardTimer = setTimeout(() => ctrl.abort(), timeoutMs);
   try{
     const headers = source.downloadRange ? { 'Range': `bytes=0-${source.downloadRange-1}` } : {};
     const st = performance.now();
@@ -2449,18 +2495,36 @@ function closeWriteModalForce(){
   const sel=document.getElementById('speedtestSource');
   if(!sel)return;
   sel.innerHTML='';
-  SPEEDTEST_SOURCES.forEach(s=>{
-    const opt=document.createElement('option');
-    opt.value=s.id;
-    opt.textContent=`${s.name}（${s.operator}）`;
-    sel.appendChild(opt);
+
+  /* 按运营商分组生成 <optgroup> */
+  const order = ['通用', '中国移动', '中国电信', '中国联通', '海外'];
+  const groups = {};
+  order.forEach(k => groups[k] = []);
+  SPEEDTEST_SOURCES.forEach(s => {
+    if(!groups[s.operator]) groups[s.operator] = [];
+    groups[s.operator].push(s);
   });
-  sel.value=currentSpeedtestSource.id;
-  sel.addEventListener('change',()=>{
-    const picked=SPEEDTEST_SOURCES.find(s=>s.id===sel.value);
+
+  for(const op of Object.keys(groups)){
+    const list = groups[op];
+    if(!list.length) continue;
+    const og = document.createElement('optgroup');
+    og.label = op;
+    list.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.id;
+      opt.textContent = s.name;
+      og.appendChild(opt);
+    });
+    sel.appendChild(og);
+  }
+
+  sel.value = currentSpeedtestSource.id;
+  sel.addEventListener('change', () => {
+    const picked = SPEEDTEST_SOURCES.find(s => s.id === sel.value);
     if(picked){
-      currentSpeedtestSource=picked;
-      toast(`测速节点已切换为：${picked.name}`,'info',2000);
+      currentSpeedtestSource = picked;
+      toast(`测速节点已切换为：${picked.name}（${picked.operator}）`, 'info', 2000);
     }
   });
 })();
@@ -2498,6 +2562,7 @@ window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close
 
   termWrite('随身WiFi调试助手 v0.9.9 · 测速节点优化版已就绪','info');
   termWrite('v0.9.9：测速节点移至右侧限速检测区；国内 CDN 前置（阿里/网易）；延迟阈值放宽至 500ms','info');
+  termWrite('本次新增：咪咕视频 / 和彩云 / 天翼云桌面 / 联通公免 等运营商专属测速节点','info');
 
   if(!('serial' in navigator)){
     termWrite('⚠ 当前浏览器不支持 Web Serial API，请使用 Chrome / Edge 89+ 桌面版。','err');
