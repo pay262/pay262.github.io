@@ -198,7 +198,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v0.9.11</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v0.9.12</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -263,7 +263,7 @@
           <button class="btn btn-danger" id="btnDisconnectUSB" onclick="disconnect()" disabled>断开连接</button>
         </div>
         <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          <b style="color:var(--accent);">v0.9.11：</b>区分当前/支持/锁定频段，锁频高亮同步真实频段。
+          <b style="color:var(--accent);">v0.9.12：</b>URC 过滤（CREG/CEREG/ZLTENOCELL），当前频段多候选回退。
         </div>
       </div>
       <div id="panelWiFi" class="hidden">
@@ -305,7 +305,7 @@
     </div>
     <div class="terminal-wrap">
       <div class="terminal" id="terminal">
-        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.11。</span></div>
+        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.12。</span></div>
       </div>
       <div class="terminal-input-row">
         <span class="prompt">AT&gt;</span>
@@ -775,13 +775,13 @@ const CAPABILITY_PROBES = {
     { cmd:'AT+VER',  pattern:/\+VER:\s*"?([^"\r\n]+)"?/i },
     { cmd:'AT+GMR',  pattern:/\+GMR:\s*"?([^"\r\n]+)"?/i },
   ]},
-  /* ★ 当前真实频段：优先 BANDIND（单频段） */
   band:{ label:'当前频段', candidates:[
-    { cmd:'AT*BANDIND?',   pattern:/[*]BANDIND:\s*([\d,\s]+)/i,   decoder:'bandind' },
-    { cmd:'AT+ZBANDIND?',  pattern:/\+ZBANDIND:\s*([\d,\s]+)/i,  decoder:'bandind' },
-    { cmd:'AT+ZBAND?',     pattern:/\+ZBAND:\s*([\d,\s]+)/i,     decoder:'bandind' },
+    { cmd:'AT*BANDIND?',    pattern:/[*]BANDIND:\s*([\d,\s]+)/i,    decoder:'bandind' },
+    { cmd:'AT+ZBANDIND?',   pattern:/\+ZBANDIND:\s*([\d,\s]+)/i,   decoder:'bandind' },
+    { cmd:'AT+CPSI?',       pattern:/\+CPSI:\s*([^\r\n]+)/i,       decoder:'cpsiBand' },
+    { cmd:'AT+ZCELLINFO?',  pattern:/\+ZCELLINFO:\s*([^\r\n]+)/i,  decoder:'zcellinfoBand' },
+    { cmd:'AT+ZBAND?',      pattern:/\+ZBAND:\s*([\d,\s]+)/i,      decoder:'bandind' },
   ]},
-  /* ★ 支持频段：设备硬件能力列表 */
   supportBand:{ label:'支持频段', candidates:[
     { cmd:'AT+ZLTEAMTBAND?', pattern:/\+ZLTEAMTBAND:\s*([\d,\s]+)/i, decoder:'zband' },
     { cmd:'AT+ZLTEBAND?',    pattern:/\+ZLTEBAND:\s*([\d,\s]+)/i,    decoder:'zband' },
@@ -918,7 +918,6 @@ const DECODERS = {
     return null;
   },
   mrd_imei:(r)=>{ const d=r.replace(/[^0-9]/g,''); return d.length===15?d:null; },
-  /* ★ 单一频段：形如 "3" 或 "B3"，返回 "LTE B3" */
   bandind:(r)=>{
     const p=r.split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n));
     let b=null;
@@ -927,7 +926,22 @@ const DECODERS = {
     if(!b||b<=0||b>=300)return null;
     return 'LTE B'+b;
   },
-  /* ★ 中兴微掩码：每字节 8 位，共 8 字节有效，第9字节是标志位 */
+  cpsiBand:(s)=>{
+    const str=(s||'').trim();
+    let m=str.match(/BAND(\d+)/i);
+    if(m)return 'LTE B'+m[1];
+    m=str.match(/\bB(\d{1,2})\b/);
+    if(m)return 'LTE B'+m[1];
+    return null;
+  },
+  zcellinfoBand:(s)=>{
+    const str=(s||'').trim();
+    let m=str.match(/BAND(\d+)/i)||str.match(/\bB(\d{1,2})\b/);
+    if(m)return 'LTE B'+m[1];
+    const p=str.split(',').map(x=>parseInt(x.trim())).filter(n=>!isNaN(n)&&n>0&&n<100);
+    if(p.length===1)return 'LTE B'+p[0];
+    return null;
+  },
   zband:(r)=>{
     const p=r.split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n));
     const bs=[];
@@ -959,6 +973,50 @@ const FALLBACK_CHIPS = [
   { id:'mtk', name:'联发科', detection:'MT' },
 ];
 
+/* ★ URC 过滤器（避免 +CREG / +CEREG / +ZLTENOCELL 刷屏） */
+const URC_PATTERNS = [
+  { re:/^\+ZLTENOCELL\s*$/i,                    handler:'nocell' },
+  { re:/^\+CREG:\s*(\d+)/i,                     handler:'creg' },
+  { re:/^\+CGREG:\s*(\d+)/i,                    handler:'creg' },
+  { re:/^\+CEREG:\s*(\d+)/i,                    handler:'creg' },
+  { re:/^\+C5GREG:\s*(\d+)/i,                   handler:'creg5g' },
+];
+let lastURCState = { nocell:false, creg:null, creg5g:null };
+
+function updateNetFromURC(st){
+  const i=document.getElementById('netTypeIcon'), v=document.getElementById('netTypeValue'), s=document.getElementById('netTypeSub');
+  if(!i||!v||!s)return;
+  if(st===4){ i.className='icon unknown'; i.textContent='?'; v.className='value unknown'; v.textContent='无服务'; s.textContent='搜索中…'; }
+}
+function handleURC(line){
+  for(const p of URC_PATTERNS){
+    const m=line.match(p.re);
+    if(!m)continue;
+    if(p.handler==='nocell'){
+      if(lastURCState.nocell!==true){
+        lastURCState.nocell=true;
+        termWrite('⚠ 设备无服务小区（网络掉线）','info');
+        updateNetFromURC(4);
+      }
+      return true;
+    }
+    if(p.handler==='creg'||p.handler==='creg5g'){
+      const st=parseInt(m[1]);
+      const key=p.handler;
+      if(lastURCState[key]!==st){
+        lastURCState[key]=st;
+        lastURCState.nocell=false;
+        if(p.handler==='creg5g'&&(st===1||st===5)){ setNetworkType('5g','C5GREG 已注册'); }
+        else if(st===1||st===5){ setNetworkType('4g','已注册'); }
+        else if(st===2){ updateNetFromURC(4); }
+      }
+      return true;
+    }
+    return true;
+  }
+  return false;
+}
+
 const state = {
   connected:false, port:null, reader:null, readLoopActive:false,
   logBuffer:[], responseBuffer:'', maxLogLines:500,
@@ -969,7 +1027,7 @@ const state = {
   speedtesting:false, speedtestAbort:null, writeInProgress:false,
   deviceFingerprint:null, capabilities:null, capabilitySource:'fresh', probing:false,
   detectedChipId:null, detectedChipName:null,
-  activeBands:[],           /* 当前真实连接的频段号数组 */
+  activeBands:[],
   adbStatus:'unknown', adbStatusCmd:null,
   simSwitchStatus:'unknown', simSwitchCmd:null,
   cloudLastAction:null, cloudLastResult:null,
@@ -1290,7 +1348,10 @@ async function startReadLoop(){
           buffer=lines.pop()||'';
           for(const line of lines){
             const trimmed=line.trim();
-            if(trimmed){ termWrite(trimmed,'resp'); parseAnyResponse(trimmed); state.responseBuffer+=trimmed+'\n'; }
+            if(!trimmed)continue;
+            /* ★ URC 先处理，避免刷屏 */
+            if(handleURC(trimmed)){ state.responseBuffer+=trimmed+'\n'; continue; }
+            termWrite(trimmed,'resp'); parseAnyResponse(trimmed); state.responseBuffer+=trimmed+'\n';
           }
         }
       }
@@ -1392,7 +1453,6 @@ async function wakeAndFingerprint(){
   termWrite(`设备指纹: ${state.deviceFingerprint}`,'info');
   termWrite(`指纹原文: ${raw.substring(0,150)}`,'info');
 
-  /* 芯片识别 */
   const combined=(ati+' '+cgmi+' '+cgmm+' '+cgmr);
   let chipId=null, chipName=null;
   for(const c of CHIP_IDENTIFIERS){
@@ -1495,32 +1555,26 @@ async function queryAllByCapabilities(){
 
 function parseAnyResponse(line){
   let m;
-  /* ICCID */
   m=line.match(/[+*](?:QCCID|ICCID|CCID|ICID|ZICCID)[:\s]*"?([0-9A-Za-z]{18,22})"?/i);
   if(m)setInfoValue('ICCID',m[1]);
   else if(/^89\d{17,19}[A-Za-z0-9]*$/.test(line))setInfoValue('ICCID',line);
   else{ m=line.match(/\+CRSM:\s*\d+,\d+,\s*(?:"([0-9A-Fa-f\s]+)"|([0-9A-Fa-f]+))/i); if(m){ const v=DECODERS.crsm(m[1]||m[2]); if(v)setInfoValue('ICCID',v); } }
 
-  /* IMEI */
   m=line.match(/\+CGSN[:\s]+"?(\d{14,16})"?/i);
   if(m)setInfoValue('IMEI',m[1]);
   else if(/^\d{15}$/.test(line))setInfoValue('IMEI',line);
 
-  /* SN */
   m=line.match(/[*+]MRD_SN[:\s]+"?([A-Za-z0-9]{6,30})"?/i)
     ||line.match(/\+ZSN[:\s]+"?([A-Za-z0-9]{6,30})"?/i)
     ||line.match(/\+GSN[:\s]+"?([A-Za-z0-9]{6,30})"?/i)
     ||line.match(/\+SN[:\s]+"?([A-Za-z0-9]{6,30})"?/i);
   if(m&&!state.rawValues.SN&&m[1]!==state.rawValues.IMEI&&!/^\d{15}$/.test(m[1]))setInfoValue('SN',m[1]);
 
-  /* 固件 */
   m=line.match(/\+CGMR[:\s]+"?([^"\r\n]+)"?/i)||line.match(/[+*]VER[:\s]+"?([^"\r\n]+)"?/i)||line.match(/\+ASRVERSION[:\s]+"?([^"\r\n]+)"?/i);
   if(m)setInfo('infoVER',m[1].trim());
 
-  /* MAC2（先解析，避免与 MAC 冲突） */
   m=line.match(/\+MAC2[:\s]*"?([0-9A-Fa-f:]{12,20})"?/i);
   if(m){ setInfo('infoMAC2',m[1].replace(/:/g,'').toUpperCase(),'ok'); }
-  /* MAC1 */
   m=line.match(/\+MAC[:\s]*"?([0-9A-Fa-f:]{12,20})"?/i);
   if(m){ setInfo('infoMAC',m[1].replace(/:/g,'').toUpperCase(),'ok'); }
   else{
@@ -1528,7 +1582,6 @@ function parseAnyResponse(line){
     if(m)setInfo('infoMAC',m[1].replace(/:/g,'').toUpperCase(),'ok');
   }
 
-  /* CSQ */
   m=line.match(/\+CSQ[:\s]*(\d+)/);
   if(m){
     const csq=parseInt(m[1]); const el=document.getElementById('infoCSQ');
@@ -1543,7 +1596,6 @@ function parseAnyResponse(line){
     }
   }
 
-  /* COPS */
   m=line.match(/\+COPS[:\s]*(\d+)(?:,\s*(\d+)\s*,\s*(?:"([^"]*)"|(\d+)))?/i);
   if(m){
     const mode=parseInt(m[1]);
@@ -1559,7 +1611,6 @@ function parseAnyResponse(line){
     }
   }
 
-  /* 卡槽 */
   m=line.match(/\+ZCARDSWITCH[:\s]*(\d+)/i);
   if(m){
     const slot=DECODERS.zcardswitch(m[1]);
@@ -1578,7 +1629,7 @@ function parseAnyResponse(line){
     }
   }
 
-  /* ★ 锁定配置 +ZLTEBAND（全0 = 未锁定） */
+  /* ★ 锁定配置 +ZLTEBAND */
   m=line.match(/\+ZLTEBAND[:\s]*([\d,\s]+)/i);
   if(m){
     const el=document.getElementById('infoLockBand');
@@ -1589,7 +1640,7 @@ function parseAnyResponse(line){
       el.title='原始掩码: '+m[1];
     }
   }
-  /* ★ 支持频段 +ZLTEAMTBAND（设备能力列表） */
+  /* ★ 支持频段 +ZLTEAMTBAND */
   m=line.match(/\+ZLTEAMTBAND[:\s]*([\d,\s]+)/i);
   if(m){
     const el=document.getElementById('infoSupportBand');
@@ -1599,7 +1650,7 @@ function parseAnyResponse(line){
       else{ el.textContent='—'; el.className='info-value empty'; }
     }
   }
-  /* ★ 当前真实频段 BANDIND / ZBANDIND（单一频段） */
+  /* ★ 当前真实频段（多源） */
   m=line.match(/[*+](?:BANDIND|ZBANDIND)[:\s]*([\d,\s]+)/i);
   if(m){
     const el=document.getElementById('infoBand');
@@ -1614,9 +1665,33 @@ function parseAnyResponse(line){
       el.textContent='未注册'; el.className='info-value warn';
       state.activeBands = [];
     }
+  }else{
+    /* CPSI / ZCELLINFO 回退 */
+    m=line.match(/\+CPSI[:\s]*([^\r\n]+)/i);
+    if(m){
+      const v=DECODERS.cpsiBand(m[1]);
+      if(v){
+        const el=document.getElementById('infoBand');
+        el.textContent=v; el.className='info-value net4g';
+        const bm=v.match(/B(\d+)/);
+        state.activeBands = bm ? [parseInt(bm[1])] : [];
+        if(state.connected && state.detectedChipId) renderBandLockSection();
+      }
+    }else{
+      m=line.match(/\+ZCELLINFO[:\s]*([^\r\n]+)/i);
+      if(m){
+        const v=DECODERS.zcellinfoBand(m[1]);
+        if(v){
+          const el=document.getElementById('infoBand');
+          el.textContent=v; el.className='info-value net4g';
+          const bm=v.match(/B(\d+)/);
+          state.activeBands = bm ? [parseInt(bm[1])] : [];
+          if(state.connected && state.detectedChipId) renderBandLockSection();
+        }
+      }
+    }
   }
 
-  /* ★ QCI + AMBR 限速判断 */
   m=line.match(/\+CGEQOSRDP[:\s]*(\d+),(\d+)/i);
   if(m){
     const qci=parseInt(m[2]);
@@ -1808,6 +1883,8 @@ async function detectNetworkType(){
   if(/\+CESQ:/i.test(cesq)){ setNetworkType('4g','CESQ 响应'); return; }
   const cops=await queryAndCollect('AT+COPS?',1200);
   if(/\+COPS:\s*0,\s*2/.test(cops)){ setNetworkType('4g','COPS 已注册'); return; }
+  const creg=await queryAndCollect('AT+CEREG?',1200);
+  if(/\+CEREG:\s*\d+,\s*[15]/i.test(creg)){ setNetworkType('4g','CEREG 已注册'); return; }
   setNetworkType('unknown','无法判断');
 }
 function setNetworkType(type,subText){
@@ -2006,6 +2083,7 @@ function resetDeviceInfo(){
   state.capabilities=null; state.capabilitySource='fresh'; state.deviceFingerprint=null;
   state.detectedChipId=null; state.detectedChipName=null; state.networkType='unknown';
   state.activeBands=[];
+  lastURCState = { nocell:false, creg:null, creg5g:null };
   setAdbStatus('unknown','未开启');
   setSimStatus('unknown','未查询');
   setCloudOpStatus(null,null);
@@ -2649,8 +2727,8 @@ window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close
   setCloudOpStatus(null,null);
   renderRightPanel();
 
-  termWrite('随身WiFi调试助手 v0.9.11 · 频段语义分离版','info');
-  termWrite('v0.9.11：区分当前频段/支持频段/锁定配置；锁频区高亮同步真实连接频段','info');
+  termWrite('随身WiFi调试助手 v0.9.12 · URC 过滤 + 频段多源版','info');
+  termWrite('v0.9.12：过滤 +CREG/+CEREG/+ZLTENOCELL 刷屏；当前频段支持 AT*BANDIND? / AT+ZBANDIND? / AT+CPSI? / AT+ZCELLINFO? 多候选','info');
 
   if(!('serial' in navigator)){
     termWrite('⚠ 当前浏览器不支持 Web Serial API，请使用 Chrome / Edge 89+ 桌面版。','err');
