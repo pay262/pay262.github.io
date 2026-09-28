@@ -198,7 +198,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v0.9.21</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v0.9.22</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -263,7 +263,7 @@
           <button class="btn btn-danger" id="btnDisconnectUSB" onclick="disconnect()" disabled>断开连接</button>
         </div>
         <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          <b style="color:var(--accent);">v0.9.21：</b>重启改用 <code>AT+CFUN=1,1</code> 首选（ZRESET 只复位网络）；锁频后自动提示重启；IMEI 语法修复。
+          <b style="color:var(--accent);">v0.9.22：</b>重启后强制清理旧串口句柄；CFUN=1,1 首选整机重启；锁频后自动提示重启。
         </div>
       </div>
       <div id="panelWiFi" class="hidden">
@@ -305,7 +305,7 @@
     </div>
     <div class="terminal-wrap">
       <div class="terminal" id="terminal">
-        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.21。</span></div>
+        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.22。</span></div>
       </div>
       <div class="terminal-input-row">
         <span class="prompt">AT&gt;</span>
@@ -1375,6 +1375,34 @@ function renderBandLockSection(){
   tip.innerHTML=cfg.tip;
 }
 
+/* ═══ v0.9.22：强制释放旧串口句柄 ═══ */
+async function forceClosePort(){
+  termWrite('正在强制释放旧串口句柄...','info');
+  /* 1. 先停止读取循环 */
+  state.readLoopActive = false;
+  /* 2. cancel reader */
+  if(state.reader){
+    try{ await state.reader.cancel(); }catch(e){}
+    try{ state.reader.releaseLock(); }catch(e){}
+    state.reader = null;
+  }
+  /* 3. 等待读循环完全退出 */
+  await sleep(500);
+  /* 4. 关闭 port */
+  if(state.port){
+    try{
+      if(state.port.readable || state.port.writable){
+        await state.port.close();
+      }
+    }catch(e){}
+    state.port = null;
+  }
+  state.connected = false;
+  /* 5. 再等一下，让浏览器彻底释放 */
+  await sleep(300);
+  termWrite('✓ 旧串口句柄已释放','resp');
+}
+
 /* ═══ v0.9.21：多候选重启设备（CFUN=1,1 优先） ═══ */
 async function resetDevice(silent){
   if(!state.connected){ toast('请先连接','error'); return false; }
@@ -1413,18 +1441,15 @@ async function resetDevice(silent){
         termWrite(`✓ ${c.cmd} 返回 OK`,'resp');
       }
       if(!silent) toast(`✓ 已通过 ${c.cmd} 重启设备`,'success',5000);
-      state.resetting = false;
-      /* 主动清理串口连接状态 */
+
+      /* ★ v0.9.22：异步、有序清理串口 */
       setTimeout(async()=>{
-        try{ if(state.port) await state.port.close(); }catch(e){}
-        state.readLoopActive=false;
-        state.connected=false;
-        state.port=null;
-        state.reader=null;
+        await forceClosePort();
+        state.resetting = false;
         updateConnectionUI(false,'设备重启中');
         enableQuickButtons(false);
         renderRightPanel();
-        resetDeviceInfo();
+        /* 不清空设备信息，重连时自动刷新 */
         termWrite('⚠ 设备重启中，串口已断开','info');
         if(isCfun){
           termWrite('👉 请等待 30~60 秒，等设备重新枚举 USB 串口后，重新点击"🔌 选择串口并连接"','info');
@@ -1466,14 +1491,12 @@ async function sendBandCmd(cmd, cfg){
     }
     setBandStatus(`✓ 已发送：${cmd}`, 'on');
 
-    /* 2 秒后自动查询验证 */
     setTimeout(async()=>{
       if(!state.connected) return;
       const q=cfg && cfg.queryCmd ? cfg.queryCmd : 'AT+ZLTEBAND?';
       await queryAndCollect(q,1500);
     },2000);
 
-    /* 2.5 秒后弹出"必须重启"确认框 */
     setTimeout(async()=>{
       if(!state.connected) return;
       const doReset = confirm(
@@ -1566,6 +1589,14 @@ async function sendCustomBandCmd(){
 async function connectUSB(){
   if(!('serial' in navigator)){ toast('浏览器不支持 Web Serial','error',5000); return; }
   try{
+    /* ★ v0.9.22：先强制释放所有旧句柄 */
+    if(state.port || state.reader || state.readLoopActive){
+      termWrite('检测到旧串口句柄残留，正在清理...','info');
+      await forceClosePort();
+    }
+    state.connected = false;
+    state.resetting = false;
+
     const baud=getBaudRate(), flowControl=document.getElementById('flowControl').value;
     localStorage.setItem('atmaster_last_baud',baud);
     localStorage.setItem('atmaster_last_flow',flowControl);
@@ -1592,8 +1623,17 @@ async function connectUSB(){
       }catch(err){ termWrite(`⚠ 流程已中止: ${err.message}`,'err'); }
     },500);
   }catch(err){
-    if(err.name==='NotFoundError') termWrite('用户取消选择','err');
-    else{ termWrite(`连接失败: ${err.message}`,'err'); toast(`连接失败`,'error',5000); }
+    if(err.name==='NotFoundError'){ termWrite('用户取消选择','err'); }
+    else if(/Failed to open serial port/i.test(err.message)){
+      termWrite('❌ 串口打开失败，可能原因：','err');
+      termWrite('   1. 设备还在重启中，请再等 30 秒后重试','info');
+      termWrite('   2. 旧串口句柄未释放，请刷新页面（按 F5）后重试','info');
+      termWrite('   3. 其他软件（PuTTY/串口助手）占用了串口','info');
+      toast('串口打开失败：请等设备就绪，或刷新页面（F5）后重试','error',10000);
+    } else {
+      termWrite(`连接失败: ${err.message}`,'err');
+      toast(`连接失败`,'error',5000);
+    }
   }
 }
 async function startReadLoop(){
@@ -1825,7 +1865,6 @@ function parseAnyResponse(line){
   else if(/^89\d{17,19}[A-Za-z0-9]*$/.test(line))setInfoValue('ICCID',line);
   else{ m=line.match(/\+CRSM:\s*\d+,\d+,\s*(?:"([0-9A-Fa-f\s]+)"|([0-9A-Fa-f]+))/i); if(m){ const v=DECODERS.crsm(m[1]||m[2]); if(v)setInfoValue('ICCID',v); } }
 
-  /* ★ v0.9.20：IMEI 解析（修复 v0.9.19 语法错误） */
   m=line.match(/\+CGSN[:\s]+"?(\d{14,16})"?/i);
   if(m){
     setInfoValue('IMEI',m[1]);
@@ -3181,8 +3220,8 @@ window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close
   setCloudOpStatus(null,null);
   renderRightPanel();
 
-  termWrite('随身WiFi调试助手 v0.9.21 · 重启修复 + 锁频提示版','info');
-  termWrite('v0.9.21：重启改用 AT+CFUN=1,1（整机重启）；AT+ZRESET 降级为网络复位兜底；锁频后自动弹窗提示重启；IMEI 语法修复','info');
+  termWrite('随身WiFi调试助手 v0.9.22 · 重启后强制释放句柄版','info');
+  termWrite('v0.9.22：重启后强制清理旧串口句柄（先cancel reader、等500ms、再close、等300ms）；连接失败时提示刷新页面；CFUN=1,1 整机重启为首选','info');
 
   if(!('serial' in navigator)){
     termWrite('⚠ 当前浏览器不支持 Web Serial API，请使用 Chrome / Edge 89+ 桌面版。','err');
