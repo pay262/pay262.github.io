@@ -198,7 +198,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v0.9.20</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v0.9.21</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -263,7 +263,7 @@
           <button class="btn btn-danger" id="btnDisconnectUSB" onclick="disconnect()" disabled>断开连接</button>
         </div>
         <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          <b style="color:var(--accent);">v0.9.20：</b>修复 IMEI 解析语法错误（导致全脚本失效）；中兴微锁频末位 2→0；新增 AT+MODIMEI= / 恢复出厂频段。
+          <b style="color:var(--accent);">v0.9.21：</b>重启改用 <code>AT+CFUN=1,1</code> 首选（ZRESET 只复位网络）；锁频后自动提示重启；IMEI 语法修复。
         </div>
       </div>
       <div id="panelWiFi" class="hidden">
@@ -305,7 +305,7 @@
     </div>
     <div class="terminal-wrap">
       <div class="terminal" id="terminal">
-        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.20。</span></div>
+        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.21。</span></div>
       </div>
       <div class="terminal-input-row">
         <span class="prompt">AT&gt;</span>
@@ -495,7 +495,7 @@
           <span id="adbStatusBadge" class="badge-tag gray" style="font-size:9px;">ADB 未开启</span>
         </h4>
         <div class="quick-grid">
-          <button class="quick-btn" onclick="quickCmd('AT+RESET')">重启<span class="cmd-hint">AT+RESET</span></button>
+          <button class="quick-btn" onclick="resetDevice()">重启<span class="cmd-hint">CFUN=1,1 优先</span></button>
           <button class="quick-btn" onclick="quickCmd('AT+CFUN=1')">激活 AT<span class="cmd-hint">AT+CFUN=1</span></button>
         </div>
         <div class="quick-grid" style="margin-top:6px;">
@@ -1115,6 +1115,7 @@ const state = {
   cloudLastAction:null, cloudLastResult:null,
   lastWriteResult:null,
   lastBandClickAt:0,
+  resetting:false,
 };
 
 function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
@@ -1374,6 +1375,78 @@ function renderBandLockSection(){
   tip.innerHTML=cfg.tip;
 }
 
+/* ═══ v0.9.21：多候选重启设备（CFUN=1,1 优先） ═══ */
+async function resetDevice(silent){
+  if(!state.connected){ toast('请先连接','error'); return false; }
+  if(state.resetting){ toast('重启正在进行中','info'); return false; }
+  state.resetting = true;
+  const candidates = [
+    { cmd:'AT+CFUN=1,1',  label:'3GPP CFUN 整机重启 ✓ 首选' },
+    { cmd:'AT+CFUN=1,0',  label:'CFUN 复位备选' },
+    { cmd:'AT+ZREBOOT',   label:'中兴微备选 ZREBOOT' },
+    { cmd:'AT+REBOOT',    label:'通用 REBOOT' },
+    { cmd:'AT+ZRST',      label:'中兴微备选 ZRST' },
+    { cmd:'AT+ZRESET',    label:'⚠ 中兴微 ZRESET（仅复位网络，可能不重启整机）' },
+    { cmd:'AT+RESET',     label:'标准 RESET（本机 6003 不支持）' },
+  ];
+  termWrite('═══ 尝试重启设备（多候选）═══','info');
+  for(const c of candidates){
+    termWrite(`${c.cmd}  (${c.label})`,'cmd');
+    state.responseBuffer='';
+    try{
+      await writeToPort(c.cmd);
+      const t0=Date.now();
+      while(Date.now()-t0<2000){ await sleep(80); if(/\b(OK|ERROR)\s*$/im.test(state.responseBuffer.trim())){ await sleep(150); break; } }
+    }catch(err){
+      termWrite(`发送失败: ${err.message}`,'err');
+      break;
+    }
+    const resp=state.responseBuffer;
+    if(isValidResponse(resp)){
+      const isCfun = /CFUN/i.test(c.cmd);
+      const isZreset = /ZRESET/i.test(c.cmd);
+      if(isCfun){
+        termWrite(`✓ ${c.cmd} 返回 OK，设备即将整机重启`,'resp');
+      } else if(isZreset){
+        termWrite(`✓ ${c.cmd} 返回 OK，仅复位网络（非整机重启）`,'resp');
+      } else {
+        termWrite(`✓ ${c.cmd} 返回 OK`,'resp');
+      }
+      if(!silent) toast(`✓ 已通过 ${c.cmd} 重启设备`,'success',5000);
+      state.resetting = false;
+      /* 主动清理串口连接状态 */
+      setTimeout(async()=>{
+        try{ if(state.port) await state.port.close(); }catch(e){}
+        state.readLoopActive=false;
+        state.connected=false;
+        state.port=null;
+        state.reader=null;
+        updateConnectionUI(false,'设备重启中');
+        enableQuickButtons(false);
+        renderRightPanel();
+        resetDeviceInfo();
+        termWrite('⚠ 设备重启中，串口已断开','info');
+        if(isCfun){
+          termWrite('👉 请等待 30~60 秒，等设备重新枚举 USB 串口后，重新点击"🔌 选择串口并连接"','info');
+          if(!silent) toast('设备重启中，请等待 30~60 秒后重新连接串口','info',8000);
+        } else if(isZreset){
+          termWrite('👉 ZRESET 仅复位网络，串口可能仍可用。若需整机重启请手动断电','info');
+          if(!silent) toast('已复位网络（非整机重启）','info',5000);
+        }
+      }, 800);
+      return true;
+    }
+    if(isErrorResponse(resp)){
+      termWrite(`  ✗ ${c.cmd} 失败：${resp.trim().split('\n').pop()||'ERROR'}`,'err');
+    }
+    await sleep(300);
+  }
+  state.resetting = false;
+  termWrite('✗ 所有重启指令均失败，请手动断电重启设备','err');
+  if(!silent) toast('所有重启指令均失败，请手动断电重启','error',6000);
+  return false;
+}
+
 async function sendBandCmd(cmd, cfg){
   if(!state.connected){ toast('请先连接','error'); return; }
   setBandStatus(`准备发送：${cmd}`,'warn');
@@ -1391,12 +1464,40 @@ async function sendBandCmd(cmd, cfg){
       await writeToPort(cfg.postCmd);
       await sleep(800);
     }
-    setBandStatus(`✓ 已发送：${cmd}`,'on');
-    toast('锁频指令已发送，2 秒后自动查询验证','success',4000);
+    setBandStatus(`✓ 已发送：${cmd}`, 'on');
+
+    /* 2 秒后自动查询验证 */
     setTimeout(async()=>{
+      if(!state.connected) return;
       const q=cfg && cfg.queryCmd ? cfg.queryCmd : 'AT+ZLTEBAND?';
       await queryAndCollect(q,1500);
     },2000);
+
+    /* 2.5 秒后弹出"必须重启"确认框 */
+    setTimeout(async()=>{
+      if(!state.connected) return;
+      const doReset = confirm(
+        '✅ 锁频配置已写入设备\n\n' +
+        '⚠️ 重要：必须重启设备才会生效！\n\n' +
+        '不重启的话，射频模块依然按旧配置搜网，锁频配置只是写在了 Flash 里。\n\n' +
+        '重启后设备需重新搜网，约 30~60 秒。\n\n' +
+        '是否立即重启设备？\n' +
+        '（会自动尝试 AT+CFUN=1,1 整机重启，失败后依次尝试其他候选）'
+      );
+      if(doReset){
+        const ok = await resetDevice(true);
+        if(ok){
+          setBandStatus('⚠ 已发送重启指令，等待设备重新搜网（约 30~60 秒）...','warn');
+        }else{
+          setBandStatus('⚠ 自动重启失败，请手动断电重启','err');
+          toast('自动重启失败，请手动断电重启设备','error',10000);
+        }
+      }else{
+        setBandStatus('⚠ 锁频已配置，但未重启，不会生效','warn');
+        toast('⚠ 锁频未生效！请手动重启设备（点"常用操作→重启"或断电）','error',10000);
+      }
+    }, 2500);
+
   }catch(err){
     termWrite(`发送失败: ${err.message}`,'err');
     setBandStatus(`发送失败：${err.message}`,'err');
@@ -1472,7 +1573,7 @@ async function connectUSB(){
     const port=await navigator.serial.requestPort();
     await port.open({baudRate:baud,dataBits:8,stopBits:1,parity:'none',flowControl,bufferSize:255});
     termWrite('串口已打开（DTR/RTS 保持默认）','info');
-    state.port=port; state.connected=true;
+    state.port=port; state.connected=true; state.resetting=false;
     updateConnectionUI(true,`已连接 @ ${baud}`);
     toast(`串口连接成功 @ ${baud}`,'success');
     enableQuickButtons(true);
@@ -1518,7 +1619,9 @@ async function startReadLoop(){
         }
       }
     }catch(err){
-      if(state.readLoopActive&&state.connected&&err.name!=='NetworkError')termWrite(`读取错误: ${err.message}`,'err');
+      if(state.readLoopActive&&state.connected&&err.name!=='NetworkError' && !state.resetting){
+        termWrite(`读取错误: ${err.message}`,'err');
+      }
       state.readLoopActive=false;
     }finally{ try{ state.reader.releaseLock(); }catch(e){} }
   }
@@ -1722,7 +1825,7 @@ function parseAnyResponse(line){
   else if(/^89\d{17,19}[A-Za-z0-9]*$/.test(line))setInfoValue('ICCID',line);
   else{ m=line.match(/\+CRSM:\s*\d+,\d+,\s*(?:"([0-9A-Fa-f\s]+)"|([0-9A-Fa-f]+))/i); if(m){ const v=DECODERS.crsm(m[1]||m[2]); if(v)setInfoValue('ICCID',v); } }
 
-  /* ★ v0.9.20：IMEI 解析 —— 修复 else{} 后接 else if 的语法错误 */
+  /* ★ v0.9.20：IMEI 解析（修复 v0.9.19 语法错误） */
   m=line.match(/\+CGSN[:\s]+"?(\d{14,16})"?/i);
   if(m){
     setInfoValue('IMEI',m[1]);
@@ -2952,7 +3055,7 @@ async function confirmWrite(){
         state.lastWriteResult={ type:baseType, isDelete:false, success:true, actual:verify.actual };
       }else if(verify.verified===false){
         setStep(4,'fail'); appendLog(`✗ 读回值：${verify.actual}（与写入 ${val} 不一致）`,'error');
-        appendLog('⚠ 写入可能未生效，可尝试 AT+RESET 重启模组后重新读回','error');
+        appendLog('⚠ 写入可能未生效，可尝试 AT+CFUN=1,1 重启模组后重新读回','error');
         setWriteStatus(`${baseType} 读回不一致（实际：${verify.actual}）`,'err');
         toast(`⚠ ${baseType} 写入后读回不一致，重启后可能生效`,'error',6000);
         state.lastWriteResult={ type:baseType, isDelete:false, success:false, actual:verify.actual, reason:'读回不一致' };
@@ -3078,18 +3181,18 @@ window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close
   setCloudOpStatus(null,null);
   renderRightPanel();
 
-  termWrite('随身WiFi调试助手 v0.9.20 · IMEI 语法修复版','info');
-  termWrite('v0.9.20：修复 parseAnyResponse 中 IMEI 解析的语法错误（else{} 后误接 else if），此错误会导致全脚本失效；保留 v0.9.19 全部中兴微修复','info');
+  termWrite('随身WiFi调试助手 v0.9.21 · 重启修复 + 锁频提示版','info');
+  termWrite('v0.9.21：重启改用 AT+CFUN=1,1（整机重启）；AT+ZRESET 降级为网络复位兜底；锁频后自动弹窗提示重启；IMEI 语法修复','info');
 
   if(!('serial' in navigator)){
     termWrite('⚠ 当前浏览器不支持 Web Serial API，请使用 Chrome / Edge 89+ 桌面版。','err');
     toast('浏览器不支持 Web Serial','error',6000);
   }else{
     navigator.serial.addEventListener('disconnect',(e)=>{
-      if(state.port&&e.target===state.port){
+      if(state.port && e.target===state.port && state.connected && !state.resetting){
         termWrite('⚠ USB 设备已物理断开','err');
         toast('USB 设备已断开','info',3000);
-        if(state.connected)disconnect();
+        disconnect();
       }
     });
   }
