@@ -198,7 +198,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v0.9.18</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v0.9.19</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -218,7 +218,7 @@
         <div class="form-group">
           <label>波特率 Baud Rate</label>
           <select class="form-control" id="baudRate">
-            <option value="921600">921600</option>
+            <option value="921600">921600（紫光展锐5G常用）</option>
             <option value="460800">460800</option>
             <option value="230400">230400</option>
             <option value="115200" selected>115200</option>
@@ -263,7 +263,7 @@
           <button class="btn btn-danger" id="btnDisconnectUSB" onclick="disconnect()" disabled>断开连接</button>
         </div>
         <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          <b style="color:var(--accent);">v0.9.18：</b>ASR *BAND 语义修正；多频段 continue；手动选芯片重探测；切卡 24s；删除 D/W 回退；测速措辞软化。
+          <b style="color:var(--accent);">v0.9.19：</b>中兴微锁频掩码末位 2→0（修复 6004 错误）；新增 AT+MODIMEI= 写 IMEI 候选；新增"恢复出厂频段"按钮。
         </div>
       </div>
       <div id="panelWiFi" class="hidden">
@@ -305,7 +305,7 @@
     </div>
     <div class="terminal-wrap">
       <div class="terminal" id="terminal">
-        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.18。</span></div>
+        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.19。</span></div>
       </div>
       <div class="terminal-input-row">
         <span class="prompt">AT&gt;</span>
@@ -673,17 +673,20 @@ const ASR_TDD_MASK = { 38:2, 39:4, 40:8, 41:64 };
 const BAND_LOCK_CONFIG = {
   zxic: {
     mode:'4g', supportWrite:true,
-    tip:'<b>中兴微锁频：</b>使用 <code>AT+ZLTEBAND=&lt;9字节掩码&gt;</code>。第1位对应B1~B8，以此类推，最后一位标志位固定为2。<br>例：锁B3 = <code>AT+ZLTEBAND=4,0,0,0,0,0,0,0,2</code>',
-    unlock:{ cmd:'AT+ZLTEBAND=0', label:'解除中兴微锁频' },
+    tip:'<b>中兴微锁频：</b>使用 <code>AT+ZLTEBAND=&lt;9字节掩码&gt;</code>。第1位对应B1~B8，以此类推，最后一位固定为 <b>0</b>。<br>例：锁B3 = <code>AT+ZLTEBAND=4,0,0,0,0,0,0,0,0</code><br>⚠ 最后一位写成 2 会返回 <code>+CME ERROR: 6004</code>',
+    unlock:{ cmd:'AT+ZLTEBAND=0', label:'解除锁频（末位归零）' },
+    unlockFactory:{ cmd:'AT+ZLTEBAND=', label:'恢复出厂频段（无参数）' },
     bands4g:CN_4G_BANDS,
     build4g:(band)=>{
-      const g=[0,0,0,0,0,0,0,0,2];
+      /* ★ v0.9.19：最后一位从 2 改为 0 */
+      const g=[0,0,0,0,0,0,0,0,0];
       const idx=Math.floor((band-1)/8), bit=(band-1)%8;
       if(idx>=0 && idx<8) g[idx] = 1<<bit;
       return `AT+ZLTEBAND=${g.join(',')}`;
     },
     build4gMulti:(bands)=>{
-      const g=[0,0,0,0,0,0,0,0,2];
+      /* ★ v0.9.19：最后一位从 2 改为 0 */
+      const g=[0,0,0,0,0,0,0,0,0];
       bands.forEach(band=>{
         const idx=Math.floor((band-1)/8), bit=(band-1)%8;
         if(idx>=0 && idx<8) g[idx] |= (1<<bit);
@@ -805,7 +808,7 @@ const SECTION_VISIBILITY = {
   'advanced-chip':{ preConnect:true, postConnect:true },
 };
 
-/* ★ v0.9.18：supportBand 移除 AT*BAND?（ASR 语义修正） */
+/* ★ v0.9.19：IMEI 探测新增 AT+READIMEI?（中兴微参考） */
 const CAPABILITY_PROBES = {
   iccid:{ label:'ICCID', candidates:[
     { cmd:'AT+ZICCID?', pattern:/\+ZICCID:\s*"?([0-9A-Za-z]{18,22})"?/i },
@@ -820,6 +823,7 @@ const CAPABILITY_PROBES = {
   imei:{ label:'IMEI', candidates:[
     { cmd:'AT+CGSN', pattern:/\+CGSN:\s*"?(\d{14,16})"?/i, validator:v=>/^\d{14,16}$/.test(v) },
     { cmd:'AT+ZULI=1', pattern:/\+ZULI:\s*[^,]*,.*?(\d{15})/i, validator:v=>/^\d{15}$/.test(v) },
+    { cmd:'AT+READIMEI?', pattern:/\+READIMEI[:\s]*"?(\d{14,16})"?/i, validator:v=>/^\d{14,16}$/.test(v) },
     { cmd:'AT*MRD_IMEI?', pattern:/[*]MRD_IMEI:\s*([0-9A-Fa-f,]+)/i, decoder:'mrd_imei' },
   ]},
   sn:{ label:'SN', candidates:[
@@ -856,7 +860,7 @@ const CAPABILITY_PROBES = {
     { cmd:'AT+SIMSWITCH?',   pattern:/\+SIMSWITCH:\s*(\d+)/i,   decoder:'swsim' },
   ]},
   bandLock:{ label:'频段锁定', candidates:[
-    { cmd:'AT+ZLTEBAND?', pattern:/\+ZLTEBAND:/i, writeTest:'AT+ZLTEBAND=0', platform:'zxic' },
+    { cmd:'AT+ZLTEBAND?', pattern:/\+ZLTEBAND:/i, writeTest:'AT+ZLTEBAND=0,0,0,0,0,0,0,0,0', platform:'zxic' },
     { cmd:'AT+QNWPREFCFG="lte_band"', pattern:/\+QNWPREFCFG:/i, writeTest:'AT+QNWPREFCFG="lte_band",0', platform:'qualcomm' },
     { cmd:'AT*BAND?', pattern:/[*]BAND:/i, writeTest:'AT*BAND=0', platform:'asr' },
     { cmd:'AT+SPLBAND?', pattern:/\+SPLBAND:/i, writeTest:null, platform:'unisoc' },
@@ -885,8 +889,9 @@ const CAPABILITY_PROBES = {
   ]},
 };
 
+/* ★ v0.9.19：改写 IMEI 新增 AT+MODIMEI= 候选（中兴微参考） */
 const WRITE_IMEI_CANDIDATES = {
-  zxic:{ enter:'AT*PROD=1', write:(v)=>`AT*MRD_IMEI=W,0,01JAN1970,${v}`, exit:'AT*PROD=0', label:'中兴微（MRD_IMEI）' },
+  zxic:{ enter:null, write:(v)=>`AT+MODIMEI=${v}`, exit:null, label:'中兴微（MODIMEI）' },
   asr4g:{ enter:'AT*PROD=1', write:(v)=>`AT*MRD_IMEI=W,0,01JAN1970,${v}`, exit:'AT*PROD=0', label:'ASR（MRD_IMEI）' },
   asr5g:{ enter:'AT*PROD=1', write:(v)=>`AT*MRD_IMEI=W,0,01JAN1970,${v}`, exit:'AT*PROD=0', label:'ASR（MRD_IMEI）' },
   unisoc:{ enter:null, write:(v)=>`AT+SPIMEI=0,"${v}"`, exit:null, label:'紫光展锐（SPIMEI）' },
@@ -1016,6 +1021,7 @@ const DECODERS = {
     const p=r.split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n));
     if(p.length<8)return [];
     const bs=[];
+    /* ★ 中兴微 8 位一组：字节i → band i*8+1 ~ i*8+8 */
     p.slice(0,8).forEach((m,i)=>{
       if(typeof m!=='number'||isNaN(m))return;
       for(let k=0;k<8;k++){
@@ -1352,6 +1358,16 @@ function renderBandLockSection(){
       state.lastBandClickAt = now;
       sendBandCmd(cfg.unlock.cmd, cfg);
     }; opsGrid.appendChild(ub); }
+  /* ★ v0.9.19：新增"恢复出厂频段"按钮 */
+  if(cfg.unlockFactory){ const ub=document.createElement('button'); ub.className='quick-btn'; ub.style.color='#ff8a80'; ub.style.borderColor='rgba(231,76,60,.3)';
+    ub.innerHTML=`${cfg.unlockFactory.label}<span class="cmd-hint">${cfg.unlockFactory.cmd || '无参数'}</span>`;
+    ub.onclick=()=>{
+      const now=Date.now();
+      if(now - state.lastBandClickAt < 1500){ toast('请等待上一条指令完成','warn',2000); return; }
+      state.lastBandClickAt = now;
+      if(!confirm('确认恢复出厂频段？会清除所有锁频配置。')) return;
+      sendBandCmd(cfg.unlockFactory.cmd, cfg);
+    }; opsGrid.appendChild(ub); }
   if(cfg.unlock5g&&is5g){ const ub=document.createElement('button'); ub.className='quick-btn'; ub.style.color='#22d3ee'; ub.style.borderColor='rgba(34,211,238,.3)';
     ub.innerHTML=`${cfg.unlock5g.label}<span class="cmd-hint">${cfg.unlock5g.cmd}</span>`;
     ub.onclick=()=>{
@@ -1384,7 +1400,7 @@ async function sendBandCmd(cmd, cfg){
     setBandStatus(`✓ 已发送：${cmd}`,'on');
     toast('锁频指令已发送，2 秒后自动查询验证','success',4000);
     setTimeout(async()=>{
-      const q=cfg && cfg.queryCmd ? cfg.queryCmd : 'AT*BAND?';
+      const q=cfg && cfg.queryCmd ? cfg.queryCmd : 'AT+ZLTEBAND?';
       await queryAndCollect(q,1500);
     },2000);
   }catch(err){
@@ -1428,7 +1444,6 @@ function updateCustomBandPreview(){
     else{ p.textContent=bands.map(b=>cfg.build4g(b)).filter(Boolean).join('  →  '); v.textContent=`⚠ 将依次发送 ${bands.length} 条`; v.className='validation-hint info'; }
   }
 }
-/* ★ v0.9.18：多频段 break → continue */
 async function sendCustomBandCmd(){
   const bands=parseCustomBands(); if(!bands.length){ toast('请输入有效频段号','error'); return; }
   const chipId=state.detectedChipId, cfg=BAND_LOCK_CONFIG[chipId];
@@ -1454,7 +1469,7 @@ async function sendCustomBandCmd(){
 }
 
 async function connectUSB(){
-  if(!('serial' in navigator)){ toast('浏览器不支持','error',5000); return; }
+  if(!('serial' in navigator)){ toast('浏览器不支持 Web Serial','error',5000); return; }
   try{
     const baud=getBaudRate(), flowControl=document.getElementById('flowControl').value;
     localStorage.setItem('atmaster_last_baud',baud);
@@ -1715,6 +1730,7 @@ function parseAnyResponse(line){
 
   m=line.match(/\+CGSN[:\s]+"?(\d{14,16})"?/i);
   if(m)setInfoValue('IMEI',m[1]);
+  else{ m=line.match(/\+READIMEI[:\s]*"?(\d{14,16})"?/i); if(m)setInfoValue('IMEI',m[1]); }
   else if(/^\d{15}$/.test(line))setInfoValue('IMEI',line);
 
   m=line.match(/[*+]MRD_SN[:\s]+"?([A-Za-z0-9]{6,30})"?/i)
@@ -1825,7 +1841,7 @@ function parseAnyResponse(line){
     }
   }
 
-  /* ★ v0.9.18：ASR *BAND 语义修正 —— 填"锁定配置"字段，不再冒充"支持频段" */
+  /* ASR *BAND 语义修正 */
   m=line.match(/^\*BAND[:\s]+([\d,\s]+)\s*$/im);
   if(m){
     const res=DECODERS.asrBandParse(m[1]);
@@ -1852,7 +1868,6 @@ function parseAnyResponse(line){
           `──────────────────\n` +
           `⚠ 这是软件配置层，非硬件支持能力`;
       }
-      /* ASR 的"支持频段"字段显示 "—" */
       const elSup=document.getElementById('infoSupportBand');
       if(elSup && (!state.capabilities || !state.capabilities.supportBand)){
         elSup.textContent='—（ASR 固件不暴露硬件能力）';
@@ -1982,7 +1997,6 @@ function renderCapList(){
 }
 function updateCmdHintsFromCaps(){ updateSimHints(); }
 
-/* ★ v0.9.18：切卡验证循环延长到 8 次×3s=24s */
 async function switchCard(direction){
   if(!state.connected){ toast('请先连接','error'); return; }
   const candidates=SIM_SWITCH_CANDIDATES[direction];
@@ -2594,7 +2608,6 @@ async function startSpeedtest(){
       setCloudStatus('safe');
       toast('多维测速：未发现限速特征','success',4000);
     }else{
-      /* ★ v0.9.18：措辞软化，明确非因果判定 */
       verdict.textContent = '⚠ 疑似限速特征（仅供参考）：' + speedIssues.join('，');
       if (qualityNotes.length > 0){
         verdict.textContent += '｜' + qualityNotes.join('，');
@@ -2762,7 +2775,6 @@ function openWriteModal(type){
   overrideSel.onchange=()=>{ updateWriteSyntaxPreview(baseType); updateCmdPreviewForWrite(baseType); };
 
   if(writeContext.isDelete){
-    /* ★ v0.9.18：删除操作显示 D/W 双候选 */
     const wFallback = baseType==='IMEI' ? 'AT*MRD_IMEI=W,0,01JAN1970,000000000000000' : 'AT*MRD_SN=W,0,01JAN1970,000000000000000';
     document.getElementById('writeFormArea').innerHTML=`
       <div class="warn-box" style="background:rgba(231,76,60,.08);border-color:rgba(231,76,60,.3);color:#ff8a80;">
@@ -2841,7 +2853,7 @@ async function readbackVerify(baseType,expectedValue){
   if(!resp||isErrorResponse(resp))return { verified:null, reason:'读回无响应' };
   let actual=null;
   if(baseType==='IMEI'){
-    const m=resp.match(/\+CGSN[:\s]*"?(\d{14,16})"?/i)||resp.match(/(\d{15})/);
+    const m=resp.match(/\+CGSN[:\s]*"?(\d{14,16})"?/i)||resp.match(/\+READIMEI[:\s]*"?(\d{14,16})"?/i)||resp.match(/(\d{15})/);
     if(m)actual=m[1];
   }else{
     const m=resp.match(/[*]MRD_SN[:\s]*"?([A-Za-z0-9]{6,30})"?/i)
@@ -2854,7 +2866,6 @@ async function readbackVerify(baseType,expectedValue){
   return { verified: actual===expectedValue, actual };
 }
 
-/* ★ v0.9.18：删除操作 D → W 回退 */
 async function confirmWrite(){
   if(state.writeInProgress)return;
   const baseType=writeContext.type.replace('DEL_','');
@@ -2883,7 +2894,6 @@ async function confirmWrite(){
     }else{ setStep(1,'done'); appendLog('✓ 无需进入工厂模式','success'); }
 
     if(isDelete){
-      /* ★ D → W 双候选 */
       const wFallback = baseType==='IMEI' ? 'AT*MRD_IMEI=W,0,01JAN1970,000000000000000' : 'AT*MRD_SN=W,0,01JAN1970,000000000000000';
       const dCmd = `AT*MRD_${baseType}=D`;
       setStep(2,'active'); appendLog(`▶ 步骤 2/4：尝试 D 参数：${dCmd}`,'warn');
@@ -2982,7 +2992,6 @@ function closeWriteModalForce(){
   document.getElementById('writeCancelBtn').disabled=false;
 }
 
-/* ★ v0.9.18：手动选芯片后重跑探测 */
 (function initChipDropdown(){
   const sel=document.getElementById('chipPlatform');
   FALLBACK_CHIPS.forEach(c=>{
@@ -2992,7 +3001,7 @@ function closeWriteModalForce(){
     if(sel.value){
       state.detectedChipId=sel.value;
       state.detectedChipName=FALLBACK_CHIPS.find(c=>c.id===sel.value)?.name||sel.value;
-      state.capabilitySource='fresh';  /* 强制不用旧缓存 */
+      state.capabilitySource='fresh';
       toast(`已手动指定芯片: ${state.detectedChipName}，将重新探测`,'info',4000);
       renderRightPanel();
       if(state.connected){
@@ -3070,12 +3079,12 @@ window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close
   setCloudOpStatus(null,null);
   renderRightPanel();
 
-  termWrite('随身WiFi调试助手 v0.9.18 · 语义修正版','info');
-  termWrite('v0.9.18：ASR *BAND 改为"锁定配置"语义；多频段 continue；手动选芯片重探测；切卡 24s；删除 D/W 回退；测速措辞软化','info');
+  termWrite('随身WiFi调试助手 v0.9.19 · 中兴微锁频修正版','info');
+  termWrite('v0.9.19：中兴微 ZLTEBAND 末位 2→0（修复 6004）；新增 AT+MODIMEI= 写 IMEI；新增"恢复出厂频段"按钮','info');
 
   if(!('serial' in navigator)){
-    termWrite('⚠ 当前浏览器不支持，请使用 Chrome / Edge 89+ 桌面版。','err');
-    toast('浏览器不支持','error',6000);
+    termWrite('⚠ 当前浏览器不支持 Web Serial API，请使用 Chrome / Edge 89+ 桌面版。','err');
+    toast('浏览器不支持 Web Serial','error',6000);
   }else{
     navigator.serial.addEventListener('disconnect',(e)=>{
       if(state.port&&e.target===state.port){
@@ -3087,18 +3096,5 @@ window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close
   }
 })();
 </script>
-    <!-- Baidu tongji -->
-    <script>
-        var _hmt = _hmt || [];
-        (function() {
-            var hm = document.createElement("script");
-            hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
-            var s = document.getElementsByTagName("script")[0];
-            s.parentNode.insertBefore(hm, s);
-        })();
-    </script>
-    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
-    <script>LA.init({id:"3GBQy07pYlIVc3g8",ck:"3GBQy07pYlIVc3g8",autoTrack:true})
-    </script>
 </body>
 </html>
