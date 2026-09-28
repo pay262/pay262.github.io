@@ -207,7 +207,6 @@
   .reboot-note{font-size:10.5px;color:var(--text-dim);text-align:center;margin-top:12px;line-height:1.6;}
   .reboot-actions{display:flex;gap:10px;margin-top:20px;}
   .reboot-actions .btn{flex:1;padding:11px;font-size:13px;}
-  /* ADB 全能开关 */
   .adb-status-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:var(--bg-card);border:1px solid var(--border);margin-bottom:8px;font-size:12px;transition:all .3s}
   .adb-status-card .indicator{width:10px;height:10px;border-radius:50%;background:var(--text-dim);flex-shrink:0;transition:all .3s}
   .adb-status-card.detected-on .indicator{background:var(--success);box-shadow:0 0 10px rgba(46,204,113,.6);animation:adbPulse 1.8s ease-in-out infinite}
@@ -232,7 +231,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v0.9.27</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v0.9.29</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -297,7 +296,7 @@
           <button class="btn btn-danger" id="btnDisconnectUSB" onclick="disconnect()" disabled>断开连接</button>
         </div>
         <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          <b style="color:var(--accent);">v0.9.27：</b>ADB 全能开关 · WebUSB 检测 · 多平台支持。
+          <b style="color:var(--accent);">v0.9.29：</b>严格按平台分流：中兴微优先 Web，ASR/高通/展锐走 AT，联发科提示特殊开启。
         </div>
       </div>
       <div id="panelWiFi" class="hidden">
@@ -339,7 +338,7 @@
     </div>
     <div class="terminal-wrap">
       <div class="terminal" id="terminal">
-        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.27。</span></div>
+        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.29。</span></div>
       </div>
       <div class="terminal-input-row">
         <span class="prompt">AT&gt;</span>
@@ -367,14 +366,12 @@
         连接后将根据芯片类型与网络自动加载对应工具
       </div>
 
-      <!-- ═══ v0.9.27 ADB 全能开关（未连接也显示） ═══ -->
       <div class="quick-section" id="sectionADBMaster" data-section="adb-master">
         <h4>
           <span>ADB 全能开关</span>
-          <span class="badge-tag cyan" style="font-size:9px;">WebUSB + AT</span>
+          <span class="badge-tag cyan" style="font-size:9px;">WebUSB + AT + Web</span>
         </h4>
 
-        <!-- WebUSB 检测状态卡片 -->
         <div class="adb-status-card not-supported" id="adbDetectCard">
           <div class="indicator"></div>
           <div class="info">
@@ -391,7 +388,6 @@
           </button>
         </div>
 
-        <!-- 开启/关闭按钮 -->
         <div class="quick-grid">
           <button class="quick-btn" onclick="universalEnableADB()" id="btnUniversalADBOn"
                   data-always-enabled="1"
@@ -405,15 +401,13 @@
           </button>
         </div>
 
-        <!-- 路径提示 -->
         <div class="adb-platform-list" id="adbPathHint">
           等待检测芯片和连接状态...
         </div>
 
-        <!-- 中兴微 Web 直控（仅中兴微时显示） -->
-        <div id="webAdbSubsection" style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);display:none;">
+        <div id="webAdbSubsection" style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);">
           <div style="font-size:10.5px;color:var(--text-dim);margin-bottom:6px;">
-            <b style="color:#a78bfa;">中兴微 Web 直控备用</b>（无需 AT 串口）
+            <b style="color:#a78bfa;">Web 直控备用接口</b>（中兴微优先使用）
           </div>
           <div style="display:flex;gap:6px;margin-bottom:6px;">
             <input class="form-control" id="webAdbGateway" list="webAdbGatewayList"
@@ -430,7 +424,7 @@
             <option value="192.168.1.1">192.168.1.1</option>
           </datalist>
           <div class="validation-hint info" id="webAdbGatewayHint" style="font-size:10px;margin-bottom:6px;">
-            中兴微专用，其他芯片可忽略
+            网关地址，中兴微 AT 失败时自动使用
           </div>
         </div>
 
@@ -1073,70 +1067,34 @@ const EXPECTED_SLOT_VALUE = {
   qdsim:{ external:1, internal:0 },
 };
 
-/* ═══ v0.9.27：多平台 ADB 开启/关闭候选 ═══ */
+/* ═══ 严格按平台分流的 ADB AT 候选 ═══ */
 const ADB_AT_CANDIDATES = {
-  // 中兴微
   zxic: {
     enable: [
       { cmd:'AT+znvset="adb_app_enable","1"', label:'中兴微 NVRAM 方式' },
+      { cmd:'AT+ZMODE=1', label:'中兴微 ZMODE' },
       { cmd:'AT+ZADB=1', label:'中兴微 ZADB' },
       { cmd:'AT+ZADBKEY=1', label:'中兴微 ZADBKEY' },
-      { cmd:'AT+ZMODE=1', label:'通用调试模式' },
     ],
     disable: [
       { cmd:'AT+znvset="adb_app_enable","0"', label:'中兴微 NVRAM 方式' },
+      { cmd:'AT+ZMODE=0', label:'中兴微 ZMODE' },
       { cmd:'AT+ZADB=0', label:'中兴微 ZADB' },
       { cmd:'AT+ZADBKEY=0', label:'中兴微 ZADBKEY' },
-      { cmd:'AT+ZMODE=0', label:'通用调试模式' },
     ],
   },
-  // 高通
-  qualcomm: {
-    enable: [
-      { cmd:'AT+USB=1,268968726', label:'高通 USB 密钥方式' },
-      { cmd:'AT+QCFG="usbcfg",0x2C7C,0x0800,1,1,1,1,1,1,0', label:'高通 QCFG USB 配置' },
-      { cmd:'AT+QADBKEY="5d5f3e4c2b1a0f9e8d7c6b5a49382716"', label:'高通 QADBKEY 授权' },
-      { cmd:'AT+USBDEBUG=1', label:'通用 USBDEBUG' },
-      { cmd:'AT+ADBDEBUG=1', label:'广和通 ADBDEBUG' },
-    ],
-    disable: [
-      { cmd:'AT+USB=0,0', label:'高通 USB 关闭' },
-      { cmd:'AT+QCFG="usbcfg",0x2C7C,0x0125,1,1,1,1,1,1,0', label:'高通 QCFG 恢复' },
-      { cmd:'AT+USBDEBUG=0', label:'通用 USBDEBUG' },
-      { cmd:'AT+ADBDEBUG=0', label:'广和通 ADBDEBUG' },
-    ],
-  },
-  // 紫光展锐
-  unisoc: {
-    enable: [
-      { cmd:'AT+DEBUGMODE=1', label:'展锐 DEBUGMODE' },
-      { cmd:'AT+CUSBADB=1,1', label:'展锐 CUSBADB' },
-      { cmd:'AT+SPUSBDEBUG=1', label:'展锐 SPUSBDEBUG' },
-      { cmd:'AT+ADBDEBUG=1', label:'通用 ADBDEBUG' },
-      { cmd:'AT+USBDEBUG=1', label:'通用 USBDEBUG' },
-    ],
-    disable: [
-      { cmd:'AT+DEBUGMODE=0', label:'展锐 DEBUGMODE' },
-      { cmd:'AT+CUSBADB=0,0', label:'展锐 CUSBADB' },
-      { cmd:'AT+SPUSBDEBUG=0', label:'展锐 SPUSBDEBUG' },
-      { cmd:'AT+ADBDEBUG=0', label:'通用 ADBDEBUG' },
-      { cmd:'AT+USBDEBUG=0', label:'通用 USBDEBUG' },
-    ],
-  },
-  // ASR 4G/5G（需工厂模式）
   asr4g: {
     preEnable: 'AT*PROD=1',
-    postEnable: null,
     preDisable: 'AT*PROD=1',
-    postDisable: null,
     enable: [
-      { cmd:'AT+USBDEBUG=1', label:'ASR USBDEBUG（工厂模式后）' },
-      { cmd:'AT+ADBDEBUG=1', label:'通用 ADBDEBUG' },
+      { cmd:'AT+USBDEBUG=1', label:'ASR USBDEBUG' },
+      { cmd:'AT+ADBDEBUG=1', label:'ASR ADBDEBUG' },
       { cmd:'AT*USBDEBUG=1', label:'ASR *USBDEBUG' },
+      { cmd:'AT+ENGCMD="AT+BOOTMODE=0"', label:'ASR 强制引导ADB模式' },
     ],
     disable: [
       { cmd:'AT+USBDEBUG=0', label:'ASR USBDEBUG' },
-      { cmd:'AT+ADBDEBUG=0', label:'通用 ADBDEBUG' },
+      { cmd:'AT+ADBDEBUG=0', label:'ASR ADBDEBUG' },
       { cmd:'AT*USBDEBUG=0', label:'ASR *USBDEBUG' },
     ],
   },
@@ -1144,31 +1102,46 @@ const ADB_AT_CANDIDATES = {
     preEnable: 'AT*PROD=1',
     preDisable: 'AT*PROD=1',
     enable: [
-      { cmd:'AT+USBDEBUG=1', label:'ASR USBDEBUG（工厂模式后）' },
-      { cmd:'AT+ADBDEBUG=1', label:'通用 ADBDEBUG' },
+      { cmd:'AT+USBDEBUG=1', label:'ASR USBDEBUG' },
+      { cmd:'AT+ADBDEBUG=1', label:'ASR ADBDEBUG' },
+      { cmd:'AT+ENGCMD="AT+BOOTMODE=0"', label:'ASR 强制引导ADB模式' },
     ],
     disable: [
       { cmd:'AT+USBDEBUG=0', label:'ASR USBDEBUG' },
-      { cmd:'AT+ADBDEBUG=0', label:'通用 ADBDEBUG' },
+      { cmd:'AT+ADBDEBUG=0', label:'ASR ADBDEBUG' },
     ],
   },
-  // 联发科
-  mtk: {
+  qualcomm: {
     enable: [
-      { cmd:'AT+EADB=1', label:'联发科 EADB' },
+      { cmd:'AT+USB=1,268968726', label:'高通 USB 密钥方式' },
+      { cmd:'AT+QADBKEY="5d5f3e4c2b1a0f9e8d7c6b5a49382716"', label:'高通 QADBKEY 授权' },
+      { cmd:'AT+QCFG="usbcfg",0x2C7C,0x0800,1,1,1,1,1,1,0', label:'高通 QCFG USB 配置' },
       { cmd:'AT+USBDEBUG=1', label:'通用 USBDEBUG' },
       { cmd:'AT+ADBDEBUG=1', label:'通用 ADBDEBUG' },
     ],
     disable: [
-      { cmd:'AT+EADB=0', label:'联发科 EADB' },
+      { cmd:'AT+USB=0,0', label:'高通 USB 关闭' },
+      { cmd:'AT+QCFG="usbcfg",0x2C7C,0x0125,1,1,1,1,1,1,0', label:'高通 QCFG 恢复' },
       { cmd:'AT+USBDEBUG=0', label:'通用 USBDEBUG' },
       { cmd:'AT+ADBDEBUG=0', label:'通用 ADBDEBUG' },
     ],
   },
-  // 兜底（未识别芯片或未知）
+  unisoc: {
+    enable: [
+      { cmd:'AT+shell=/mnt/userdata/etc_rw/nv/adbd', label:'展锐 Shell 方式' },
+      { cmd:'AT+DEBUGMODE=1', label:'展锐 DEBUGMODE' },
+      { cmd:'AT+CUSBADB=1,1', label:'展锐 CUSBADB' },
+      { cmd:'AT+SPUSBDEBUG=1', label:'展锐 SPUSBDEBUG' },
+    ],
+    disable: [
+      { cmd:'AT+DEBUGMODE=0', label:'展锐 DEBUGMODE' },
+      { cmd:'AT+CUSBADB=0,0', label:'展锐 CUSBADB' },
+      { cmd:'AT+SPUSBDEBUG=0', label:'展锐 SPUSBDEBUG' },
+    ],
+  },
   generic: {
     enable: [
-      { cmd:'AT+ADBDEBUG=1', label:'通用 ADBDEBUG（广和通/移远等）' },
+      { cmd:'AT+ADBDEBUG=1', label:'通用 ADBDEBUG' },
       { cmd:'AT+USBDEBUG=1', label:'通用 USBDEBUG' },
       { cmd:'AT+ZADB=1', label:'中兴微 ZADB' },
     ],
@@ -1180,7 +1153,6 @@ const ADB_AT_CANDIDATES = {
   },
 };
 
-/* Web 接口候选（仅中兴微） */
 const WEB_ADB_ENDPOINTS = [
   { path:'/goform/goform_set_cmd_process', label:'goform' },
   { path:'/reqproc/proc_post',             label:'reqproc' },
@@ -1365,8 +1337,7 @@ const state = {
   supportedBands:[],
   lockMaskRaw:null,
   adbStatus:'unknown', adbStatusCmd:null,
-  // v0.9.27 WebUSB ADB 检测
-  usbAdbState:'unknown',   // 'on' | 'off' | 'unknown' | 'unsupported'
+  usbAdbState:'unknown',
   usbAdbDevice:null,
   factoryStatus:'unknown', factoryCmd:null,
   simSwitchStatus:'unknown', simSwitchCmd:null,
@@ -1442,16 +1413,14 @@ async function setRTS(value){
   catch(e){ termWrite(`RTS 设置失败: ${e.message}`,'err'); }
 }
 
-/* ═══ v0.9.27：WebUSB ADB 状态检测 ═══ */
+/* ═══ WebUSB ADB 状态检测 ═══ */
 function updateAdbDetectUI(status, device){
   state.usbAdbState = status;
   state.usbAdbDevice = device || null;
-
   const card = document.getElementById('adbDetectCard');
   const valEl = document.getElementById('adbDetectValue');
   const subEl = document.getElementById('adbDetectSub');
   if(!card || !valEl || !subEl) return;
-
   card.classList.remove('detected-on','detected-off','detecting','not-supported');
 
   if(status === 'on'){
@@ -1510,10 +1479,6 @@ function setAdbMasterStatus(text, cls){
   textEl.textContent = text;
 }
 
-/**
- * 读取单台 WebUSB 设备的 ADB 接口状态
- * 返回: true(已开) / false(未开) / null(无法确定)
- */
 async function checkAdbViaWebUSBDevice(device){
   if(!device) return null;
   try{
@@ -1523,7 +1488,6 @@ async function checkAdbViaWebUSBDevice(device){
     let hasAdb = false;
     for(const iface of config.interfaces){
       for(const alt of iface.alternates){
-        // Android ADB 接口: Class=0xFF, Subclass=0x42, Protocol=0x01
         if(alt.interfaceClass === 0xff && alt.interfaceSubclass === 0x42){
           hasAdb = true;
           break;
@@ -1531,7 +1495,6 @@ async function checkAdbViaWebUSBDevice(device){
       }
       if(hasAdb) break;
     }
-    // 检查完就关闭，避免影响 ADB 服务
     try{ if(device.opened) await device.close(); }catch(e){}
     return hasAdb;
   }catch(e){
@@ -1539,8 +1502,6 @@ async function checkAdbViaWebUSBDevice(device){
     return null;
   }
 }
-
-/** 主动请求设备并检测 */
 async function detectAdbViaWebUSB(){
   if(!('usb' in navigator)){
     toast('当前浏览器不支持 WebUSB，请使用 Chrome/Edge 89+ 桌面版','error',6000);
@@ -1549,13 +1510,10 @@ async function detectAdbViaWebUSB(){
   }
   updateAdbDetectUI('detecting');
   termWrite('═══ WebUSB 检测 ADB 状态 ═══','info');
-
   try{
-    // 不带过滤器，让用户能看到所有 USB 设备
     const device = await navigator.usb.requestDevice({ filters: [] });
     termWrite(`选择设备: VID=0x${device.vendorId.toString(16)} PID=0x${device.productId.toString(16)}`,'info');
     if(device.productName) termWrite(`产品名: ${device.productName}`,'info');
-
     const hasAdb = await checkAdbViaWebUSBDevice(device);
     if(hasAdb === true){
       termWrite('✓ 检测到 ADB 接口 (Class=0xFF, Subclass=0x42)','resp');
@@ -1581,8 +1539,6 @@ async function detectAdbViaWebUSB(){
     }
   }
 }
-
-/** 静默扫描已授权设备（不弹窗） */
 async function autoScanAdbDevices(){
   if(!('usb' in navigator)) { updateAdbDetectUI('unsupported'); return; }
   try{
@@ -1598,71 +1554,130 @@ async function autoScanAdbDevices(){
   }catch(e){}
 }
 
-/* ═══ 全能 ADB 开启/关闭 ═══ */
+/* ═══ v0.9.29：严格按流程图的 ADB 开启逻辑 ═══ */
 async function universalEnableADB(){
-  // 先扫描一次，看是否已开启
+  // 步骤1：WebUSB 预检
   if(state.usbAdbState === 'on'){
     toast('ADB 已开启，无需重复操作','info',3000);
     return;
   }
-  // 静默再检测一次
   await autoScanAdbDevices();
   if(state.usbAdbState === 'on'){
     toast('ADB 已开启，无需重复操作','info',3000);
     return;
   }
 
-  const chipId = state.detectedChipId || '';
+  const chipId = state.detectedChipId || 'unknown';
   const connected = state.connected;
 
-  // 优先走 AT 通道（更可靠）
-  if(connected){
-    termWrite('═══ 全能 ADB 开启（AT 通道）═══','info');
-    await doADBViaAT(chipId, true);
-    return;
-  }
+  termWrite(`═══ 全能 ADB 开启 · 芯片:${state.detectedChipName || '未识别'} · 串口:${connected?'已连接':'未连接'} ═══`,'info');
 
-  // 未连接 AT：中兴微走 Web 接口
-  if(chipId === 'zxic' || chipId === ''){
-    termWrite('═══ 全能 ADB 开启（Web 通道 · 中兴微）═══','info');
-    await webAdbRequest(1);
-    return;
+  // 步骤2：判断芯片平台
+  switch(chipId){
+    case 'zxic': {
+      termWrite('【中兴微】优先尝试 Web 接口','info');
+      const webOk = await webAdbRequest(1);
+      if(webOk) return;
+      termWrite('⚠ Web 接口失败，尝试 AT 备选...','warn');
+      if(connected){
+        await doADBViaAT('zxic', true);
+      }else{
+        toast('Web 接口失败且未连接串口，无法继续','error',5000);
+        setAdbMasterStatus('✗ 中兴微 Web 失败且串口未连接','err');
+      }
+      return;
+    }
+    case 'asr4g':
+    case 'asr5g': {
+      if(!connected){
+        toast('ASR 平台需要连接 AT 串口才能开启 ADB','error',5000);
+        termWrite('✗ ASR 平台必须连接 AT 串口','err');
+        setAdbMasterStatus('✗ ASR 需连接 AT 串口','err');
+        return;
+      }
+      termWrite('【ASR】尝试 AT 指令（工厂模式 + USBDEBUG）','info');
+      await doADBViaAT(chipId, true);
+      return;
+    }
+    case 'qualcomm': {
+      if(!connected){
+        toast('高通平台需要连接 AT 串口才能开启 ADB','error',5000);
+        termWrite('✗ 高通平台必须连接 AT 串口','err');
+        return;
+      }
+      termWrite('【高通】尝试 AT 指令','info');
+      await doADBViaAT('qualcomm', true);
+      return;
+    }
+    case 'unisoc': {
+      if(!connected){
+        toast('紫光展锐平台需要连接 AT 串口才能开启 ADB','error',5000);
+        termWrite('✗ 紫光展锐平台必须连接 AT 串口','err');
+        return;
+      }
+      termWrite('【紫光展锐】尝试 AT 指令','info');
+      await doADBViaAT('unisoc', true);
+      return;
+    }
+    case 'mtk': {
+      toast('联发科平台请通过工程模式或 adb root 开启','info',6000);
+      termWrite('✗ 联发科平台不支持直接 AT 开启 ADB','info');
+      setAdbMasterStatus('⚠ 联发科需工程模式','warn');
+      return;
+    }
+    default: {
+      // 未识别芯片 → 通用兜底
+      if(connected){
+        termWrite('【未识别芯片】尝试通用 AT 兜底','info');
+        await doADBViaAT('generic', true);
+      }else{
+        termWrite('【未识别芯片 · 未连接串口】尝试 Web 兜底','info');
+        await webAdbRequest(1);
+      }
+      return;
+    }
   }
-
-  // 未连接 AT 且非中兴微
-  toast('未连接 AT 串口，当前芯片暂不支持纯 Web 方式开启 ADB','error',6000);
-  termWrite('✗ 未连接 AT 串口，且该芯片无 Web 接口支持','err');
 }
 
 async function universalDisableADB(){
-  const chipId = state.detectedChipId || '';
+  const chipId = state.detectedChipId || 'unknown';
   const connected = state.connected;
+  termWrite(`═══ 全能 ADB 关闭 · 芯片:${state.detectedChipName || '未识别'} ═══`,'info');
 
-  if(connected){
-    termWrite('═══ 全能 ADB 关闭（AT 通道）═══','info');
-    await doADBViaAT(chipId, false);
-    return;
+  switch(chipId){
+    case 'zxic':
+      if(connected) await doADBViaAT('zxic', false);
+      else await webAdbRequest(0);
+      return;
+    case 'asr4g':
+    case 'asr5g':
+      if(connected) await doADBViaAT(chipId, false);
+      else toast('ASR 平台需要连接 AT 串口','error',4000);
+      return;
+    case 'qualcomm':
+      if(connected) await doADBViaAT('qualcomm', false);
+      else toast('高通平台需要连接 AT 串口','error',4000);
+      return;
+    case 'unisoc':
+      if(connected) await doADBViaAT('unisoc', false);
+      else toast('紫光展锐平台需要连接 AT 串口','error',4000);
+      return;
+    case 'mtk':
+      toast('联发科平台请通过工程模式关闭','info',5000);
+      return;
+    default:
+      if(connected) await doADBViaAT('generic', false);
+      else await webAdbRequest(0);
+      return;
   }
-
-  if(chipId === 'zxic' || chipId === ''){
-    termWrite('═══ 全能 ADB 关闭（Web 通道 · 中兴微）═══','info');
-    await webAdbRequest(0);
-    return;
-  }
-
-  toast('未连接 AT 串口，当前芯片暂不支持纯 Web 方式关闭 ADB','error',6000);
-  termWrite('✗ 未连接 AT 串口，且该芯片无 Web 接口支持','err');
 }
 
-/** AT 通道开启/关闭 ADB（按芯片选择候选） */
 async function doADBViaAT(chipId, enable){
-  if(!state.connected){ toast('请先连接串口','error'); return; }
-
+  if(!state.connected){ return false; }
   const cfg = ADB_AT_CANDIDATES[chipId] || ADB_AT_CANDIDATES.generic;
   const candidates = enable ? cfg.enable : cfg.disable;
   const action = enable ? '开启' : '关闭';
 
-  // 工厂模式前置
   if(enable && cfg.preEnable){
     termWrite(`进入工厂模式: ${cfg.preEnable}`,'info');
     await queryAndCollect(cfg.preEnable, 1500);
@@ -1698,35 +1713,21 @@ async function doADBViaAT(chipId, enable){
     await sleep(300);
   }
 
-  // 工厂模式后置退出
-  if(cfg.postEnable && enable){
-    termWrite(`退出工厂模式: ${cfg.postEnable}`,'info');
-    await queryAndCollect(cfg.postEnable, 1200);
-  }
-  if(cfg.postDisable && !enable){
-    termWrite(`退出工厂模式: ${cfg.postDisable}`,'info');
-    await queryAndCollect(cfg.postDisable, 1200);
-  }
-
   if(hit){
     setAdbStatus(enable ? 'on' : 'off', `${action}成功 (${hit.label})`);
     setAdbMasterStatus(`✓ ADB ${action}成功 · ${hit.label}`,'on');
     toast(`✓ ADB ${action}成功（${hit.label}）`,'success',5000);
-    termWrite(`✓ 通过 ${hit.cmd} 完成 ADB ${action}`,'resp');
-
-    // 提示重启
-    if(enable){
-      setTimeout(() => showWebAdbRebootModal(), 800);
-    }
+    if(enable) setTimeout(() => showWebAdbRebootModal(), 800);
+    return true;
   }else{
     setAdbStatus('unknown', `未找到可用指令`);
-    setAdbMasterStatus(`✗ 所有 AT 候选均失败`,'err');
-    toast(`ADB ${action}失败，所有 AT 候选均返回错误`,'error',6000);
     termWrite(`✗ 所有 AT 候选均失败`,'err');
+    setAdbMasterStatus('✗ 所有 AT 候选均失败','err');
+    return false;
   }
 }
 
-/* ═══ 中兴微 Web 直控 ═══ */
+/* ═══ Web 直控 ═══ */
 function isValidIPv4(s){
   if(!s) return false;
   const m = s.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
@@ -1735,10 +1736,14 @@ function isValidIPv4(s){
 }
 function getWebAdbGateway(){
   const el = document.getElementById('webAdbGateway');
-  const raw = (el?.value || '').trim();
+  let raw = (el?.value || '').trim();
+  if(!raw){
+    const wg = document.getElementById('wifiGateway')?.value.trim();
+    if(wg && isValidIPv4(wg)) raw = wg;
+    else raw = '192.168.0.1';
+  }
   const cleaned = raw.replace(/^https?:\/\//i,'').replace(/\/.*$/,'').replace(/:\d+$/,'');
-  if(isValidIPv4(cleaned)) return cleaned;
-  return null;
+  return isValidIPv4(cleaned) ? cleaned : null;
 }
 function saveWebAdbGateway(gw){ try{ localStorage.setItem(WEB_ADB_GW_LS_KEY, gw); }catch(e){} }
 function loadWebAdbGateway(){ try{ return localStorage.getItem(WEB_ADB_GW_LS_KEY) || ''; }catch(e){ return ''; } }
@@ -1777,17 +1782,17 @@ async function probeWebAdbGateway(silent){
     return false;
   }
 }
+/** 返回 true 表示 Web 请求成功送达，false 表示失败 */
 async function webAdbRequest(enable){
   const gw = getWebAdbGateway();
   const action = enable ? '开启' : '关闭';
   if(!gw){
     setWebAdbGatewayHint('⚠ 请输入有效的 IPv4 地址', 'err');
     toast('请先在输入框填写设备网关地址', 'error', 4000);
-    document.getElementById('webAdbGateway')?.focus();
-    return;
+    return false;
   }
   saveWebAdbGateway(gw);
-  termWrite(`═══ 中兴微 Web ADB ${action} · 网关 ${gw} ═══`, 'info');
+  termWrite(`═══ Web ADB ${action} · 网关 ${gw} ═══`, 'info');
   setAdbMasterStatus(`正在通过 Web 接口 ${action} ADB...`, 'warn');
   toast(`正在尝试 Web 通道 ${action} ADB（网关 ${gw}）...`, 'info', 2000);
 
@@ -1818,9 +1823,11 @@ async function webAdbRequest(enable){
     setAdbMasterStatus(`✓ [${okLabels}] @ ${gw} · ${action} ADB 请求已发送 · 需重启生效`, 'on');
     toast(`✓ Web 通道 ${action} ADB 请求已发送（${okCount} 接口）`, 'success', 4000);
     if(enable) showWebAdbRebootModal();
+    return true;
   }else{
     setAdbMasterStatus(`✗ 全部接口失败 · ${gw} 不可达`, 'err');
     toast('所有 Web 接口均失败，请检查网关与网络连通性', 'error', 6000);
+    return false;
   }
 }
 function showWebAdbRebootModal(){
@@ -1843,25 +1850,26 @@ function showWebAdbRebootModal(){
   modal.onclick = (e)=>{ if(e.target === modal) modal.classList.remove('show'); };
 }
 
-/* ═══ 更新 ADB 路径提示 ═══ */
 function updateAdbPathHint(){
   const el = document.getElementById('adbPathHint');
   if(!el) return;
   const chip = state.detectedChipName || '未识别';
-  const conn = state.connected ? '已连接 AT 串口' : '未连接串口';
-  const webEl = document.getElementById('webAdbSubsection');
-  if(webEl) webEl.style.display = (state.detectedChipId === 'zxic' || !state.detectedChipId) ? '' : 'none';
+  const connected = state.connected;
 
-  if(state.connected){
-    el.innerHTML = `当前芯片: <b>${chip}</b> · ${conn}<br>将使用 AT 指令（按芯片自动选候选）`;
-  }else if(state.detectedChipId === 'zxic' || !state.detectedChipId){
-    el.innerHTML = `当前芯片: <b>${chip}</b> · ${conn}<br>将使用中兴微 Web 接口（goform + reqproc）`;
+  if(chip === '中兴微'){
+    el.innerHTML = `当前芯片: <b>${chip}</b> · ${connected?'串口已连接':'串口未连接'}<br>优先 Web 接口，失败后回退 AT 指令`;
+  }else if(chip.includes('ASR')){
+    el.innerHTML = `当前芯片: <b>${chip}</b> · ${connected?'串口已连接':'串口未连接'}<br>${connected?'使用 AT 指令（工厂模式 + USBDEBUG）':'⚠ 需连接 AT 串口'}`;
+  }else if(chip === '高通'){
+    el.innerHTML = `当前芯片: <b>${chip}</b> · ${connected?'串口已连接':'串口未连接'}<br>${connected?'使用 AT+USB=1,268968726':'⚠ 需连接 AT 串口'}`;
+  }else if(chip === '紫光展锐'){
+    el.innerHTML = `当前芯片: <b>${chip}</b> · ${connected?'串口已连接':'串口未连接'}<br>${connected?'使用 AT+shell=...':'⚠ 需连接 AT 串口'}`;
+  }else if(chip === '联发科'){
+    el.innerHTML = `当前芯片: <b>${chip}</b><br>⚠ 需通过工程模式开启，不支持直接 AT`;
   }else{
-    el.innerHTML = `当前芯片: <b>${chip}</b> · ${conn}<br>⚠ 未连接串口且非中兴微，无法操作 ADB`;
+    el.innerHTML = `当前芯片: <b>${chip}</b> · ${connected?'串口已连接':'串口未连接'}<br>${connected?'通用 AT 兜底':'Web 兜底'}`;
   }
 }
-
-/* ═══ 其余原功能 ═══ */
 
 function setAdbStatus(status,detail){
   state.adbStatus=status;
@@ -2028,6 +2036,15 @@ function renderBandLockSection(){
       if(now - state.lastBandClickAt < 1500){ toast('请等待上一条指令完成','warn',2000); return; }
       state.lastBandClickAt = now;
       sendBandCmd(cfg.unlock.cmd, cfg);
+    }; opsGrid.appendChild(ub); }
+  if(cfg.unlockFactory){ const ub=document.createElement('button'); ub.className='quick-btn'; ub.style.color='#ff8a80'; ub.style.borderColor='rgba(231,76,60,.3)';
+    ub.innerHTML=`${cfg.unlockFactory.label}<span class="cmd-hint">${cfg.unlockFactory.cmd || '无参数'}</span>`;
+    ub.onclick=()=>{
+      const now=Date.now();
+      if(now - state.lastBandClickAt < 1500){ toast('请等待上一条指令完成','warn',2000); return; }
+      state.lastBandClickAt = now;
+      if(!confirm('确认恢复出厂频段？会清除所有锁频配置。')) return;
+      sendBandCmd(cfg.unlockFactory.cmd, cfg);
     }; opsGrid.appendChild(ub); }
   if(cfg.unlock5g&&is5g){ const ub=document.createElement('button'); ub.className='quick-btn'; ub.style.color='#22d3ee'; ub.style.borderColor='rgba(34,211,238,.3)';
     ub.innerHTML=`${cfg.unlock5g.label}<span class="cmd-hint">${cfg.unlock5g.cmd}</span>`;
@@ -3726,14 +3743,13 @@ window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close
   setCloudOpStatus(null,null);
   renderRightPanel();
 
-  /* Web ADB 网关初始化 */
   const webAdbGwEl = document.getElementById('webAdbGateway');
   if(webAdbGwEl){
     const saved = loadWebAdbGateway();
     if(saved) webAdbGwEl.value = saved;
     webAdbGwEl.addEventListener('input', ()=>{
       const v = webAdbGwEl.value.trim();
-      if(!v){ setWebAdbGatewayHint('中兴微专用，其他芯片可忽略', 'info'); return; }
+      if(!v){ setWebAdbGatewayHint('网关地址，中兴微 AT 失败时自动使用', 'info'); return; }
       if(isValidIPv4(v.replace(/^https?:\/\//i,'').replace(/\/.*$/,''))){
         setWebAdbGatewayHint('✓ 格式有效，点 🔍 可检测', 'ok');
       }else{
@@ -3745,18 +3761,14 @@ window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close
     });
   }
 
-  /* WebUSB ADB 检测初始化 */
   if('usb' in navigator){
-    // 静默扫描已授权设备
     autoScanAdbDevices();
-
-    // 监听设备插拔（重新扫描）
     navigator.usb.addEventListener('connect', (e)=>{
       termWrite('🔌 检测到 USB 设备接入，正在自动检测 ADB 状态...','info');
       setTimeout(async ()=>{
         const hasAdb = await checkAdbViaWebUSBDevice(e.device);
         if(hasAdb !== null) updateAdbDetectUI(hasAdb ? 'on' : 'off', e.device);
-      }, 1500);  // 等设备稳定
+      }, 1500);
     });
     navigator.usb.addEventListener('disconnect', (e)=>{
       if(state.usbAdbDevice && e.device === state.usbAdbDevice){
@@ -3769,8 +3781,8 @@ window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close
   }
   updateAdbPathHint();
 
-  termWrite('随身WiFi调试助手 v0.9.27','info');
-  termWrite('v0.9.27：ADB 全能开关（WebUSB 检测 + 多平台 AT 指令）；未连接串口时也支持 WebUSB 检测 ADB 状态','info');
+  termWrite('随身WiFi调试助手 v0.9.29','info');
+  termWrite('v0.9.29：严格按芯片平台分流开启 ADB：中兴微优先 Web；ASR/高通/展锐走 AT；联发科特殊提示；未识别芯片兜底','info');
 
   if(!('serial' in navigator)){
     termWrite('⚠ 当前浏览器不支持 Web Serial API，请使用 Chrome / Edge 89+ 桌面版。','err');
