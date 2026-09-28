@@ -198,7 +198,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v0.9.19</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v0.9.20</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -263,7 +263,7 @@
           <button class="btn btn-danger" id="btnDisconnectUSB" onclick="disconnect()" disabled>断开连接</button>
         </div>
         <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          <b style="color:var(--accent);">v0.9.19：</b>中兴微锁频掩码末位 2→0（修复 6004 错误）；新增 AT+MODIMEI= 写 IMEI 候选；新增"恢复出厂频段"按钮。
+          <b style="color:var(--accent);">v0.9.20：</b>修复 IMEI 解析语法错误（导致全脚本失效）；中兴微锁频末位 2→0；新增 AT+MODIMEI= / 恢复出厂频段。
         </div>
       </div>
       <div id="panelWiFi" class="hidden">
@@ -305,7 +305,7 @@
     </div>
     <div class="terminal-wrap">
       <div class="terminal" id="terminal">
-        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.19。</span></div>
+        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.20。</span></div>
       </div>
       <div class="terminal-input-row">
         <span class="prompt">AT&gt;</span>
@@ -678,14 +678,12 @@ const BAND_LOCK_CONFIG = {
     unlockFactory:{ cmd:'AT+ZLTEBAND=', label:'恢复出厂频段（无参数）' },
     bands4g:CN_4G_BANDS,
     build4g:(band)=>{
-      /* ★ v0.9.19：最后一位从 2 改为 0 */
       const g=[0,0,0,0,0,0,0,0,0];
       const idx=Math.floor((band-1)/8), bit=(band-1)%8;
       if(idx>=0 && idx<8) g[idx] = 1<<bit;
       return `AT+ZLTEBAND=${g.join(',')}`;
     },
     build4gMulti:(bands)=>{
-      /* ★ v0.9.19：最后一位从 2 改为 0 */
       const g=[0,0,0,0,0,0,0,0,0];
       bands.forEach(band=>{
         const idx=Math.floor((band-1)/8), bit=(band-1)%8;
@@ -808,7 +806,6 @@ const SECTION_VISIBILITY = {
   'advanced-chip':{ preConnect:true, postConnect:true },
 };
 
-/* ★ v0.9.19：IMEI 探测新增 AT+READIMEI?（中兴微参考） */
 const CAPABILITY_PROBES = {
   iccid:{ label:'ICCID', candidates:[
     { cmd:'AT+ZICCID?', pattern:/\+ZICCID:\s*"?([0-9A-Za-z]{18,22})"?/i },
@@ -889,7 +886,6 @@ const CAPABILITY_PROBES = {
   ]},
 };
 
-/* ★ v0.9.19：改写 IMEI 新增 AT+MODIMEI= 候选（中兴微参考） */
 const WRITE_IMEI_CANDIDATES = {
   zxic:{ enter:null, write:(v)=>`AT+MODIMEI=${v}`, exit:null, label:'中兴微（MODIMEI）' },
   asr4g:{ enter:'AT*PROD=1', write:(v)=>`AT*MRD_IMEI=W,0,01JAN1970,${v}`, exit:'AT*PROD=0', label:'ASR（MRD_IMEI）' },
@@ -1021,7 +1017,6 @@ const DECODERS = {
     const p=r.split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n));
     if(p.length<8)return [];
     const bs=[];
-    /* ★ 中兴微 8 位一组：字节i → band i*8+1 ~ i*8+8 */
     p.slice(0,8).forEach((m,i)=>{
       if(typeof m!=='number'||isNaN(m))return;
       for(let k=0;k<8;k++){
@@ -1358,7 +1353,6 @@ function renderBandLockSection(){
       state.lastBandClickAt = now;
       sendBandCmd(cfg.unlock.cmd, cfg);
     }; opsGrid.appendChild(ub); }
-  /* ★ v0.9.19：新增"恢复出厂频段"按钮 */
   if(cfg.unlockFactory){ const ub=document.createElement('button'); ub.className='quick-btn'; ub.style.color='#ff8a80'; ub.style.borderColor='rgba(231,76,60,.3)';
     ub.innerHTML=`${cfg.unlockFactory.label}<span class="cmd-hint">${cfg.unlockFactory.cmd || '无参数'}</span>`;
     ub.onclick=()=>{
@@ -1728,10 +1722,18 @@ function parseAnyResponse(line){
   else if(/^89\d{17,19}[A-Za-z0-9]*$/.test(line))setInfoValue('ICCID',line);
   else{ m=line.match(/\+CRSM:\s*\d+,\d+,\s*(?:"([0-9A-Fa-f\s]+)"|([0-9A-Fa-f]+))/i); if(m){ const v=DECODERS.crsm(m[1]||m[2]); if(v)setInfoValue('ICCID',v); } }
 
+  /* ★ v0.9.20：IMEI 解析 —— 修复 else{} 后接 else if 的语法错误 */
   m=line.match(/\+CGSN[:\s]+"?(\d{14,16})"?/i);
-  if(m)setInfoValue('IMEI',m[1]);
-  else{ m=line.match(/\+READIMEI[:\s]*"?(\d{14,16})"?/i); if(m)setInfoValue('IMEI',m[1]); }
-  else if(/^\d{15}$/.test(line))setInfoValue('IMEI',line);
+  if(m){
+    setInfoValue('IMEI',m[1]);
+  }else{
+    m=line.match(/\+READIMEI[:\s]*"?(\d{14,16})"?/i);
+    if(m){
+      setInfoValue('IMEI',m[1]);
+    }else if(/^\d{15}$/.test(line)){
+      setInfoValue('IMEI',line);
+    }
+  }
 
   m=line.match(/[*+]MRD_SN[:\s]+"?([A-Za-z0-9]{6,30})"?/i)
     ||line.match(/\+ZSN[:\s]+"?([A-Za-z0-9]{6,30})"?/i)
@@ -1819,7 +1821,6 @@ function parseAnyResponse(line){
     }
   }
 
-  /* 中兴微锁频配置 */
   m=line.match(/\+ZLTEBAND[:\s]*([\d,\s]+)/i);
   if(m){
     const el=document.getElementById('infoLockBand');
@@ -1830,7 +1831,6 @@ function parseAnyResponse(line){
       el.title='原始掩码: '+m[1];
     }
   }
-  /* 中兴微支持频段 */
   m=line.match(/\+ZLTEAMTBAND[:\s]*([\d,\s]+)/i);
   if(m){
     const el=document.getElementById('infoSupportBand');
@@ -1841,7 +1841,6 @@ function parseAnyResponse(line){
     }
   }
 
-  /* ASR *BAND 语义修正 */
   m=line.match(/^\*BAND[:\s]+([\d,\s]+)\s*$/im);
   if(m){
     const res=DECODERS.asrBandParse(m[1]);
@@ -3079,8 +3078,8 @@ window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close
   setCloudOpStatus(null,null);
   renderRightPanel();
 
-  termWrite('随身WiFi调试助手 v0.9.19 · 中兴微锁频修正版','info');
-  termWrite('v0.9.19：中兴微 ZLTEBAND 末位 2→0（修复 6004）；新增 AT+MODIMEI= 写 IMEI；新增"恢复出厂频段"按钮','info');
+  termWrite('随身WiFi调试助手 v0.9.20 · IMEI 语法修复版','info');
+  termWrite('v0.9.20：修复 parseAnyResponse 中 IMEI 解析的语法错误（else{} 后误接 else if），此错误会导致全脚本失效；保留 v0.9.19 全部中兴微修复','info');
 
   if(!('serial' in navigator)){
     termWrite('⚠ 当前浏览器不支持 Web Serial API，请使用 Chrome / Edge 89+ 桌面版。','err');
