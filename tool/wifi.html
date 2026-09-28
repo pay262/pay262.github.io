@@ -53,7 +53,8 @@
   .terminal .prefix.resp{color:var(--success)}
   .terminal .prefix.err{color:var(--error)}
   .terminal .prefix.info{color:var(--warn)}
-  .terminal .content{word-break:break-all;white-space:pre-wrap}
+  .terminal .prefix.ts{color:#5a6275;font-size:10.5px}
+  .terminal .content{word-break:break-all;white-space:pre-wrap;flex:1}
   .terminal .content.err{color:#ff8a80}
   .terminal-input-row{display:flex;border-top:1px solid var(--border);background:var(--bg-panel);padding:8px 12px;align-items:center;flex-shrink:0}
   .terminal-input-row .prompt{color:var(--accent);font-family:var(--font-mono);font-size:13px;font-weight:600;margin-right:8px;flex-shrink:0}
@@ -61,6 +62,7 @@
   .terminal-input::placeholder{color:#4a5060}
   .terminal-send{padding:5px 14px;background:var(--accent);border:none;border-radius:6px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;margin-left:8px;flex-shrink:0}
   .terminal-send:hover{background:#6b92ff}
+  .terminal-hint{font-size:10px;color:var(--text-dim);padding:2px 12px 6px;text-align:right;background:var(--bg-panel)}
   .quick-section{margin-bottom:16px}
   .quick-section h4{font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;font-weight:600;display:flex;align-items:center;justify-content:space-between}
   .quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
@@ -222,6 +224,20 @@
   .adb-status-card.not-supported .value{color:var(--text-dim);font-size:11px}
   .adb-platform-list{font-size:10px;color:var(--text-dim);line-height:1.55;font-family:var(--font-mono);padding:6px 8px;background:rgba(0,0,0,.25);border-radius:5px;margin-top:6px;word-break:break-all}
   .adb-platform-list b{color:#7fa4ff}
+  /* 新增样式 */
+  .signal-chart-wrap{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:8px;margin-top:8px}
+  .signal-chart-wrap canvas{width:100%;height:60px;display:block}
+  .session-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:10.5px;color:var(--text-dim);font-family:var(--font-mono);padding:8px;background:rgba(0,0,0,.2);border-radius:6px;margin-top:6px}
+  .session-stats .stat-item{display:flex;justify-content:space-between;gap:4px}
+  .session-stats .stat-val{color:var(--text);font-weight:600}
+  .probe-abort-btn{padding:3px 8px;font-size:10px;background:rgba(231,76,60,.15);border:1px solid rgba(231,76,60,.3);color:var(--error);border-radius:5px;cursor:pointer;font-family:inherit;display:none}
+  .probe-abort-btn.show{display:inline-block}
+  .probe-abort-btn:hover{background:rgba(231,76,60,.25)}
+  .terminal-cmd-history-hint{position:absolute;bottom:100%;left:0;right:0;background:var(--bg-panel);border:1px solid var(--border);border-radius:6px;max-height:120px;overflow-y:auto;font-size:11.5px;font-family:var(--font-mono);display:none;z-index:100;box-shadow:0 -4px 12px rgba(0,0,0,.4)}
+  .terminal-cmd-history-hint.show{display:block}
+  .terminal-cmd-history-hint .item{padding:4px 10px;cursor:pointer;color:var(--text-dim)}
+  .terminal-cmd-history-hint .item:hover{background:rgba(79,124,255,.15);color:var(--text)}
+  .terminal-input-row{position:relative}
   @media (max-width:1100px){html,body{height:auto!important;overflow:auto!important}body{display:block!important}.main{display:block!important;height:auto!important;overflow:visible!important}.panel{display:block!important;overflow:visible!important}.terminal-wrap{height:420px!important;flex:none!important}}
 </style>
 </head>
@@ -230,7 +246,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v0.9.32</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v0.9.33</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -289,40 +305,45 @@
             <button class="btn btn-outline btn-sm" onclick="setRTS(false)">RTS ↓</button>
           </div>
         </div>
+        <div class="form-group" style="display:flex;align-items:center;gap:6px;font-size:11.5px;">
+          <input type="checkbox" id="autoReconnect" style="cursor:pointer;">
+          <label for="autoReconnect" style="margin:0;cursor:pointer;color:var(--text-dim);">USB 意外断开后自动重连</label>
+        </div>
         <button class="btn btn-primary" id="btnConnectUSB" onclick="connectUSB()">🔌 选择串口并连接</button>
         <div class="btn-row">
           <button class="btn btn-warn" id="btnTestAT" onclick="testATComms()" disabled>🧪 仅测试 AT</button>
           <button class="btn btn-danger" id="btnDisconnectUSB" onclick="disconnect()" disabled>断开连接</button>
         </div>
         <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          <b style="color:var(--accent);">v0.9.32：</b>探测改为只读（不再自动写入）；写入操作仅按需执行；大幅缓解断网。
+          <b style="color:var(--accent);">v0.9.33：</b>全面修复 15 个 BUG + 新增 6 项功能。
         </div>
       </div>
       <div id="panelWiFi" class="hidden">
         <div class="form-group">
           <label>设备网关地址</label>
-          <input class="form-control" id="wifiGateway" list="gatewayList" value="192.168.0.1" autocomplete="off" placeholder="手动输入或点击选择">
+          <input class="form-control" id="wifiGateway" list="gatewayList" value="192.168.0.1" autocomplete="off">
           <datalist id="gatewayList">
             <option value="192.168.8.1">192.168.8.1 (华为)</option>
-            <option value="192.168.9.1">192.168.9.1 (华为备用/冲突时)</option>
-            <option value="192.168.0.1">192.168.0.1 (中兴/TP-Link/Tenda/格行等)</option>
-            <option value="192.168.100.1">192.168.100.1 (中兴5G CPE/电信光猫)</option>
+            <option value="192.168.9.1">192.168.9.1 (华为备用)</option>
+            <option value="192.168.0.1">192.168.0.1 (中兴/TP-Link/Tenda)</option>
+            <option value="192.168.100.1">192.168.100.1 (中兴5G CPE)</option>
             <option value="192.168.31.1">192.168.31.1 (小米)</option>
-            <option value="192.168.0.254">192.168.0.254 (TP-Link部分型号)</option>
-            <option value="192.168.2.1">192.168.2.1 (Tenda 4G302)</option>
-            <option value="192.168.1.1">192.168.1.1 (Netgear/Zyxel/电信等)</option>
-            <option value="192.168.10.1">192.168.10.1 (Netgear Nighthawk M7/移动定制)</option>
+            <option value="192.168.1.1">192.168.1.1 (Netgear/Zyxel)</option>
             <option value="192.168.43.1">192.168.43.1 (GlocalMe/Skyroam)</option>
-            <option value="192.168.21.1">192.168.21.1 (联通部分型号)</option>
-            <option value="10.10.10.254">10.10.10.254 (Skyroam部分型号)</option>
-            <option value="10.10.100.254">10.10.100.254 (部分工业设备)</option>
-            <option value="192.168.5.1">192.168.5.1 (中兴/小米组网模式)</option>
-            <option value="192.168.123.254">192.168.123.254 (其他常见)</option>
           </datalist>
         </div>
         <div class="form-group"><label>管理端口</label><input class="form-control" id="wifiPort" value="80"></div>
         <div class="form-group"><label>协议</label><select class="form-control" id="wifiProtocol"><option value="http" selected>HTTP</option><option value="https">HTTPS</option></select></div>
         <button class="btn btn-primary" onclick="connectWiFi()">📶 检测设备</button>
+      </div>
+      <div class="form-group" style="margin-top:16px;padding-top:12px;border-top:1px dashed var(--border);">
+        <label style="font-size:10.5px;">会话统计</label>
+        <div class="session-stats">
+          <div class="stat-item"><span>会话时长</span><span class="stat-val" id="statSession">00:00:00</span></div>
+          <div class="stat-item"><span>AT 发送</span><span class="stat-val" id="statTx">0</span></div>
+          <div class="stat-item"><span>响应收</span><span class="stat-val" id="statRx">0</span></div>
+          <div class="stat-item"><span>错误</span><span class="stat-val" id="statErr">0</span></div>
+        </div>
       </div>
     </div>
   </div>
@@ -337,12 +358,15 @@
     </div>
     <div class="terminal-wrap">
       <div class="terminal" id="terminal">
-        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.32。</span></div>
+        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.33。</span></div>
       </div>
+      <div class="terminal-hint">↑/↓ 键调出历史命令</div>
       <div class="terminal-input-row">
         <span class="prompt">AT&gt;</span>
-        <input class="terminal-input" id="atInput" placeholder="输入 AT 指令" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAT();}">
+        <input class="terminal-input" id="atInput" placeholder="输入 AT 指令" autocomplete="off"
+               onkeydown="handleAtInputKey(event)">
         <button class="terminal-send" onclick="sendAT()">发送</button>
+        <div class="terminal-cmd-history-hint" id="cmdHistoryHint"></div>
       </div>
     </div>
   </div>
@@ -370,7 +394,6 @@
           <span>ADB 全能开关</span>
           <span class="badge-tag cyan" style="font-size:9px;">WebUSB + AT + Web</span>
         </h4>
-
         <div class="adb-status-card not-supported" id="adbDetectCard">
           <div class="indicator"></div>
           <div class="info">
@@ -379,42 +402,27 @@
             <div class="sub" id="adbDetectSub">无需连接 AT 串口</div>
           </div>
         </div>
-
         <div class="quick-grid" style="margin-bottom:8px;">
-          <button class="quick-btn" onclick="detectAdbViaWebUSB()" id="btnAdbDetect"
-                  data-always-enabled="1" style="grid-column:1/-1;">
+          <button class="quick-btn" onclick="detectAdbViaWebUSB()" id="btnAdbDetect" data-always-enabled="1" style="grid-column:1/-1;">
             🔍 WebUSB 检测 ADB 状态<span class="cmd-hint">读取 USB 描述符</span>
           </button>
         </div>
-
         <div class="quick-grid">
-          <button class="quick-btn" onclick="universalEnableADB()" id="btnUniversalADBOn"
-                  data-always-enabled="1"
-                  style="color:#6ee7b7;border-color:rgba(110,231,183,.3);">
+          <button class="quick-btn" onclick="universalEnableADB()" id="btnUniversalADBOn" data-always-enabled="1" style="color:#6ee7b7;border-color:rgba(110,231,183,.3);">
             🔓 开启 ADB<span class="cmd-hint">自动选路径</span>
           </button>
-          <button class="quick-btn" onclick="universalDisableADB()" id="btnUniversalADBOff"
-                  data-always-enabled="1"
-                  style="color:#f39c12;border-color:rgba(243,156,18,.3);">
+          <button class="quick-btn" onclick="universalDisableADB()" id="btnUniversalADBOff" data-always-enabled="1" style="color:#f39c12;border-color:rgba(243,156,18,.3);">
             🔒 关闭 ADB<span class="cmd-hint">自动选路径</span>
           </button>
         </div>
-
-        <div class="adb-platform-list" id="adbPathHint">
-          等待检测芯片和连接状态...
-        </div>
-
+        <div class="adb-platform-list" id="adbPathHint">等待检测芯片和连接状态...</div>
         <div id="webAdbSubsection" style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);">
           <div style="font-size:10.5px;color:var(--text-dim);margin-bottom:6px;">
             <b style="color:#a78bfa;">Web 直控备用接口</b>（中兴微优先使用）
           </div>
           <div style="display:flex;gap:6px;margin-bottom:6px;">
-            <input class="form-control" id="webAdbGateway" list="webAdbGatewayList"
-                   placeholder="设备网关 如 192.168.0.1" autocomplete="off"
-                   style="font-size:11.5px;padding:5px 9px;flex:1;">
-            <button class="btn btn-outline btn-sm" onclick="probeWebAdbGateway()"
-                    style="width:auto;padding:0 10px;font-size:11px;flex-shrink:0;"
-                    title="检测网关连通性">🔍</button>
+            <input class="form-control" id="webAdbGateway" list="webAdbGatewayList" placeholder="设备网关 如 192.168.0.1" autocomplete="off" style="font-size:11.5px;padding:5px 9px;flex:1;">
+            <button class="btn btn-outline btn-sm" onclick="probeWebAdbGateway()" style="width:auto;padding:0 10px;font-size:11px;flex-shrink:0;" title="检测网关连通性">🔍</button>
           </div>
           <datalist id="webAdbGatewayList">
             <option value="192.168.0.1">192.168.0.1</option>
@@ -426,7 +434,6 @@
             网关地址，中兴微 Web 失败时自动回退 AT
           </div>
         </div>
-
         <div class="status-line off" id="adbMasterStatusLine" style="display:none;">
           <div class="k">最近操作</div>
           <div class="v" id="adbMasterStatusText">—</div>
@@ -439,10 +446,11 @@
           <div style="display:flex;gap:6px;">
             <button class="quick-btn" id="btnProbeCaps" onclick="runFullProbe(true)" style="width:auto;padding:3px 8px;font-size:10px;">🔄 重测</button>
             <button class="quick-btn" id="btnClearCaps" onclick="clearCapCache()" style="width:auto;padding:3px 8px;font-size:10px;">🗑️ 清缓存</button>
+            <button class="probe-abort-btn" id="btnAbortProbe" onclick="abortProbe()">⏹ 中止</button>
           </div>
         </h4>
         <div id="capList" style="font-size:11.5px;line-height:1.7;">
-          <div style="color:var(--text-dim);text-align:center;padding:10px;">正在探测...</div>
+          <div style="color:var(--text-dim);text-align:center;padding:10px;">尚未探测</div>
         </div>
         <div style="margin-top:6px;font-size:10.5px;color:var(--text-dim);" id="capFooter"></div>
       </div>
@@ -477,6 +485,10 @@
           <div class="info-item"><span class="info-label">WiFi MAC</span><span class="info-value empty" id="infoMAC">—</span></div>
           <div class="info-item"><span class="info-label">MAC2</span><span class="info-value empty" id="infoMAC2">—</span></div>
           <div class="info-item"><span class="info-label">固件版本</span><span class="info-value empty" id="infoVER">—</span></div>
+        </div>
+        <div class="signal-chart-wrap" id="signalChartWrap" style="display:none;">
+          <div style="font-size:10px;color:var(--text-dim);margin-bottom:4px;">信号曲线（近 60 次）</div>
+          <canvas id="signalChart" width="320" height="60"></canvas>
         </div>
       </div>
 
@@ -642,6 +654,10 @@
         <div class="validation-hint" id="validationHint"></div>
       </div>
       <div class="info-box" id="cmdPreviewBox">即将发送：<code id="cmdPreview">—</code></div>
+      <div style="margin-top:8px;display:flex;align-items:center;gap:6px;font-size:11.5px;">
+        <input type="checkbox" id="writeAutoReboot" style="cursor:pointer;">
+        <label for="writeAutoReboot" style="margin:0;cursor:pointer;color:var(--text-dim);">写入成功后自动重启设备</label>
+      </div>
     </div>
     <div id="writeProgressArea" style="display:none;">
       <div class="info-box" style="min-height:60px;"><div id="progressLog" style="font-family:var(--font-mono);font-size:11.5px;line-height:1.8;"></div></div>
@@ -658,7 +674,8 @@
     <h3>去云控 / 解除限速</h3>
     <div class="modal-sub">分三层级，按可靠性从高到低。建议从上到下依次尝试。</div>
     <div class="warn-box">
-      <b>⚠ 重要说明：</b>本工具只能尝试清除设备本地的云控脚本，无法解除厂商/运营商后台侧的云控订阅或限速策略。
+      <b>⚠ 重要说明：</b>本工具只能尝试清除设备本地的云控脚本，无法解除厂商/运营商后台侧的云控订阅或限速策略。<br>
+      <b style="color:#ff8a80;">此操作会短暂断网，请确认后继续。</b>
     </div>
     <div class="cloud-layer" id="cloudLayer1">
       <h5>① AT 层指令 <span class="badge-tag blue" style="font-size:9px;">最简单</span></h5>
@@ -767,6 +784,8 @@ adb shell reboot</pre>
 
 <script>
 /* ═══════════════════════════════════════════════════════════════════════════ */
+/* v0.9.33 常量定义                                                             */
+/* ═══════════════════════════════════════════════════════════════════════════ */
 const LINE_ENDING_MAP = { crlf:'\r\n', cr:'\r', lf:'\n' };
 function getLineEnding(){ return LINE_ENDING_MAP[document.getElementById('lineEnding').value] || '\r\n'; }
 
@@ -779,7 +798,7 @@ const SPEEDTEST_SOURCES = [
     downloadUrl:'https://mirrors.163.com/ubuntu-releases/22.04/ubuntu-22.04.4-desktop-amd64.iso',
     latencyUrl: 'https://mirrors.163.com/ubuntu-releases/22.04/ubuntu-22.04.4-desktop-amd64.iso',
     downloadRange: 3 * 1024 * 1024, latencyRange: 1024 },
-  { id:'cloudflare', name:'Cloudflare（海外备用）', operator:'海外',
+  { id:'cloudflare', name:'Cloudflare（海外）', operator:'海外',
     downloadUrl:'https://speed.cloudflare.com/__down?bytes=3000000',
     latencyUrl: 'https://speed.cloudflare.com/__down?bytes=1024',
     downloadRange: null, latencyRange: null },
@@ -821,9 +840,9 @@ const ASR_TDD_MASK = { 33:1, 34:2, 35:4, 36:8, 37:16, 38:32, 39:64, 40:128, 41:2
 const BAND_LOCK_CONFIG = {
   zxic: {
     mode:'4g', supportWrite:true,
-    tip:'<b>中兴微锁频：</b>使用 <code>AT+ZLTEBAND=&lt;9字节掩码&gt;</code>。第1位对应B1~B8，以此类推，最后一位固定为 <b>0</b>。<br>例：锁B3 = <code>AT+ZLTEBAND=4,0,0,0,0,0,0,0,0</code>',
-    unlock:{ cmd:'AT+ZLTEBAND=0', label:'解除锁频（末位归零）' },
-    unlockFactory:{ cmd:'AT+ZLTEBAND=', label:'恢复出厂频段（无参数）' },
+    tip:'<b>中兴微锁频：</b>使用 <code>AT+ZLTEBAND=&lt;9字节掩码&gt;</code>。第1位对应B1~B8，最后一位固定为 <b>0</b>。',
+    unlock:{ cmd:'AT+ZLTEBAND=0', label:'解除锁频' },
+    unlockFactory:{ cmd:'AT+ZLTEBAND=', label:'恢复出厂频段' },
     bands4g:CN_4G_BANDS,
     build4g:(band)=>{
       const g=[0,0,0,0,0,0,0,0,0];
@@ -842,7 +861,7 @@ const BAND_LOCK_CONFIG = {
   },
   asr4g: {
     mode:'4g', supportWrite:true,
-    tip:'<b>ASR1803 锁频：</b><code>AT*BAND=&lt;FDD&gt;,&lt;TDD&gt;,0,0,0,0,2,2,0</code>',
+    tip:'<b>ASR1803 锁频：</b><code>AT*BAND=&lt;FDD&gt;,&lt;TDD&gt;,0,0,0,0,2,2,0</code>（需先进入工厂模式）',
     preCmd:'AT*PROD=1',
     postCmd:'AT*PROD=0',
     queryCmd:'AT*BAND?',
@@ -955,7 +974,6 @@ const SECTION_VISIBILITY = {
   'advanced-chip':{ preConnect:true, postConnect:true },
 };
 
-/* v0.9.32：能力探测 - 全部只读，不再有 writeTest */
 const CAPABILITY_PROBES = {
   iccid:{ label:'ICCID', candidates:[
     { cmd:'AT+ZICCID?', pattern:/\+ZICCID:\s*"?([0-9A-Za-z]{18,22})"?/i },
@@ -995,7 +1013,6 @@ const CAPABILITY_PROBES = {
     { cmd:'AT+SWSIM?',       pattern:/\+SWSIM:\s*(\d+)/i,       decoder:'swsim' },
     { cmd:'AT+QDSIM?',       pattern:/\+QDSIM:\s*(\d+)/i,       decoder:'qdsim' },
   ]},
-  /* v0.9.32：去除所有 writeTest，仅保留查询 */
   bandLock:{ label:'频段锁定', candidates:[
     { cmd:'AT+ZLTEBAND?', pattern:/\+ZLTEBAND:/i, platform:'zxic' },
     { cmd:'AT+QNWPREFCFG="lte_band"', pattern:/\+QNWPREFCFG:/i, platform:'qualcomm' },
@@ -1068,6 +1085,7 @@ const EXPECTED_SLOT_VALUE = {
   qdsim:{ external:1, internal:0 },
 };
 
+/* ★ BUG-01 修复：ASR 补上 postEnable / postDisable */
 const ADB_AT_CANDIDATES = {
   zxic: {
     enable: [
@@ -1086,7 +1104,9 @@ const ADB_AT_CANDIDATES = {
   },
   asr4g: {
     preEnable: 'AT*PROD=1',
+    postEnable: 'AT*PROD=0',      // ★ BUG-01 修复
     preDisable: 'AT*PROD=1',
+    postDisable: 'AT*PROD=0',     // ★ BUG-01 修复
     enable: [
       { cmd:'AT+USBDEBUG=1', label:'ASR USBDEBUG' },
       { cmd:'AT+ADBDEBUG=1', label:'ASR ADBDEBUG' },
@@ -1101,7 +1121,9 @@ const ADB_AT_CANDIDATES = {
   },
   asr5g: {
     preEnable: 'AT*PROD=1',
+    postEnable: 'AT*PROD=0',      // ★ BUG-01 修复
     preDisable: 'AT*PROD=1',
+    postDisable: 'AT*PROD=0',     // ★ BUG-01 修复
     enable: [
       { cmd:'AT+USBDEBUG=1', label:'ASR USBDEBUG' },
       { cmd:'AT+ADBDEBUG=1', label:'ASR ADBDEBUG' },
@@ -1159,7 +1181,9 @@ const WEB_ADB_ENDPOINTS = [
   { path:'/reqproc/proc_post',             label:'reqproc' },
 ];
 const WEB_ADB_GW_LS_KEY = 'atmaster_web_adb_gateway';
+const AT_HISTORY_KEY = 'atmaster_at_history';
 
+/* ★ BUG-03 修复：云控移除顺序严格，AT*PROD 失败中止 */
 const CLOUD_REMOVE_AT = {
   zxic:     ['AT*PROD=1','AT+ZCLOUD=0','AT+ZCLOUDCFG=0','AT+ZCLOUDURL=""','AT*PROD=0','AT+RESET'],
   asr4g:    ['AT*PROD=1','AT+CLOUD=0','AT+CLOUDSWITCH=0','AT*PROD=0','AT+RESET'],
@@ -1334,40 +1358,9 @@ const URC_PATTERNS = [
 ];
 let lastURCState = { nocell:false, creg:null, creg5g:null };
 
-function updateNetFromURC(st){
-  const i=document.getElementById('netTypeIcon'), v=document.getElementById('netTypeValue'), s=document.getElementById('netTypeSub');
-  if(!i||!v||!s)return;
-  if(st===4){ i.className='icon unknown'; i.textContent='?'; v.className='value unknown'; v.textContent='无服务'; s.textContent='搜索中…'; }
-}
-function handleURC(line){
-  for(const p of URC_PATTERNS){
-    const m=line.match(p.re);
-    if(!m)continue;
-    if(p.handler==='nocell'){
-      if(lastURCState.nocell!==true){
-        lastURCState.nocell=true;
-        termWrite('⚠ 设备无服务小区（网络掉线）','info');
-        updateNetFromURC(4);
-      }
-      return true;
-    }
-    if(p.handler==='creg'||p.handler==='creg5g'){
-      const st=parseInt(m[1]);
-      const key=p.handler;
-      if(lastURCState[key]!==st){
-        lastURCState[key]=st;
-        lastURCState.nocell=false;
-        if(p.handler==='creg5g'&&(st===1||st===5)){ setNetworkType('5g','C5GREG 已注册'); }
-        else if(st===1||st===5){ setNetworkType('4g','已注册'); }
-        else if(st===2){ updateNetFromURC(4); }
-      }
-      return true;
-    }
-    return true;
-  }
-  return false;
-}
-
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* v0.9.33 状态对象                                                             */
+/* ═══════════════════════════════════════════════════════════════════════════ */
 const state = {
   connected:false, port:null, reader:null, readLoopActive:false,
   logBuffer:[], responseBuffer:'', maxLogLines:500,
@@ -1381,34 +1374,83 @@ const state = {
   activeBands:[],
   supportedBands:[],
   lockMaskRaw:null,
-  adbStatus:'unknown', adbStatusCmd:null,
-  usbAdbState:'unknown',
-  usbAdbDevice:null,
+  usbAdbState:'unknown', usbAdbDevice:null,
   factoryStatus:'unknown', factoryCmd:null,
   simSwitchStatus:'unknown', simSwitchCmd:null,
   cloudLastAction:null, cloudLastResult:null,
   lastWriteResult:null,
   lastBandClickAt:0,
   resetting:false,
+  /* v0.9.33 新增 */
+  probeAbort:false,
+  signalHistory:[],           // 信号历史
+  sessionStartAt:0,           // 会话开始时间
+  statTx:0, statRx:0, statErr:0,  // 统计
+  atHistory:[],               // AT 历史
+  atHistoryIdx:-1,            // 当前历史位置
+  autoReconnect:false,        // 自动重连
+  autoReconnectTimer:null,
+  lastPortInfo:null,          // 上次连接信息
 };
 
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* v0.9.33 通用工具函数                                                          */
+/* ═══════════════════════════════════════════════════════════════════════════ */
 function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
 function toast(msg,type='info',dur=3000){
   const c=document.getElementById('toastContainer');
   const el=document.createElement('div'); el.className=`toast ${type}`; el.textContent=msg; c.appendChild(el);
   setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(()=>el.remove(),300);},dur);
 }
+
+/* ★ BUG-13 修复：日志带时间戳 */
 function termWrite(text,type='resp'){
   const t=document.getElementById('terminal');
   const line=document.createElement('div'); line.className='line';
+  const now = new Date();
+  const ts = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+  const tsp = document.createElement('span'); tsp.className='prefix ts'; tsp.textContent=ts;
   const pm={cmd:'→',resp:'←',err:'✕',info:'●'};
   const p=document.createElement('span'); p.className=`prefix ${type}`; p.textContent=pm[type]||'●';
   const c=document.createElement('span'); c.className=`content${type==='err'?' err':''}`; c.textContent=text;
-  line.appendChild(p); line.appendChild(c); t.appendChild(line);
+  line.appendChild(tsp); line.appendChild(p); line.appendChild(c); t.appendChild(line);
   while(t.children.length>state.maxLogLines)t.removeChild(t.firstChild);
   t.scrollTop=t.scrollHeight;
-  state.logBuffer.push(`[${type.toUpperCase()}] ${text}`);
+  state.logBuffer.push(`[${ts}][${type.toUpperCase()}] ${text}`);
+
+  // 统计
+  if(type==='cmd') state.statTx++;
+  else if(type==='resp') state.statRx++;
+  else if(type==='err') state.statErr++;
+  updateSessionStats();
 }
+
+function updateSessionStats(){
+  const el=document.getElementById('statTx'), rx=document.getElementById('statRx'), er=document.getElementById('statErr');
+  if(el)el.textContent=state.statTx;
+  if(rx)rx.textContent=state.statRx;
+  if(er)er.textContent=state.statErr;
+}
+
+/* ★ 缺失-04：会话时长定时更新 */
+function startSessionTimer(){
+  state.sessionStartAt = Date.now();
+  if(state._sessionTimer) clearInterval(state._sessionTimer);
+  state._sessionTimer = setInterval(()=>{
+    const el=document.getElementById('statSession');
+    if(!el)return;
+    const dur = Math.floor((Date.now()-state.sessionStartAt)/1000);
+    const h = String(Math.floor(dur/3600)).padStart(2,'0');
+    const m = String(Math.floor((dur%3600)/60)).padStart(2,'0');
+    const s = String(dur%60).padStart(2,'0');
+    el.textContent = `${h}:${m}:${s}`;
+  }, 1000);
+}
+function stopSessionTimer(){
+  if(state._sessionTimer){ clearInterval(state._sessionTimer); state._sessionTimer=null; }
+  const el=document.getElementById('statSession'); if(el)el.textContent='00:00:00';
+}
+
 function clearTerminal(){ document.getElementById('terminal').innerHTML=''; state.logBuffer=[]; termWrite('终端已清空。','info'); }
 function exportLog(){
   if(!state.logBuffer.length){ toast('暂无日志','info'); return; }
@@ -1420,6 +1462,7 @@ function exportLog(){
   const a=document.createElement('a'); a.href=url; a.download=`atmaster-log-${ts}.txt`;
   a.click(); URL.revokeObjectURL(url); toast('日志已导出','success');
 }
+
 function switchMode(mode){
   if(state.connected){ toast('请先断开','error'); return; }
   document.querySelectorAll('.conn-tab').forEach(t=>t.classList.toggle('active',t.dataset.mode===mode));
@@ -1461,6 +1504,80 @@ async function setRTS(value){
   catch(e){ termWrite(`RTS 设置失败: ${e.message}`,'err'); }
 }
 
+/* ★ BUG-05 修复：writeToPort 过滤控制字符，防 AT 指令注入 */
+async function writeToPort(data){
+  if(!state.port||!state.port.writable)throw new Error('串口不可写');
+  const sanitized = String(data).replace(/[\r\n\x00-\x08\x0B\x0C\x0E-\x1F]/g,'');
+  const ending = getLineEnding();
+  const writer = state.port.writable.getWriter();
+  try{ await writer.write(new TextEncoder().encode(sanitized+ending)); }
+  finally{ writer.releaseLock(); }
+}
+
+/* ★ 缺失-05：AT 指令历史（↑/↓） */
+function loadAtHistory(){
+  try{
+    const raw = localStorage.getItem(AT_HISTORY_KEY);
+    state.atHistory = raw ? JSON.parse(raw) : [];
+    if(!Array.isArray(state.atHistory)) state.atHistory = [];
+  }catch(e){ state.atHistory = []; }
+}
+function saveAtHistory(cmd){
+  if(!cmd) return;
+  state.atHistory = state.atHistory.filter(c => c !== cmd);
+  state.atHistory.unshift(cmd);
+  if(state.atHistory.length > 50) state.atHistory = state.atHistory.slice(0, 50);
+  try{ localStorage.setItem(AT_HISTORY_KEY, JSON.stringify(state.atHistory)); }catch(e){}
+  state.atHistoryIdx = -1;
+}
+function handleAtInputKey(event){
+  const input = event.target;
+  const hint = document.getElementById('cmdHistoryHint');
+  if(event.key === 'Enter' && !event.shiftKey){
+    event.preventDefault();
+    sendAT();
+    if(hint) hint.classList.remove('show');
+    return;
+  }
+  if(event.key === 'ArrowUp'){
+    event.preventDefault();
+    if(state.atHistory.length === 0) return;
+    state.atHistoryIdx = Math.min(state.atHistoryIdx + 1, state.atHistory.length - 1);
+    input.value = state.atHistory[state.atHistoryIdx];
+    return;
+  }
+  if(event.key === 'ArrowDown'){
+    event.preventDefault();
+    if(state.atHistoryIdx > 0){
+      state.atHistoryIdx--;
+      input.value = state.atHistory[state.atHistoryIdx];
+    } else {
+      state.atHistoryIdx = -1;
+      input.value = '';
+    }
+    return;
+  }
+  /* 输入时显示历史提示 */
+  const v = input.value.trim();
+  if(v && hint && state.atHistory.length > 0){
+    const matches = state.atHistory.filter(c => c.toLowerCase().includes(v.toLowerCase()) && c !== v).slice(0, 5);
+    if(matches.length > 0){
+      hint.innerHTML = matches.map(c => `<div class="item" onclick="pickHistory('${c.replace(/'/g,"\\'")}')">${c.replace(/</g,'&lt;')}</div>`).join('');
+      hint.classList.add('show');
+      return;
+    }
+  }
+  if(hint) hint.classList.remove('show');
+}
+function pickHistory(cmd){
+  document.getElementById('atInput').value = cmd;
+  const hint = document.getElementById('cmdHistoryHint');
+  if(hint) hint.classList.remove('show');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* v0.9.33 ADB 相关                                                             */
+/* ═══════════════════════════════════════════════════════════════════════════ */
 function updateAdbDetectUI(status, device){
   state.usbAdbState = status;
   state.usbAdbDevice = device || null;
@@ -1525,7 +1642,6 @@ function setAdbMasterStatus(text, cls){
                      : 'var(--text-dim)';
   textEl.textContent = text;
 }
-
 async function checkAdbViaWebUSBDevice(device){
   if(!device) return null;
   try{
@@ -1602,19 +1718,12 @@ async function autoScanAdbDevices(){
 }
 
 async function universalEnableADB(){
-  if(state.usbAdbState === 'on'){
-    toast('ADB 已开启，无需重复操作','info',3000);
-    return;
-  }
+  if(state.usbAdbState === 'on'){ toast('ADB 已开启，无需重复操作','info',3000); return; }
   await autoScanAdbDevices();
-  if(state.usbAdbState === 'on'){
-    toast('ADB 已开启，无需重复操作','info',3000);
-    return;
-  }
+  if(state.usbAdbState === 'on'){ toast('ADB 已开启，无需重复操作','info',3000); return; }
 
   const chipId = state.detectedChipId || 'unknown';
   const connected = state.connected;
-
   termWrite(`═══ 全能 ADB 开启 · 芯片:${state.detectedChipName || '未识别'} · 串口:${connected?'已连接':'未连接'} ═══`,'info');
 
   switch(chipId){
@@ -1623,98 +1732,53 @@ async function universalEnableADB(){
       const webOk = await webAdbRequest(1);
       if(webOk) return;
       termWrite('⚠ Web 接口失败，尝试 AT 备选...','warn');
-      if(connected){
-        await doADBViaAT('zxic', true);
-      }else{
-        toast('Web 接口失败且未连接串口，无法继续','error',5000);
-        setAdbMasterStatus('✗ 中兴微 Web 失败且串口未连接','err');
-      }
+      if(connected){ await doADBViaAT('zxic', true); }
+      else { toast('Web 接口失败且未连接串口，无法继续','error',5000); setAdbMasterStatus('✗ 中兴微 Web 失败且串口未连接','err'); }
       return;
     }
-    case 'asr4g':
-    case 'asr5g': {
-      if(!connected){
-        toast('ASR 平台需要连接 AT 串口才能开启 ADB','error',5000);
-        termWrite('✗ ASR 平台必须连接 AT 串口','err');
-        setAdbMasterStatus('✗ ASR 需连接 AT 串口','err');
-        return;
-      }
+    case 'asr4g': case 'asr5g': {
+      if(!connected){ toast('ASR 平台需要连接 AT 串口','error',5000); termWrite('✗ ASR 平台必须连接 AT 串口','err'); setAdbMasterStatus('✗ ASR 需连接 AT 串口','err'); return; }
       termWrite('【ASR】尝试 AT 指令（工厂模式 + USBDEBUG）','info');
-      await doADBViaAT(chipId, true);
-      return;
+      await doADBViaAT(chipId, true); return;
     }
     case 'qualcomm': {
-      if(!connected){
-        toast('高通平台需要连接 AT 串口才能开启 ADB','error',5000);
-        termWrite('✗ 高通平台必须连接 AT 串口','err');
-        return;
-      }
+      if(!connected){ toast('高通平台需要连接 AT 串口','error',5000); termWrite('✗ 高通平台必须连接 AT 串口','err'); return; }
       termWrite('【高通】尝试 AT 指令','info');
-      await doADBViaAT('qualcomm', true);
-      return;
+      await doADBViaAT('qualcomm', true); return;
     }
     case 'unisoc': {
-      if(!connected){
-        toast('紫光展锐平台需要连接 AT 串口才能开启 ADB','error',5000);
-        termWrite('✗ 紫光展锐平台必须连接 AT 串口','err');
-        return;
-      }
+      if(!connected){ toast('紫光展锐平台需要连接 AT 串口','error',5000); termWrite('✗ 紫光展锐平台必须连接 AT 串口','err'); return; }
       termWrite('【紫光展锐】尝试 AT 指令','info');
-      await doADBViaAT('unisoc', true);
-      return;
+      await doADBViaAT('unisoc', true); return;
     }
     case 'mtk': {
       toast('联发科平台请通过工程模式或 adb root 开启','info',6000);
       termWrite('✗ 联发科平台不支持直接 AT 开启 ADB','info');
-      setAdbMasterStatus('⚠ 联发科需工程模式','warn');
-      return;
+      setAdbMasterStatus('⚠ 联发科需工程模式','warn'); return;
     }
     default: {
-      if(connected){
-        termWrite('【未识别芯片】尝试通用 AT 兜底','info');
-        await doADBViaAT('generic', true);
-      }else{
-        termWrite('【未识别芯片 · 未连接串口】尝试 Web 兜底','info');
-        await webAdbRequest(1);
-      }
+      if(connected){ termWrite('【未识别芯片】尝试通用 AT 兜底','info'); await doADBViaAT('generic', true); }
+      else { termWrite('【未识别芯片 · 未连接串口】尝试 Web 兜底','info'); await webAdbRequest(1); }
       return;
     }
   }
 }
-
 async function universalDisableADB(){
   const chipId = state.detectedChipId || 'unknown';
   const connected = state.connected;
   termWrite(`═══ 全能 ADB 关闭 · 芯片:${state.detectedChipName || '未识别'} ═══`,'info');
 
   switch(chipId){
-    case 'zxic':
-      if(connected) await doADBViaAT('zxic', false);
-      else await webAdbRequest(0);
-      return;
-    case 'asr4g':
-    case 'asr5g':
-      if(connected) await doADBViaAT(chipId, false);
-      else toast('ASR 平台需要连接 AT 串口','error',4000);
-      return;
-    case 'qualcomm':
-      if(connected) await doADBViaAT('qualcomm', false);
-      else toast('高通平台需要连接 AT 串口','error',4000);
-      return;
-    case 'unisoc':
-      if(connected) await doADBViaAT('unisoc', false);
-      else toast('紫光展锐平台需要连接 AT 串口','error',4000);
-      return;
-    case 'mtk':
-      toast('联发科平台请通过工程模式关闭','info',5000);
-      return;
-    default:
-      if(connected) await doADBViaAT('generic', false);
-      else await webAdbRequest(0);
-      return;
+    case 'zxic': if(connected) await doADBViaAT('zxic', false); else await webAdbRequest(0); return;
+    case 'asr4g': case 'asr5g': if(connected) await doADBViaAT(chipId, false); else toast('ASR 平台需要连接 AT 串口','error',4000); return;
+    case 'qualcomm': if(connected) await doADBViaAT('qualcomm', false); else toast('高通平台需要连接 AT 串口','error',4000); return;
+    case 'unisoc': if(connected) await doADBViaAT('unisoc', false); else toast('紫光展锐平台需要连接 AT 串口','error',4000); return;
+    case 'mtk': toast('联发科平台请通过工程模式关闭','info',5000); return;
+    default: if(connected) await doADBViaAT('generic', false); else await webAdbRequest(0); return;
   }
 }
 
+/* ★ BUG-01 修复：ADB AT 处理流程确保工厂模式退出 */
 async function doADBViaAT(chipId, enable){
   if(!state.connected){ return false; }
   const cfg = ADB_AT_CANDIDATES[chipId] || ADB_AT_CANDIDATES.generic;
@@ -1733,57 +1797,69 @@ async function doADBViaAT(chipId, enable){
   }
 
   let hit = null;
-  for(let i=0; i<candidates.length; i++){
-    const c = candidates[i];
-    termWrite(`[${i+1}/${candidates.length}] ${c.cmd}  (${c.label})`,'cmd');
-    state.responseBuffer='';
-    try{
-      await writeToPort(c.cmd);
-      const t0 = Date.now();
-      while(Date.now()-t0 < 1800){
-        await sleep(80);
-        if(/\b(OK|ERROR)\s*$/im.test(state.responseBuffer.trim())){ await sleep(150); break; }
+  try{
+    for(let i=0; i<candidates.length; i++){
+      const c = candidates[i];
+      termWrite(`[${i+1}/${candidates.length}] ${c.cmd}  (${c.label})`,'cmd');
+      state.responseBuffer='';
+      try{
+        await writeToPort(c.cmd);
+        const t0 = Date.now();
+        while(Date.now()-t0 < 1800){
+          await sleep(80);
+          if(/\b(OK|ERROR)\s*$/im.test(state.responseBuffer.trim())){ await sleep(150); break; }
+        }
+      }catch(err){
+        termWrite(`发送失败: ${err.message}`,'err');
+        break;
       }
-    }catch(err){
-      termWrite(`发送失败: ${err.message}`,'err');
-      break;
+      if(isValidResponse(state.responseBuffer)){ hit = c; termWrite(`✓ ${c.cmd} 返回 OK`,'resp'); break; }
+      await sleep(300);
     }
-    if(isValidResponse(state.responseBuffer)){
-      hit = c;
-      termWrite(`✓ ${c.cmd} 返回 OK`,'resp');
-      break;
+  } finally {
+    // ★ 无论是否成功，只要进了工厂模式就一定要退出
+    if(enable && cfg.postEnable){
+      termWrite(`退出工厂模式: ${cfg.postEnable}`,'info');
+      try{ await queryAndCollect(cfg.postEnable, 1200); }catch(e){}
+      await sleep(500);
     }
-    await sleep(300);
+    if(!enable && cfg.postDisable){
+      termWrite(`退出工厂模式: ${cfg.postDisable}`,'info');
+      try{ await queryAndCollect(cfg.postDisable, 1200); }catch(e){}
+      await sleep(500);
+    }
   }
 
   if(hit){
-    setAdbStatus(enable ? 'on' : 'off', `${action}成功 (${hit.label})`);
     setAdbMasterStatus(`✓ ADB ${action}成功 · ${hit.label}`,'on');
     toast(`✓ ADB ${action}成功（${hit.label}）`,'success',5000);
     if(enable) setTimeout(() => showWebAdbRebootModal(), 800);
     return true;
   }else{
-    setAdbStatus('unknown', `未找到可用指令`);
     termWrite(`✗ 所有 AT 候选均失败`,'err');
     setAdbMasterStatus('✗ 所有 AT 候选均失败','err');
     return false;
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* v0.9.33 Web ADB                                                              */
+/* ═══════════════════════════════════════════════════════════════════════════ */
 function isValidIPv4(s){
   if(!s) return false;
   const m = s.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
   if(!m) return false;
   return m.slice(1).every(n => { const v = parseInt(n); return v >= 0 && v <= 255; });
 }
+/* ★ BUG-06 修复：网关不强制默认值 */
 function getWebAdbGateway(){
   const el = document.getElementById('webAdbGateway');
   let raw = (el?.value || '').trim();
   if(!raw){
     const wg = document.getElementById('wifiGateway')?.value.trim();
     if(wg && isValidIPv4(wg)) raw = wg;
-    else raw = '192.168.0.1';
   }
+  if(!raw) return null;
   const cleaned = raw.replace(/^https?:\/\//i,'').replace(/\/.*$/,'').replace(/:\d+$/,'');
   return isValidIPv4(cleaned) ? cleaned : null;
 }
@@ -1880,9 +1956,7 @@ function showWebAdbRebootModal(){
     if(state.connected){
       const ok = await resetDevice(true);
       if(!ok) toast('AT 重启失败，请手动断电重启设备', 'error', 6000);
-    }else{
-      toast('AT 串口未连接，请手动断电重启设备', 'info', 5000);
-    }
+    }else{ toast('AT 串口未连接，请手动断电重启设备', 'info', 5000); }
   };
   document.getElementById('webAdbRebootNo').onclick = ()=>{
     modal.classList.remove('show');
@@ -1896,7 +1970,6 @@ function updateAdbPathHint(){
   if(!el) return;
   const chip = state.detectedChipName || '未识别';
   const connected = state.connected;
-
   if(chip === '中兴微'){
     el.innerHTML = `当前芯片: <b>${chip}</b> · ${connected?'串口已连接':'串口未连接'}<br>优先 Web 接口，失败后回退 AT 指令`;
   }else if(chip.includes('ASR')){
@@ -1912,15 +1985,7 @@ function updateAdbPathHint(){
   }
 }
 
-function setAdbStatus(status,detail){
-  state.adbStatus=status;
-  const badge=document.getElementById('adbStatusBadge'), textEl=document.getElementById('adbStatusText'), line=document.getElementById('adbStatusLine');
-  if(!badge||!textEl||!line)return;
-  line.className='status-line '+(status==='on'?'on':status==='off'?'off':'');
-  if(status==='on'){ badge.className='badge-tag green'; badge.textContent='ADB 已开启'; textEl.style.color='var(--success)'; textEl.textContent=detail||'已开启'; }
-  else if(status==='off'){ badge.className='badge-tag gray'; badge.textContent='ADB 已关闭'; textEl.style.color='var(--text-dim)'; textEl.textContent=detail||'已关闭'; }
-  else{ badge.className='badge-tag gray'; badge.textContent='ADB 未开启'; textEl.style.color='var(--text-dim)'; textEl.textContent=detail||'未开启'; }
-}
+/* ★ BUG-09 修复：删除 setAdbStatus 死代码，其他状态函数保留 */
 function setFactoryStatus(status,detail){
   state.factoryStatus=status;
   const textEl=document.getElementById('factoryStatusText'), line=document.getElementById('factoryStatusLine');
@@ -1967,6 +2032,9 @@ function setWriteStatus(text,cls){
   textEl.textContent=text;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* v0.9.33 界面渲染                                                             */
+/* ═══════════════════════════════════════════════════════════════════════════ */
 function renderRightPanel(){
   const connected=state.connected, chipId=state.detectedChipId;
   const netType=(state.networkType==='5g')?'5G':(state.networkType==='4g'?'4G':null);
@@ -2099,6 +2167,53 @@ function renderBandLockSection(){
   tip.innerHTML=cfg.tip;
 }
 
+/* ★ 缺失-06：信号历史曲线 */
+function pushSignalHistory(dbm){
+  if(typeof dbm !== 'number' || isNaN(dbm)) return;
+  state.signalHistory.push(dbm);
+  if(state.signalHistory.length > 60) state.signalHistory.shift();
+  drawSignalChart();
+  const wrap = document.getElementById('signalChartWrap');
+  if(wrap) wrap.style.display = state.signalHistory.length > 1 ? 'block' : 'none';
+}
+function drawSignalChart(){
+  const canvas = document.getElementById('signalChart');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = 'rgba(255,255,255,.03)';
+  ctx.fillRect(0,0,W,H);
+  // 网格 -85 / -95 / -105 / -115
+  ctx.strokeStyle = 'rgba(255,255,255,.08)';
+  ctx.lineWidth = 1;
+  const lvls = [-85,-95,-105,-115];
+  lvls.forEach(db => {
+    const y = ((db - (-140)) / (-40 - (-140))) * H;
+    ctx.beginPath(); ctx.moveTo(0, H - y); ctx.lineTo(W, H - y); ctx.stroke();
+  });
+  if(state.signalHistory.length < 2) return;
+  ctx.strokeStyle = '#4f7cff';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  state.signalHistory.forEach((db, i) => {
+    const x = (i / 59) * W;
+    const y = ((db - (-140)) / (-40 - (-140))) * H;
+    if(i === 0) ctx.moveTo(x, H - y);
+    else ctx.lineTo(x, H - y);
+  });
+  ctx.stroke();
+  // 最新点
+  const last = state.signalHistory[state.signalHistory.length - 1];
+  const lx = ((state.signalHistory.length - 1) / 59) * W;
+  const ly = ((last - (-140)) / (-40 - (-140))) * H;
+  ctx.fillStyle = '#4f7cff';
+  ctx.beginPath(); ctx.arc(lx, H - ly, 3, 0, Math.PI*2); ctx.fill();
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* v0.9.33 串口读写                                                             */
+/* ═══════════════════════════════════════════════════════════════════════════ */
 async function forceClosePort(){
   termWrite('正在强制释放旧串口句柄...','info');
   state.readLoopActive = false;
@@ -2136,9 +2251,13 @@ function showRebootConfirm(){
   });
 }
 
+/* ★ BUG-02 修复：重启加确认 */
 async function resetDevice(silent){
   if(!state.connected){ toast('请先连接','error'); return false; }
   if(state.resetting){ toast('重启正在进行中','info'); return false; }
+  if(!silent){
+    if(!confirm('⚠ 立即重启设备？\n\n设备将断开 30~60 秒，期间网络不可用。\n\n是否继续？')) return false;
+  }
   state.resetting = true;
   const candidates = [
     { cmd:'AT+CFUN=1,1',  label:'3GPP CFUN 整机重启 ✓ 首选' },
@@ -2186,7 +2305,6 @@ async function resetDevice(silent){
 
 async function sendBandCmd(cmd, cfg){
   if(!state.connected){ toast('请先连接','error'); return; }
-  // v0.9.32：写入操作前提示
   if(!confirm(`⚠ 写入操作会短暂中断数据业务，是否继续？\n\n即将发送: ${cmd}`)) return;
   setBandStatus(`准备发送：${cmd}`,'warn');
   try{
@@ -2286,6 +2404,9 @@ async function sendCustomBandCmd(){
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* v0.9.33 连接管理                                                             */
+/* ═══════════════════════════════════════════════════════════════════════════ */
 async function connectUSB(){
   if(!('serial' in navigator)){ toast('浏览器不支持 Web Serial','error',5000); return; }
   try{
@@ -2303,10 +2424,16 @@ async function connectUSB(){
     await port.open({baudRate:baud,dataBits:8,stopBits:1,parity:'none',flowControl,bufferSize:255});
     termWrite('串口已打开','info');
     state.port=port; state.connected=true; state.resetting=false;
+    // 记录连接信息
+    try{
+      const info = port.getInfo ? port.getInfo() : {};
+      state.lastPortInfo = { usbVendorId: info.usbVendorId, usbProductId: info.usbProductId, baud, flowControl };
+    }catch(e){ state.lastPortInfo = { baud, flowControl }; }
     updateConnectionUI(true,`已连接 @ ${baud}`);
     toast(`串口连接成功 @ ${baud}`,'success');
     enableQuickButtons(true);
     renderRightPanel();
+    startSessionTimer();
     startReadLoop();
     setTimeout(async()=>{
       refreshIPs();
@@ -2314,7 +2441,7 @@ async function connectUSB(){
       if(!ok){ termWrite('❌ AT 通信失败','err'); toast('设备未响应','error',8000); return; }
       try{
         await wakeAndFingerprint();
-        await runFullProbe(false); /* v0.9.32：自动探测，不提示 */
+        await runFullProbe(false);
         await queryAllByCapabilities();
         await detectNetworkType();
         renderRightPanel();
@@ -2335,6 +2462,56 @@ async function connectUSB(){
     }
   }
 }
+
+/* ★ 缺失-03：自动重连 */
+async function attemptAutoReconnect(){
+  if(!state.autoReconnect) return;
+  if(!state.lastPortInfo) return;
+  if(state.connected) return;
+  termWrite('🔄 尝试自动重连...','info');
+  try{
+    const ports = await navigator.serial.getPorts();
+    if(!ports || ports.length === 0){
+      termWrite('⚠ 未找到已授权串口，无法自动重连','warn');
+      return;
+    }
+    let targetPort = ports[0];
+    if(state.lastPortInfo.usbVendorId){
+      const match = ports.find(p => {
+        const info = p.getInfo ? p.getInfo() : {};
+        return info.usbVendorId === state.lastPortInfo.usbVendorId &&
+               info.usbProductId === state.lastPortInfo.usbProductId;
+      });
+      if(match) targetPort = match;
+    }
+    await targetPort.open({
+      baudRate: state.lastPortInfo.baud,
+      dataBits: 8, stopBits: 1, parity: 'none',
+      flowControl: state.lastPortInfo.flowControl, bufferSize: 255
+    });
+    state.port = targetPort;
+    state.connected = true;
+    updateConnectionUI(true, `已连接 @ ${state.lastPortInfo.baud}（自动）`);
+    toast('🔄 自动重连成功','success',4000);
+    termWrite('✓ 自动重连成功','resp');
+    enableQuickButtons(true);
+    renderRightPanel();
+    startReadLoop();
+    setTimeout(async()=>{
+      const ok = await quickATTest();
+      if(ok){
+        await wakeAndFingerprint();
+        await runFullProbe(false);
+        await queryAllByCapabilities();
+        await detectNetworkType();
+        renderRightPanel();
+      }
+    }, 800);
+  }catch(err){
+    termWrite(`⚠ 自动重连失败: ${err.message}`,'err');
+  }
+}
+
 async function startReadLoop(){
   if(!state.port||!state.port.readable)return;
   state.readLoopActive=true;
@@ -2366,13 +2543,6 @@ async function startReadLoop(){
   }
   state.reader=null;
 }
-async function writeToPort(data){
-  if(!state.port||!state.port.writable)throw new Error('串口不可写');
-  const ending=getLineEnding();
-  const writer=state.port.writable.getWriter();
-  try{ await writer.write(new TextEncoder().encode(data+ending)); }
-  finally{ writer.releaseLock(); }
-}
 async function disconnect(){
   state.readLoopActive=false; state.connected=false;
   if(state.speedtestAbort){ state.speedtestAbort.abort(); state.speedtestAbort=null; }
@@ -2382,6 +2552,7 @@ async function disconnect(){
   }catch(err){}
   updateConnectionUI(false,'未连接');
   termWrite('串口已断开。','info'); toast('已断开','info');
+  stopSessionTimer();
   enableQuickButtons(false); resetDeviceInfo(); renderRightPanel();
 }
 async function connectWiFi(){
@@ -2403,6 +2574,7 @@ async function sendAT(){
   const input=document.getElementById('atInput');
   const cmd=input.value.trim(); if(!cmd)return; input.value='';
   if(!state.connected){ termWrite('未连接设备','err'); toast('请先连接','error'); return; }
+  saveAtHistory(cmd);
   termWrite(cmd,'cmd');
   try{ await writeToPort(cmd); }
   catch(err){
@@ -2411,6 +2583,7 @@ async function sendAT(){
   }
 }
 function quickCmd(cmd){ document.getElementById('atInput').value=cmd; sendAT(); }
+
 async function queryAndCollect(cmd,waitMs=1500){
   state.responseBuffer='';
   termWrite(cmd,'cmd');
@@ -2438,6 +2611,9 @@ async function testATComms(){
   else{ termWrite('✗ AT 无响应','err'); toast('AT 通信失败','error',5000); }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* v0.9.33 芯片指纹                                                             */
+/* ═══════════════════════════════════════════════════════════════════════════ */
 async function wakeAndFingerprint(){
   let woke=false;
   for(let i=0;i<3;i++){ const r=await queryAndCollect('AT',1500); if(isValidResponse(r)){ woke=true; break; } await sleep(300); }
@@ -2486,7 +2662,14 @@ function clearCapCache(){
   state.capabilities=null; renderCapList();
 }
 
-/* v0.9.32：runFullProbe 改为只读探测，无写入；userTriggered 参数控制是否提示 */
+/* ★ 缺失-01：中止探测 */
+function abortProbe(){
+  if(!state.probing) return;
+  state.probeAbort = true;
+  termWrite('⏹ 用户请求中止探测','warn');
+}
+
+/* ★ BUG-10：用户主动重测跳过缓存；★ BUG-12：csq 探测发一次 AT；★ 缺失-01：可中止 */
 async function runFullProbe(userTriggered){
   if(!state.connected){ toast('请先连接设备','error'); return; }
   if(state.probing){ toast('探测正在进行中','info'); return; }
@@ -2494,52 +2677,80 @@ async function runFullProbe(userTriggered){
     if(!confirm('⚠ 重测会短暂中断数据业务（约 3~5 秒），是否继续？')) return;
   }
   if(!state.deviceFingerprint){ await wakeAndFingerprint(); if(!state.deviceFingerprint){ toast('无法获取设备指纹','error'); return; } }
-  if(state.capabilitySource!=='fresh'){
-    const cached=loadCapCache(state.deviceFingerprint);
-    if(cached){ state.capabilities=cached; state.capabilitySource='cache'; termWrite(`═══ 从缓存加载能力 ═══`,'info'); renderCapList(); updateCmdHintsFromCaps(); renderRightPanel(); return; }
+
+  // ★ BUG-10：只有自动调用时才使用缓存
+  if(!userTriggered && state.capabilitySource !== 'fresh'){
+    const cached = loadCapCache(state.deviceFingerprint);
+    if(cached){
+      state.capabilities=cached; state.capabilitySource='cache';
+      termWrite(`═══ 从缓存加载能力 ═══`,'info');
+      renderCapList(); updateCmdHintsFromCaps(); renderRightPanel(); return;
+    }
   }
-  state.probing=true; state.capabilitySource='fresh';
-  termWrite('═══ 开始能力探测（仅只读） ═══','info');
+
+  state.probing=true; state.capabilitySource='fresh'; state.probeAbort=false;
+  termWrite('═══ 开始能力探测（仅只读）═══','info');
   if(userTriggered) toast('正在探测设备能力...','info',3000);
+  const abortBtn = document.getElementById('btnAbortProbe');
+  if(abortBtn) abortBtn.classList.add('show');
+
   const caps={};
   const probeKeys=['iccid','imei','sn','ver','band','supportBand','cardSlot','bandLock','csq','cops','mac','mac2','qci'];
   const total=probeKeys.length;
-  for(let i=0;i<total;i++){
-    const key=probeKeys[i], def=CAPABILITY_PROBES[key];
-    if(!def)continue;
-    termWrite(`[${i+1}/${total}] 探测 ${def.label}...`,'info');
-    for(const cand of def.candidates){
-      if(!state.connected)break;
-      if(key === 'csq'){ await queryAndCollect('AT', 600); await sleep(250); }
-      const resp=await queryAndCollect(cand.cmd,1200);
-      if(key === 'csq') await sleep(250);
-      if(!resp||isErrorResponse(resp))continue;
-      const m=resp.match(cand.pattern);
-      if(!m)continue;
-      let value;
-      if(cand.decoder&&DECODERS[cand.decoder]){ try{ value=DECODERS[cand.decoder](...m.slice(1)); }catch(e){ value=null; } }
-      else{ value=m[1]||'ok'; }
-      if(value===null||value===undefined)continue;
-      if(Array.isArray(value)&&value.length===0)continue;
-      if(key === 'csq' && typeof value === 'string'){
-        if(value.includes('无信号')) continue;
+
+  try{
+    for(let i=0;i<total;i++){
+      if(state.probeAbort){ termWrite('⏹ 探测已中止','warn'); break; }
+      const key=probeKeys[i], def=CAPABILITY_PROBES[key];
+      if(!def)continue;
+      termWrite(`[${i+1}/${total}] 探测 ${def.label}...`,'info');
+
+      // ★ BUG-12：csq 只在第一个候选前发一次 AT
+      const isCsqKey = (key === 'csq');
+      let csqAtSent = false;
+
+      for(const cand of def.candidates){
+        if(!state.connected){ break; }
+        if(state.probeAbort){ break; }
+
+        if(isCsqKey && !csqAtSent){
+          await queryAndCollect('AT', 600);
+          await sleep(250);
+          csqAtSent = true;
+        }
+
+        const resp=await queryAndCollect(cand.cmd,1200);
+        if(!resp||isErrorResponse(resp))continue;
+        const m=resp.match(cand.pattern);
+        if(!m)continue;
+        let value;
+        if(cand.decoder&&DECODERS[cand.decoder]){ try{ value=DECODERS[cand.decoder](...m.slice(1)); }catch(e){ value=null; } }
+        else{ value=m[1]||'ok'; }
+        if(value===null||value===undefined)continue;
+        if(Array.isArray(value)&&value.length===0)continue;
+        if(key === 'csq' && typeof value === 'string'){
+          if(value.includes('无信号')) continue;
+        }
+        if(cand.validator&&!cand.validator(value))continue;
+        caps[key]={ 
+          cmd:cand.cmd, 
+          pattern:cand.pattern.source, 
+          flags:cand.pattern.flags, 
+          decoder:cand.decoder||null, 
+          sample:Array.isArray(value)?value.join(' '):value, 
+          platform:cand.platform||null, 
+          source:'fresh' 
+        };
+        termWrite(`  ✓ ${def.label}: ${cand.cmd} → ${Array.isArray(value)?value.join(','):value}`,'resp');
+        break;
       }
-      if(cand.validator&&!cand.validator(value))continue;
-      caps[key]={ 
-        cmd:cand.cmd, 
-        pattern:cand.pattern.source, 
-        flags:cand.pattern.flags, 
-        decoder:cand.decoder||null, 
-        sample:Array.isArray(value)?value.join(' '):value, 
-        platform:cand.platform||null, 
-        source:'fresh' 
-      };
-      termWrite(`  ✓ ${def.label}: ${cand.cmd} → ${Array.isArray(value)?value.join(','):value}`,'resp');
-      break;
+      if(!caps[key]&&!state.probeAbort)termWrite(`  ✗ ${def.label}: 无可用指令`,'info');
     }
-    if(!caps[key])termWrite(`  ✗ ${def.label}: 无可用指令`,'info');
+  } finally {
+    state.capabilities=caps; state.probing=false; state.probeAbort=false;
+    if(abortBtn) abortBtn.classList.remove('show');
   }
-  state.capabilities=caps; state.probing=false;
+
   saveCapCache(state.deviceFingerprint,caps);
   const hit=Object.keys(caps).length;
   termWrite(`═══ 探测完成：${hit}/${total} ═══`,'info');
@@ -2581,6 +2792,7 @@ function setSignalFromCsq(csq){
       el.textContent = `RSRP ${rsrp} dBm (${lvl})`;
       el.className = 'info-value ' + cls;
       el.title = `原始 CSQ 值: ${csq}（中兴微扩展格式）\n换算: ${csq} - 229 = ${rsrp} dBm`;
+      pushSignalHistory(rsrp);
     }else{
       el.textContent = `CSQ ${csq} (厂商扩展值)`;
       el.className = 'info-value warn';
@@ -2591,7 +2803,10 @@ function setSignalFromCsq(csq){
   const lvl = csq >= 20 ? '强' : csq >= 15 ? '良' : csq >= 10 ? '中' : '弱';
   el.textContent = `CSQ ${csq} · ${lvl}`;
   el.className = 'info-value ' + (csq >= 15 ? 'ok' : csq >= 10 ? 'warn' : 'err');
-  el.title = `原始 CSQ 值: ${csq}\n0-9 弱 / 10-14 中 / 15-19 良 / 20-31 强 / 99 无信号`;
+  el.title = `原始 CSQ 值: ${csq}`;
+  // 转换为 RSRP 估算（-113 + 2*csq）
+  const dbm = -113 + 2 * csq;
+  pushSignalHistory(dbm);
 }
 function setSignalFromRssi(dbm){
   const el = document.getElementById('infoCSQ');
@@ -2605,8 +2820,12 @@ function setSignalFromRssi(dbm){
   el.textContent = `RSRP ${dbm} dBm (${lvl})`;
   el.className = 'info-value ' + cls;
   el.title = `原始 RSRP: ${dbm} dBm`;
+  pushSignalHistory(dbm);
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* v0.9.33 响应解析                                                             */
+/* ═══════════════════════════════════════════════════════════════════════════ */
 function parseAnyResponse(line){
   let m;
   m=line.match(/[+*](?:QCCID|ICCID|CCID|ICID|ZICCID)[:\s]*"?([0-9A-Za-z]{18,22})"?/i);
@@ -2614,9 +2833,10 @@ function parseAnyResponse(line){
   else if(/^89\d{17,19}[A-Za-z0-9]*$/.test(line))setInfoValue('ICCID',line);
   else{ m=line.match(/\+CRSM:\s*\d+,\d+,\s*(?:"([0-9A-Fa-f\s]+)"|([0-9A-Fa-f]+))/i); if(m){ const v=DECODERS.crsm(m[1]||m[2]); if(v)setInfoValue('ICCID',v); } }
 
+  /* ★ BUG-14：IMEI 只在未设置时匹配 */
   m=line.match(/\+CGSN[:\s]+"?(\d{14,16})"?/i);
-  if(m) setInfoValue('IMEI',m[1]);
-  else if(/^\d{15}$/.test(line)) setInfoValue('IMEI',line);
+  if(m && !state.rawValues.IMEI) setInfoValue('IMEI',m[1]);
+  else if(/^\d{15}$/.test(line) && !state.rawValues.IMEI) setInfoValue('IMEI',line);
 
   m=line.match(/[*+]MRD_SN[:\s]+"?([A-Za-z0-9]{6,30})"?/i)
     ||line.match(/\+ZSN[:\s]+"?([A-Za-z0-9]{6,30})"?/i)
@@ -2636,7 +2856,6 @@ function parseAnyResponse(line){
   }
 
   let sigDone = false;
-
   m = line.match(/\+ZRSSI[:\s]*(-?\d+)/i);
   if(m){
     const v = parseInt(m[1]);
@@ -2651,17 +2870,12 @@ function parseAnyResponse(line){
         const el = document.getElementById('infoCSQ');
         el.textContent = '无信号 / 未注册';
         el.className = 'info-value empty';
-        el.title = `原始: +CSQ: ${m[1]},${m[2]},${m[3]}\nRSSI=99 表示无信号`;
         sigDone = true;
       } else if(raw > 31){
         const rsrp = raw - 229;
-        if(rsrp >= -140 && rsrp <= -40){
-          setSignalFromRssi(rsrp);
-          sigDone = true;
-        }
+        if(rsrp >= -140 && rsrp <= -40){ setSignalFromRssi(rsrp); sigDone = true; }
       } else {
-        setSignalFromCsq(raw);
-        sigDone = true;
+        setSignalFromCsq(raw); sigDone = true;
       }
     }
   }
@@ -2683,6 +2897,7 @@ function parseAnyResponse(line){
         else { lvl='弱'; cls='err'; }
         el.textContent = `RSSI ${dbm} dBm · 索引 ${rssi} · ${lvl}`;
         el.className = 'info-value ' + cls;
+        pushSignalHistory(dbm);
       }
       sigDone = true;
     }
@@ -2706,6 +2921,7 @@ function parseAnyResponse(line){
         const el = document.getElementById('infoCSQ');
         el.textContent = txt + ` (${lvl})`;
         el.className = 'info-value ' + cls;
+        pushSignalHistory(rsrp);
         sigDone = true;
       }
     }
@@ -2723,9 +2939,7 @@ function parseAnyResponse(line){
       const rsrqIdx = p[4], rsrpIdx = p[5];
       let rsrpDbm = null;
       if(rsrpIdx!==undefined && rsrpIdx>=0 && rsrpIdx<=97) rsrpDbm = -140 + rsrpIdx;
-      if(rsrpDbm!==null){
-        setSignalFromRssi(rsrpDbm);
-      }
+      if(rsrpDbm!==null){ setSignalFromRssi(rsrpDbm); }
     }
   }
 
@@ -2763,10 +2977,7 @@ function parseAnyResponse(line){
   }
 
   m=line.match(/\+ZLTEBAND[:\s]*([\d,\s]+)/i);
-  if(m){
-    state.lockMaskRaw = m[1].trim();
-    updateLockBandDisplay();
-  }
+  if(m){ state.lockMaskRaw = m[1].trim(); updateLockBandDisplay(); }
   m=line.match(/\+ZLTEAMTBAND[:\s]*([\d,\s]+)/i);
   if(m){
     const el=document.getElementById('infoSupportBand');
@@ -2882,7 +3093,6 @@ function updateLockBandDisplay(){
   }
 }
 
-/* v0.9.32：能力列表不再显示(只读)标记 */
 function renderCapList(){
   const el=document.getElementById('capList'), footer=document.getElementById('capFooter');
   if(!el)return;
@@ -2904,6 +3114,9 @@ function renderCapList(){
 }
 function updateCmdHintsFromCaps(){ updateSimHints(); }
 
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* v0.9.33 卡切换 / 工厂 / 网络 / IP                                            */
+/* ═══════════════════════════════════════════════════════════════════════════ */
 async function switchCard(direction){
   if(!state.connected){ toast('请先连接','error'); return; }
   const candidates=SIM_SWITCH_CANDIDATES[direction];
@@ -2948,7 +3161,6 @@ async function switchCard(direction){
     toast('切卡指令已发送，但无法自动验证','info',5000);
   }
 }
-
 async function verifyCardSwitch(target){
   const cap=state.capabilities&&state.capabilities.cardSlot;
   if(!cap)return { verified:null, reason:'设备不支持卡槽查询' };
@@ -2970,7 +3182,6 @@ async function verifyCardSwitch(target){
   else if(decoder==='qdsim')actualLabel=actualValue===0?'内置卡(SIM1)':'外置卡(SIM2)';
   return { verified: actualValue===expected, actualValue, actualLabel, expected };
 }
-
 async function queryCurrentCard(){
   if(!state.connected){ toast('请先连接','error'); return; }
   setSimStatus('querying','正在查询当前卡槽...');
@@ -3032,6 +3243,55 @@ async function closeFactoryMode(){
   }
 }
 
+function updateNetFromURC(st){
+  const i=document.getElementById('netTypeIcon'), v=document.getElementById('netTypeValue'), s=document.getElementById('netTypeSub');
+  if(!i||!v||!s)return;
+  if(st===4){ i.className='icon unknown'; i.textContent='?'; v.className='value unknown'; v.textContent='无服务'; s.textContent='搜索中…'; }
+}
+function handleURC(line){
+  for(const p of URC_PATTERNS){
+    const m=line.match(p.re);
+    if(!m)continue;
+    if(p.handler==='nocell'){
+      if(lastURCState.nocell!==true){
+        lastURCState.nocell=true;
+        termWrite('⚠ 设备无服务小区（网络掉线）','info');
+        updateNetFromURC(4);
+      }
+      return true;
+    }
+    if(p.handler==='creg'||p.handler==='creg5g'){
+      const st=parseInt(m[1]);
+      const key=p.handler;
+      if(lastURCState[key]!==st){
+        lastURCState[key]=st;
+        lastURCState.nocell=false;
+        if(p.handler==='creg5g'&&(st===1||st===5)){ setNetworkType('5g','C5GREG 已注册'); }
+        else if(st===1||st===5){ setNetworkType('4g','已注册'); }
+        else if(st===2){ updateNetFromURC(4); }
+      }
+      return true;
+    }
+    return true;
+  }
+  return false;
+}
+
+/* ★ BUG-11：网络类型更新加节流 */
+let _renderThrottleTimer = null;
+function setNetworkType(type,subText){
+  state.networkType=type;
+  const i=document.getElementById('netTypeIcon'), v=document.getElementById('netTypeValue'), s=document.getElementById('netTypeSub');
+  if(type==='5g'){ i.className='icon g5'; i.textContent='5G'; v.className='value g5'; v.textContent='5G NR'; }
+  else if(type==='4g'){ i.className='icon g4'; i.textContent='4G'; v.className='value g4'; v.textContent='4G LTE'; }
+  else{ i.className='icon unknown'; i.textContent='?'; v.className='value unknown'; v.textContent=state.connected?'识别中...':'未连接'; }
+  s.textContent=subText||'';
+  if(state.connected){
+    clearTimeout(_renderThrottleTimer);
+    _renderThrottleTimer = setTimeout(() => renderRightPanel(), 200);
+  }
+}
+
 async function detectNetworkType(){
   termWrite('探测网络类型...','info');
   await sleep(300);
@@ -3048,16 +3308,8 @@ async function detectNetworkType(){
   if(/\+ZBAND:/i.test(zbnd)){ setNetworkType('4g','ZBAND 响应'); return; }
   setNetworkType('unknown','无法判断');
 }
-function setNetworkType(type,subText){
-  state.networkType=type;
-  const i=document.getElementById('netTypeIcon'), v=document.getElementById('netTypeValue'), s=document.getElementById('netTypeSub');
-  if(type==='5g'){ i.className='icon g5'; i.textContent='5G'; v.className='value g5'; v.textContent='5G NR'; }
-  else if(type==='4g'){ i.className='icon g4'; i.textContent='4G'; v.className='value g4'; v.textContent='4G LTE'; }
-  else{ i.className='icon unknown'; i.textContent='?'; v.className='value unknown'; v.textContent=state.connected?'识别中...':'未连接'; }
-  s.textContent=subText||'';
-  if(state.connected)renderRightPanel();
-}
 
+/* IP 查询 */
 async function queryPublicIPv4(){
   const apis=[{url:'https://api.ipify.org?format=json',type:'json',key:'ip'},{url:'https://ipv4.icanhazip.com',type:'text'}];
   for(const api of apis){
@@ -3139,14 +3391,12 @@ async function refreshIPs(){
     if(parts.length === 4){
       const guessed = `${parts[0]}.${parts[1]}.${parts[2]}.1`;
       const el = document.getElementById('webAdbGateway');
-      if(el && !el.value){
-        el.value = guessed;
-        setWebAdbGatewayHint(`✓ 推测网关 ${guessed}`, 'ok');
-      }
+      if(el && !el.value){ el.value = guessed; setWebAdbGatewayHint(`✓ 推测网关 ${guessed}`, 'ok'); }
     }
   }
 }
 
+/* 运营商 / QCI */
 function mapOperatorName(name){
   if(!name)return null;
   const n=name.toUpperCase();
@@ -3199,6 +3449,7 @@ function calcLuhnCheckDigit(f14){
   return(10-(sum%10))%10;
 }
 
+/* 敏感信息 */
 function setInfo(id,value,cls='ok'){ const el=document.getElementById(id); if(el){ el.textContent=value; el.className='info-value '+cls; } }
 function maskValue(val,type){
   if(!val||val==='—'||val.length<6)return val;
@@ -3221,6 +3472,8 @@ function setInfoValue(type,rawValue){
   el.textContent=state.sensitiveHidden[type]?maskValue(rawValue,type):rawValue;
   if(type==='ICCID'){ const c=guessCarrierFromICCID(rawValue); el.title=c?`ICCID: ${rawValue}\n推测: ${c}`:`ICCID: ${rawValue}`; }
 }
+
+/* ★ BUG-04 修复：不再处理 ADB 按钮（由 setADBOpenButtonsState 统一管理） */
 function updateConnectionUI(connected,text){
   state.connected=connected;
   document.getElementById('statusBadge').classList.toggle('connected',connected);
@@ -3241,11 +3494,13 @@ function enableQuickButtons(enable){
     const e=document.getElementById(id);
     if(e && !e.hasAttribute('data-always-enabled')) e.disabled = !enable;
   });
-  ['btnUniversalADBOn','btnUniversalADBOff','btnAdbDetect'].forEach(id=>{
-    const e=document.getElementById(id);
-    if(e && id !== 'btnUniversalADBOn') e.disabled = false;
-    if(e && id === 'btnUniversalADBOn' && state.usbAdbState !== 'on') e.disabled = false;
-  });
+  // ADB 按钮不再此处控制，仅确保非 on 时可点击
+  const adbOn = document.getElementById('btnUniversalADBOn');
+  if(adbOn && state.usbAdbState !== 'on') adbOn.disabled = false;
+  const adbOff = document.getElementById('btnUniversalADBOff');
+  if(adbOff) adbOff.disabled = false;
+  const adbDetect = document.getElementById('btnAdbDetect');
+  if(adbDetect) adbDetect.disabled = false;
 }
 function resetDeviceInfo(){
   ['infoChip','infoOperator','infoCardSlot','infoBand','infoSupportBand','infoLockBand','infoCSQ','infoQCI','infoAMBR','infoMAC','infoMAC2','infoVER'].forEach(id=>{
@@ -3264,22 +3519,38 @@ function resetDeviceInfo(){
   state.capabilities=null; state.capabilitySource='fresh'; state.deviceFingerprint=null;
   state.detectedChipId=null; state.detectedChipName=null; state.networkType='unknown';
   state.activeBands=[]; state.supportedBands=[]; state.lockMaskRaw=null;
+  state.signalHistory=[];
   lastURCState = { nocell:false, creg:null, creg5g:null };
-  setAdbStatus('unknown','未开启');
   setFactoryStatus('unknown','未进入');
   setSimStatus('unknown','未查询');
   setCloudOpStatus(null,null);
   setBandStatus('—','off');
   const wsl=document.getElementById('writeStatusLine'); if(wsl)wsl.style.display='none';
-  state.adbStatusCmd=null; state.simSwitchCmd=null; state.factoryCmd=null;
+  state.factoryCmd=null;
   const i=document.getElementById('netTypeIcon'), v=document.getElementById('netTypeValue'), s=document.getElementById('netTypeSub');
   if(i){ i.className='icon unknown'; i.textContent='?'; }
   if(v){ v.className='value unknown'; v.textContent='未连接'; }
   if(s){ s.textContent='请连接设备'; }
+  // 重置统计
+  state.statTx=0; state.statRx=0; state.statErr=0;
+  updateSessionStats();
+  // 清空图表
+  const chartWrap = document.getElementById('signalChartWrap');
+  if(chartWrap) chartWrap.style.display='none';
   renderCapList();
   updateAdbPathHint();
 }
 
+function setCloudStatus(status){
+  const el=document.getElementById('cloudStatus'), text=document.getElementById('cloudStatusText');
+  el.className='cloud-status '+status;
+  const map={safe:'未检测到云控特征（设备正常）',risk:'检测到云控/限速特征',unknown:'未检测',cleaning:'正在执行去云控...'};
+  text.textContent=map[status]||'未检测';
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* v0.9.33 测速                                                                 */
+/* ═══════════════════════════════════════════════════════════════════════════ */
 async function toggleSpeedtest(){
   if(state.speedtesting){ if(state.speedtestAbort)state.speedtestAbort.abort(); return; }
   await startSpeedtest();
@@ -3457,12 +3728,7 @@ async function startSpeedtest(){
   }
 }
 
-function setCloudStatus(status){
-  const el=document.getElementById('cloudStatus'), text=document.getElementById('cloudStatusText');
-  el.className='cloud-status '+status;
-  const map={safe:'未检测到云控特征（设备正常）',risk:'检测到云控/限速特征',unknown:'未检测',cleaning:'正在执行去云控...'};
-  text.textContent=map[status]||'未检测';
-}
+/* 云控检测 */
 async function checkCloudControl(){
   if(!state.connected){ toast('请先连接设备','error'); return; }
   termWrite('检测云控状态...','info');
@@ -3513,6 +3779,8 @@ function copyAdbScript(){
   const txt=`adb shell mount -o remount -o rw /\nadb shell rm -f /sbin/yiming_1028.sh\nadb shell rm -rf /etc/cloud/\nadb shell reboot`;
   navigator.clipboard.writeText(txt).then(()=>toast('ADB 脚本已复制','success')).catch(()=>toast('复制失败','error'));
 }
+
+/* ★ BUG-03 修复：AT*PROD 失败中止后续 */
 async function sendCloudCmd(){
   if(!state.connected){ toast('请先连接设备','error'); return; }
   if(!confirm('⚠ 去云控会短暂中断数据业务，是否继续？')) return;
@@ -3523,6 +3791,7 @@ async function sendCloudCmd(){
   setCloudOpStatus('remove',null,`正在执行 ${cmds.length} 条指令...`);
   termWrite(`═══ 执行去云控指令 ═══`,'info');
   let okCount=0, failCount=0;
+  let aborted = false;
   for(let i=0;i<cmds.length;i++){
     termWrite(`[${i+1}/${cmds.length}] ${cmds[i]}`,'cmd');
     state.responseBuffer='';
@@ -3530,13 +3799,25 @@ async function sendCloudCmd(){
       await writeToPort(cmds[i]);
       const t0=Date.now();
       while(Date.now()-t0<1800){ await sleep(80); if(/\b(OK|ERROR)\s*$/im.test(state.responseBuffer.trim())){ await sleep(150); break; } }
-      if(isValidResponse(state.responseBuffer))okCount++;
-      else if(isErrorResponse(state.responseBuffer))failCount++;
+      if(isValidResponse(state.responseBuffer)) okCount++;
+      else if(isErrorResponse(state.responseBuffer)){
+        failCount++;
+        // 第一条工厂模式失败，中止整个流程
+        if(i === 0 && /PROD|FACTORY/i.test(cmds[i])){
+          termWrite('✗ 工厂模式指令失败，中止后续操作（避免非工厂模式下发无效指令）','err');
+          aborted = true;
+          break;
+        }
+      }
     }catch(err){ failCount++; break; }
     await sleep(600);
   }
   const total=cmds.length;
-  if(failCount===0&&okCount>0){
+  if(aborted){
+    setCloudOpStatus('remove','failed',`工厂模式进入失败，已中止（未重启）`);
+    setCloudStatus('unknown');
+    toast('工厂模式进入失败，已中止（设备未重启）','error',6000);
+  }else if(failCount===0&&okCount>0){
     setCloudOpStatus('remove','sent',`AT 层指令 ${okCount}/${total} 全部返回 OK`);
     setCloudStatus('unknown');
     toast('AT 层去云控完成','success',5000);
@@ -3551,6 +3832,9 @@ async function sendCloudCmd(){
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* v0.9.33 写入流程                                                             */
+/* ═══════════════════════════════════════════════════════════════════════════ */
 let writeContext={type:null,value:'',isDelete:false};
 function getWriteCandidate(baseType){
   const override=document.getElementById('writeSyntaxOverride');
@@ -3608,6 +3892,10 @@ function openWriteModal(type){
         <div class="validation-hint" id="validationHint"></div>
       </div>
       <div class="info-box" id="cmdPreviewBox">即将发送：<code id="cmdPreview">—</code></div>
+      <div style="margin-top:8px;display:flex;align-items:center;gap:6px;font-size:11.5px;">
+        <input type="checkbox" id="writeAutoReboot" style="cursor:pointer;">
+        <label for="writeAutoReboot" style="margin:0;cursor:pointer;color:var(--text-dim);">写入成功后自动重启设备</label>
+      </div>
     `;
     const currentVal=state.rawValues[baseType]||'';
     if(baseType==='IMEI'&&currentVal&&currentVal.length===15)document.getElementById('writeInput').value=currentVal.substring(0,12)+'000';
@@ -3657,6 +3945,7 @@ function validateWriteInput(baseType){
 function closeWriteModal(){
   if(state.writeInProgress){ toast('写入进行中','error'); return; }
   document.getElementById('writeModal').classList.remove('show');
+  writeContext = {type:null,value:'',isDelete:false};
 }
 async function readbackVerify(baseType,expectedValue){
   let cmd;
@@ -3683,6 +3972,7 @@ async function confirmWrite(){
   const val=isDelete?'':document.getElementById('writeInput').value.trim();
   const cand=getWriteCandidate(baseType);
   if(!cand&&!isDelete){ toast('无可用写入语法','error',5000); return; }
+  const autoReboot = !isDelete && document.getElementById('writeAutoReboot') && document.getElementById('writeAutoReboot').checked;
 
   state.writeInProgress=true;
   document.getElementById('writeFormArea').style.display='none';
@@ -3768,6 +4058,13 @@ async function confirmWrite(){
         setWriteStatus(`${baseType} 已发送，但无法验证`,'warn');
         toast(`${baseType} 已发送，无法自动验证`,'info',5000);
       }
+
+      // ★ 缺失-02：写入成功后自动重启
+      if(autoReboot){
+        appendLog('🔄 用户选择了写入后自动重启，3 秒后执行...','warn');
+        await sleep(3000);
+        await resetDevice(true);
+      }
     }
 
     document.getElementById('writeConfirmBtn').textContent='关闭';
@@ -3794,8 +4091,12 @@ function closeWriteModalForce(){
   document.getElementById('writeCancelBtn').style.display='';
   document.getElementById('writeConfirmBtn').disabled=false;
   document.getElementById('writeCancelBtn').disabled=false;
+  writeContext = {type:null,value:'',isDelete:false};
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* v0.9.33 初始化                                                               */
+/* ═══════════════════════════════════════════════════════════════════════════ */
 (function initChipDropdown(){
   const sel=document.getElementById('chipPlatform');
   FALLBACK_CHIPS.forEach(c=>{
@@ -3810,7 +4111,7 @@ function closeWriteModalForce(){
       renderRightPanel();
       updateAdbPathHint();
       if(state.connected){
-        await runFullProbe(false);
+        await runFullProbe(true);
         await queryAllByCapabilities();
         renderRightPanel();
       }
@@ -3867,29 +4168,36 @@ document.addEventListener('keydown',e=>{
   }
 });
 window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close(); }catch(e){} });
-
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* v0.9.33 应用初始化                                                          */
+/* ═══════════════════════════════════════════════════════════════════════════ */
 (function initFinal(){
-  const lb=localStorage.getItem('atmaster_last_baud');
-  if(lb){ const s=document.getElementById('baudRate'); if([...s.options].some(o=>o.value===lb))s.value=lb; }
-  const lf=localStorage.getItem('atmaster_last_flow');
-  if(lf){ const s=document.getElementById('flowControl'); if([...s.options].some(o=>o.value===lf))s.value=lf; }
+  /* 加载上次波特率 */
+  const lb = localStorage.getItem('atmaster_last_baud');
+  if(lb){ const s = document.getElementById('baudRate'); if([...s.options].some(o => o.value === lb)) s.value = lb; }
+  const lf = localStorage.getItem('atmaster_last_flow');
+  if(lf){ const s = document.getElementById('flowControl'); if([...s.options].some(o => o.value === lf)) s.value = lf; }
 
+  /* AT 指令历史加载 */
+  loadAtHistory();
+
+  /* 初始 UI 状态 */
   updateConnectionUI(false,'未连接');
   enableQuickButtons(false);
   setNetworkType('unknown');
   setCloudStatus('unknown');
   renderCapList();
-  setAdbStatus('unknown','未开启');
   setFactoryStatus('unknown','未进入');
   setSimStatus('unknown','未查询');
   setCloudOpStatus(null,null);
   renderRightPanel();
 
+  /* Web ADB 网关输入框初始化 */
   const webAdbGwEl = document.getElementById('webAdbGateway');
   if(webAdbGwEl){
     const saved = loadWebAdbGateway();
     if(saved) webAdbGwEl.value = saved;
-    webAdbGwEl.addEventListener('input', ()=>{
+    webAdbGwEl.addEventListener('input', () => {
       const v = webAdbGwEl.value.trim();
       if(!v){ setWebAdbGatewayHint('网关地址，中兴微 Web 失败时自动回退 AT', 'info'); return; }
       if(isValidIPv4(v.replace(/^https?:\/\//i,'').replace(/\/.*$/,''))){
@@ -3898,21 +4206,36 @@ window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close
         setWebAdbGatewayHint('⚠ 格式无效', 'err');
       }
     });
-    webAdbGwEl.addEventListener('keydown', (e)=>{
+    webAdbGwEl.addEventListener('keydown', (e) => {
       if(e.key === 'Enter'){ e.preventDefault(); probeWebAdbGateway(); }
     });
   }
 
+  /* 自动重连复选框 */
+  const autoReconnectEl = document.getElementById('autoReconnect');
+  if(autoReconnectEl){
+    const savedAuto = localStorage.getItem('atmaster_auto_reconnect');
+    state.autoReconnect = savedAuto === '1';
+    autoReconnectEl.checked = state.autoReconnect;
+    autoReconnectEl.addEventListener('change', () => {
+      state.autoReconnect = autoReconnectEl.checked;
+      try{ localStorage.setItem('atmaster_auto_reconnect', state.autoReconnect ? '1' : '0'); }catch(e){}
+    });
+  }
+
+  /* WebUSB 初始化 */
   if('usb' in navigator){
     autoScanAdbDevices();
-    navigator.usb.addEventListener('connect', (e)=>{
+
+    navigator.usb.addEventListener('connect', (e) => {
       termWrite('🔌 检测到 USB 设备接入，正在自动检测 ADB 状态...','info');
-      setTimeout(async ()=>{
+      setTimeout(async () => {
         const hasAdb = await checkAdbViaWebUSBDevice(e.device);
         if(hasAdb !== null) updateAdbDetectUI(hasAdb ? 'on' : 'off', e.device);
       }, 1500);
     });
-    navigator.usb.addEventListener('disconnect', (e)=>{
+
+    navigator.usb.addEventListener('disconnect', (e) => {
       if(state.usbAdbDevice && e.device === state.usbAdbDevice){
         termWrite('🔌 USB 设备已拔出','info');
         updateAdbDetectUI('unknown');
@@ -3923,21 +4246,42 @@ window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close
   }
   updateAdbPathHint();
 
-  termWrite('随身WiFi调试助手 v0.9.32','info');
-  termWrite('v0.9.32：探测改为只读（不再自动写入频段配置）；写入操作（锁频/改串/切卡/ADB/去云控）均加确认提示；大幅缓解断网','info');
+  /* 启动横幅 */
+  termWrite('随身WiFi调试助手 v0.9.33','info');
+  termWrite('v0.9.33：全面修复 15 个 BUG（ASR 工厂模式强制退出/重启确认/去云控中断保护/按钮状态/AT注入防护/网关默认值/死代码清理/缓存逻辑/渲染节流/AT探测频率/日志时间戳/IMEI误匹配等）','info');
+  termWrite('新增 6 项功能：①中止探测按钮 ②IMEI写入后自动重启 ③USB意外断开自动重连 ④会话流量统计 ⑤AT指令历史(↑/↓) ⑥信号历史曲线','info');
 
+  /* Web Serial 初始化 */
   if(!('serial' in navigator)){
     termWrite('⚠ 当前浏览器不支持 Web Serial API，请使用 Chrome / Edge 89+ 桌面版。','err');
+    toast('浏览器不支持 Web Serial','error',6000);
   }else{
-    navigator.serial.addEventListener('disconnect',(e)=>{
-      if(state.port && e.target===state.port && state.connected && !state.resetting){
+    /* USB 物理断开事件 */
+    navigator.serial.addEventListener('disconnect', (e) => {
+      if(state.port && e.target === state.port && state.connected && !state.resetting){
         termWrite('⚠ USB 设备已物理断开','err');
         toast('USB 设备已断开','info',3000);
-        disconnect();
+        // 记录是否应该自动重连
+        const shouldReconnect = state.autoReconnect;
+        disconnect().then(() => {
+          if(shouldReconnect){
+            termWrite('🔄 5 秒后尝试自动重连...','info');
+            setTimeout(() => attemptAutoReconnect(), 5000);
+          }
+        });
+      }
+    });
+
+    /* 也监听 connect 事件（USB 重新插入） */
+    navigator.serial.addEventListener('connect', (e) => {
+      if(!state.connected && state.autoReconnect && state.lastPortInfo){
+        termWrite('🔌 检测到 USB 重新插入，尝试自动连接...','info');
+        setTimeout(() => attemptAutoReconnect(), 2000);
       }
     });
   }
 })();
+
 </script>
     <!-- Baidu tongji -->
     <script>
