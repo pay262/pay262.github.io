@@ -31,6 +31,7 @@
   .form-group label{display:block;font-size:11px;color:var(--text-dim);margin-bottom:5px;font-weight:500}
   .form-control{width:100%;padding:8px 11px;background:var(--bg-input);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:13px;font-family:var(--font-mono);outline:none;transition:border-color .2s}
   .form-control:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+  .form-control:disabled{opacity:.5;cursor:not-allowed}
   select.form-control{cursor:pointer}
   .btn{width:100%;padding:9px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px}
   .btn:disabled{opacity:.45;cursor:not-allowed}
@@ -56,13 +57,17 @@
   .terminal .prefix.ts{color:#5a6275;font-size:10.5px}
   .terminal .content{word-break:break-all;white-space:pre-wrap;flex:1}
   .terminal .content.err{color:#ff8a80}
-  .terminal-input-row{display:flex;border-top:1px solid var(--border);background:var(--bg-panel);padding:8px 12px;align-items:center;flex-shrink:0}
+  .terminal-input-row{display:flex;border-top:1px solid var(--border);background:var(--bg-panel);padding:8px 12px;align-items:center;flex-shrink:0;position:relative}
   .terminal-input-row .prompt{color:var(--accent);font-family:var(--font-mono);font-size:13px;font-weight:600;margin-right:8px;flex-shrink:0}
   .terminal-input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:var(--font-mono);font-size:13px;padding:4px 0;min-width:0}
   .terminal-input::placeholder{color:#4a5060}
   .terminal-send{padding:5px 14px;background:var(--accent);border:none;border-radius:6px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;margin-left:8px;flex-shrink:0}
   .terminal-send:hover{background:#6b92ff}
   .terminal-hint{font-size:10px;color:var(--text-dim);padding:2px 12px 6px;text-align:right;background:var(--bg-panel)}
+  .terminal-cmd-history-hint{position:absolute;bottom:100%;left:0;right:0;background:var(--bg-panel);border:1px solid var(--border);border-radius:6px;max-height:120px;overflow-y:auto;font-size:11.5px;font-family:var(--font-mono);display:none;z-index:100;box-shadow:0 -4px 12px rgba(0,0,0,.4)}
+  .terminal-cmd-history-hint.show{display:block}
+  .terminal-cmd-history-hint .item{padding:4px 10px;cursor:pointer;color:var(--text-dim)}
+  .terminal-cmd-history-hint .item:hover{background:rgba(79,124,255,.15);color:var(--text)}
   .quick-section{margin-bottom:16px}
   .quick-section h4{font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;font-weight:600;display:flex;align-items:center;justify-content:space-between}
   .quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
@@ -224,7 +229,6 @@
   .adb-status-card.not-supported .value{color:var(--text-dim);font-size:11px}
   .adb-platform-list{font-size:10px;color:var(--text-dim);line-height:1.55;font-family:var(--font-mono);padding:6px 8px;background:rgba(0,0,0,.25);border-radius:5px;margin-top:6px;word-break:break-all}
   .adb-platform-list b{color:#7fa4ff}
-  /* 新增样式 */
   .signal-chart-wrap{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:8px;margin-top:8px}
   .signal-chart-wrap canvas{width:100%;height:60px;display:block}
   .session-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:10.5px;color:var(--text-dim);font-family:var(--font-mono);padding:8px;background:rgba(0,0,0,.2);border-radius:6px;margin-top:6px}
@@ -233,11 +237,6 @@
   .probe-abort-btn{padding:3px 8px;font-size:10px;background:rgba(231,76,60,.15);border:1px solid rgba(231,76,60,.3);color:var(--error);border-radius:5px;cursor:pointer;font-family:inherit;display:none}
   .probe-abort-btn.show{display:inline-block}
   .probe-abort-btn:hover{background:rgba(231,76,60,.25)}
-  .terminal-cmd-history-hint{position:absolute;bottom:100%;left:0;right:0;background:var(--bg-panel);border:1px solid var(--border);border-radius:6px;max-height:120px;overflow-y:auto;font-size:11.5px;font-family:var(--font-mono);display:none;z-index:100;box-shadow:0 -4px 12px rgba(0,0,0,.4)}
-  .terminal-cmd-history-hint.show{display:block}
-  .terminal-cmd-history-hint .item{padding:4px 10px;cursor:pointer;color:var(--text-dim)}
-  .terminal-cmd-history-hint .item:hover{background:rgba(79,124,255,.15);color:var(--text)}
-  .terminal-input-row{position:relative}
   @media (max-width:1100px){html,body{height:auto!important;overflow:auto!important}body{display:block!important}.main{display:block!important;height:auto!important;overflow:visible!important}.panel{display:block!important;overflow:visible!important}.terminal-wrap{height:420px!important;flex:none!important}}
 </style>
 </head>
@@ -246,7 +245,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v0.9.33</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v0.9.34</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -315,7 +314,7 @@
           <button class="btn btn-danger" id="btnDisconnectUSB" onclick="disconnect()" disabled>断开连接</button>
         </div>
         <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          <b style="color:var(--accent);">v0.9.33：</b>全面修复 15 个 BUG + 新增 6 项功能。
+          <b style="color:var(--accent);">v0.9.34：</b>写入功能多层法律确认改造。
         </div>
       </div>
       <div id="panelWiFi" class="hidden">
@@ -358,7 +357,7 @@
     </div>
     <div class="terminal-wrap">
       <div class="terminal" id="terminal">
-        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.33。</span></div>
+        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.34。</span></div>
       </div>
       <div class="terminal-hint">↑/↓ 键调出历史命令</div>
       <div class="terminal-input-row">
@@ -590,10 +589,10 @@
       <div class="quick-section" id="sectionWrite" data-section="write">
         <h4>写入操作 <span class="badge-tag red" style="font-size:9px;">危险</span></h4>
         <div class="quick-grid">
-          <button class="quick-btn" onclick="openWriteModal('IMEI')" id="btnWriteIMEI">✏️ 改写 IMEI<span class="cmd-hint" id="writeImeiHint">自动选语法</span></button>
-          <button class="quick-btn" onclick="openWriteModal('SN')" id="btnWriteSN">✏️ 改写 SN<span class="cmd-hint" id="writeSnHint">自动选语法</span></button>
-          <button class="quick-btn danger" onclick="openWriteModal('DEL_IMEI')" id="btnDelIMEI">🗑️ 删除 IMEI<span class="cmd-hint">D/W 回退</span></button>
-          <button class="quick-btn danger" onclick="openWriteModal('DEL_SN')" id="btnDelSN">🗑️ 删除 SN<span class="cmd-hint">D/W 回退</span></button>
+          <button class="quick-btn" onclick="openWriteModal('IMEI')" id="btnWriteIMEI">✏️ 写入 IMEI<span class="cmd-hint" id="writeImeiHint">自动选语法</span></button>
+          <button class="quick-btn" onclick="openWriteModal('SN')" id="btnWriteSN">✏️ 写入 SN<span class="cmd-hint" id="writeSnHint">自动选语法</span></button>
+          <button class="quick-btn danger" onclick="openWriteModal('DEL_IMEI')" id="btnDelIMEI">🗑️ 清空 IMEI<span class="cmd-hint">D/W 回退</span></button>
+          <button class="quick-btn danger" onclick="openWriteModal('DEL_SN')" id="btnDelSN">🗑️ 清空 SN<span class="cmd-hint">D/W 回退</span></button>
         </div>
         <div class="status-line off" id="writeStatusLine" style="display:none;">
           <div class="k">上次写入</div>
@@ -629,10 +628,11 @@
   </div>
 </div>
 
+<!-- ═══ 写入弹窗（含法律确认层） ═══ -->
 <div class="modal-overlay" id="writeModal">
   <div class="modal">
-    <h3 id="writeModalTitle">改写 IMEI</h3>
-    <div class="modal-sub" id="writeModalSub"></div>
+    <h3 id="writeModalTitle">写入设备标识</h3>
+    <div class="modal-sub" id="writeModalSub">此操作将直接修改设备 NVRAM，属于底层写入。</div>
     <div id="chipAwareBox" class="info-box" style="display:none;">
       <div>当前芯片: <b id="writeChipName">—</b></div>
       <div>使用语法: <code id="writeSyntaxPreview">—</code></div>
@@ -643,19 +643,29 @@
         </select>
       </div>
     </div>
-    <div class="warn-box" id="writeWarnBox"><b>⚠ 操作风险：</b><br>• 改写 IMEI 在部分国家/地区属违法行为<br>• 操作不当可能导致设备无法入网<br>• 写入前请确保设备已进入工厂模式<br>• <span style="color:#ff8a80;">此操作会短暂断网，请确认后继续</span></div>
+
+    <div class="warn-box" id="writeLegalConfirmBox" style="background:rgba(231,76,60,.08);border-color:rgba(231,76,60,.35);color:#ff8a80;">
+      <b>⚖️ 法律与风险确认</b><br>
+      修改设备 IMEI / SN 可能违反您所在国家/地区的法律（在中国，未经授权修改 IMEI 可能构成破坏计算机信息系统罪）。<br>
+      本工具仅提供技术能力，<b>不对任何使用行为承担责任</b>。请确认以下事项后再继续：
+      <label style="display:flex;align-items:flex-start;gap:6px;margin-top:8px;cursor:pointer;font-size:11.5px;">
+        <input type="checkbox" id="writeLegalCheck" style="margin-top:2px;cursor:pointer;flex-shrink:0;">
+        <span>我确认：在本人所在司法管辖区内，此操作合法，且本人对使用此功能的一切后果承担全部法律责任。</span>
+      </label>
+    </div>
+
     <div class="step-indicator" id="stepIndicator" style="display:none;">
       <div class="step" id="step1"></div><div class="step" id="step2"></div><div class="step" id="step3"></div><div class="step" id="step4"></div>
     </div>
     <div id="writeFormArea">
       <div class="form-group">
-        <label id="writeLabel">新 IMEI（15 位数字）</label>
-        <input class="form-control" id="writeInput" autocomplete="off">
+        <label id="writeLabel">待写入值</label>
+        <input class="form-control" id="writeInput" autocomplete="off" disabled>
         <div class="validation-hint" id="validationHint"></div>
       </div>
       <div class="info-box" id="cmdPreviewBox">即将发送：<code id="cmdPreview">—</code></div>
       <div style="margin-top:8px;display:flex;align-items:center;gap:6px;font-size:11.5px;">
-        <input type="checkbox" id="writeAutoReboot" style="cursor:pointer;">
+        <input type="checkbox" id="writeAutoReboot" style="cursor:pointer;" disabled>
         <label for="writeAutoReboot" style="margin:0;cursor:pointer;color:var(--text-dim);">写入成功后自动重启设备</label>
       </div>
     </div>
@@ -664,7 +674,42 @@
     </div>
     <div class="btn-row">
       <button class="btn btn-outline" id="writeCancelBtn" onclick="closeWriteModal()">取消</button>
-      <button class="btn btn-primary" id="writeConfirmBtn" onclick="confirmWrite()">确认写入</button>
+      <button class="btn btn-primary" id="writeConfirmBtn" onclick="confirmWrite()" disabled>继续</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 二次确认模态框 ═══ -->
+<div class="modal-overlay" id="secondConfirmModal">
+  <div class="modal" style="width:520px;">
+    <h3 style="color:#ff8a80;">⚠️ 最终确认：即将执行底层写入</h3>
+    <div class="modal-sub">此操作不可撤销，请仔细核对以下内容。</div>
+
+    <div class="warn-box" style="background:rgba(231,76,60,.1);border-color:rgba(231,76,60,.4);color:#ff8a80;">
+      <b>即将发送的完整指令：</b>
+      <pre id="secondConfirmCmd" style="background:rgba(0,0,0,.4);padding:10px;border-radius:6px;font-family:var(--font-mono);font-size:11px;color:#ff8a80;margin-top:6px;white-space:pre-wrap;word-break:break-all;">—</pre>
+    </div>
+
+    <div class="warn-box">
+      <b>风险提示：</b><br>
+      • 写入错误值可能导致设备永久无法入网<br>
+      • 可能导致设备失去保修、无法通过运营商认证<br>
+      • 部分司法管辖区对修改 IMEI / SN 有严格法律限制<br>
+      • 写入后可能需要重启设备才生效
+    </div>
+
+    <div class="form-group">
+      <label style="font-size:11.5px;">请输入下方文字以激活写入按钮：</label>
+      <div style="font-family:var(--font-mono);font-size:12px;padding:6px 10px;background:rgba(79,124,255,.08);border:1px solid rgba(79,124,255,.25);border-radius:6px;color:#7fa4ff;margin-bottom:6px;user-select:all;">
+        我已知晓风险，承担全部责任
+      </div>
+      <input class="form-control" id="secondConfirmInput" autocomplete="off" placeholder="请完整输入上方文字">
+      <div class="validation-hint info" id="secondConfirmHint">输入完全一致后，"执行写入"按钮才会激活</div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-outline" id="secondConfirmCancelBtn" onclick="closeSecondConfirm()">取消</button>
+      <button class="btn btn-danger" id="secondConfirmExecBtn" onclick="executeWrite()" disabled>执行写入</button>
     </div>
   </div>
 </div>
@@ -784,7 +829,7 @@ adb shell reboot</pre>
 
 <script>
 /* ═══════════════════════════════════════════════════════════════════════════ */
-/* v0.9.33 常量定义                                                             */
+/* v0.9.34 常量定义                                                             */
 /* ═══════════════════════════════════════════════════════════════════════════ */
 const LINE_ENDING_MAP = { crlf:'\r\n', cr:'\r', lf:'\n' };
 function getLineEnding(){ return LINE_ENDING_MAP[document.getElementById('lineEnding').value] || '\r\n'; }
@@ -1085,7 +1130,6 @@ const EXPECTED_SLOT_VALUE = {
   qdsim:{ external:1, internal:0 },
 };
 
-/* ★ BUG-01 修复：ASR 补上 postEnable / postDisable */
 const ADB_AT_CANDIDATES = {
   zxic: {
     enable: [
@@ -1104,9 +1148,9 @@ const ADB_AT_CANDIDATES = {
   },
   asr4g: {
     preEnable: 'AT*PROD=1',
-    postEnable: 'AT*PROD=0',      // ★ BUG-01 修复
+    postEnable: 'AT*PROD=0',
     preDisable: 'AT*PROD=1',
-    postDisable: 'AT*PROD=0',     // ★ BUG-01 修复
+    postDisable: 'AT*PROD=0',
     enable: [
       { cmd:'AT+USBDEBUG=1', label:'ASR USBDEBUG' },
       { cmd:'AT+ADBDEBUG=1', label:'ASR ADBDEBUG' },
@@ -1121,9 +1165,9 @@ const ADB_AT_CANDIDATES = {
   },
   asr5g: {
     preEnable: 'AT*PROD=1',
-    postEnable: 'AT*PROD=0',      // ★ BUG-01 修复
+    postEnable: 'AT*PROD=0',
     preDisable: 'AT*PROD=1',
-    postDisable: 'AT*PROD=0',     // ★ BUG-01 修复
+    postDisable: 'AT*PROD=0',
     enable: [
       { cmd:'AT+USBDEBUG=1', label:'ASR USBDEBUG' },
       { cmd:'AT+ADBDEBUG=1', label:'ASR ADBDEBUG' },
@@ -1183,7 +1227,6 @@ const WEB_ADB_ENDPOINTS = [
 const WEB_ADB_GW_LS_KEY = 'atmaster_web_adb_gateway';
 const AT_HISTORY_KEY = 'atmaster_at_history';
 
-/* ★ BUG-03 修复：云控移除顺序严格，AT*PROD 失败中止 */
 const CLOUD_REMOVE_AT = {
   zxic:     ['AT*PROD=1','AT+ZCLOUD=0','AT+ZCLOUDCFG=0','AT+ZCLOUDURL=""','AT*PROD=0','AT+RESET'],
   asr4g:    ['AT*PROD=1','AT+CLOUD=0','AT+CLOUDSWITCH=0','AT*PROD=0','AT+RESET'],
@@ -1359,7 +1402,7 @@ const URC_PATTERNS = [
 let lastURCState = { nocell:false, creg:null, creg5g:null };
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
-/* v0.9.33 状态对象                                                             */
+/* v0.9.34 状态对象                                                             */
 /* ═══════════════════════════════════════════════════════════════════════════ */
 const state = {
   connected:false, port:null, reader:null, readLoopActive:false,
@@ -1381,20 +1424,19 @@ const state = {
   lastWriteResult:null,
   lastBandClickAt:0,
   resetting:false,
-  /* v0.9.33 新增 */
   probeAbort:false,
-  signalHistory:[],           // 信号历史
-  sessionStartAt:0,           // 会话开始时间
-  statTx:0, statRx:0, statErr:0,  // 统计
-  atHistory:[],               // AT 历史
-  atHistoryIdx:-1,            // 当前历史位置
-  autoReconnect:false,        // 自动重连
+  signalHistory:[],
+  sessionStartAt:0,
+  statTx:0, statRx:0, statErr:0,
+  atHistory:[],
+  atHistoryIdx:-1,
+  autoReconnect:false,
   autoReconnectTimer:null,
-  lastPortInfo:null,          // 上次连接信息
+  lastPortInfo:null,
 };
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
-/* v0.9.33 通用工具函数                                                          */
+/* v0.9.34 通用工具函数                                                          */
 /* ═══════════════════════════════════════════════════════════════════════════ */
 function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
 function toast(msg,type='info',dur=3000){
@@ -1402,8 +1444,6 @@ function toast(msg,type='info',dur=3000){
   const el=document.createElement('div'); el.className=`toast ${type}`; el.textContent=msg; c.appendChild(el);
   setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(()=>el.remove(),300);},dur);
 }
-
-/* ★ BUG-13 修复：日志带时间戳 */
 function termWrite(text,type='resp'){
   const t=document.getElementById('terminal');
   const line=document.createElement('div'); line.className='line';
@@ -1417,22 +1457,17 @@ function termWrite(text,type='resp'){
   while(t.children.length>state.maxLogLines)t.removeChild(t.firstChild);
   t.scrollTop=t.scrollHeight;
   state.logBuffer.push(`[${ts}][${type.toUpperCase()}] ${text}`);
-
-  // 统计
   if(type==='cmd') state.statTx++;
   else if(type==='resp') state.statRx++;
   else if(type==='err') state.statErr++;
   updateSessionStats();
 }
-
 function updateSessionStats(){
   const el=document.getElementById('statTx'), rx=document.getElementById('statRx'), er=document.getElementById('statErr');
   if(el)el.textContent=state.statTx;
   if(rx)rx.textContent=state.statRx;
   if(er)er.textContent=state.statErr;
 }
-
-/* ★ 缺失-04：会话时长定时更新 */
 function startSessionTimer(){
   state.sessionStartAt = Date.now();
   if(state._sessionTimer) clearInterval(state._sessionTimer);
@@ -1450,7 +1485,6 @@ function stopSessionTimer(){
   if(state._sessionTimer){ clearInterval(state._sessionTimer); state._sessionTimer=null; }
   const el=document.getElementById('statSession'); if(el)el.textContent='00:00:00';
 }
-
 function clearTerminal(){ document.getElementById('terminal').innerHTML=''; state.logBuffer=[]; termWrite('终端已清空。','info'); }
 function exportLog(){
   if(!state.logBuffer.length){ toast('暂无日志','info'); return; }
@@ -1462,7 +1496,6 @@ function exportLog(){
   const a=document.createElement('a'); a.href=url; a.download=`atmaster-log-${ts}.txt`;
   a.click(); URL.revokeObjectURL(url); toast('日志已导出','success');
 }
-
 function switchMode(mode){
   if(state.connected){ toast('请先断开','error'); return; }
   document.querySelectorAll('.conn-tab').forEach(t=>t.classList.toggle('active',t.dataset.mode===mode));
@@ -1503,8 +1536,6 @@ async function setRTS(value){
   try{ await state.port.setSignals({requestToSend:value}); termWrite(`RTS → ${value?'HIGH':'LOW'}`,'info'); }
   catch(e){ termWrite(`RTS 设置失败: ${e.message}`,'err'); }
 }
-
-/* ★ BUG-05 修复：writeToPort 过滤控制字符，防 AT 指令注入 */
 async function writeToPort(data){
   if(!state.port||!state.port.writable)throw new Error('串口不可写');
   const sanitized = String(data).replace(/[\r\n\x00-\x08\x0B\x0C\x0E-\x1F]/g,'');
@@ -1514,7 +1545,7 @@ async function writeToPort(data){
   finally{ writer.releaseLock(); }
 }
 
-/* ★ 缺失-05：AT 指令历史（↑/↓） */
+/* AT 指令历史 */
 function loadAtHistory(){
   try{
     const raw = localStorage.getItem(AT_HISTORY_KEY);
@@ -1557,7 +1588,6 @@ function handleAtInputKey(event){
     }
     return;
   }
-  /* 输入时显示历史提示 */
   const v = input.value.trim();
   if(v && hint && state.atHistory.length > 0){
     const matches = state.atHistory.filter(c => c.toLowerCase().includes(v.toLowerCase()) && c !== v).slice(0, 5);
@@ -1575,9 +1605,7 @@ function pickHistory(cmd){
   if(hint) hint.classList.remove('show');
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════ */
-/* v0.9.33 ADB 相关                                                             */
-/* ═══════════════════════════════════════════════════════════════════════════ */
+/* ADB 相关 */
 function updateAdbDetectUI(status, device){
   state.usbAdbState = status;
   state.usbAdbDevice = device || null;
@@ -1652,8 +1680,7 @@ async function checkAdbViaWebUSBDevice(device){
     for(const iface of config.interfaces){
       for(const alt of iface.alternates){
         if(alt.interfaceClass === 0xff && alt.interfaceSubclass === 0x42){
-          hasAdb = true;
-          break;
+          hasAdb = true; break;
         }
       }
       if(hasAdb) break;
@@ -1668,8 +1695,7 @@ async function checkAdbViaWebUSBDevice(device){
 async function detectAdbViaWebUSB(){
   if(!('usb' in navigator)){
     toast('当前浏览器不支持 WebUSB，请使用 Chrome/Edge 89+ 桌面版','error',6000);
-    updateAdbDetectUI('unsupported');
-    return;
+    updateAdbDetectUI('unsupported'); return;
   }
   updateAdbDetectUI('detecting');
   termWrite('═══ WebUSB 检测 ADB 状态 ═══','info');
@@ -1709,19 +1735,14 @@ async function autoScanAdbDevices(){
     if(!devices || !devices.length){ return; }
     for(const d of devices){
       const hasAdb = await checkAdbViaWebUSBDevice(d);
-      if(hasAdb !== null){
-        updateAdbDetectUI(hasAdb ? 'on' : 'off', d);
-        return;
-      }
+      if(hasAdb !== null){ updateAdbDetectUI(hasAdb ? 'on' : 'off', d); return; }
     }
   }catch(e){}
 }
-
 async function universalEnableADB(){
   if(state.usbAdbState === 'on'){ toast('ADB 已开启，无需重复操作','info',3000); return; }
   await autoScanAdbDevices();
   if(state.usbAdbState === 'on'){ toast('ADB 已开启，无需重复操作','info',3000); return; }
-
   const chipId = state.detectedChipId || 'unknown';
   const connected = state.connected;
   termWrite(`═══ 全能 ADB 开启 · 芯片:${state.detectedChipName || '未识别'} · 串口:${connected?'已连接':'未连接'} ═══`,'info');
@@ -1742,18 +1763,17 @@ async function universalEnableADB(){
       await doADBViaAT(chipId, true); return;
     }
     case 'qualcomm': {
-      if(!connected){ toast('高通平台需要连接 AT 串口','error',5000); termWrite('✗ 高通平台必须连接 AT 串口','err'); return; }
+      if(!connected){ toast('高通平台需要连接 AT 串口','error',5000); return; }
       termWrite('【高通】尝试 AT 指令','info');
       await doADBViaAT('qualcomm', true); return;
     }
     case 'unisoc': {
-      if(!connected){ toast('紫光展锐平台需要连接 AT 串口','error',5000); termWrite('✗ 紫光展锐平台必须连接 AT 串口','err'); return; }
+      if(!connected){ toast('紫光展锐平台需要连接 AT 串口','error',5000); return; }
       termWrite('【紫光展锐】尝试 AT 指令','info');
       await doADBViaAT('unisoc', true); return;
     }
     case 'mtk': {
       toast('联发科平台请通过工程模式或 adb root 开启','info',6000);
-      termWrite('✗ 联发科平台不支持直接 AT 开启 ADB','info');
       setAdbMasterStatus('⚠ 联发科需工程模式','warn'); return;
     }
     default: {
@@ -1767,7 +1787,6 @@ async function universalDisableADB(){
   const chipId = state.detectedChipId || 'unknown';
   const connected = state.connected;
   termWrite(`═══ 全能 ADB 关闭 · 芯片:${state.detectedChipName || '未识别'} ═══`,'info');
-
   switch(chipId){
     case 'zxic': if(connected) await doADBViaAT('zxic', false); else await webAdbRequest(0); return;
     case 'asr4g': case 'asr5g': if(connected) await doADBViaAT(chipId, false); else toast('ASR 平台需要连接 AT 串口','error',4000); return;
@@ -1777,8 +1796,6 @@ async function universalDisableADB(){
     default: if(connected) await doADBViaAT('generic', false); else await webAdbRequest(0); return;
   }
 }
-
-/* ★ BUG-01 修复：ADB AT 处理流程确保工厂模式退出 */
 async function doADBViaAT(chipId, enable){
   if(!state.connected){ return false; }
   const cfg = ADB_AT_CANDIDATES[chipId] || ADB_AT_CANDIDATES.generic;
@@ -1809,15 +1826,11 @@ async function doADBViaAT(chipId, enable){
           await sleep(80);
           if(/\b(OK|ERROR)\s*$/im.test(state.responseBuffer.trim())){ await sleep(150); break; }
         }
-      }catch(err){
-        termWrite(`发送失败: ${err.message}`,'err');
-        break;
-      }
+      }catch(err){ termWrite(`发送失败: ${err.message}`,'err'); break; }
       if(isValidResponse(state.responseBuffer)){ hit = c; termWrite(`✓ ${c.cmd} 返回 OK`,'resp'); break; }
       await sleep(300);
     }
   } finally {
-    // ★ 无论是否成功，只要进了工厂模式就一定要退出
     if(enable && cfg.postEnable){
       termWrite(`退出工厂模式: ${cfg.postEnable}`,'info');
       try{ await queryAndCollect(cfg.postEnable, 1200); }catch(e){}
@@ -1842,16 +1855,12 @@ async function doADBViaAT(chipId, enable){
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════ */
-/* v0.9.33 Web ADB                                                              */
-/* ═══════════════════════════════════════════════════════════════════════════ */
 function isValidIPv4(s){
   if(!s) return false;
   const m = s.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
   if(!m) return false;
   return m.slice(1).every(n => { const v = parseInt(n); return v >= 0 && v <= 255; });
 }
-/* ★ BUG-06 修复：网关不强制默认值 */
 function getWebAdbGateway(){
   const el = document.getElementById('webAdbGateway');
   let raw = (el?.value || '').trim();
@@ -1912,10 +1921,8 @@ async function webAdbRequest(enable){
   termWrite(`═══ Web ADB ${action} · 网关 ${gw} ═══`, 'info');
   setAdbMasterStatus(`正在通过 Web 接口 ${action} ADB...`, 'warn');
   toast(`正在尝试 Web 通道 ${action} ADB（网关 ${gw}）...`, 'info', 2000);
-
   const reachable = await probeWebAdbGateway(true);
   if(!reachable) termWrite(`⚠ 预检未通过（${gw} 无响应），仍尝试发送...`, 'warn');
-
   const results = [];
   for(const ep of WEB_ADB_ENDPOINTS){
     const url = `http://${gw}${ep.path}?goformId=SET_DEVICE_MODE&debug_enable=${enable}`;
@@ -1933,7 +1940,6 @@ async function webAdbRequest(enable){
     }
     await sleep(300);
   }
-
   const okCount = results.filter(r => r.ok).length;
   if(okCount > 0){
     const okLabels = results.filter(r => r.ok).map(r => r.label).join(' + ');
@@ -1964,7 +1970,6 @@ function showWebAdbRebootModal(){
   };
   modal.onclick = (e)=>{ if(e.target === modal) modal.classList.remove('show'); };
 }
-
 function updateAdbPathHint(){
   const el = document.getElementById('adbPathHint');
   if(!el) return;
@@ -1985,7 +1990,7 @@ function updateAdbPathHint(){
   }
 }
 
-/* ★ BUG-09 修复：删除 setAdbStatus 死代码，其他状态函数保留 */
+/* 状态设置 */
 function setFactoryStatus(status,detail){
   state.factoryStatus=status;
   const textEl=document.getElementById('factoryStatusText'), line=document.getElementById('factoryStatusLine');
@@ -2032,16 +2037,13 @@ function setWriteStatus(text,cls){
   textEl.textContent=text;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════ */
-/* v0.9.33 界面渲染                                                             */
-/* ═══════════════════════════════════════════════════════════════════════════ */
+/* 界面渲染 */
 function renderRightPanel(){
   const connected=state.connected, chipId=state.detectedChipId;
   const netType=(state.networkType==='5g')?'5G':(state.networkType==='4g'?'4G':null);
   let mf=[];
   if(connected&&chipId&&netType&&FUNCTION_MATRIX[chipId]&&FUNCTION_MATRIX[chipId][netType]) mf=FUNCTION_MATRIX[chipId][netType];
   else if(connected&&chipId) mf=(FUNCTION_MATRIX[chipId]&&FUNCTION_MATRIX[chipId]['4G'])||[];
-
   document.querySelectorAll('[data-section]').forEach(el=>{
     const key=el.dataset.section, rule=SECTION_VISIBILITY[key];
     if(!rule){ el.style.display='none'; return; }
@@ -2075,7 +2077,6 @@ function updateSimHints(){
   const tipEl=document.getElementById('switchTip');
   if(tipEl)tipEl.innerHTML='<b>切卡说明：</b>工具会按候选列表依次尝试，并自动验证切换结果。';
 }
-
 function renderBandLockSection(){
   const grid=document.getElementById('bandGrid'), badge=document.getElementById('bandModeBadge'), tip=document.getElementById('bandTip');
   if(!grid)return; grid.innerHTML='';
@@ -2086,7 +2087,6 @@ function renderBandLockSection(){
   }
   const is5g=(netType==='5g');
   if(is5g){ badge.className='badge-tag cyan'; badge.textContent='5G NR'; } else { badge.className='badge-tag orange'; badge.textContent='4G LTE'; }
-
   if(cfg.bands4g&&cfg.bands4g.length&&!is5g){
     const t=document.createElement('div'); t.className='band-group-title'; t.textContent='4G 频段（绿色 = 当前连接频段）'; grid.appendChild(t);
     const wrap=document.createElement('div'); wrap.style.display='grid'; wrap.style.gridTemplateColumns='repeat(3, 1fr)'; wrap.style.gap='6px';
@@ -2167,7 +2167,7 @@ function renderBandLockSection(){
   tip.innerHTML=cfg.tip;
 }
 
-/* ★ 缺失-06：信号历史曲线 */
+/* 信号历史曲线 */
 function pushSignalHistory(dbm){
   if(typeof dbm !== 'number' || isNaN(dbm)) return;
   state.signalHistory.push(dbm);
@@ -2184,7 +2184,6 @@ function drawSignalChart(){
   ctx.clearRect(0,0,W,H);
   ctx.fillStyle = 'rgba(255,255,255,.03)';
   ctx.fillRect(0,0,W,H);
-  // 网格 -85 / -95 / -105 / -115
   ctx.strokeStyle = 'rgba(255,255,255,.08)';
   ctx.lineWidth = 1;
   const lvls = [-85,-95,-105,-115];
@@ -2203,7 +2202,6 @@ function drawSignalChart(){
     else ctx.lineTo(x, H - y);
   });
   ctx.stroke();
-  // 最新点
   const last = state.signalHistory[state.signalHistory.length - 1];
   const lx = ((state.signalHistory.length - 1) / 59) * W;
   const ly = ((last - (-140)) / (-40 - (-140))) * H;
@@ -2212,7 +2210,7 @@ function drawSignalChart(){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
-/* v0.9.33 串口读写                                                             */
+/* v0.9.34 串口读写                                                             */
 /* ═══════════════════════════════════════════════════════════════════════════ */
 async function forceClosePort(){
   termWrite('正在强制释放旧串口句柄...','info');
@@ -2224,16 +2222,13 @@ async function forceClosePort(){
   }
   await sleep(500);
   if(state.port){
-    try{
-      if(state.port.readable || state.port.writable){ await state.port.close(); }
-    }catch(e){}
+    try{ if(state.port.readable || state.port.writable){ await state.port.close(); } }catch(e){}
     state.port = null;
   }
   state.connected = false;
   await sleep(300);
   termWrite('✓ 旧串口句柄已释放','resp');
 }
-
 function showRebootConfirm(){
   return new Promise(resolve=>{
     const modal = document.getElementById('rebootModal');
@@ -2250,8 +2245,6 @@ function showRebootConfirm(){
     modal.onclick = (e)=>{ if(e.target===modal){ cleanup(); resolve(false); } };
   });
 }
-
-/* ★ BUG-02 修复：重启加确认 */
 async function resetDevice(silent){
   if(!state.connected){ toast('请先连接','error'); return false; }
   if(state.resetting){ toast('重启正在进行中','info'); return false; }
@@ -2302,7 +2295,6 @@ async function resetDevice(silent){
   if(!silent) toast('所有重启指令均失败，请手动断电重启','error',6000);
   return false;
 }
-
 async function sendBandCmd(cmd, cfg){
   if(!state.connected){ toast('请先连接','error'); return; }
   if(!confirm(`⚠ 写入操作会短暂中断数据业务，是否继续？\n\n即将发送: ${cmd}`)) return;
@@ -2345,7 +2337,6 @@ async function sendBandCmd(cmd, cfg){
     toast('锁频发送失败','error',4000);
   }
 }
-
 function openCustomBandModal(){
   const chipId=state.detectedChipId, cfg=BAND_LOCK_CONFIG[chipId];
   if(!cfg){ toast('该芯片不支持 AT 锁频写入','error'); return; }
@@ -2405,7 +2396,7 @@ async function sendCustomBandCmd(){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
-/* v0.9.33 连接管理                                                             */
+/* v0.9.34 连接管理                                                             */
 /* ═══════════════════════════════════════════════════════════════════════════ */
 async function connectUSB(){
   if(!('serial' in navigator)){ toast('浏览器不支持 Web Serial','error',5000); return; }
@@ -2424,7 +2415,6 @@ async function connectUSB(){
     await port.open({baudRate:baud,dataBits:8,stopBits:1,parity:'none',flowControl,bufferSize:255});
     termWrite('串口已打开','info');
     state.port=port; state.connected=true; state.resetting=false;
-    // 记录连接信息
     try{
       const info = port.getInfo ? port.getInfo() : {};
       state.lastPortInfo = { usbVendorId: info.usbVendorId, usbProductId: info.usbProductId, baud, flowControl };
@@ -2462,8 +2452,6 @@ async function connectUSB(){
     }
   }
 }
-
-/* ★ 缺失-03：自动重连 */
 async function attemptAutoReconnect(){
   if(!state.autoReconnect) return;
   if(!state.lastPortInfo) return;
@@ -2471,10 +2459,7 @@ async function attemptAutoReconnect(){
   termWrite('🔄 尝试自动重连...','info');
   try{
     const ports = await navigator.serial.getPorts();
-    if(!ports || ports.length === 0){
-      termWrite('⚠ 未找到已授权串口，无法自动重连','warn');
-      return;
-    }
+    if(!ports || ports.length === 0){ termWrite('⚠ 未找到已授权串口，无法自动重连','warn'); return; }
     let targetPort = ports[0];
     if(state.lastPortInfo.usbVendorId){
       const match = ports.find(p => {
@@ -2507,11 +2492,8 @@ async function attemptAutoReconnect(){
         renderRightPanel();
       }
     }, 800);
-  }catch(err){
-    termWrite(`⚠ 自动重连失败: ${err.message}`,'err');
-  }
+  }catch(err){ termWrite(`⚠ 自动重连失败: ${err.message}`,'err'); }
 }
-
 async function startReadLoop(){
   if(!state.port||!state.port.readable)return;
   state.readLoopActive=true;
@@ -2611,14 +2593,11 @@ async function testATComms(){
   else{ termWrite('✗ AT 无响应','err'); toast('AT 通信失败','error',5000); }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════ */
-/* v0.9.33 芯片指纹                                                             */
-/* ═══════════════════════════════════════════════════════════════════════════ */
+/* 芯片指纹 */
 async function wakeAndFingerprint(){
   let woke=false;
   for(let i=0;i<3;i++){ const r=await queryAndCollect('AT',1500); if(isValidResponse(r)){ woke=true; break; } await sleep(300); }
   if(woke)termWrite('✓ 设备已唤醒','resp'); else termWrite('⚠ 设备 AT 无响应','info');
-
   termWrite('正在计算设备指纹...','info');
   const ati=await queryAndCollect('ATI',1200);
   const cgmi=await queryAndCollect('AT+CGMI',900);
@@ -2631,7 +2610,6 @@ async function wakeAndFingerprint(){
   for(let i=0;i<raw.length;i++){ hash=((hash<<5)-hash)+raw.charCodeAt(i); hash|=0; }
   state.deviceFingerprint='dev_'+Math.abs(hash).toString(36);
   termWrite(`设备指纹: ${state.deviceFingerprint}`,'info');
-
   const combined=(ati+' '+cgmi+' '+cgmm+' '+cgmr);
   let chipId=null, chipName=null;
   for(const c of CHIP_IDENTIFIERS){
@@ -2661,15 +2639,11 @@ function clearCapCache(){
   toast('已清除本设备的探测缓存','info');
   state.capabilities=null; renderCapList();
 }
-
-/* ★ 缺失-01：中止探测 */
 function abortProbe(){
   if(!state.probing) return;
   state.probeAbort = true;
   termWrite('⏹ 用户请求中止探测','warn');
 }
-
-/* ★ BUG-10：用户主动重测跳过缓存；★ BUG-12：csq 探测发一次 AT；★ 缺失-01：可中止 */
 async function runFullProbe(userTriggered){
   if(!state.connected){ toast('请先连接设备','error'); return; }
   if(state.probing){ toast('探测正在进行中','info'); return; }
@@ -2677,8 +2651,6 @@ async function runFullProbe(userTriggered){
     if(!confirm('⚠ 重测会短暂中断数据业务（约 3~5 秒），是否继续？')) return;
   }
   if(!state.deviceFingerprint){ await wakeAndFingerprint(); if(!state.deviceFingerprint){ toast('无法获取设备指纹','error'); return; } }
-
-  // ★ BUG-10：只有自动调用时才使用缓存
   if(!userTriggered && state.capabilitySource !== 'fresh'){
     const cached = loadCapCache(state.deviceFingerprint);
     if(cached){
@@ -2687,38 +2659,26 @@ async function runFullProbe(userTriggered){
       renderCapList(); updateCmdHintsFromCaps(); renderRightPanel(); return;
     }
   }
-
   state.probing=true; state.capabilitySource='fresh'; state.probeAbort=false;
   termWrite('═══ 开始能力探测（仅只读）═══','info');
   if(userTriggered) toast('正在探测设备能力...','info',3000);
   const abortBtn = document.getElementById('btnAbortProbe');
   if(abortBtn) abortBtn.classList.add('show');
-
   const caps={};
   const probeKeys=['iccid','imei','sn','ver','band','supportBand','cardSlot','bandLock','csq','cops','mac','mac2','qci'];
   const total=probeKeys.length;
-
   try{
     for(let i=0;i<total;i++){
       if(state.probeAbort){ termWrite('⏹ 探测已中止','warn'); break; }
       const key=probeKeys[i], def=CAPABILITY_PROBES[key];
       if(!def)continue;
       termWrite(`[${i+1}/${total}] 探测 ${def.label}...`,'info');
-
-      // ★ BUG-12：csq 只在第一个候选前发一次 AT
       const isCsqKey = (key === 'csq');
       let csqAtSent = false;
-
       for(const cand of def.candidates){
         if(!state.connected){ break; }
         if(state.probeAbort){ break; }
-
-        if(isCsqKey && !csqAtSent){
-          await queryAndCollect('AT', 600);
-          await sleep(250);
-          csqAtSent = true;
-        }
-
+        if(isCsqKey && !csqAtSent){ await queryAndCollect('AT', 600); await sleep(250); csqAtSent = true; }
         const resp=await queryAndCollect(cand.cmd,1200);
         if(!resp||isErrorResponse(resp))continue;
         const m=resp.match(cand.pattern);
@@ -2728,19 +2688,9 @@ async function runFullProbe(userTriggered){
         else{ value=m[1]||'ok'; }
         if(value===null||value===undefined)continue;
         if(Array.isArray(value)&&value.length===0)continue;
-        if(key === 'csq' && typeof value === 'string'){
-          if(value.includes('无信号')) continue;
-        }
+        if(key === 'csq' && typeof value === 'string'){ if(value.includes('无信号')) continue; }
         if(cand.validator&&!cand.validator(value))continue;
-        caps[key]={ 
-          cmd:cand.cmd, 
-          pattern:cand.pattern.source, 
-          flags:cand.pattern.flags, 
-          decoder:cand.decoder||null, 
-          sample:Array.isArray(value)?value.join(' '):value, 
-          platform:cand.platform||null, 
-          source:'fresh' 
-        };
+        caps[key]={ cmd:cand.cmd, pattern:cand.pattern.source, flags:cand.pattern.flags, decoder:cand.decoder||null, sample:Array.isArray(value)?value.join(' '):value, platform:cand.platform||null, source:'fresh' };
         termWrite(`  ✓ ${def.label}: ${cand.cmd} → ${Array.isArray(value)?value.join(','):value}`,'resp');
         break;
       }
@@ -2750,7 +2700,6 @@ async function runFullProbe(userTriggered){
     state.capabilities=caps; state.probing=false; state.probeAbort=false;
     if(abortBtn) abortBtn.classList.remove('show');
   }
-
   saveCapCache(state.deviceFingerprint,caps);
   const hit=Object.keys(caps).length;
   termWrite(`═══ 探测完成：${hit}/${total} ═══`,'info');
@@ -2775,7 +2724,6 @@ async function queryAllByCapabilities(){
   }
   termWrite('设备信息读取完成。','info');
 }
-
 function setSignalFromCsq(csq){
   const el = document.getElementById('infoCSQ');
   if(!el) return;
@@ -2804,7 +2752,6 @@ function setSignalFromCsq(csq){
   el.textContent = `CSQ ${csq} · ${lvl}`;
   el.className = 'info-value ' + (csq >= 15 ? 'ok' : csq >= 10 ? 'warn' : 'err');
   el.title = `原始 CSQ 值: ${csq}`;
-  // 转换为 RSRP 估算（-113 + 2*csq）
   const dbm = -113 + 2 * csq;
   pushSignalHistory(dbm);
 }
@@ -2823,29 +2770,22 @@ function setSignalFromRssi(dbm){
   pushSignalHistory(dbm);
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════ */
-/* v0.9.33 响应解析                                                             */
-/* ═══════════════════════════════════════════════════════════════════════════ */
+/* 响应解析 */
 function parseAnyResponse(line){
   let m;
   m=line.match(/[+*](?:QCCID|ICCID|CCID|ICID|ZICCID)[:\s]*"?([0-9A-Za-z]{18,22})"?/i);
   if(m)setInfoValue('ICCID',m[1]);
   else if(/^89\d{17,19}[A-Za-z0-9]*$/.test(line))setInfoValue('ICCID',line);
   else{ m=line.match(/\+CRSM:\s*\d+,\d+,\s*(?:"([0-9A-Fa-f\s]+)"|([0-9A-Fa-f]+))/i); if(m){ const v=DECODERS.crsm(m[1]||m[2]); if(v)setInfoValue('ICCID',v); } }
-
-  /* ★ BUG-14：IMEI 只在未设置时匹配 */
   m=line.match(/\+CGSN[:\s]+"?(\d{14,16})"?/i);
   if(m && !state.rawValues.IMEI) setInfoValue('IMEI',m[1]);
   else if(/^\d{15}$/.test(line) && !state.rawValues.IMEI) setInfoValue('IMEI',line);
-
   m=line.match(/[*+]MRD_SN[:\s]+"?([A-Za-z0-9]{6,30})"?/i)
     ||line.match(/\+ZSN[:\s]+"?([A-Za-z0-9]{6,30})"?/i)
     ||line.match(/\+GSN[:\s]+"?([A-Za-z0-9]{6,30})"?/i);
   if(m&&!state.rawValues.SN&&m[1]!==state.rawValues.IMEI&&!/^\d{15}$/.test(m[1]))setInfoValue('SN',m[1]);
-
   m=line.match(/\+CGMR[:\s]+"?([^"\r\n]+)"?/i);
   if(m)setInfo('infoVER',m[1].trim());
-
   m=line.match(/\+MAC2[:\s]*"?([0-9A-Fa-f:]{12,20})"?/i);
   if(m){ setInfo('infoMAC2',m[1].replace(/:/g,'').toUpperCase(),'ok'); }
   m=line.match(/\+MAC[:\s]*"?([0-9A-Fa-f:]{12,20})"?/i);
@@ -2854,14 +2794,12 @@ function parseAnyResponse(line){
     m=line.match(/[+*](?:ZMAC|ZWIFIMAC|WIFIMAC|WIFIID|MRD_WIFIID|GETWIFIMAC|GETMAC)[:\s]*"?([0-9A-Fa-f:]{12,20})"?/i);
     if(m)setInfo('infoMAC',m[1].replace(/:/g,'').toUpperCase(),'ok');
   }
-
   let sigDone = false;
   m = line.match(/\+ZRSSI[:\s]*(-?\d+)/i);
   if(m){
     const v = parseInt(m[1]);
     if(!isNaN(v) && v < 0 && v > -140){ setSignalFromRssi(v); sigDone = true; }
   }
-
   if(!sigDone){
     m = line.match(/\+CSQ[:\s]*(\d+),(\d+),(\d+)/i);
     if(m){
@@ -2879,16 +2817,13 @@ function parseAnyResponse(line){
       }
     }
   }
-
   if(!sigDone){
     m = line.match(/\+ZCSQ[:\s]*(\d+),(\d+),(\d+)/i);
     if(m){
       const rssi = parseInt(m[1]);
       const el = document.getElementById('infoCSQ');
-      if(rssi === 99){
-        el.textContent = '无信号 / 未注册';
-        el.className = 'info-value empty';
-      }else{
+      if(rssi === 99){ el.textContent = '无信号 / 未注册'; el.className = 'info-value empty'; }
+      else{
         const dbm = -113 + 2 * rssi;
         let lvl, cls;
         if(rssi >= 20){ lvl='强'; cls='ok'; }
@@ -2902,7 +2837,6 @@ function parseAnyResponse(line){
       sigDone = true;
     }
   }
-
   if(!sigDone){
     m = line.match(/\+ZSRVCELL[:\s]*([^\r\n]+)/i);
     if(m){
@@ -2926,12 +2860,10 @@ function parseAnyResponse(line){
       }
     }
   }
-
   if(!sigDone){
     m = line.match(/\+CSQ[:\s]*(\d+),(\d+)/);
     if(m){ setSignalFromCsq(parseInt(m[1])); sigDone = true; }
   }
-
   if(!sigDone){
     m=line.match(/\+CESQ[:\s]*([\d,\s]+)/i);
     if(m){
@@ -2942,7 +2874,6 @@ function parseAnyResponse(line){
       if(rsrpDbm!==null){ setSignalFromRssi(rsrpDbm); }
     }
   }
-
   m=line.match(/\+COPS[:\s]*(\d+)(?:,\s*(\d+)\s*,\s*(?:"([^"]*)"|(\d+)))?/i);
   if(m){
     const mode=parseInt(m[1]);
@@ -2957,7 +2888,6 @@ function parseAnyResponse(line){
       if(op){ el.textContent=op.name; el.className='info-value '+op.cls; }
     }
   }
-
   m=line.match(/\+ZCARDSWITCH[:\s]*(\d+)/i);
   if(m){
     const slot=DECODERS.zcardswitch(m[1]);
@@ -2975,7 +2905,6 @@ function parseAnyResponse(line){
       }
     }
   }
-
   m=line.match(/\+ZLTEBAND[:\s]*([\d,\s]+)/i);
   if(m){ state.lockMaskRaw = m[1].trim(); updateLockBandDisplay(); }
   m=line.match(/\+ZLTEAMTBAND[:\s]*([\d,\s]+)/i);
@@ -2989,7 +2918,6 @@ function parseAnyResponse(line){
     }
     updateLockBandDisplay();
   }
-
   m=line.match(/^\*BAND[:\s]+([\d,\s]+)\s*$/im);
   if(m){
     const res=DECODERS.asrBandParse(m[1]);
@@ -3003,7 +2931,6 @@ function parseAnyResponse(line){
       }
     }
   }
-
   m=line.match(/[*+]BANDIND[:\s]*([\d,\s]+)/i);
   if(m){
     const el=document.getElementById('infoBand');
@@ -3045,7 +2972,6 @@ function parseAnyResponse(line){
       }
     }
   }
-
   m=line.match(/\+CGEQOSRDP[:\s]*(\d+),(\d+)/i);
   if(m){
     const qci=parseInt(m[2]);
@@ -3073,7 +2999,6 @@ function parseAnyResponse(line){
     }
   }
 }
-
 function updateLockBandDisplay(){
   const el = document.getElementById('infoLockBand');
   if(!el) return;
@@ -3084,15 +3009,9 @@ function updateLockBandDisplay(){
   if(bands.length === 0) isUnlocked = true;
   else if(sup.length > 0) isUnlocked = sup.every(b => bands.includes(b));
   else isUnlocked = bands.length >= 20;
-  if(isUnlocked){
-    el.textContent = '未锁定（全频段）';
-    el.className = 'info-value empty';
-  } else {
-    el.textContent = '锁定 ' + bands.map(n=>'B'+n).join(' ');
-    el.className = 'info-value warn';
-  }
+  if(isUnlocked){ el.textContent = '未锁定（全频段）'; el.className = 'info-value empty'; }
+  else { el.textContent = '锁定 ' + bands.map(n=>'B'+n).join(' '); el.className = 'info-value warn'; }
 }
-
 function renderCapList(){
   const el=document.getElementById('capList'), footer=document.getElementById('capFooter');
   if(!el)return;
@@ -3115,7 +3034,7 @@ function renderCapList(){
 function updateCmdHintsFromCaps(){ updateSimHints(); }
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
-/* v0.9.33 卡切换 / 工厂 / 网络 / IP                                            */
+/* v0.9.34 卡切换 / 工厂 / 网络 / IP                                            */
 /* ═══════════════════════════════════════════════════════════════════════════ */
 async function switchCard(direction){
   if(!state.connected){ toast('请先连接','error'); return; }
@@ -3136,11 +3055,7 @@ async function switchCard(direction){
     if(isValidResponse(state.responseBuffer)){ success=c; break; }
     if(!isErrorResponse(state.responseBuffer)&&i===candidates.length-1){ success=c; break; }
   }
-  if(!success){
-    setSimStatus('fail','所有候选均失败');
-    toast('全部切卡候选失败','error',5000);
-    return;
-  }
+  if(!success){ setSimStatus('fail','所有候选均失败'); toast('全部切卡候选失败','error',5000); return; }
   state.simSwitchCmd=success.cmd;
   setSimStatus('switching',`已发送 ${success.cmd}，等待设备重连...`);
   toast(`切卡指令已发送（${success.label}）`,'success',5000);
@@ -3150,16 +3065,9 @@ async function switchCard(direction){
     verify=await verifyCardSwitch(direction);
     if(verify.verified!==null)break;
   }
-  if(verify.verified===true){
-    setSimStatus(direction,`✓ 已切到${targetLabel}（验证通过）`);
-    toast(`✓ 已切到${targetLabel}`,'success',5000);
-  }else if(verify.verified===false){
-    setSimStatus('fail',`⚠ 切换后仍是 ${verify.actualLabel||'未知'}`);
-    toast(`⚠ 切换失败`,'error',6000);
-  }else{
-    setSimStatus('unknown','切换后无法验证');
-    toast('切卡指令已发送，但无法自动验证','info',5000);
-  }
+  if(verify.verified===true){ setSimStatus(direction,`✓ 已切到${targetLabel}（验证通过）`); toast(`✓ 已切到${targetLabel}`,'success',5000); }
+  else if(verify.verified===false){ setSimStatus('fail',`⚠ 切换后仍是 ${verify.actualLabel||'未知'}`); toast(`⚠ 切换失败`,'error',6000); }
+  else{ setSimStatus('unknown','切换后无法验证'); toast('切卡指令已发送，但无法自动验证','info',5000); }
 }
 async function verifyCardSwitch(target){
   const cap=state.capabilities&&state.capabilities.cardSlot;
@@ -3191,7 +3099,6 @@ async function queryCurrentCard(){
   if(!r||isErrorResponse(r)){ setSimStatus('unknown','查询失败'); }
   else{ termWrite('✓ 卡槽状态已更新','resp'); }
 }
-
 async function openFactoryMode(){
   if(!state.connected){ toast('请先连接','error'); return; }
   if(!confirm('⚠ 进入工厂模式会短暂中断数据业务，是否继续？')) return;
@@ -3209,14 +3116,8 @@ async function openFactoryMode(){
     if(isValidResponse(state.responseBuffer)){ hit=c; break; }
     await sleep(200);
   }
-  if(hit){
-    state.factoryCmd=hit.cmd;
-    setFactoryStatus('on',`已进入 (${hit.cmd})`);
-    toast(`工厂模式已进入（${hit.label}）`,'success',5000);
-  } else {
-    setFactoryStatus('fail','未找到可用指令');
-    toast('未找到能进入工厂模式的指令','error',5000);
-  }
+  if(hit){ state.factoryCmd=hit.cmd; setFactoryStatus('on',`已进入 (${hit.cmd})`); toast(`工厂模式已进入（${hit.label}）`,'success',5000); }
+  else { setFactoryStatus('fail','未找到可用指令'); toast('未找到能进入工厂模式的指令','error',5000); }
 }
 async function closeFactoryMode(){
   if(!state.connected){ toast('请先连接','error'); return; }
@@ -3233,16 +3134,9 @@ async function closeFactoryMode(){
     if(isValidResponse(state.responseBuffer)){ hit=c; break; }
     await sleep(200);
   }
-  if(hit){
-    state.factoryCmd=null;
-    setFactoryStatus('off',`已退出 (${hit.cmd})`);
-    toast(`工厂模式已退出（${hit.label}）`,'success',4000);
-  } else {
-    setFactoryStatus('fail','未找到可用指令');
-    toast('未找到能退出工厂模式的指令','error',4000);
-  }
+  if(hit){ state.factoryCmd=null; setFactoryStatus('off',`已退出 (${hit.cmd})`); toast(`工厂模式已退出（${hit.label}）`,'success',4000); }
+  else { setFactoryStatus('fail','未找到可用指令'); toast('未找到能退出工厂模式的指令','error',4000); }
 }
-
 function updateNetFromURC(st){
   const i=document.getElementById('netTypeIcon'), v=document.getElementById('netTypeValue'), s=document.getElementById('netTypeSub');
   if(!i||!v||!s)return;
@@ -3253,11 +3147,7 @@ function handleURC(line){
     const m=line.match(p.re);
     if(!m)continue;
     if(p.handler==='nocell'){
-      if(lastURCState.nocell!==true){
-        lastURCState.nocell=true;
-        termWrite('⚠ 设备无服务小区（网络掉线）','info');
-        updateNetFromURC(4);
-      }
+      if(lastURCState.nocell!==true){ lastURCState.nocell=true; termWrite('⚠ 设备无服务小区（网络掉线）','info'); updateNetFromURC(4); }
       return true;
     }
     if(p.handler==='creg'||p.handler==='creg5g'){
@@ -3276,8 +3166,6 @@ function handleURC(line){
   }
   return false;
 }
-
-/* ★ BUG-11：网络类型更新加节流 */
 let _renderThrottleTimer = null;
 function setNetworkType(type,subText){
   state.networkType=type;
@@ -3291,7 +3179,6 @@ function setNetworkType(type,subText){
     _renderThrottleTimer = setTimeout(() => renderRightPanel(), 200);
   }
 }
-
 async function detectNetworkType(){
   termWrite('探测网络类型...','info');
   await sleep(300);
@@ -3308,8 +3195,6 @@ async function detectNetworkType(){
   if(/\+ZBAND:/i.test(zbnd)){ setNetworkType('4g','ZBAND 响应'); return; }
   setNetworkType('unknown','无法判断');
 }
-
-/* IP 查询 */
 async function queryPublicIPv4(){
   const apis=[{url:'https://api.ipify.org?format=json',type:'json',key:'ip'},{url:'https://ipv4.icanhazip.com',type:'text'}];
   for(const api of apis){
@@ -3395,8 +3280,6 @@ async function refreshIPs(){
     }
   }
 }
-
-/* 运营商 / QCI */
 function mapOperatorName(name){
   if(!name)return null;
   const n=name.toUpperCase();
@@ -3448,8 +3331,6 @@ function calcLuhnCheckDigit(f14){
   for(let i=0;i<14;i++){ let d=parseInt(f14[i]); if(i%2===1){ d*=2; if(d>9)d-=9; } sum+=d; }
   return(10-(sum%10))%10;
 }
-
-/* 敏感信息 */
 function setInfo(id,value,cls='ok'){ const el=document.getElementById(id); if(el){ el.textContent=value; el.className='info-value '+cls; } }
 function maskValue(val,type){
   if(!val||val==='—'||val.length<6)return val;
@@ -3472,8 +3353,6 @@ function setInfoValue(type,rawValue){
   el.textContent=state.sensitiveHidden[type]?maskValue(rawValue,type):rawValue;
   if(type==='ICCID'){ const c=guessCarrierFromICCID(rawValue); el.title=c?`ICCID: ${rawValue}\n推测: ${c}`:`ICCID: ${rawValue}`; }
 }
-
-/* ★ BUG-04 修复：不再处理 ADB 按钮（由 setADBOpenButtonsState 统一管理） */
 function updateConnectionUI(connected,text){
   state.connected=connected;
   document.getElementById('statusBadge').classList.toggle('connected',connected);
@@ -3494,7 +3373,6 @@ function enableQuickButtons(enable){
     const e=document.getElementById(id);
     if(e && !e.hasAttribute('data-always-enabled')) e.disabled = !enable;
   });
-  // ADB 按钮不再此处控制，仅确保非 on 时可点击
   const adbOn = document.getElementById('btnUniversalADBOn');
   if(adbOn && state.usbAdbState !== 'on') adbOn.disabled = false;
   const adbOff = document.getElementById('btnUniversalADBOff');
@@ -3531,16 +3409,13 @@ function resetDeviceInfo(){
   if(i){ i.className='icon unknown'; i.textContent='?'; }
   if(v){ v.className='value unknown'; v.textContent='未连接'; }
   if(s){ s.textContent='请连接设备'; }
-  // 重置统计
   state.statTx=0; state.statRx=0; state.statErr=0;
   updateSessionStats();
-  // 清空图表
   const chartWrap = document.getElementById('signalChartWrap');
   if(chartWrap) chartWrap.style.display='none';
   renderCapList();
   updateAdbPathHint();
 }
-
 function setCloudStatus(status){
   const el=document.getElementById('cloudStatus'), text=document.getElementById('cloudStatusText');
   el.className='cloud-status '+status;
@@ -3549,7 +3424,7 @@ function setCloudStatus(status){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
-/* v0.9.33 测速                                                                 */
+/* v0.9.34 测速                                                                 */
 /* ═══════════════════════════════════════════════════════════════════════════ */
 async function toggleSpeedtest(){
   if(state.speedtesting){ if(state.speedtestAbort)state.speedtestAbort.abort(); return; }
@@ -3712,12 +3587,8 @@ async function startSpeedtest(){
       toast(`多维测速：疑似限速特征（${speedIssues.length} 项）`,'error',5000);
     }
   }catch(err){
-    if (err.name === 'AbortError' || err.message === 'user abort'){
-      document.getElementById('speedStatus').textContent = '已停止测速';
-    }else{
-      document.getElementById('speedStatus').textContent = '测速失败: ' + err.message;
-      toast('测速失败: ' + err.message,'error');
-    }
+    if (err.name === 'AbortError' || err.message === 'user abort'){ document.getElementById('speedStatus').textContent = '已停止测速'; }
+    else{ document.getElementById('speedStatus').textContent = '测速失败: ' + err.message; toast('测速失败: ' + err.message,'error'); }
   }finally{
     clearInterval(watchdog);
     state.speedtesting = false;
@@ -3727,8 +3598,6 @@ async function startSpeedtest(){
     btn.style.background = '';
   }
 }
-
-/* 云控检测 */
 async function checkCloudControl(){
   if(!state.connected){ toast('请先连接设备','error'); return; }
   termWrite('检测云控状态...','info');
@@ -3737,30 +3606,19 @@ async function checkCloudControl(){
   try{
     await sleep(800);
     const dl=document.getElementById('speedDownload').textContent;
-    if(dl.includes('—')){
-      setCloudStatus('unknown');
-      toast('建议先测速','info');
-      setCloudOpStatus('check','unknown','未测速，无法判断');
-    }else{
+    if(dl.includes('—')){ setCloudStatus('unknown'); toast('建议先测速','info'); setCloudOpStatus('check','unknown','未测速，无法判断'); }
+    else{
       const dlVal=parseFloat(dl);
       const upVal=parseFloat(document.getElementById('speedUpload').textContent);
       const latVal=parseFloat(document.getElementById('speedLatency').textContent);
       const lossVal=parseFloat(document.getElementById('speedLoss').textContent);
-      const speedIssues=[];
-      const qualityNotes=[];
+      const speedIssues=[]; const qualityNotes=[];
       if(!isNaN(dlVal)&&dlVal<5)speedIssues.push(`下载 ${dlVal.toFixed(1)} Mbps`);
       if(!isNaN(upVal)&&upVal<1)speedIssues.push(`上传 ${upVal.toFixed(2)} Mbps`);
       if(!isNaN(latVal)&&latVal>500)qualityNotes.push(`延迟 ${latVal.toFixed(0)} ms`);
       if(!isNaN(lossVal)&&lossVal>5)qualityNotes.push(`丢包 ${lossVal.toFixed(0)}%`);
-      if(speedIssues.length===0){
-        setCloudStatus('safe');
-        toast('未检测到明显限速特征','success');
-        setCloudOpStatus('check','safe','多维测速均正常');
-      }else{
-        setCloudStatus('risk');
-        toast('疑似存在限速特征','error',5000);
-        setCloudOpStatus('check','risk',`疑似限速：${speedIssues.join('，')}`);
-      }
+      if(speedIssues.length===0){ setCloudStatus('safe'); toast('未检测到明显限速特征','success'); setCloudOpStatus('check','safe','多维测速均正常'); }
+      else{ setCloudStatus('risk'); toast('疑似存在限速特征','error',5000); setCloudOpStatus('check','risk',`疑似限速：${speedIssues.join('，')}`); }
     }
   }catch(err){ termWrite(`云控检测出错: ${err.message}`,'err'); setCloudOpStatus('check','error',`检测出错`); }
   document.getElementById('btnCheckCloud').disabled=false;
@@ -3779,8 +3637,6 @@ function copyAdbScript(){
   const txt=`adb shell mount -o remount -o rw /\nadb shell rm -f /sbin/yiming_1028.sh\nadb shell rm -rf /etc/cloud/\nadb shell reboot`;
   navigator.clipboard.writeText(txt).then(()=>toast('ADB 脚本已复制','success')).catch(()=>toast('复制失败','error'));
 }
-
-/* ★ BUG-03 修复：AT*PROD 失败中止后续 */
 async function sendCloudCmd(){
   if(!state.connected){ toast('请先连接设备','error'); return; }
   if(!confirm('⚠ 去云控会短暂中断数据业务，是否继续？')) return;
@@ -3790,8 +3646,7 @@ async function sendCloudCmd(){
   setCloudStatus('cleaning');
   setCloudOpStatus('remove',null,`正在执行 ${cmds.length} 条指令...`);
   termWrite(`═══ 执行去云控指令 ═══`,'info');
-  let okCount=0, failCount=0;
-  let aborted = false;
+  let okCount=0, failCount=0; let aborted = false;
   for(let i=0;i<cmds.length;i++){
     termWrite(`[${i+1}/${cmds.length}] ${cmds[i]}`,'cmd');
     state.responseBuffer='';
@@ -3802,40 +3657,22 @@ async function sendCloudCmd(){
       if(isValidResponse(state.responseBuffer)) okCount++;
       else if(isErrorResponse(state.responseBuffer)){
         failCount++;
-        // 第一条工厂模式失败，中止整个流程
-        if(i === 0 && /PROD|FACTORY/i.test(cmds[i])){
-          termWrite('✗ 工厂模式指令失败，中止后续操作（避免非工厂模式下发无效指令）','err');
-          aborted = true;
-          break;
-        }
+        if(i === 0 && /PROD|FACTORY/i.test(cmds[i])){ termWrite('✗ 工厂模式指令失败，中止后续操作','err'); aborted = true; break; }
       }
     }catch(err){ failCount++; break; }
     await sleep(600);
   }
   const total=cmds.length;
-  if(aborted){
-    setCloudOpStatus('remove','failed',`工厂模式进入失败，已中止（未重启）`);
-    setCloudStatus('unknown');
-    toast('工厂模式进入失败，已中止（设备未重启）','error',6000);
-  }else if(failCount===0&&okCount>0){
-    setCloudOpStatus('remove','sent',`AT 层指令 ${okCount}/${total} 全部返回 OK`);
-    setCloudStatus('unknown');
-    toast('AT 层去云控完成','success',5000);
-  }else if(okCount>0){
-    setCloudOpStatus('remove','partial',`${okCount}/${total} 成功，${failCount} 条失败`);
-    setCloudStatus('unknown');
-    toast(`部分成功（${okCount}/${total}）`,'info',5000);
-  }else{
-    setCloudOpStatus('remove','failed','AT 层全部失败');
-    setCloudStatus('risk');
-    toast('AT 层去云控全部失败','error',6000);
-  }
+  if(aborted){ setCloudOpStatus('remove','failed',`工厂模式进入失败，已中止（未重启）`); setCloudStatus('unknown'); toast('工厂模式进入失败，已中止（设备未重启）','error',6000); }
+  else if(failCount===0&&okCount>0){ setCloudOpStatus('remove','sent',`AT 层指令 ${okCount}/${total} 全部返回 OK`); setCloudStatus('unknown'); toast('AT 层去云控完成','success',5000); }
+  else if(okCount>0){ setCloudOpStatus('remove','partial',`${okCount}/${total} 成功，${failCount} 条失败`); setCloudStatus('unknown'); toast(`部分成功（${okCount}/${total}）`,'info',5000); }
+  else{ setCloudOpStatus('remove','failed','AT 层全部失败'); setCloudStatus('risk'); toast('AT 层去云控全部失败','error',6000); }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
-/* v0.9.33 写入流程                                                             */
+/* v0.9.34 写入模块（含法律确认改造）                                             */
 /* ═══════════════════════════════════════════════════════════════════════════ */
-let writeContext={type:null,value:'',isDelete:false};
+let writeContext={type:null,value:'',isDelete:false,pendingCmd:''};
 function getWriteCandidate(baseType){
   const override=document.getElementById('writeSyntaxOverride');
   const chipId=(override&&override.value!=='auto')?override.value:state.detectedChipId;
@@ -3847,15 +3684,19 @@ function openWriteModal(type){
   if(state.writeInProgress){ toast('写入正在进行中','error'); return; }
   writeContext.type=type;
   writeContext.isDelete=type.startsWith('DEL_');
+  writeContext.pendingCmd='';
   const baseType=type.replace('DEL_','');
-  const titles={ IMEI:writeContext.isDelete?'删除 IMEI':'改写 IMEI', SN:writeContext.isDelete?'删除 SN':'改写 SN' };
+
+  const titles={ IMEI:writeContext.isDelete?'删除设备标识 (IMEI)':'写入设备标识 (IMEI)',
+                 SN:writeContext.isDelete?'删除设备标识 (SN)':'写入设备标识 (SN)' };
   document.getElementById('writeModalTitle').textContent=titles[baseType];
   document.getElementById('writeModal').classList.add('show');
   document.getElementById('stepIndicator').style.display='none';
   document.getElementById('writeProgressArea').style.display='none';
   document.getElementById('writeFormArea').style.display='block';
-  document.getElementById('writeConfirmBtn').textContent=writeContext.isDelete?'确认删除':'确认写入';
-  document.getElementById('writeConfirmBtn').className=writeContext.isDelete?'btn btn-danger':'btn btn-primary';
+  document.getElementById('writeConfirmBtn').textContent='继续';
+  document.getElementById('writeConfirmBtn').className='btn btn-primary';
+  document.getElementById('writeConfirmBtn').disabled=true;
   document.getElementById('writeConfirmBtn').onclick=confirmWrite;
   document.getElementById('writeCancelBtn').textContent='取消';
   document.getElementById('writeCancelBtn').disabled=false;
@@ -3875,25 +3716,32 @@ function openWriteModal(type){
   overrideSel.value='auto';
   overrideSel.onchange=()=>{ updateWriteSyntaxPreview(baseType); updateCmdPreviewForWrite(baseType); };
 
+  const legalCheck = document.getElementById('writeLegalCheck');
+  legalCheck.checked = false;
+
   if(writeContext.isDelete){
     const wFallback = baseType==='IMEI' ? 'AT*MRD_IMEI=W,0,01JAN1970,000000000000000' : 'AT*MRD_SN=W,0,01JAN1970,000000000000000';
     document.getElementById('writeFormArea').innerHTML=`
       <div class="warn-box" style="background:rgba(231,76,60,.08);border-color:rgba(231,76,60,.3);color:#ff8a80;">
-        <b>⚠ 危险操作：</b>此操作将清空设备上的 ${baseType} 值。<br>
+        <b>⚠️ 危险操作：</b>此操作将清空设备上的 ${baseType} 值。<br>
         <b>双候选：</b>先尝试 D 参数（部分固件不支持），失败后自动回退为 W 写入 15 个 0。
       </div>
       <div class="info-box">首选发送：<code>AT*MRD_${baseType}=D</code><br>回退发送：<code>${wFallback}</code></div>
+      <div style="margin-top:8px;display:flex;align-items:center;gap:6px;font-size:11.5px;">
+        <input type="checkbox" id="writeAutoReboot" style="cursor:pointer;" disabled>
+        <label for="writeAutoReboot" style="margin:0;cursor:pointer;color:var(--text-dim);">操作成功后自动重启设备</label>
+      </div>
     `;
   }else{
     document.getElementById('writeFormArea').innerHTML=`
       <div class="form-group">
-        <label id="writeLabel">${baseType==='IMEI'?'新 IMEI（15 位数字）':'新 SN（8~20 位字母数字）'}</label>
-        <input class="form-control" id="writeInput" autocomplete="off">
+        <label id="writeLabel">${baseType==='IMEI'?'待写入值（15 位数字）':'待写入值（8~20 位字母数字）'}</label>
+        <input class="form-control" id="writeInput" autocomplete="off" disabled>
         <div class="validation-hint" id="validationHint"></div>
       </div>
       <div class="info-box" id="cmdPreviewBox">即将发送：<code id="cmdPreview">—</code></div>
       <div style="margin-top:8px;display:flex;align-items:center;gap:6px;font-size:11.5px;">
-        <input type="checkbox" id="writeAutoReboot" style="cursor:pointer;">
+        <input type="checkbox" id="writeAutoReboot" style="cursor:pointer;" disabled>
         <label for="writeAutoReboot" style="margin:0;cursor:pointer;color:var(--text-dim);">写入成功后自动重启设备</label>
       </div>
     `;
@@ -3904,6 +3752,21 @@ function openWriteModal(type){
     input.addEventListener('input',()=>{ validateWriteInput(baseType); updateCmdPreviewForWrite(baseType); });
     validateWriteInput(baseType);
   }
+
+  legalCheck.onchange = () => {
+    const unlocked = legalCheck.checked;
+    const input = document.getElementById('writeInput');
+    const autoCb = document.getElementById('writeAutoReboot');
+    const confirmBtn = document.getElementById('writeConfirmBtn');
+    if(input) input.disabled = !unlocked;
+    if(autoCb) autoCb.disabled = !unlocked;
+    if(confirmBtn) confirmBtn.disabled = !unlocked;
+    if(unlocked){
+      const inp = document.getElementById('writeInput');
+      if(inp) inp.focus();
+    }
+  };
+
   updateWriteSyntaxPreview(baseType);
   updateCmdPreviewForWrite(baseType);
 }
@@ -3945,7 +3808,11 @@ function validateWriteInput(baseType){
 function closeWriteModal(){
   if(state.writeInProgress){ toast('写入进行中','error'); return; }
   document.getElementById('writeModal').classList.remove('show');
-  writeContext = {type:null,value:'',isDelete:false};
+  document.getElementById('secondConfirmModal').classList.remove('show');
+  writeContext = {type:null,value:'',isDelete:false,pendingCmd:''};
+}
+function closeSecondConfirm(){
+  document.getElementById('secondConfirmModal').classList.remove('show');
 }
 async function readbackVerify(baseType,expectedValue){
   let cmd;
@@ -3964,15 +3831,64 @@ async function readbackVerify(baseType,expectedValue){
   if(!actual)return { verified:null, reason:'无法解析读回值' };
   return { verified: actual===expectedValue, actual };
 }
+
+/* ★ 第一步：法律确认 + 打开二次确认模态框 */
 async function confirmWrite(){
   if(state.writeInProgress)return;
+  const legalCheck = document.getElementById('writeLegalCheck');
+  if(!legalCheck || !legalCheck.checked){ toast('请先勾选法律确认', 'error', 3000); return; }
   const baseType=writeContext.type.replace('DEL_','');
   const isDelete=writeContext.isDelete;
-  if(!isDelete&&!validateWriteInput(baseType)){ toast('请检查输入内容','error'); return; }
-  const val=isDelete?'':document.getElementById('writeInput').value.trim();
+  if(!isDelete && !validateWriteInput(baseType)){ toast('请检查输入内容','error'); return; }
   const cand=getWriteCandidate(baseType);
   if(!cand&&!isDelete){ toast('无可用写入语法','error',5000); return; }
+
+  let fullCmd = '';
+  if(isDelete){
+    fullCmd = `AT*MRD_${baseType}=D\n(失败回退) AT*MRD_${baseType}=W,0,01JAN1970,000000000000000`;
+  } else {
+    const val = document.getElementById('writeInput').value.trim();
+    fullCmd = cand.write(val);
+    if(cand.enter) fullCmd = `${cand.enter}\n${fullCmd}`;
+    if(cand.exit) fullCmd = `${fullCmd}\n${cand.exit}`;
+  }
+  writeContext.pendingCmd = fullCmd;
+
+  document.getElementById('secondConfirmCmd').textContent = fullCmd;
+  document.getElementById('secondConfirmInput').value = '';
+  document.getElementById('secondConfirmHint').textContent = '输入完全一致后，"执行写入"按钮才会激活';
+  document.getElementById('secondConfirmHint').className = 'validation-hint info';
+  document.getElementById('secondConfirmExecBtn').disabled = true;
+  document.getElementById('secondConfirmModal').classList.add('show');
+
+  const scInput = document.getElementById('secondConfirmInput');
+  scInput.oninput = () => {
+    const required = '我已知晓风险，承担全部责任';
+    const matched = scInput.value.trim() === required;
+    document.getElementById('secondConfirmExecBtn').disabled = !matched;
+    if(matched){
+      document.getElementById('secondConfirmHint').textContent = '✓ 确认文字匹配，可执行写入';
+      document.getElementById('secondConfirmHint').className = 'validation-hint ok';
+    } else {
+      document.getElementById('secondConfirmHint').textContent = '输入完全一致后，"执行写入"按钮才会激活';
+      document.getElementById('secondConfirmHint').className = 'validation-hint info';
+    }
+  };
+  setTimeout(() => scInput.focus(), 200);
+}
+
+/* ★ 第二步：实际写入流程（原 confirmWrite 主体） */
+async function executeWrite(){
+  if(state.writeInProgress) return;
+  closeSecondConfirm();
+
+  const baseType=writeContext.type.replace('DEL_','');
+  const isDelete=writeContext.isDelete;
+  const val = isDelete ? '' : document.getElementById('writeInput').value.trim();
+  const cand = getWriteCandidate(baseType);
   const autoReboot = !isDelete && document.getElementById('writeAutoReboot') && document.getElementById('writeAutoReboot').checked;
+
+  recordWriteOperation(baseType, cand, isDelete);
 
   state.writeInProgress=true;
   document.getElementById('writeFormArea').style.display='none';
@@ -4001,9 +3917,8 @@ async function confirmWrite(){
       await writeToPort(dCmd);
       const t0=Date.now();
       while(Date.now()-t0<2500){ await sleep(80); if(/\b(OK|ERROR)\s*$/im.test(state.responseBuffer.trim())){ await sleep(150); break; } }
-      if(isValidResponse(state.responseBuffer)){
-        setStep(2,'done'); appendLog('✓ D 参数删除成功','success');
-      } else {
+      if(isValidResponse(state.responseBuffer)){ setStep(2,'done'); appendLog('✓ D 参数删除成功','success'); }
+      else {
         appendLog(`✗ D 参数失败，回退 W`,'warn');
         termWrite(wFallback,'cmd');
         state.responseBuffer='';
@@ -4036,9 +3951,7 @@ async function confirmWrite(){
       setStep(4,'active'); appendLog(`▶ 步骤 4/4：读回验证...`,'warn');
       await sleep(500);
       const verify=await readbackVerify(baseType,val);
-
       const isZxicIMEI = (state.detectedChipId === 'zxic' && baseType === 'IMEI');
-
       if(verify.verified===true){
         setStep(4,'done'); appendLog(`✓ 读回值：${verify.actual}`,'success');
         setWriteStatus(`${baseType} 修改成功（读回：${verify.actual}）`,'on');
@@ -4058,8 +3971,6 @@ async function confirmWrite(){
         setWriteStatus(`${baseType} 已发送，但无法验证`,'warn');
         toast(`${baseType} 已发送，无法自动验证`,'info',5000);
       }
-
-      // ★ 缺失-02：写入成功后自动重启
       if(autoReboot){
         appendLog('🔄 用户选择了写入后自动重启，3 秒后执行...','warn');
         await sleep(3000);
@@ -4087,16 +3998,51 @@ async function confirmWrite(){
 function closeWriteModalForce(){
   state.writeInProgress=false;
   document.getElementById('writeModal').classList.remove('show');
+  document.getElementById('secondConfirmModal').classList.remove('show');
   document.getElementById('writeConfirmBtn').onclick=confirmWrite;
   document.getElementById('writeCancelBtn').style.display='';
   document.getElementById('writeConfirmBtn').disabled=false;
   document.getElementById('writeCancelBtn').disabled=false;
-  writeContext = {type:null,value:'',isDelete:false};
+  writeContext = {type:null,value:'',isDelete:false,pendingCmd:''};
 }
+function recordWriteOperation(baseType, cand, isDelete){
+  try{
+    const log = JSON.parse(localStorage.getItem('atmaster_write_log') || '[]');
+    log.push({
+      ts: new Date().toISOString(),
+      type: baseType,
+      action: isDelete ? 'delete' : 'write',
+      syntax: cand ? cand.label : 'unknown',
+      chipId: state.detectedChipId || 'unknown',
+    });
+    if(log.length > 50) log.splice(0, log.length - 50);
+    localStorage.setItem('atmaster_write_log', JSON.stringify(log));
+  }catch(e){}
+}
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* v0.9.34 事件绑定                                                             */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+document.getElementById('baudRate').addEventListener('change',function(){
+  document.getElementById('customBaudGroup').style.display=this.value==='custom'?'block':'none';
+});
+document.getElementById('writeModal').addEventListener('click',e=>{ if(e.target.id==='writeModal'&&!state.writeInProgress)closeWriteModal(); });
+document.getElementById('secondConfirmModal').addEventListener('click',e=>{ if(e.target.id==='secondConfirmModal')closeSecondConfirm(); });
+document.getElementById('cloudModal').addEventListener('click',e=>{ if(e.target.id==='cloudModal')closeCloudModal(); });
+document.getElementById('customBandModal').addEventListener('click',e=>{ if(e.target.id==='customBandModal')closeCustomBandModal(); });
 
-/* ═══════════════════════════════════════════════════════════════════════════ */
-/* v0.9.33 初始化                                                               */
-/* ═══════════════════════════════════════════════════════════════════════════ */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    if(document.getElementById('secondConfirmModal').classList.contains('show')){ closeSecondConfirm(); return; }
+    if(document.getElementById('writeModal').classList.contains('show')&&!state.writeInProgress)closeWriteModal();
+    if(document.getElementById('cloudModal').classList.contains('show'))closeCloudModal();
+    if(document.getElementById('customBandModal').classList.contains('show'))closeCustomBandModal();
+    if(document.getElementById('webAdbRebootModal').classList.contains('show'))document.getElementById('webAdbRebootModal').classList.remove('show');
+  }
+});
+
+window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close(); }catch(e){} });
+
+/* 芯片手动选择 */
 (function initChipDropdown(){
   const sel=document.getElementById('chipPlatform');
   FALLBACK_CHIPS.forEach(c=>{
@@ -4111,7 +4057,7 @@ function closeWriteModalForce(){
       renderRightPanel();
       updateAdbPathHint();
       if(state.connected){
-        await runFullProbe(true);
+        await runFullProbe(false);
         await queryAllByCapabilities();
         renderRightPanel();
       }
@@ -4119,6 +4065,7 @@ function closeWriteModalForce(){
   });
 })();
 
+/* 测速源初始化 */
 (function initSpeedtestSources(){
   const sel=document.getElementById('speedtestSource');
   if(!sel)return;
@@ -4153,26 +4100,11 @@ function closeWriteModalForce(){
   });
 })();
 
-document.getElementById('baudRate').addEventListener('change',function(){
-  document.getElementById('customBaudGroup').style.display=this.value==='custom'?'block':'none';
-});
-document.getElementById('writeModal').addEventListener('click',e=>{ if(e.target.id==='writeModal'&&!state.writeInProgress)closeWriteModal(); });
-document.getElementById('cloudModal').addEventListener('click',e=>{ if(e.target.id==='cloudModal')closeCloudModal(); });
-document.getElementById('customBandModal').addEventListener('click',e=>{ if(e.target.id==='customBandModal')closeCustomBandModal(); });
-document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){
-    if(document.getElementById('writeModal').classList.contains('show')&&!state.writeInProgress)closeWriteModal();
-    if(document.getElementById('cloudModal').classList.contains('show'))closeCloudModal();
-    if(document.getElementById('customBandModal').classList.contains('show'))closeCustomBandModal();
-    if(document.getElementById('webAdbRebootModal').classList.contains('show'))document.getElementById('webAdbRebootModal').classList.remove('show');
-  }
-});
-window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close(); }catch(e){} });
 /* ═══════════════════════════════════════════════════════════════════════════ */
-/* v0.9.33 应用初始化                                                          */
+/* v0.9.34 应用初始化                                                          */
 /* ═══════════════════════════════════════════════════════════════════════════ */
 (function initFinal(){
-  /* 加载上次波特率 */
+  /* 加载上次波特率/流控 */
   const lb = localStorage.getItem('atmaster_last_baud');
   if(lb){ const s = document.getElementById('baudRate'); if([...s.options].some(o => o.value === lb)) s.value = lb; }
   const lf = localStorage.getItem('atmaster_last_flow');
@@ -4247,9 +4179,9 @@ window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close
   updateAdbPathHint();
 
   /* 启动横幅 */
-  termWrite('随身WiFi调试助手 v0.9.33','info');
-  termWrite('v0.9.33：全面修复 15 个 BUG（ASR 工厂模式强制退出/重启确认/去云控中断保护/按钮状态/AT注入防护/网关默认值/死代码清理/缓存逻辑/渲染节流/AT探测频率/日志时间戳/IMEI误匹配等）','info');
-  termWrite('新增 6 项功能：①中止探测按钮 ②IMEI写入后自动重启 ③USB意外断开自动重连 ④会话流量统计 ⑤AT指令历史(↑/↓) ⑥信号历史曲线','info');
+  termWrite('随身WiFi调试助手 v0.9.34','info');
+  termWrite('v0.9.34：写入功能法律合规改造（双层确认 + 强制勾选 + 手动输入确认词 + 操作留痕 + 中性化文案）','info');
+  termWrite('⚠️ 本工具仅供技术研究使用。修改 IMEI/SN 在部分司法管辖区可能违法，请自行确认合法性并承担全部责任。','warn');
 
   /* Web Serial 初始化 */
   if(!('serial' in navigator)){
@@ -4261,7 +4193,6 @@ window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close
       if(state.port && e.target === state.port && state.connected && !state.resetting){
         termWrite('⚠ USB 设备已物理断开','err');
         toast('USB 设备已断开','info',3000);
-        // 记录是否应该自动重连
         const shouldReconnect = state.autoReconnect;
         disconnect().then(() => {
           if(shouldReconnect){
@@ -4272,7 +4203,7 @@ window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close
       }
     });
 
-    /* 也监听 connect 事件（USB 重新插入） */
+    /* USB 重新插入事件 */
     navigator.serial.addEventListener('connect', (e) => {
       if(!state.connected && state.autoReconnect && state.lastPortInfo){
         termWrite('🔌 检测到 USB 重新插入，尝试自动连接...','info');
