@@ -168,7 +168,6 @@
   .cap-label{color:var(--text-dim);flex-shrink:0;min-width:60px}
   .cap-cmd{font-family:var(--font-mono);font-size:10px;color:#a8c0ff;background:rgba(79,124,255,.08);padding:2px 6px;border-radius:3px;flex:1;text-align:right;word-break:break-all}
   .cap-miss{color:#4a5060;font-size:10.5px;font-style:italic}
-  .cap-ro{color:var(--warn);font-size:10.5px;font-style:italic}
   .cap-source{font-size:9px;color:var(--text-dim);padding:0 4px;border-radius:3px;background:rgba(139,145,165,.12);flex-shrink:0}
   .cap-source.cache{color:var(--success);background:rgba(46,204,113,.12)}
   .cap-source.fresh{color:var(--warn);background:rgba(243,156,18,.12)}
@@ -231,7 +230,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v0.9.31</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v0.9.32</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -296,7 +295,7 @@
           <button class="btn btn-danger" id="btnDisconnectUSB" onclick="disconnect()" disabled>断开连接</button>
         </div>
         <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          <b style="color:var(--accent);">v0.9.31：</b>修复中兴微扩展 CSQ（153→RSRP）、ZRSSI 优先、日志时间戳、IMEI 提示优化。
+          <b style="color:var(--accent);">v0.9.32：</b>探测改为只读（不再自动写入）；写入操作仅按需执行；大幅缓解断网。
         </div>
       </div>
       <div id="panelWiFi" class="hidden">
@@ -338,7 +337,7 @@
     </div>
     <div class="terminal-wrap">
       <div class="terminal" id="terminal">
-        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.31。</span></div>
+        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.32。</span></div>
       </div>
       <div class="terminal-input-row">
         <span class="prompt">AT&gt;</span>
@@ -438,7 +437,7 @@
         <h4>
           <span>设备能力</span>
           <div style="display:flex;gap:6px;">
-            <button class="quick-btn" id="btnProbeCaps" onclick="runFullProbe()" style="width:auto;padding:3px 8px;font-size:10px;">🔄 重测</button>
+            <button class="quick-btn" id="btnProbeCaps" onclick="runFullProbe(true)" style="width:auto;padding:3px 8px;font-size:10px;">🔄 重测</button>
             <button class="quick-btn" id="btnClearCaps" onclick="clearCapCache()" style="width:auto;padding:3px 8px;font-size:10px;">🗑️ 清缓存</button>
           </div>
         </h4>
@@ -632,7 +631,7 @@
         </select>
       </div>
     </div>
-    <div class="warn-box" id="writeWarnBox"><b>⚠ 操作风险：</b><br>• 改写 IMEI 在部分国家/地区属违法行为<br>• 操作不当可能导致设备无法入网<br>• 写入前请确保设备已进入工厂模式</div>
+    <div class="warn-box" id="writeWarnBox"><b>⚠ 操作风险：</b><br>• 改写 IMEI 在部分国家/地区属违法行为<br>• 操作不当可能导致设备无法入网<br>• 写入前请确保设备已进入工厂模式<br>• <span style="color:#ff8a80;">此操作会短暂断网，请确认后继续</span></div>
     <div class="step-indicator" id="stepIndicator" style="display:none;">
       <div class="step" id="step1"></div><div class="step" id="step2"></div><div class="step" id="step3"></div><div class="step" id="step4"></div>
     </div>
@@ -956,6 +955,7 @@ const SECTION_VISIBILITY = {
   'advanced-chip':{ preConnect:true, postConnect:true },
 };
 
+/* v0.9.32：能力探测 - 全部只读，不再有 writeTest */
 const CAPABILITY_PROBES = {
   iccid:{ label:'ICCID', candidates:[
     { cmd:'AT+ZICCID?', pattern:/\+ZICCID:\s*"?([0-9A-Za-z]{18,22})"?/i },
@@ -995,12 +995,13 @@ const CAPABILITY_PROBES = {
     { cmd:'AT+SWSIM?',       pattern:/\+SWSIM:\s*(\d+)/i,       decoder:'swsim' },
     { cmd:'AT+QDSIM?',       pattern:/\+QDSIM:\s*(\d+)/i,       decoder:'qdsim' },
   ]},
+  /* v0.9.32：去除所有 writeTest，仅保留查询 */
   bandLock:{ label:'频段锁定', candidates:[
-    { cmd:'AT+ZLTEBAND?', pattern:/\+ZLTEBAND:/i, writeTest:'AT+ZLTEBAND=0,0,0,0,0,0,0,0,0', platform:'zxic' },
-    { cmd:'AT+QNWPREFCFG="lte_band"', pattern:/\+QNWPREFCFG:/i, writeTest:'AT+QNWPREFCFG="lte_band",0', platform:'qualcomm' },
-    { cmd:'AT*BAND?', pattern:/[*]BAND:/i, writeTest:'AT*BAND=0', platform:'asr' },
+    { cmd:'AT+ZLTEBAND?', pattern:/\+ZLTEBAND:/i, platform:'zxic' },
+    { cmd:'AT+QNWPREFCFG="lte_band"', pattern:/\+QNWPREFCFG:/i, platform:'qualcomm' },
+    { cmd:'AT*BAND?', pattern:/[*]BAND:/i, platform:'asr' },
+    { cmd:'AT+SPLBAND?', pattern:/\+SPLBAND:/i, platform:'unisoc' },
   ]},
-  /* v0.9.31：信号探测顺序调整，ZRSSI 优先，ZCSQ 次之 */
   csq:{ label:'信号', candidates:[
     { cmd:'AT+ZRSSI?',   pattern:/\+ZRSSI[:\s]*(-?\d+)/i, decoder:'zrssi' },
     { cmd:'AT+ZRSSI',    pattern:/\+ZRSSI[:\s]*(-?\d+)/i, decoder:'zrssi' },
@@ -1067,7 +1068,6 @@ const EXPECTED_SLOT_VALUE = {
   qdsim:{ external:1, internal:0 },
 };
 
-/* v0.9.31：中兴微 AT 候选扩展（Web 失败后的备选） */
 const ADB_AT_CANDIDATES = {
   zxic: {
     enable: [
@@ -1237,7 +1237,6 @@ const DECODERS = {
   swsim:(v)=>{ const n=parseInt(v); return n===0?'外置卡':n===1?'内置卡':'模式 '+n; },
   qdsim:(v)=>{ const n=parseInt(v); return n===0?'内置卡(SIM1)':n===1?'外置卡(SIM2)':'模式 '+n; },
   cgeqosrdp:(v1,v2)=>'QCI '+parseInt(v2),
-  /* v0.9.31 新增解码器 */
   zrssi:(s)=>{
     const v = parseInt(s);
     if(isNaN(v) || v >= 0 || v <= -140) return null;
@@ -1411,7 +1410,6 @@ function termWrite(text,type='resp'){
   state.logBuffer.push(`[${type.toUpperCase()}] ${text}`);
 }
 function clearTerminal(){ document.getElementById('terminal').innerHTML=''; state.logBuffer=[]; termWrite('终端已清空。','info'); }
-/* v0.9.31：导出文件名带可读时间戳 */
 function exportLog(){
   if(!state.logBuffer.length){ toast('暂无日志','info'); return; }
   const blob=new Blob([state.logBuffer.join('\n')],{type:'text/plain'});
@@ -1603,7 +1601,6 @@ async function autoScanAdbDevices(){
   }catch(e){}
 }
 
-/* v0.9.31：Web 优先，AT 备选 */
 async function universalEnableADB(){
   if(state.usbAdbState === 'on'){
     toast('ADB 已开启，无需重复操作','info',3000);
@@ -2189,6 +2186,8 @@ async function resetDevice(silent){
 
 async function sendBandCmd(cmd, cfg){
   if(!state.connected){ toast('请先连接','error'); return; }
+  // v0.9.32：写入操作前提示
+  if(!confirm(`⚠ 写入操作会短暂中断数据业务，是否继续？\n\n即将发送: ${cmd}`)) return;
   setBandStatus(`准备发送：${cmd}`,'warn');
   try{
     if(cfg && cfg.preCmd){
@@ -2315,7 +2314,7 @@ async function connectUSB(){
       if(!ok){ termWrite('❌ AT 通信失败','err'); toast('设备未响应','error',8000); return; }
       try{
         await wakeAndFingerprint();
-        await runFullProbe();
+        await runFullProbe(false); /* v0.9.32：自动探测，不提示 */
         await queryAllByCapabilities();
         await detectNetworkType();
         renderRightPanel();
@@ -2486,17 +2485,22 @@ function clearCapCache(){
   toast('已清除本设备的探测缓存','info');
   state.capabilities=null; renderCapList();
 }
-async function runFullProbe(){
+
+/* v0.9.32：runFullProbe 改为只读探测，无写入；userTriggered 参数控制是否提示 */
+async function runFullProbe(userTriggered){
   if(!state.connected){ toast('请先连接设备','error'); return; }
   if(state.probing){ toast('探测正在进行中','info'); return; }
+  if(userTriggered){
+    if(!confirm('⚠ 重测会短暂中断数据业务（约 3~5 秒），是否继续？')) return;
+  }
   if(!state.deviceFingerprint){ await wakeAndFingerprint(); if(!state.deviceFingerprint){ toast('无法获取设备指纹','error'); return; } }
   if(state.capabilitySource!=='fresh'){
     const cached=loadCapCache(state.deviceFingerprint);
     if(cached){ state.capabilities=cached; state.capabilitySource='cache'; termWrite(`═══ 从缓存加载能力 ═══`,'info'); renderCapList(); updateCmdHintsFromCaps(); renderRightPanel(); return; }
   }
   state.probing=true; state.capabilitySource='fresh';
-  termWrite('═══ 开始能力探测 ═══','info');
-  toast('正在探测设备能力...','info',3000);
+  termWrite('═══ 开始能力探测（仅只读） ═══','info');
+  if(userTriggered) toast('正在探测设备能力...','info',3000);
   const caps={};
   const probeKeys=['iccid','imei','sn','ver','band','supportBand','cardSlot','bandLock','csq','cops','mac','mac2','qci'];
   const total=probeKeys.length;
@@ -2517,19 +2521,20 @@ async function runFullProbe(){
       else{ value=m[1]||'ok'; }
       if(value===null||value===undefined)continue;
       if(Array.isArray(value)&&value.length===0)continue;
-      /* v0.9.31：信号无效值过滤（无信号/未注册时继续尝试下一候选） */
       if(key === 'csq' && typeof value === 'string'){
         if(value.includes('无信号')) continue;
       }
       if(cand.validator&&!cand.validator(value))continue;
-      let writable=null;
-      if(cand.writeTest){
-        const wResp=await queryAndCollect(cand.writeTest,1200);
-        writable=isValidResponse(wResp);
-        await sleep(300);
-      }
-      caps[key]={ cmd:cand.cmd, pattern:cand.pattern.source, flags:cand.pattern.flags, decoder:cand.decoder||null, sample:Array.isArray(value)?value.join(' '):value, platform:cand.platform||null, writable:writable, source:'fresh' };
-      termWrite(`  ✓ ${def.label}: ${cand.cmd} → ${Array.isArray(value)?value.join(','):value}${writable===false?' (只读)':''}`,'resp');
+      caps[key]={ 
+        cmd:cand.cmd, 
+        pattern:cand.pattern.source, 
+        flags:cand.pattern.flags, 
+        decoder:cand.decoder||null, 
+        sample:Array.isArray(value)?value.join(' '):value, 
+        platform:cand.platform||null, 
+        source:'fresh' 
+      };
+      termWrite(`  ✓ ${def.label}: ${cand.cmd} → ${Array.isArray(value)?value.join(','):value}`,'resp');
       break;
     }
     if(!caps[key])termWrite(`  ✗ ${def.label}: 无可用指令`,'info');
@@ -2538,7 +2543,7 @@ async function runFullProbe(){
   saveCapCache(state.deviceFingerprint,caps);
   const hit=Object.keys(caps).length;
   termWrite(`═══ 探测完成：${hit}/${total} ═══`,'info');
-  toast(`探测完成：${hit}/${total} 项可用`,'success',4000);
+  if(userTriggered) toast(`探测完成：${hit}/${total} 项可用`,'success',4000);
   renderCapList(); updateCmdHintsFromCaps(); applyUnsupportedMarkers(); renderRightPanel();
 }
 function applyUnsupportedMarkers(){
@@ -2560,12 +2565,10 @@ async function queryAllByCapabilities(){
   termWrite('设备信息读取完成。','info');
 }
 
-/* v0.9.31：CSQ 边界检查 + 扩展值处理 */
 function setSignalFromCsq(csq){
   const el = document.getElementById('infoCSQ');
   if(!el) return;
   if(csq === 99){ el.textContent = '无信号'; el.className = 'info-value empty'; el.title = 'CSQ 99 = 无信号'; return; }
-  // 中兴微扩展值：> 31 时按 RSRP 换算
   if(csq > 31){
     const rsrp = csq - 229;
     if(rsrp >= -140 && rsrp <= -40){
@@ -2585,7 +2588,6 @@ function setSignalFromCsq(csq){
     }
     return;
   }
-  // 标准 0~31
   const lvl = csq >= 20 ? '强' : csq >= 15 ? '良' : csq >= 10 ? '中' : '弱';
   el.textContent = `CSQ ${csq} · ${lvl}`;
   el.className = 'info-value ' + (csq >= 15 ? 'ok' : csq >= 10 ? 'warn' : 'err');
@@ -2633,17 +2635,14 @@ function parseAnyResponse(line){
     if(m)setInfo('infoMAC',m[1].replace(/:/g,'').toUpperCase(),'ok');
   }
 
-  /* v0.9.31：信号强度多格式解析 */
   let sigDone = false;
 
-  /* 1) ZRSSI：直接 RSRP */
   m = line.match(/\+ZRSSI[:\s]*(-?\d+)/i);
   if(m){
     const v = parseInt(m[1]);
     if(!isNaN(v) && v < 0 && v > -140){ setSignalFromRssi(v); sigDone = true; }
   }
 
-  /* 2) 中兴微三参数 CSQ：153,99,17 */
   if(!sigDone){
     m = line.match(/\+CSQ[:\s]*(\d+),(\d+),(\d+)/i);
     if(m){
@@ -2655,30 +2654,18 @@ function parseAnyResponse(line){
         el.title = `原始: +CSQ: ${m[1]},${m[2]},${m[3]}\nRSSI=99 表示无信号`;
         sigDone = true;
       } else if(raw > 31){
-        // 中兴微扩展值：按 RSRP 换算
         const rsrp = raw - 229;
         if(rsrp >= -140 && rsrp <= -40){
-          let lvl, cls;
-          if(rsrp >= -85){ lvl='极佳'; cls='ok'; }
-          else if(rsrp >= -95){ lvl='良好'; cls='ok'; }
-          else if(rsrp >= -105){ lvl='中等'; cls='warn'; }
-          else if(rsrp >= -115){ lvl='较差'; cls='warn'; }
-          else { lvl='极差'; cls='err'; }
-          const el = document.getElementById('infoCSQ');
-          el.textContent = `RSRP ${rsrp} dBm (${lvl})`;
-          el.className = 'info-value ' + cls;
-          el.title = `原始: +CSQ: ${m[1]},${m[2]},${m[3]}\n${m[1]} - 229 = ${rsrp} dBm`;
+          setSignalFromRssi(rsrp);
           sigDone = true;
         }
       } else {
-        // 标准 0~31
         setSignalFromCsq(raw);
         sigDone = true;
       }
     }
   }
 
-  /* 3) ZCSQ */
   if(!sigDone){
     m = line.match(/\+ZCSQ[:\s]*(\d+),(\d+),(\d+)/i);
     if(m){
@@ -2701,7 +2688,6 @@ function parseAnyResponse(line){
     }
   }
 
-  /* 4) ZSRVCELL */
   if(!sigDone){
     m = line.match(/\+ZSRVCELL[:\s]*([^\r\n]+)/i);
     if(m){
@@ -2725,18 +2711,15 @@ function parseAnyResponse(line){
     }
   }
 
-  /* 5) 双参数 CSQ（标准 0~31） */
   if(!sigDone){
     m = line.match(/\+CSQ[:\s]*(\d+),(\d+)/);
     if(m){ setSignalFromCsq(parseInt(m[1])); sigDone = true; }
   }
 
-  /* 6) CESQ */
   if(!sigDone){
     m=line.match(/\+CESQ[:\s]*([\d,\s]+)/i);
     if(m){
       const p=m[1].split(',').map(x=>parseInt(x.trim())).filter(n=>!isNaN(n));
-      const el=document.getElementById('infoCSQ');
       const rsrqIdx = p[4], rsrpIdx = p[5];
       let rsrpDbm = null;
       if(rsrpIdx!==undefined && rsrpIdx>=0 && rsrpIdx<=97) rsrpDbm = -140 + rsrpIdx;
@@ -2810,7 +2793,6 @@ function parseAnyResponse(line){
     }
   }
 
-  // 处理 *BANDIND 格式（ASR 当前频段）
   m=line.match(/[*+]BANDIND[:\s]*([\d,\s]+)/i);
   if(m){
     const el=document.getElementById('infoBand');
@@ -2900,6 +2882,7 @@ function updateLockBandDisplay(){
   }
 }
 
+/* v0.9.32：能力列表不再显示(只读)标记 */
 function renderCapList(){
   const el=document.getElementById('capList'), footer=document.getElementById('capFooter');
   if(!el)return;
@@ -2912,13 +2895,12 @@ function renderCapList(){
     if(cap){
       const srcCls=cap.source==='cache'?'cache':'fresh';
       const srcTxt=cap.source==='cache'?'缓存':'实测';
-      const roMark=(cap.writable===false)?' <span class="cap-ro">(只读)</span>':'';
-      html+=`<div class="cap-item"><span class="cap-label">${def.label}</span><span class="cap-cmd">${cap.cmd}${roMark}</span><span class="cap-source ${srcCls}">${srcTxt}</span></div>`;
+      html+=`<div class="cap-item"><span class="cap-label">${def.label}</span><span class="cap-cmd">${cap.cmd}</span><span class="cap-source ${srcCls}">${srcTxt}</span></div>`;
     }else{ html+=`<div class="cap-item"><span class="cap-label">${def.label}</span><span class="cap-miss">不支持</span></div>`; }
   }
   el.innerHTML=html;
   const hit=Object.keys(state.capabilities).length;
-  footer.textContent=`指纹: ${state.deviceFingerprint||'—'} · 命中 ${hit}/${keys.length}`;
+  footer.textContent=`指纹: ${state.deviceFingerprint||'—'} · 命中 ${hit}/${keys.length} · 只读探测`;
 }
 function updateCmdHintsFromCaps(){ updateSimHints(); }
 
@@ -2927,6 +2909,7 @@ async function switchCard(direction){
   const candidates=SIM_SWITCH_CANDIDATES[direction];
   if(!candidates||!candidates.length){ toast('无可用切卡指令','error'); return; }
   const targetLabel=direction==='external'?'外置卡':'内置卡';
+  if(!confirm(`⚠ 切卡会短暂中断数据业务，是否继续？\n\n目标：${targetLabel}`)) return;
   setSimStatus('switching',`正在切到${targetLabel}...`);
   termWrite(`═══ 切卡：${targetLabel} ═══`,'info');
   let success=null;
@@ -3000,6 +2983,7 @@ async function queryCurrentCard(){
 
 async function openFactoryMode(){
   if(!state.connected){ toast('请先连接','error'); return; }
+  if(!confirm('⚠ 进入工厂模式会短暂中断数据业务，是否继续？')) return;
   termWrite('═══ 进入工厂模式 ═══','info');
   setFactoryStatus('trying','尝试中...');
   let hit=null;
@@ -3288,7 +3272,6 @@ function resetDeviceInfo(){
   setBandStatus('—','off');
   const wsl=document.getElementById('writeStatusLine'); if(wsl)wsl.style.display='none';
   state.adbStatusCmd=null; state.simSwitchCmd=null; state.factoryCmd=null;
-  /* v0.9.31：重置网络类型 UI */
   const i=document.getElementById('netTypeIcon'), v=document.getElementById('netTypeValue'), s=document.getElementById('netTypeSub');
   if(i){ i.className='icon unknown'; i.textContent='?'; }
   if(v){ v.className='value unknown'; v.textContent='未连接'; }
@@ -3532,6 +3515,7 @@ function copyAdbScript(){
 }
 async function sendCloudCmd(){
   if(!state.connected){ toast('请先连接设备','error'); return; }
+  if(!confirm('⚠ 去云控会短暂中断数据业务，是否继续？')) return;
   const chipId=state.detectedChipId||'zxic';
   const cmds=CLOUD_REMOVE_AT[chipId]||CLOUD_REMOVE_AT.zxic;
   closeCloudModal();
@@ -3763,7 +3747,6 @@ async function confirmWrite(){
       await sleep(500);
       const verify=await readbackVerify(baseType,val);
 
-      // v0.9.31：中兴微 IMEI 特殊处理
       const isZxicIMEI = (state.detectedChipId === 'zxic' && baseType === 'IMEI');
 
       if(verify.verified===true){
@@ -3827,7 +3810,7 @@ function closeWriteModalForce(){
       renderRightPanel();
       updateAdbPathHint();
       if(state.connected){
-        await runFullProbe();
+        await runFullProbe(false);
         await queryAllByCapabilities();
         renderRightPanel();
       }
@@ -3940,8 +3923,8 @@ window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close
   }
   updateAdbPathHint();
 
-  termWrite('随身WiFi调试助手 v0.9.31','info');
-  termWrite('v0.9.31：修复中兴微信号质量显示（CSQ 153 → RSRP -76）；ZRSSI 优先；日志带时间戳；IMEI 提示优化','info');
+  termWrite('随身WiFi调试助手 v0.9.32','info');
+  termWrite('v0.9.32：探测改为只读（不再自动写入频段配置）；写入操作（锁频/改串/切卡/ADB/去云控）均加确认提示；大幅缓解断网','info');
 
   if(!('serial' in navigator)){
     termWrite('⚠ 当前浏览器不支持 Web Serial API，请使用 Chrome / Edge 89+ 桌面版。','err');
