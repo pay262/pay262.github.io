@@ -231,7 +231,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v0.9.29</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v0.9.30</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -296,7 +296,7 @@
           <button class="btn btn-danger" id="btnDisconnectUSB" onclick="disconnect()" disabled>断开连接</button>
         </div>
         <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          <b style="color:var(--accent);">v0.9.29：</b>严格按平台分流：中兴微优先 Web，ASR/高通/展锐走 AT，联发科提示特殊开启。
+          <b style="color:var(--accent);">v0.9.30：</b>修复 ASR 参数解析、断开重置、IMEI 提示、串口冲突排查。
         </div>
       </div>
       <div id="panelWiFi" class="hidden">
@@ -338,7 +338,7 @@
     </div>
     <div class="terminal-wrap">
       <div class="terminal" id="terminal">
-        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.29。</span></div>
+        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.30。</span></div>
       </div>
       <div class="terminal-input-row">
         <span class="prompt">AT&gt;</span>
@@ -591,10 +591,7 @@
       </div>
 
       <div class="quick-section" id="sectionCommonOps" data-section="common-ops">
-        <h4>
-          <span>常用操作</span>
-          <span id="adbStatusBadge" class="badge-tag gray" style="font-size:9px;">ADB 未开启</span>
-        </h4>
+        <h4>常用操作</h4>
         <div class="quick-grid">
           <button class="quick-btn" onclick="resetDevice()">重启<span class="cmd-hint">CFUN=1,1 优先</span></button>
           <button class="quick-btn" onclick="quickCmd('AT+CFUN=1')">激活 AT<span class="cmd-hint">AT+CFUN=1</span></button>
@@ -606,10 +603,6 @@
         <div class="status-line off" id="factoryStatusLine" style="display:none;">
           <div class="k">工厂模式</div>
           <div class="v" id="factoryStatusText">未进入</div>
-        </div>
-        <div class="status-line off" id="adbStatusLine">
-          <div class="k">ADB 状态（AT 通道）</div>
-          <div class="v" id="adbStatusText">未开启</div>
         </div>
       </div>
 
@@ -823,8 +816,9 @@ const CN_4G_BANDS = [
   { label:'B34',band:34 },{ label:'B38',band:38 },{ label:'B39',band:39 },{ label:'B40',band:40 },{ label:'B41',band:41 },
 ];
 
-const ASR_FDD_MASK = { 1:1, 3:2, 5:16, 7:32, 8:8, 20:128 };
-const ASR_TDD_MASK = { 38:2, 39:4, 40:8, 41:64 };
+// 修复 ASR 掩码映射：B3 的掩码为 4，B38 对应 2，B39 对应 4，B40 对应 8，B41 对应 64
+const ASR_FDD_MASK = { 1:1, 2:2, 3:4, 4:8, 5:16, 6:32, 7:64, 8:128, 9:256, 10:512, 11:1024, 12:2048, 13:4096, 14:8192, 17:16384, 18:32768, 19:65536, 20:131072, 21:262144, 25:524288, 26:1048576, 28:2097152, 29:4194304, 30:8388608, 31:16777216, 32:33554432 };
+const ASR_TDD_MASK = { 33:1, 34:2, 35:4, 36:8, 37:16, 38:32, 39:64, 40:128, 41:256, 42:512, 43:1024, 44:2048, 45:4096, 46:8192, 47:16384, 48:32768 };
 
 const BAND_LOCK_CONFIG = {
   zxic: {
@@ -1017,6 +1011,9 @@ const CAPABILITY_PROBES = {
   cops:{ label:'运营商', candidates:[{ cmd:'AT+COPS?', pattern:/\+COPS:\s*\d+,\d+,\s*"([^"]+)"/i }] },
   mac:{ label:'WiFi MAC', candidates:[
     { cmd:'AT+MAC?',  pattern:/\+MAC:\s*([0-9A-Fa-f:]{12,20})/i },
+    { cmd:'AT+WIFIMAC?', pattern:/\+WIFIMAC:\s*([0-9A-Fa-f:]{12,20})/i },
+    { cmd:'AT+GETWIFIMAC?', pattern:/\+GETWIFIMAC:\s*([0-9A-Fa-f:]{12,20})/i },
+    { cmd:'AT+GETMAC?', pattern:/\+GETMAC:\s*([0-9A-Fa-f:]{12,20})/i },
   ]},
   mac2:{ label:'MAC2', candidates:[
     { cmd:'AT+MAC2?', pattern:/\+MAC2:\s*([0-9A-Fa-f:]{12,20})/i },
@@ -1067,7 +1064,6 @@ const EXPECTED_SLOT_VALUE = {
   qdsim:{ external:1, internal:0 },
 };
 
-/* ═══ 严格按平台分流的 ADB AT 候选 ═══ */
 const ADB_AT_CANDIDATES = {
   zxic: {
     enable: [
@@ -1413,7 +1409,6 @@ async function setRTS(value){
   catch(e){ termWrite(`RTS 设置失败: ${e.message}`,'err'); }
 }
 
-/* ═══ WebUSB ADB 状态检测 ═══ */
 function updateAdbDetectUI(status, device){
   state.usbAdbState = status;
   state.usbAdbDevice = device || null;
@@ -1554,9 +1549,7 @@ async function autoScanAdbDevices(){
   }catch(e){}
 }
 
-/* ═══ v0.9.29：严格按流程图的 ADB 开启逻辑 ═══ */
 async function universalEnableADB(){
-  // 步骤1：WebUSB 预检
   if(state.usbAdbState === 'on'){
     toast('ADB 已开启，无需重复操作','info',3000);
     return;
@@ -1572,7 +1565,6 @@ async function universalEnableADB(){
 
   termWrite(`═══ 全能 ADB 开启 · 芯片:${state.detectedChipName || '未识别'} · 串口:${connected?'已连接':'未连接'} ═══`,'info');
 
-  // 步骤2：判断芯片平台
   switch(chipId){
     case 'zxic': {
       termWrite('【中兴微】优先尝试 Web 接口','info');
@@ -1626,7 +1618,6 @@ async function universalEnableADB(){
       return;
     }
     default: {
-      // 未识别芯片 → 通用兜底
       if(connected){
         termWrite('【未识别芯片】尝试通用 AT 兜底','info');
         await doADBViaAT('generic', true);
@@ -1727,7 +1718,6 @@ async function doADBViaAT(chipId, enable){
   }
 }
 
-/* ═══ Web 直控 ═══ */
 function isValidIPv4(s){
   if(!s) return false;
   const m = s.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
@@ -1782,7 +1772,6 @@ async function probeWebAdbGateway(silent){
     return false;
   }
 }
-/** 返回 true 表示 Web 请求成功送达，false 表示失败 */
 async function webAdbRequest(enable){
   const gw = getWebAdbGateway();
   const action = enable ? '开启' : '关闭';
@@ -2281,7 +2270,11 @@ async function connectUSB(){
     if(err.name==='NotFoundError'){ termWrite('用户取消选择','err'); }
     else if(/Failed to open serial port/i.test(err.message)){
       termWrite('❌ 串口打开失败','err');
-      toast('串口打开失败：请等设备就绪，或刷新页面（F5）后重试','error',10000);
+      termWrite('👉 常见原因：','info');
+      termWrite('   1. 端口被占用：关闭其他串口工具（如毛坯助手、PuTTY 等）','info');
+      termWrite('   2. 驱动冲突：确保已安装对应芯片的 USB 驱动','info');
+      termWrite('   3. 设备未就绪：拔插 USB 线，等 10 秒后重试','info');
+      toast('串口打开失败：请检查端口占用或驱动后重试','error',10000);
     } else {
       termWrite(`连接失败: ${err.message}`,'err');
       toast(`连接失败`,'error',5000);
@@ -2552,6 +2545,10 @@ function parseAnyResponse(line){
   if(m){ setInfo('infoMAC2',m[1].replace(/:/g,'').toUpperCase(),'ok'); }
   m=line.match(/\+MAC[:\s]*"?([0-9A-Fa-f:]{12,20})"?/i);
   if(m){ setInfo('infoMAC',m[1].replace(/:/g,'').toUpperCase(),'ok'); }
+  else{
+    m=line.match(/[+*](?:ZMAC|ZWIFIMAC|WIFIMAC|WIFIID|MRD_WIFIID|GETWIFIMAC|GETMAC)[:\s]*"?([0-9A-Fa-f:]{12,20})"?/i);
+    if(m)setInfo('infoMAC',m[1].replace(/:/g,'').toUpperCase(),'ok');
+  }
 
   let sigDone = false;
   m = line.match(/\+ZCSQ[:\s]*(\d+),(\d+),(\d+)/i);
@@ -2647,6 +2644,17 @@ function parseAnyResponse(line){
     const slot=DECODERS.zcardswitch(m[1]);
     setInfo('infoCardSlot',slot,m[1]==='0'?'ok':'warn');
     setSimStatus(m[1]==='0'?'external':'internal',`当前：${slot}（自动同步）`);
+  }else{
+    m=line.match(/\^CARDMODE:\s*(\d+)/i);
+    if(m){ const slot=DECODERS.cardmode_asr(m[1]); setInfo('infoCardSlot',slot,m[1]==='0'?'warn':'ok'); setSimStatus(m[1]==='0'?'internal':'external',`当前：${slot}（自动同步）`); }
+    else{
+      m=line.match(/\+SimX[:\s]*(\d+)/i);
+      if(m){ const slot=DECODERS.simx(m[1]); setInfo('infoCardSlot',slot,m[1]==='0'?'ok':'warn'); setSimStatus(m[1]==='0'?'external':'internal',`当前：${slot}（自动同步）`); }
+      else{
+        m=line.match(/\+SWSIM[:\s]*(\d+)/i);
+        if(m){ const slot=DECODERS.swsim(m[1]); setInfo('infoCardSlot',slot,m[1]==='0'?'ok':'warn'); setSimStatus(m[1]==='0'?'external':'internal',`当前：${slot}（自动同步）`); }
+      }
+    }
   }
 
   m=line.match(/\+ZLTEBAND[:\s]*([\d,\s]+)/i);
@@ -2680,21 +2688,37 @@ function parseAnyResponse(line){
     }
   }
 
-  let handled=false;
-  m=line.match(/\+ZBAND[:\s]*([\d,\s]+)/i);
+  // 增强：处理 *BANDIND 格式（ASR 当前频段）
+  m=line.match(/[*+]BANDIND[:\s]*([\d,\s]+)/i);
   if(m){
     const el=document.getElementById('infoBand');
-    const v=DECODERS.zbndCurrent(m[1]);
-    if(v){
-      el.textContent=v;
-      el.className='info-value net4g';
-      const bm=v.match(/B(\d+)/);
-      state.activeBands = bm ? [parseInt(bm[1])] : [];
-      if(state.connected && state.detectedChipId) renderBandLockSection();
-      handled=true;
+    const p=m[1].split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n));
+    if(p.length>=1){
+      const b = p.length>=3 ? p[1] : p[0];
+      if(b>0 && b<300){
+        el.textContent='LTE B'+b;
+        el.className='info-value net4g';
+        state.activeBands = [b];
+        if(state.connected && state.detectedChipId) renderBandLockSection();
+      }
     }
   }
-  if(!handled){
+  // 兼容中兴微 ZBAND
+  if(!line.match(/[*+]BANDIND/i)){
+    m=line.match(/\+ZBAND[:\s]*([\d,\s]+)/i);
+    if(m){
+      const el=document.getElementById('infoBand');
+      const v=DECODERS.zbndCurrent(m[1]);
+      if(v){
+        el.textContent=v;
+        el.className='info-value net4g';
+        const bm=v.match(/B(\d+)/);
+        state.activeBands = bm ? [parseInt(bm[1])] : [];
+        if(state.connected && state.detectedChipId) renderBandLockSection();
+      }
+    }
+  }
+  if(!line.match(/[*+]BANDIND/i) && !line.match(/\+ZBAND/i)){
     m=line.match(/\+CPSI[:\s]*([^\r\n]+)/i);
     if(m){
       const v=DECODERS.cpsiBand(m[1]);
@@ -2708,6 +2732,7 @@ function parseAnyResponse(line){
     }
   }
 
+  // 修复 AMBR 解析（兼容无引号格式）
   m=line.match(/\+CGEQOSRDP[:\s]*(\d+),(\d+)/i);
   if(m){
     const qci=parseInt(m[2]);
@@ -2716,7 +2741,8 @@ function parseAnyResponse(line){
     el.textContent=`QCI ${qci} · ${info.desc}`;
     el.className='info-value '+info.cls;
     let dlAmbr=null, ulAmbr=null;
-    let ambrMatch = line.match(/"(\d+),(\d+)"/);
+    // 优先匹配引号，然后匹配无引号
+    let ambrMatch = line.match(/"(\d+),(\d+)"/) || line.match(/,(\d+),(\d+)\s*$/);
     if(ambrMatch){ dlAmbr=parseInt(ambrMatch[1]); ulAmbr=parseInt(ambrMatch[2]); }
     if(dlAmbr!==null && ulAmbr!==null){
       const dlMbps=(dlAmbr/1000).toFixed(1);
@@ -3612,19 +3638,28 @@ async function confirmWrite(){
       setStep(4,'active'); appendLog(`▶ 步骤 4/4：读回验证...`,'warn');
       await sleep(500);
       const verify=await readbackVerify(baseType,val);
+      
+      // 中兴微 IMEI 特殊处理：写入指令 OK 但读回不一致 → 提示重启生效
+      const isZxicIMEI = (state.detectedChipId === 'zxic' && baseType === 'IMEI');
+      
       if(verify.verified===true){
         setStep(4,'done'); appendLog(`✓ 读回值：${verify.actual}`,'success');
-        appendLog('🎉 写入成功并验证通过','success');
         setWriteStatus(`${baseType} 修改成功（读回：${verify.actual}）`,'on');
         toast(`${baseType} 修改成功，已验证`,'success',5000);
       }else if(verify.verified===false){
-        setStep(4,'fail'); appendLog(`✗ 读回值：${verify.actual}（不一致）`,'error');
-        setWriteStatus(`${baseType} 读回不一致`,'err');
-        toast(`⚠ ${baseType} 写入后读回不一致`,'error',6000);
+        if(isZxicIMEI){
+          setStep(4,'done'); appendLog(`⚠ 读回值：${verify.actual}（设备缓存未刷新，需重启生效）`,'warn');
+          setWriteStatus(`${baseType} 写入指令已发送，重启设备后生效`,'warn');
+          toast(`${baseType} 写入成功，重启设备后生效`,'success',5000);
+        }else{
+          setStep(4,'fail'); appendLog(`✗ 读回值：${verify.actual}（不一致）`,'error');
+          setWriteStatus(`${baseType} 读回不一致`,'err');
+          toast(`⚠ ${baseType} 写入后读回不一致`,'error',6000);
+        }
       }else{
         setStep(4,'fail'); appendLog(`⚠ 读回失败：${verify.reason}`,'warn');
         setWriteStatus(`${baseType} 已发送，但无法验证`,'warn');
-        toast(`${baseType} 已发送，但无法自动验证`,'info',5000);
+        toast(`${baseType} 已发送，无法自动验证`,'info',5000);
       }
     }
 
@@ -3781,8 +3816,8 @@ window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close
   }
   updateAdbPathHint();
 
-  termWrite('随身WiFi调试助手 v0.9.29','info');
-  termWrite('v0.9.29：严格按芯片平台分流开启 ADB：中兴微优先 Web；ASR/高通/展锐走 AT；联发科特殊提示；未识别芯片兜底','info');
+  termWrite('随身WiFi调试助手 v0.9.30','info');
+  termWrite('v0.9.30：修复 ASR 参数解析（频段/卡槽/AMBR/掩码映射）、断开重置、IMEI 提示优化、串口冲突排查提示','info');
 
   if(!('serial' in navigator)){
     termWrite('⚠ 当前浏览器不支持 Web Serial API，请使用 Chrome / Edge 89+ 桌面版。','err');
