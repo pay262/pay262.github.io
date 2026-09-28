@@ -251,7 +251,7 @@
         <div class="form-group">
           <label>波特率 Baud Rate</label>
           <select class="form-control" id="baudRate">
-            <option value="921600">921600（紫光展锐5G常用）</option>
+            <option value="921600">921600</option>
             <option value="460800">460800</option>
             <option value="230400">230400</option>
             <option value="115200" selected>115200</option>
@@ -2233,7 +2233,7 @@ async function sendCustomBandCmd(){
 }
 
 async function connectUSB(){
-  if(!('serial' in navigator)){ toast('浏览器不支持 Web Serial','error',5000); return; }
+  if(!('serial' in navigator)){ toast('浏览器不支持','error',5000); return; }
   try{
     if(state.port || state.reader || state.readLoopActive){
       termWrite('检测到旧串口句柄残留，正在清理...','info');
@@ -3820,7 +3820,7 @@ window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close
   termWrite('v0.9.30：修复 ASR 参数解析（频段/卡槽/AMBR/掩码映射）、断开重置、IMEI 提示优化、串口冲突排查提示','info');
 
   if(!('serial' in navigator)){
-    termWrite('⚠ 当前浏览器不支持 Web Serial API，请使用 Chrome / Edge 89+ 桌面版。','err');
+    termWrite('⚠ 当前浏览器不支持 API，请使用 Chrome / Edge 89+ 桌面版。','err');
   }else{
     navigator.serial.addEventListener('disconnect',(e)=>{
       if(state.port && e.target===state.port && state.connected && !state.resetting){
@@ -3832,5 +3832,18 @@ window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close
   }
 })();
 </script>
+    <!-- Baidu tongji -->
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?303d71a5758f114ed93b434a6ef45058";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
+    <script>LA.init({id:"3GBQy07pYlIVc3g8",ck:"3GBQy07pYlIVc3g8",autoTrack:true})
+    </script>
 </body>
 </html>
