@@ -190,6 +190,24 @@
   .cloud-layer pre{background:rgba(0,0,0,.35);padding:8px;border-radius:5px;font-family:var(--font-mono);font-size:10px;color:#a8c0ff;overflow-x:auto;line-height:1.6;margin-top:5px}
   .copy-btn{margin-top:6px;padding:4px 10px;font-size:10.5px;background:rgba(79,124,255,.15);border:1px solid rgba(79,124,255,.3);color:#7fa4ff;border-radius:5px;cursor:pointer;font-family:inherit}
   .copy-btn:hover{background:rgba(79,124,255,.25)}
+  /* ═══ v0.9.23 重启弹窗样式 ═══ */
+  .reboot-modal{width:440px;text-align:center;padding:26px 24px 22px;}
+  .reboot-icon{width:64px;height:64px;margin:0 auto 14px;border-radius:50%;background:linear-gradient(135deg,rgba(79,124,255,.18),rgba(124,92,255,.18));display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 0 24px rgba(79,124,255,.25);animation:rebootSpin 2.4s ease-in-out infinite;}
+  @keyframes rebootSpin{0%,60%{transform:rotate(0)}75%{transform:rotate(180deg)}100%{transform:rotate(360deg)}}
+  .reboot-title{font-size:16px;font-weight:600;margin-bottom:6px;color:var(--text);}
+  .reboot-subtitle{font-size:12px;color:var(--text-dim);margin-bottom:18px;}
+  .reboot-reason{text-align:left;background:rgba(243,156,18,.08);border:1px solid rgba(243,156,18,.3);border-radius:10px;padding:12px 14px;margin-bottom:14px;}
+  .reboot-reason .rt{color:var(--warn);font-weight:600;font-size:12px;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+  .reboot-reason .rc{font-size:11.5px;color:var(--text-dim);line-height:1.75;}
+  .reboot-reason .rc b{color:var(--text);}
+  .reboot-cmds{text-align:left;background:rgba(79,124,255,.06);border:1px solid rgba(79,124,255,.22);border-radius:10px;padding:12px 14px;margin-bottom:8px;}
+  .reboot-cmds .ct{color:#7fa4ff;font-weight:600;font-size:11.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+  .reboot-cmds .cl{font-family:var(--font-mono);font-size:10.5px;line-height:2;color:var(--text-dim);}
+  .reboot-cmds .cl .preferred{color:var(--success);font-weight:700;}
+  .reboot-cmds .cl .num{color:var(--text-dim);display:inline-block;width:18px;}
+  .reboot-note{font-size:10.5px;color:var(--text-dim);text-align:center;margin-top:12px;line-height:1.6;}
+  .reboot-actions{display:flex;gap:10px;margin-top:20px;}
+  .reboot-actions .btn{flex:1;padding:11px;font-size:13px;}
   @media (max-width:1100px){html,body{height:auto!important;overflow:auto!important}body{display:block!important}.main{display:block!important;height:auto!important;overflow:visible!important}.panel{display:block!important;overflow:visible!important}.terminal-wrap{height:420px!important;flex:none!important}}
 </style>
 </head>
@@ -198,7 +216,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v0.9.22</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v0.9.23</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -263,7 +281,7 @@
           <button class="btn btn-danger" id="btnDisconnectUSB" onclick="disconnect()" disabled>断开连接</button>
         </div>
         <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          <b style="color:var(--accent);">v0.9.22：</b>重启后强制清理旧串口句柄；CFUN=1,1 首选整机重启；锁频后自动提示重启。
+          <b style="color:var(--accent);">v0.9.23：</b>修复信号不显示、优化锁定显示、重启弹窗美化。
         </div>
       </div>
       <div id="panelWiFi" class="hidden">
@@ -305,7 +323,7 @@
     </div>
     <div class="terminal-wrap">
       <div class="terminal" id="terminal">
-        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.22。</span></div>
+        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.23。</span></div>
       </div>
       <div class="terminal-input-row">
         <span class="prompt">AT&gt;</span>
@@ -615,6 +633,41 @@ adb shell reboot</pre>
   </div>
 </div>
 
+<!-- ═══ v0.9.23 美化版重启确认弹窗 ═══ -->
+<div class="modal-overlay" id="rebootModal">
+  <div class="modal reboot-modal">
+    <div class="reboot-icon">🔄</div>
+    <div class="reboot-title">锁频配置已写入设备</div>
+    <div class="reboot-subtitle">需要重启设备才会生效</div>
+
+    <div class="reboot-reason">
+      <div class="rt">⚠️ 为什么必须重启？</div>
+      <div class="rc">
+        射频模块目前仍按 <b>旧的频段配置</b> 搜网。<br>
+        虽然新配置已写入 Flash，但 <b>不重启不会加载</b>。<br>
+        <span style="opacity:.7;">重启后设备需重新搜网，约 30~60 秒。</span>
+      </div>
+    </div>
+
+    <div class="reboot-cmds">
+      <div class="ct">📋 自动重启将依次尝试：</div>
+      <div class="cl">
+        <span class="num">①</span><span class="preferred">AT+CFUN=1,1</span> ← 首选 3GPP 整机重启<br>
+        <span class="num">②</span>AT+ZREBOOT<br>
+        <span class="num">③</span>AT+REBOOT<br>
+        <span class="num">④</span>AT+ZRST
+      </div>
+    </div>
+
+    <div class="reboot-note">若自动重启失败，请手动断电重启设备。</div>
+
+    <div class="reboot-actions">
+      <button class="btn btn-outline" id="rebootNoBtn">稍后手动重启</button>
+      <button class="btn btn-primary" id="rebootYesBtn">🔄 立即重启</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
@@ -862,10 +915,17 @@ const CAPABILITY_PROBES = {
     { cmd:'AT*BAND?', pattern:/[*]BAND:/i, writeTest:'AT*BAND=0', platform:'asr' },
     { cmd:'AT+SPLBAND?', pattern:/\+SPLBAND:/i, writeTest:null, platform:'unisoc' },
   ]},
+  // ═══ v0.9.23 修复：扩充中兴微信号探测候选 ═══
   csq:{ label:'信号', candidates:[
-    { cmd:'AT+CESQ',   pattern:/\+CESQ:\s*([\d,\s]+)/i },
-    { cmd:'AT+CSQ',    pattern:/\+CSQ:\s*(\d+)/i },
-    { cmd:'AT+ZCSQ?',  pattern:/\+ZCSQ:\s*(\d+)/i },
+    { cmd:'AT+ZRSSI?',    pattern:/\+ZRSSI[:\s]*(-?\d+)/i },
+    { cmd:'AT+ZRSSI',     pattern:/\+ZRSSI[:\s]*(-?\d+)/i },
+    { cmd:'AT+ZCSQ?',     pattern:/\+ZCSQ[:\s]*(\d+)/i },
+    { cmd:'AT+ZCSQ',      pattern:/\+ZCSQ[:\s]*(\d+)/i },
+    { cmd:'AT+ZCUSTCSQ?', pattern:/\+ZCUSTCSQ[:\s]*(\d+)/i },
+    { cmd:'AT+ZCELLINFO?',pattern:/\+ZCELLINFO[:\s]*([^\r\n]+)/i },
+    { cmd:'AT+CESQ',      pattern:/\+CESQ:\s*([\d,\s]+)/i },
+    { cmd:'AT+CSQ',       pattern:/\+CSQ:\s*(\d+)/i },
+    { cmd:'AT+CSQ?',      pattern:/\+CSQ:\s*(\d+)/i },
   ]},
   cops:{ label:'运营商', candidates:[{ cmd:'AT+COPS?', pattern:/\+COPS:\s*\d+,\d+,\s*"([^"]+)"/i }] },
   mac:{ label:'WiFi MAC', candidates:[
@@ -1109,6 +1169,8 @@ const state = {
   deviceFingerprint:null, capabilities:null, capabilitySource:'fresh', probing:false,
   detectedChipId:null, detectedChipName:null,
   activeBands:[],
+  supportedBands:[],          // ═══ v0.9.23 新增
+  lockMaskRaw:null,           // ═══ v0.9.23 新增
   adbStatus:'unknown', adbStatusCmd:null,
   factoryStatus:'unknown', factoryCmd:null,
   simSwitchStatus:'unknown', simSwitchCmd:null,
@@ -1378,17 +1440,13 @@ function renderBandLockSection(){
 /* ═══ v0.9.22：强制释放旧串口句柄 ═══ */
 async function forceClosePort(){
   termWrite('正在强制释放旧串口句柄...','info');
-  /* 1. 先停止读取循环 */
   state.readLoopActive = false;
-  /* 2. cancel reader */
   if(state.reader){
     try{ await state.reader.cancel(); }catch(e){}
     try{ state.reader.releaseLock(); }catch(e){}
     state.reader = null;
   }
-  /* 3. 等待读循环完全退出 */
   await sleep(500);
-  /* 4. 关闭 port */
   if(state.port){
     try{
       if(state.port.readable || state.port.writable){
@@ -1398,12 +1456,29 @@ async function forceClosePort(){
     state.port = null;
   }
   state.connected = false;
-  /* 5. 再等一下，让浏览器彻底释放 */
   await sleep(300);
   termWrite('✓ 旧串口句柄已释放','resp');
 }
 
-/* ═══ v0.9.21：多候选重启设备（CFUN=1,1 优先） ═══ */
+/* ═══ v0.9.23：美化版重启确认弹窗 ═══ */
+function showRebootConfirm(){
+  return new Promise(resolve=>{
+    const modal = document.getElementById('rebootModal');
+    if(!modal){ resolve(confirm('锁频配置已写入，是否立即重启设备？')); return; }
+    modal.classList.add('show');
+
+    const cleanup = ()=>{
+      modal.classList.remove('show');
+      document.getElementById('rebootYesBtn').onclick = null;
+      document.getElementById('rebootNoBtn').onclick = null;
+      modal.onclick = null;
+    };
+    document.getElementById('rebootYesBtn').onclick = ()=>{ cleanup(); resolve(true); };
+    document.getElementById('rebootNoBtn').onclick  = ()=>{ cleanup(); resolve(false); };
+    modal.onclick = (e)=>{ if(e.target===modal){ cleanup(); resolve(false); } };
+  });
+}
+
 async function resetDevice(silent){
   if(!state.connected){ toast('请先连接','error'); return false; }
   if(state.resetting){ toast('重启正在进行中','info'); return false; }
@@ -1442,14 +1517,12 @@ async function resetDevice(silent){
       }
       if(!silent) toast(`✓ 已通过 ${c.cmd} 重启设备`,'success',5000);
 
-      /* ★ v0.9.22：异步、有序清理串口 */
       setTimeout(async()=>{
         await forceClosePort();
         state.resetting = false;
         updateConnectionUI(false,'设备重启中');
         enableQuickButtons(false);
         renderRightPanel();
-        /* 不清空设备信息，重连时自动刷新 */
         termWrite('⚠ 设备重启中，串口已断开','info');
         if(isCfun){
           termWrite('👉 请等待 30~60 秒，等设备重新枚举 USB 串口后，重新点击"🔌 选择串口并连接"','info');
@@ -1499,14 +1572,8 @@ async function sendBandCmd(cmd, cfg){
 
     setTimeout(async()=>{
       if(!state.connected) return;
-      const doReset = confirm(
-        '✅ 锁频配置已写入设备\n\n' +
-        '⚠️ 重要：必须重启设备才会生效！\n\n' +
-        '不重启的话，射频模块依然按旧配置搜网，锁频配置只是写在了 Flash 里。\n\n' +
-        '重启后设备需重新搜网，约 30~60 秒。\n\n' +
-        '是否立即重启设备？\n' +
-        '（会自动尝试 AT+CFUN=1,1 整机重启，失败后依次尝试其他候选）'
-      );
+      // ═══ v0.9.23：改用美化弹窗 ═══
+      const doReset = await showRebootConfirm();
       if(doReset){
         const ok = await resetDevice(true);
         if(ok){
@@ -1589,7 +1656,6 @@ async function sendCustomBandCmd(){
 async function connectUSB(){
   if(!('serial' in navigator)){ toast('浏览器不支持 Web Serial','error',5000); return; }
   try{
-    /* ★ v0.9.22：先强制释放所有旧句柄 */
     if(state.port || state.reader || state.readLoopActive){
       termWrite('检测到旧串口句柄残留，正在清理...','info');
       await forceClosePort();
@@ -1858,6 +1924,30 @@ async function queryAllByCapabilities(){
   termWrite('设备信息读取完成。','info');
 }
 
+/* ═══ v0.9.23：信号显示辅助函数 ═══ */
+function setSignalFromCsq(csq){
+  const el = document.getElementById('infoCSQ');
+  if(!el) return;
+  if(csq === 99){ el.textContent = '无信号'; el.className = 'info-value empty'; el.title = 'CSQ 99 = 无信号'; return; }
+  const lvl = csq >= 20 ? '强' : csq >= 15 ? '良' : csq >= 10 ? '中' : '弱';
+  el.textContent = `CSQ ${csq} · ${lvl}`;
+  el.className = 'info-value ' + (csq >= 15 ? 'ok' : csq >= 10 ? 'warn' : 'err');
+  el.title = `原始 CSQ 值: ${csq}\n0-9 弱 / 10-14 中 / 15-19 良 / 20-31 强 / 99 无信号`;
+}
+function setSignalFromRssi(dbm){
+  const el = document.getElementById('infoCSQ');
+  if(!el) return;
+  let lvl, cls;
+  if(dbm >= -75){ lvl='极佳'; cls='ok'; }
+  else if(dbm >= -85){ lvl='良好'; cls='ok'; }
+  else if(dbm >= -95){ lvl='中等'; cls='warn'; }
+  else if(dbm >= -105){ lvl='较差'; cls='warn'; }
+  else { lvl='极差'; cls='err'; }
+  el.textContent = `RSSI ${dbm} dBm · ${lvl}`;
+  el.className = 'info-value ' + cls;
+  el.title = `原始 RSSI: ${dbm} dBm`;
+}
+
 function parseAnyResponse(line){
   let m;
   m=line.match(/[+*](?:QCCID|ICCID|CCID|ICID|ZICCID)[:\s]*"?([0-9A-Za-z]{18,22})"?/i);
@@ -1895,12 +1985,26 @@ function parseAnyResponse(line){
     if(m)setInfo('infoMAC',m[1].replace(/:/g,'').toUpperCase(),'ok');
   }
 
-  m=line.match(/\+CSQ[:\s]*(\d+)/);
+  /* ═══ v0.9.23：信号强度多格式解析 ═══ */
+  let sigDone = false;
+  // 1) +ZRSSI: -75（中兴微）
+  m = line.match(/\+ZRSSI[:\s]*(-?\d+)/i);
   if(m){
-    const csq=parseInt(m[1]); const el=document.getElementById('infoCSQ');
-    if(csq===99){ el.textContent='无信号'; el.className='info-value empty'; }
-    else{ let lvl=csq>=20?'强':csq>=15?'良':csq>=10?'中':'弱'; el.textContent=`${csq} (等级 ${lvl})`; el.className='info-value '+(csq>=15?'ok':csq>=10?'warn':'err'); }
-  } else {
+    const v = parseInt(m[1]);
+    if(!isNaN(v) && v < 0 && v > -140){ setSignalFromRssi(v); sigDone = true; }
+  }
+  // 2) +ZCSQ / +ZCUSTCSQ
+  if(!sigDone){
+    m = line.match(/\+ZCUSTCSQ[:\s]*(\d+)/i) || line.match(/\+ZCSQ[:\s]*(\d+)/i);
+    if(m){ setSignalFromCsq(parseInt(m[1])); sigDone = true; }
+  }
+  // 3) +CSQ
+  if(!sigDone){
+    m = line.match(/\+CSQ[:\s]*(\d+)/);
+    if(m){ setSignalFromCsq(parseInt(m[1])); sigDone = true; }
+  }
+  // 4) +CESQ
+  if(!sigDone){
     m=line.match(/\+CESQ[:\s]*([\d,\s]+)/i);
     if(m){
       const p=m[1].split(',').map(x=>parseInt(x.trim())).filter(n=>!isNaN(n));
@@ -1920,7 +2024,7 @@ function parseAnyResponse(line){
         else { lvl='极差'; cls='err'; }
         let txt = `RSRP ${rsrpDbm} dBm`;
         if(rsrqDb !== null) txt += ` · RSRQ ${rsrqDb.toFixed(1)} dB`;
-        txt += ` (${lvl})`;
+        txt += ` · ${lvl}`;
         el.textContent = txt;
         el.className = 'info-value ' + cls;
         el.title = `原始：+CESQ: ${m[1]}\nRSRP 索引 ${rsrpIdx} → ${rsrpDbm} dBm\nRSRQ 索引 ${rsrqIdx} → ${rsrqDb!==null?rsrqDb.toFixed(1)+' dB':'不可测'}`;
@@ -1963,24 +2067,23 @@ function parseAnyResponse(line){
     }
   }
 
+  /* ═══ v0.9.23：锁定配置显示优化 ═══ */
   m=line.match(/\+ZLTEBAND[:\s]*([\d,\s]+)/i);
   if(m){
-    const el=document.getElementById('infoLockBand');
-    if(el){
-      const bands=DECODERS.zband(m[1]);
-      if(bands.length===0){ el.textContent='未锁定（全频段）'; el.className='info-value empty'; }
-      else { el.textContent='锁定 '+bands.map(n=>'B'+n).join(' '); el.className='info-value warn'; }
-      el.title='原始掩码: '+m[1];
-    }
+    state.lockMaskRaw = m[1].trim();
+    updateLockBandDisplay();
   }
   m=line.match(/\+ZLTEAMTBAND[:\s]*([\d,\s]+)/i);
   if(m){
     const el=document.getElementById('infoSupportBand');
+    const bands=DECODERS.zband(m[1]);
+    state.supportedBands = bands;
     if(el){
-      const bands=DECODERS.zband(m[1]);
       if(bands.length){ el.textContent=bands.map(n=>'B'+n).join(' '); el.className='info-value ok'; el.title='支持频段: '+bands.map(n=>'B'+n).join(', '); }
       else{ el.textContent='—'; el.className='info-value empty'; }
     }
+    // 支持频段更新后重新评估锁定显示
+    updateLockBandDisplay();
   }
 
   m=line.match(/^\*BAND[:\s]+([\d,\s]+)\s*$/im);
@@ -2113,6 +2216,39 @@ function parseAnyResponse(line){
       }
     }
   }
+}
+
+/* ═══ v0.9.23：锁定配置显示优化 ═══ */
+function updateLockBandDisplay(){
+  const el = document.getElementById('infoLockBand');
+  if(!el) return;
+  if(!state.lockMaskRaw){ el.textContent = '—'; el.className = 'info-value empty'; return; }
+
+  const bands = DECODERS.zband(state.lockMaskRaw);
+  const sup = state.supportedBands || [];
+  let isUnlocked = false;
+
+  if(bands.length === 0){
+    isUnlocked = true;
+  } else if(sup.length > 0){
+    // 用“支持频段全部在内”来判断是否等同于未锁定
+    isUnlocked = sup.every(b => bands.includes(b));
+  } else {
+    // 没拿到支持频段时，用数量粗略判断（默认掩码通常覆盖 20+ 个）
+    isUnlocked = bands.length >= 20;
+  }
+
+  if(isUnlocked){
+    el.textContent = '未锁定（全频段）';
+    el.className = 'info-value empty';
+  } else {
+    el.textContent = '锁定 ' + bands.map(n=>'B'+n).join(' ');
+    el.className = 'info-value warn';
+  }
+
+  el.title = `原始掩码: ${state.lockMaskRaw}`
+           + (sup.length ? `\n支持频段: ${sup.map(n=>'B'+n).join(' ')}` : '')
+           + `\n解析频段: ${bands.length ? bands.map(n=>'B'+n).join(' ') : '（无）'}`;
 }
 
 function renderCapList(){
@@ -2337,6 +2473,9 @@ async function detectNetworkType(){
   if(/\+COPS:\s*0,\s*2/.test(cops)){ setNetworkType('4g','COPS 已注册'); return; }
   const creg=await queryAndCollect('AT+CEREG?',1200);
   if(/\+CEREG:\s*\d+,\s*[15]/i.test(creg)){ setNetworkType('4g','CEREG 已注册'); return; }
+  // 兜底：能查到频段也认为是 4G
+  const zbnd=await queryAndCollect('AT+ZBAND?',1200);
+  if(/\+ZBAND:/i.test(zbnd)){ setNetworkType('4g','ZBAND 响应'); return; }
   setNetworkType('unknown','无法判断');
 }
 function setNetworkType(type,subText){
@@ -2535,6 +2674,8 @@ function resetDeviceInfo(){
   state.capabilities=null; state.capabilitySource='fresh'; state.deviceFingerprint=null;
   state.detectedChipId=null; state.detectedChipName=null; state.networkType='unknown';
   state.activeBands=[];
+  state.supportedBands=[];      // v0.9.23
+  state.lockMaskRaw=null;       // v0.9.23
   lastURCState = { nocell:false, creg:null, creg5g:null };
   setAdbStatus('unknown','未开启');
   setFactoryStatus('unknown','未进入');
@@ -3220,8 +3361,8 @@ window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close
   setCloudOpStatus(null,null);
   renderRightPanel();
 
-  termWrite('随身WiFi调试助手 v0.9.22 · 重启后强制释放句柄版','info');
-  termWrite('v0.9.22：重启后强制清理旧串口句柄（先cancel reader、等500ms、再close、等300ms）；连接失败时提示刷新页面；CFUN=1,1 整机重启为首选','info');
+  termWrite('随身WiFi调试助手 v0.9.23','info');
+  termWrite('v0.9.23：①修复信号显示（扩充中兴微 AT+ZRSSI/AT+ZCSQ 等候选）②锁定配置智能判断"未锁定"③重启弹窗美化','info');
 
   if(!('serial' in navigator)){
     termWrite('⚠ 当前浏览器不支持 Web Serial API，请使用 Chrome / Edge 89+ 桌面版。','err');
