@@ -231,7 +231,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo">W</div>
-    <h1>随身WiFi调试助手 <span>AT Master v0.9.30</span></h1>
+    <h1>随身WiFi调试助手 <span>AT Master v0.9.31</span></h1>
   </div>
   <div class="status-badge" id="statusBadge">
     <div class="status-dot"></div>
@@ -251,7 +251,7 @@
         <div class="form-group">
           <label>波特率 Baud Rate</label>
           <select class="form-control" id="baudRate">
-            <option value="921600">921600</option>
+            <option value="921600">921600（紫光展锐5G常用）</option>
             <option value="460800">460800</option>
             <option value="230400">230400</option>
             <option value="115200" selected>115200</option>
@@ -296,7 +296,7 @@
           <button class="btn btn-danger" id="btnDisconnectUSB" onclick="disconnect()" disabled>断开连接</button>
         </div>
         <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-          <b style="color:var(--accent);">v0.9.30：</b>修复 ASR 参数解析、断开重置、IMEI 提示、串口冲突排查。
+          <b style="color:var(--accent);">v0.9.31：</b>修复中兴微扩展 CSQ（153→RSRP）、ZRSSI 优先、日志时间戳、IMEI 提示优化。
         </div>
       </div>
       <div id="panelWiFi" class="hidden">
@@ -338,7 +338,7 @@
     </div>
     <div class="terminal-wrap">
       <div class="terminal" id="terminal">
-        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.30。</span></div>
+        <div class="line"><span class="prefix info">●</span><span class="content" style="color:var(--text-dim);">随身WiFi调试助手 v0.9.31。</span></div>
       </div>
       <div class="terminal-input-row">
         <span class="prompt">AT&gt;</span>
@@ -424,7 +424,7 @@
             <option value="192.168.1.1">192.168.1.1</option>
           </datalist>
           <div class="validation-hint info" id="webAdbGatewayHint" style="font-size:10px;margin-bottom:6px;">
-            网关地址，中兴微 AT 失败时自动使用
+            网关地址，中兴微 Web 失败时自动回退 AT
           </div>
         </div>
 
@@ -816,7 +816,6 @@ const CN_4G_BANDS = [
   { label:'B34',band:34 },{ label:'B38',band:38 },{ label:'B39',band:39 },{ label:'B40',band:40 },{ label:'B41',band:41 },
 ];
 
-// 修复 ASR 掩码映射：B3 的掩码为 4，B38 对应 2，B39 对应 4，B40 对应 8，B41 对应 64
 const ASR_FDD_MASK = { 1:1, 2:2, 3:4, 4:8, 5:16, 6:32, 7:64, 8:128, 9:256, 10:512, 11:1024, 12:2048, 13:4096, 14:8192, 17:16384, 18:32768, 19:65536, 20:131072, 21:262144, 25:524288, 26:1048576, 28:2097152, 29:4194304, 30:8388608, 31:16777216, 32:33554432 };
 const ASR_TDD_MASK = { 33:1, 34:2, 35:4, 36:8, 37:16, 38:32, 39:64, 40:128, 41:256, 42:512, 43:1024, 44:2048, 45:4096, 46:8192, 47:16384, 48:32768 };
 
@@ -1001,12 +1000,16 @@ const CAPABILITY_PROBES = {
     { cmd:'AT+QNWPREFCFG="lte_band"', pattern:/\+QNWPREFCFG:/i, writeTest:'AT+QNWPREFCFG="lte_band",0', platform:'qualcomm' },
     { cmd:'AT*BAND?', pattern:/[*]BAND:/i, writeTest:'AT*BAND=0', platform:'asr' },
   ]},
+  /* v0.9.31：信号探测顺序调整，ZRSSI 优先，ZCSQ 次之 */
   csq:{ label:'信号', candidates:[
-    { cmd:'AT+ZCSQ',    pattern:/\+ZCSQ[:\s]*(\d+),(\d+),(\d+)/i, decoder:'zcsq' },
+    { cmd:'AT+ZRSSI?',   pattern:/\+ZRSSI[:\s]*(-?\d+)/i, decoder:'zrssi' },
+    { cmd:'AT+ZRSSI',    pattern:/\+ZRSSI[:\s]*(-?\d+)/i, decoder:'zrssi' },
+    { cmd:'AT+ZCSQ',     pattern:/\+ZCSQ[:\s]*(\d+),(\d+),(\d+)/i, decoder:'zcsq' },
+    { cmd:'AT+ZCSQ=1',   pattern:/\+ZCSQ[:\s]*(\d+),(\d+),(\d+)/i, decoder:'zcsq' },
     { cmd:'AT+ZSRVCELL?', pattern:/\+ZSRVCELL[:\s]*([^\r\n]+)/i, decoder:'genericSignal' },
-    { cmd:'AT+ZRSSI?',   pattern:/\+ZRSSI[:\s]*(-?\d+)/i },
+    { cmd:'AT^HCSQ?',    pattern:/\^HCSQ[:\s]*([^\r\n]+)/i, decoder:'hcsq' },
+    { cmd:'AT+CSQ',      pattern:/\+CSQ[:\s]*(\d+)(?:,(\d+))?(?:,(\d+))?/i, decoder:'zcsq3' },
     { cmd:'AT+CESQ',     pattern:/\+CESQ[:\s]*([\d,\s]+)/i, decoder:'cesqDecode' },
-    { cmd:'AT+CSQ',      pattern:/\+CSQ[:\s]*(\d+)/i },
   ]},
   cops:{ label:'运营商', candidates:[{ cmd:'AT+COPS?', pattern:/\+COPS:\s*\d+,\d+,\s*"([^"]+)"/i }] },
   mac:{ label:'WiFi MAC', candidates:[
@@ -1064,19 +1067,21 @@ const EXPECTED_SLOT_VALUE = {
   qdsim:{ external:1, internal:0 },
 };
 
+/* v0.9.31：中兴微 AT 候选扩展（Web 失败后的备选） */
 const ADB_AT_CANDIDATES = {
   zxic: {
     enable: [
-      { cmd:'AT+znvset="adb_app_enable","1"', label:'中兴微 NVRAM 方式' },
-      { cmd:'AT+ZMODE=1', label:'中兴微 ZMODE' },
-      { cmd:'AT+ZADB=1', label:'中兴微 ZADB' },
-      { cmd:'AT+ZADBKEY=1', label:'中兴微 ZADBKEY' },
+      { cmd:'AT+ZMODE=1', label:'中兴微 ZMODE 调试模式' },
+      { cmd:'AT+mmZUSBMODE=debug', label:'中兴微 USB 调试模式' },
+      { cmd:'AT+znvset="adb_app_enable","1"', label:'中兴微 NVRAM 使能' },
+      { cmd:'AT+shell=/bin/adbd', label:'中兴微 Shell 启动 adbd' },
+      { cmd:'AT+2201shell=/bin/adbd', label:'中兴微 2201Shell 启动 adbd' },
+      { cmd:'AT+shell=/mnt/userdata/etc_rw/nv/adbd', label:'中兴微 完整路径启动 adbd' },
     ],
     disable: [
-      { cmd:'AT+znvset="adb_app_enable","0"', label:'中兴微 NVRAM 方式' },
-      { cmd:'AT+ZMODE=0', label:'中兴微 ZMODE' },
-      { cmd:'AT+ZADB=0', label:'中兴微 ZADB' },
-      { cmd:'AT+ZADBKEY=0', label:'中兴微 ZADBKEY' },
+      { cmd:'AT+ZMODE=0', label:'中兴微 ZMODE 关闭' },
+      { cmd:'AT+mmZUSBMODE=normal', label:'中兴微 USB 恢复' },
+      { cmd:'AT+znvset="adb_app_enable","0"', label:'中兴微 NVRAM 禁用' },
     ],
   },
   asr4g: {
@@ -1232,11 +1237,43 @@ const DECODERS = {
   swsim:(v)=>{ const n=parseInt(v); return n===0?'外置卡':n===1?'内置卡':'模式 '+n; },
   qdsim:(v)=>{ const n=parseInt(v); return n===0?'内置卡(SIM1)':n===1?'外置卡(SIM2)':'模式 '+n; },
   cgeqosrdp:(v1,v2)=>'QCI '+parseInt(v2),
+  /* v0.9.31 新增解码器 */
+  zrssi:(s)=>{
+    const v = parseInt(s);
+    if(isNaN(v) || v >= 0 || v <= -140) return null;
+    let lvl;
+    if(v >= -85) lvl='极佳';
+    else if(v >= -95) lvl='良好';
+    else if(v >= -105) lvl='中等';
+    else if(v >= -115) lvl='较差';
+    else lvl='极差';
+    return `RSRP ${v} dBm (${lvl})`;
+  },
   zcsq:(v1,v2,v3)=>{
     const rssi = parseInt(v1);
     if(rssi === 99 || isNaN(rssi)) return '无信号（未注册）';
     const dbm = -113 + 2 * rssi;
     return `RSSI ${dbm} dBm（索引 ${rssi}）`;
+  },
+  zcsq3:(v1,v2,v3)=>{
+    const raw = parseInt(v1);
+    if(raw === 99) return null;
+    if(raw > 31){
+      const rsrp = raw - 229;
+      if(rsrp >= -140 && rsrp <= -40){
+        let lvl;
+        if(rsrp >= -85) lvl='极佳';
+        else if(rsrp >= -95) lvl='良好';
+        else if(rsrp >= -105) lvl='中等';
+        else if(rsrp >= -115) lvl='较差';
+        else lvl='极差';
+        return `RSRP ${rsrp} dBm (${lvl})`;
+      }
+      return `CSQ ${raw} (厂商扩展值)`;
+    }
+    const dbm = -113 + 2 * raw;
+    const lvl = raw >= 20 ? '强' : raw >= 15 ? '良' : raw >= 10 ? '中' : '弱';
+    return `CSQ ${raw} · ${lvl}`;
   },
   genericSignal:(s)=>{
     if(!s) return null;
@@ -1248,6 +1285,19 @@ const DECODERS = {
       const sinr = nums.filter(n=>!isNaN(n) && n>0 && n<=35);
       if(sinr.length>=1) txt += ` · SINR ${sinr[0]} dB`;
       return txt;
+    }
+    return null;
+  },
+  hcsq:(s)=>{
+    if(!s) return null;
+    const parts = s.replace(/"/g,'').split(',').map(x=>x.trim());
+    const type = (parts[0]||'').toUpperCase();
+    const nums = parts.slice(1).map(x=>{ const m=x.match(/-?\d+/); return m?parseInt(m[0]):NaN; });
+    if(type.includes('LTE') && nums.length>=4){
+      const rsrp = -140 + nums[1];
+      const sinr = (nums[2] - 20) / 2;
+      const rsrq = (nums[3] - 39) / 2;
+      return `RSRP ${rsrp} dBm · SINR ${sinr} dB · RSRQ ${rsrq.toFixed(1)} dB`;
     }
     return null;
   },
@@ -1361,11 +1411,15 @@ function termWrite(text,type='resp'){
   state.logBuffer.push(`[${type.toUpperCase()}] ${text}`);
 }
 function clearTerminal(){ document.getElementById('terminal').innerHTML=''; state.logBuffer=[]; termWrite('终端已清空。','info'); }
+/* v0.9.31：导出文件名带可读时间戳 */
 function exportLog(){
   if(!state.logBuffer.length){ toast('暂无日志','info'); return; }
   const blob=new Blob([state.logBuffer.join('\n')],{type:'text/plain'});
   const url=URL.createObjectURL(blob);
-  const a=document.createElement('a'); a.href=url; a.download=`atmaster-log-${Date.now()}.txt`;
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  const ts = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
+  const a=document.createElement('a'); a.href=url; a.download=`atmaster-log-${ts}.txt`;
   a.click(); URL.revokeObjectURL(url); toast('日志已导出','success');
 }
 function switchMode(mode){
@@ -1549,6 +1603,7 @@ async function autoScanAdbDevices(){
   }catch(e){}
 }
 
+/* v0.9.31：Web 优先，AT 备选 */
 async function universalEnableADB(){
   if(state.usbAdbState === 'on'){
     toast('ADB 已开启，无需重复操作','info',3000);
@@ -2233,7 +2288,7 @@ async function sendCustomBandCmd(){
 }
 
 async function connectUSB(){
-  if(!('serial' in navigator)){ toast('浏览器不支持','error',5000); return; }
+  if(!('serial' in navigator)){ toast('浏览器不支持 Web Serial','error',5000); return; }
   try{
     if(state.port || state.reader || state.readLoopActive){
       termWrite('检测到旧串口句柄残留，正在清理...','info');
@@ -2462,6 +2517,10 @@ async function runFullProbe(){
       else{ value=m[1]||'ok'; }
       if(value===null||value===undefined)continue;
       if(Array.isArray(value)&&value.length===0)continue;
+      /* v0.9.31：信号无效值过滤（无信号/未注册时继续尝试下一候选） */
+      if(key === 'csq' && typeof value === 'string'){
+        if(value.includes('无信号')) continue;
+      }
       if(cand.validator&&!cand.validator(value))continue;
       let writable=null;
       if(cand.writeTest){
@@ -2501,25 +2560,49 @@ async function queryAllByCapabilities(){
   termWrite('设备信息读取完成。','info');
 }
 
+/* v0.9.31：CSQ 边界检查 + 扩展值处理 */
 function setSignalFromCsq(csq){
   const el = document.getElementById('infoCSQ');
   if(!el) return;
-  if(csq === 99){ el.textContent = '无信号'; el.className = 'info-value empty'; return; }
+  if(csq === 99){ el.textContent = '无信号'; el.className = 'info-value empty'; el.title = 'CSQ 99 = 无信号'; return; }
+  // 中兴微扩展值：> 31 时按 RSRP 换算
+  if(csq > 31){
+    const rsrp = csq - 229;
+    if(rsrp >= -140 && rsrp <= -40){
+      let lvl, cls;
+      if(rsrp >= -85){ lvl='极佳'; cls='ok'; }
+      else if(rsrp >= -95){ lvl='良好'; cls='ok'; }
+      else if(rsrp >= -105){ lvl='中等'; cls='warn'; }
+      else if(rsrp >= -115){ lvl='较差'; cls='warn'; }
+      else { lvl='极差'; cls='err'; }
+      el.textContent = `RSRP ${rsrp} dBm (${lvl})`;
+      el.className = 'info-value ' + cls;
+      el.title = `原始 CSQ 值: ${csq}（中兴微扩展格式）\n换算: ${csq} - 229 = ${rsrp} dBm`;
+    }else{
+      el.textContent = `CSQ ${csq} (厂商扩展值)`;
+      el.className = 'info-value warn';
+      el.title = `原始 CSQ 值: ${csq}`;
+    }
+    return;
+  }
+  // 标准 0~31
   const lvl = csq >= 20 ? '强' : csq >= 15 ? '良' : csq >= 10 ? '中' : '弱';
   el.textContent = `CSQ ${csq} · ${lvl}`;
   el.className = 'info-value ' + (csq >= 15 ? 'ok' : csq >= 10 ? 'warn' : 'err');
+  el.title = `原始 CSQ 值: ${csq}\n0-9 弱 / 10-14 中 / 15-19 良 / 20-31 强 / 99 无信号`;
 }
 function setSignalFromRssi(dbm){
   const el = document.getElementById('infoCSQ');
   if(!el) return;
   let lvl, cls;
-  if(dbm >= -75){ lvl='极佳'; cls='ok'; }
-  else if(dbm >= -85){ lvl='良好'; cls='ok'; }
-  else if(dbm >= -95){ lvl='中等'; cls='warn'; }
-  else if(dbm >= -105){ lvl='较差'; cls='warn'; }
+  if(dbm >= -85){ lvl='极佳'; cls='ok'; }
+  else if(dbm >= -95){ lvl='良好'; cls='ok'; }
+  else if(dbm >= -105){ lvl='中等'; cls='warn'; }
+  else if(dbm >= -115){ lvl='较差'; cls='warn'; }
   else { lvl='极差'; cls='err'; }
-  el.textContent = `RSSI ${dbm} dBm · ${lvl}`;
+  el.textContent = `RSRP ${dbm} dBm (${lvl})`;
   el.className = 'info-value ' + cls;
+  el.title = `原始 RSRP: ${dbm} dBm`;
 }
 
 function parseAnyResponse(line){
@@ -2550,26 +2633,75 @@ function parseAnyResponse(line){
     if(m)setInfo('infoMAC',m[1].replace(/:/g,'').toUpperCase(),'ok');
   }
 
+  /* v0.9.31：信号强度多格式解析 */
   let sigDone = false;
-  m = line.match(/\+ZCSQ[:\s]*(\d+),(\d+),(\d+)/i);
+
+  /* 1) ZRSSI：直接 RSRP */
+  m = line.match(/\+ZRSSI[:\s]*(-?\d+)/i);
   if(m){
-    const rssi = parseInt(m[1]);
-    const el = document.getElementById('infoCSQ');
-    if(rssi === 99){
-      el.textContent = '无信号 / 未注册';
-      el.className = 'info-value empty';
-    }else{
-      const dbm = -113 + 2 * rssi;
-      let lvl, cls;
-      if(rssi >= 20){ lvl='强'; cls='ok'; }
-      else if(rssi >= 15){ lvl='良'; cls='ok'; }
-      else if(rssi >= 10){ lvl='中'; cls='warn'; }
-      else { lvl='弱'; cls='err'; }
-      el.textContent = `RSSI ${dbm} dBm · 索引 ${rssi} · ${lvl}`;
-      el.className = 'info-value ' + cls;
-    }
-    sigDone = true;
+    const v = parseInt(m[1]);
+    if(!isNaN(v) && v < 0 && v > -140){ setSignalFromRssi(v); sigDone = true; }
   }
+
+  /* 2) 中兴微三参数 CSQ：153,99,17 */
+  if(!sigDone){
+    m = line.match(/\+CSQ[:\s]*(\d+),(\d+),(\d+)/i);
+    if(m){
+      const raw = parseInt(m[1]);
+      if(raw === 99){
+        const el = document.getElementById('infoCSQ');
+        el.textContent = '无信号 / 未注册';
+        el.className = 'info-value empty';
+        el.title = `原始: +CSQ: ${m[1]},${m[2]},${m[3]}\nRSSI=99 表示无信号`;
+        sigDone = true;
+      } else if(raw > 31){
+        // 中兴微扩展值：按 RSRP 换算
+        const rsrp = raw - 229;
+        if(rsrp >= -140 && rsrp <= -40){
+          let lvl, cls;
+          if(rsrp >= -85){ lvl='极佳'; cls='ok'; }
+          else if(rsrp >= -95){ lvl='良好'; cls='ok'; }
+          else if(rsrp >= -105){ lvl='中等'; cls='warn'; }
+          else if(rsrp >= -115){ lvl='较差'; cls='warn'; }
+          else { lvl='极差'; cls='err'; }
+          const el = document.getElementById('infoCSQ');
+          el.textContent = `RSRP ${rsrp} dBm (${lvl})`;
+          el.className = 'info-value ' + cls;
+          el.title = `原始: +CSQ: ${m[1]},${m[2]},${m[3]}\n${m[1]} - 229 = ${rsrp} dBm`;
+          sigDone = true;
+        }
+      } else {
+        // 标准 0~31
+        setSignalFromCsq(raw);
+        sigDone = true;
+      }
+    }
+  }
+
+  /* 3) ZCSQ */
+  if(!sigDone){
+    m = line.match(/\+ZCSQ[:\s]*(\d+),(\d+),(\d+)/i);
+    if(m){
+      const rssi = parseInt(m[1]);
+      const el = document.getElementById('infoCSQ');
+      if(rssi === 99){
+        el.textContent = '无信号 / 未注册';
+        el.className = 'info-value empty';
+      }else{
+        const dbm = -113 + 2 * rssi;
+        let lvl, cls;
+        if(rssi >= 20){ lvl='强'; cls='ok'; }
+        else if(rssi >= 15){ lvl='良'; cls='ok'; }
+        else if(rssi >= 10){ lvl='中'; cls='warn'; }
+        else { lvl='弱'; cls='err'; }
+        el.textContent = `RSSI ${dbm} dBm · 索引 ${rssi} · ${lvl}`;
+        el.className = 'info-value ' + cls;
+      }
+      sigDone = true;
+    }
+  }
+
+  /* 4) ZSRVCELL */
   if(!sigDone){
     m = line.match(/\+ZSRVCELL[:\s]*([^\r\n]+)/i);
     if(m){
@@ -2592,17 +2724,14 @@ function parseAnyResponse(line){
       }
     }
   }
+
+  /* 5) 双参数 CSQ（标准 0~31） */
   if(!sigDone){
-    m = line.match(/\+ZRSSI[:\s]*(-?\d+)/i);
-    if(m){
-      const v = parseInt(m[1]);
-      if(!isNaN(v) && v < 0 && v > -140){ setSignalFromRssi(v); sigDone = true; }
-    }
-  }
-  if(!sigDone){
-    m = line.match(/\+CSQ[:\s]*(\d+)/);
+    m = line.match(/\+CSQ[:\s]*(\d+),(\d+)/);
     if(m){ setSignalFromCsq(parseInt(m[1])); sigDone = true; }
   }
+
+  /* 6) CESQ */
   if(!sigDone){
     m=line.match(/\+CESQ[:\s]*([\d,\s]+)/i);
     if(m){
@@ -2612,14 +2741,7 @@ function parseAnyResponse(line){
       let rsrpDbm = null;
       if(rsrpIdx!==undefined && rsrpIdx>=0 && rsrpIdx<=97) rsrpDbm = -140 + rsrpIdx;
       if(rsrpDbm!==null){
-        let lvl, cls;
-        if(rsrpDbm >= -85){ lvl='极佳'; cls='ok'; }
-        else if(rsrpDbm >= -95){ lvl='良好'; cls='ok'; }
-        else if(rsrpDbm >= -105){ lvl='中等'; cls='warn'; }
-        else if(rsrpDbm >= -115){ lvl='较差'; cls='warn'; }
-        else { lvl='极差'; cls='err'; }
-        el.textContent = `RSRP ${rsrpDbm} dBm (${lvl})`;
-        el.className = 'info-value ' + cls;
+        setSignalFromRssi(rsrpDbm);
       }
     }
   }
@@ -2688,7 +2810,7 @@ function parseAnyResponse(line){
     }
   }
 
-  // 增强：处理 *BANDIND 格式（ASR 当前频段）
+  // 处理 *BANDIND 格式（ASR 当前频段）
   m=line.match(/[*+]BANDIND[:\s]*([\d,\s]+)/i);
   if(m){
     const el=document.getElementById('infoBand');
@@ -2703,7 +2825,6 @@ function parseAnyResponse(line){
       }
     }
   }
-  // 兼容中兴微 ZBAND
   if(!line.match(/[*+]BANDIND/i)){
     m=line.match(/\+ZBAND[:\s]*([\d,\s]+)/i);
     if(m){
@@ -2732,7 +2853,6 @@ function parseAnyResponse(line){
     }
   }
 
-  // 修复 AMBR 解析（兼容无引号格式）
   m=line.match(/\+CGEQOSRDP[:\s]*(\d+),(\d+)/i);
   if(m){
     const qci=parseInt(m[2]);
@@ -2741,7 +2861,6 @@ function parseAnyResponse(line){
     el.textContent=`QCI ${qci} · ${info.desc}`;
     el.className='info-value '+info.cls;
     let dlAmbr=null, ulAmbr=null;
-    // 优先匹配引号，然后匹配无引号
     let ambrMatch = line.match(/"(\d+),(\d+)"/) || line.match(/,(\d+),(\d+)\s*$/);
     if(ambrMatch){ dlAmbr=parseInt(ambrMatch[1]); ulAmbr=parseInt(ambrMatch[2]); }
     if(dlAmbr!==null && ulAmbr!==null){
@@ -3169,6 +3288,11 @@ function resetDeviceInfo(){
   setBandStatus('—','off');
   const wsl=document.getElementById('writeStatusLine'); if(wsl)wsl.style.display='none';
   state.adbStatusCmd=null; state.simSwitchCmd=null; state.factoryCmd=null;
+  /* v0.9.31：重置网络类型 UI */
+  const i=document.getElementById('netTypeIcon'), v=document.getElementById('netTypeValue'), s=document.getElementById('netTypeSub');
+  if(i){ i.className='icon unknown'; i.textContent='?'; }
+  if(v){ v.className='value unknown'; v.textContent='未连接'; }
+  if(s){ s.textContent='请连接设备'; }
   renderCapList();
   updateAdbPathHint();
 }
@@ -3638,10 +3762,10 @@ async function confirmWrite(){
       setStep(4,'active'); appendLog(`▶ 步骤 4/4：读回验证...`,'warn');
       await sleep(500);
       const verify=await readbackVerify(baseType,val);
-      
-      // 中兴微 IMEI 特殊处理：写入指令 OK 但读回不一致 → 提示重启生效
+
+      // v0.9.31：中兴微 IMEI 特殊处理
       const isZxicIMEI = (state.detectedChipId === 'zxic' && baseType === 'IMEI');
-      
+
       if(verify.verified===true){
         setStep(4,'done'); appendLog(`✓ 读回值：${verify.actual}`,'success');
         setWriteStatus(`${baseType} 修改成功（读回：${verify.actual}）`,'on');
@@ -3784,7 +3908,7 @@ window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close
     if(saved) webAdbGwEl.value = saved;
     webAdbGwEl.addEventListener('input', ()=>{
       const v = webAdbGwEl.value.trim();
-      if(!v){ setWebAdbGatewayHint('网关地址，中兴微 AT 失败时自动使用', 'info'); return; }
+      if(!v){ setWebAdbGatewayHint('网关地址，中兴微 Web 失败时自动回退 AT', 'info'); return; }
       if(isValidIPv4(v.replace(/^https?:\/\//i,'').replace(/\/.*$/,''))){
         setWebAdbGatewayHint('✓ 格式有效，点 🔍 可检测', 'ok');
       }else{
@@ -3816,11 +3940,11 @@ window.addEventListener('beforeunload',()=>{ try{ if(state.port)state.port.close
   }
   updateAdbPathHint();
 
-  termWrite('随身WiFi调试助手 v0.9.30','info');
-  termWrite('v0.9.30：修复 ASR 参数解析（频段/卡槽/AMBR/掩码映射）、断开重置、IMEI 提示优化、串口冲突排查提示','info');
+  termWrite('随身WiFi调试助手 v0.9.31','info');
+  termWrite('v0.9.31：修复中兴微信号质量显示（CSQ 153 → RSRP -76）；ZRSSI 优先；日志带时间戳；IMEI 提示优化','info');
 
   if(!('serial' in navigator)){
-    termWrite('⚠ 当前浏览器不支持 API，请使用 Chrome / Edge 89+ 桌面版。','err');
+    termWrite('⚠ 当前浏览器不支持 Web Serial API，请使用 Chrome / Edge 89+ 桌面版。','err');
   }else{
     navigator.serial.addEventListener('disconnect',(e)=>{
       if(state.port && e.target===state.port && state.connected && !state.resetting){
