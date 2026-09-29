@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>综合探测</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: -apple-system, monospace; background:#0f1117; color:#e8eaf0; padding:14px; font-size:13px; }
+  h1 { font-size:16px; margin-bottom:12px; }
+  .card { background:#1a1d27; border:1px solid #343a4d; border-radius:10px; padding:12px 14px; margin-bottom:10px; }
+  .btn { width:100%; padding:10px; border:none; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; margin-bottom:6px; font-family:inherit; }
+  .btn-primary { background:#4f7cff; color:#fff; }
+  .btn-primary:disabled { opacity:.4; }
+  .btn-outline { background:transparent; color:#8b91a5; border:1px solid #343a4d; }
+  #log { background:#0a0c12; border:1px solid #343a4d; border-radius:8px; padding:10px; font-family:monospace; font-size:11px; line-height:1.7; height:520px; overflow-y:auto; white-space:pre-wrap; word-break:break-all; }
+  #log .ok { color:#2ecc71; }
+  #log .err { color:#ff8a80; }
+  #log .warn { color:#f39c12; }
+  #log .info { color:#7fa4ff; }
+  #log .dim { color:#8b91a5; }
+  #log .resp { color:#c8cdd8; }
+  #log .head { color:#a78bfa; font-weight:700; border-top:1px solid #343a4d; padding-top:6px; margin-top:6px; }
+  #log .hit { color:#2ecc71; font-weight:700; background:rgba(46,204,113,.1); padding:2px 4px; }
+</style>
+</head>
+<body>
+
+<h1>综合探测 <span>4 种策略依次尝试</span></h1>
+
+<div class="card">
+  <button class="btn btn-primary" id="btnStart" onclick="runProbe()">🚀 一键综合探测</button>
+  <button class="btn btn-outline" onclick="location.reload()">重置</button>
+</div>
+
+<div class="card">
+  <h3 style="font-size:11px;color:#8b91a5;text-transform:uppercase;margin-bottom:8px;">日志</h3>
+  <div id="log"></div>
+</div>
+
+<script>
+let device = null;
+
+function log(msg, cls = '') {
+  const el = document.getElementById('log');
+  const now = new Date();
+  const ts = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0');
+  const line = document.createElement('div');
+  line.className = 'line ' + cls;
+  line.innerHTML = `<span style="color:#5a6275">[${ts}]</span> ${msg}`;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+  console.log(msg);
+}
+
+async function releaseAllIfaces() {
+  if (!device || !device.configuration) return;
+  for (const iface of device.configuration.interfaces) {
+    try { await device.releaseInterface(iface.interfaceNumber); } catch(e){}
+  }
+}
+
+async function trySendRead(outAddr, inAddr, cmd = 'AT', waitMs = 1000) {
+  try {
+    await device.transferOut(outAddr, new TextEncoder().encode(cmd + '\r\n'));
+  } catch (e) {
+    log(`    transferOut 失败: ${e.message}`, 'err');
+    return null;
+  }
+  await new Promise(r => setTimeout(r, waitMs));
+  let got = '';
+  for (let t = 0; t < 6; t++) {
+    try {
+      const res = await device.transferIn(inAddr, 512);
+      if (res.status === 'ok' && res.data && res.data.byteLength > 0) {
+        const txt = new TextDecoder().decode(res.data);
+        got += txt;
+        log(`    ← 片段[${t+1}]: ${txt.replace(/\r/g,'').replace(/\n/g,' | ')}`, 'resp');
+        if (/\bOK\b/.test(got) || /\bERROR\b/i.test(got)) return got;
+      } else break;
+    } catch (e) {
+      break;
+    }
+    await new Promise(r => setTimeout(r, 250));
+  }
+  return got || null;
+}
+
+async function runProbe() {
+  document.getElementById('btnStart').disabled = true;
+  try {
+    log('══════ 请求设备 ══════', 'head');
+    device = await navigator.usb.requestDevice({ filters: [{ vendorId: 0x19d2 }] });
+    log(`✅ ${device.productName}`, 'ok');
+
+    // ═══════════════════════════════════════════════════════════════
+    // 策略 1：reset + 重新打开 + 强制 selectConfiguration
+    // ═══════════════════════════════════════════════════════════════
+    log('══════ 策略1：reset + 重新打开 ══════', 'head');
+    try {
+      await device.open();
+      log('  ✓ 首次打开', 'dim');
+    } catch (e) {
+      log(`  首次 open 失败: ${e.message}`, 'err');
+    }
+
+    // 尝试 reset 强制内核驱动释放
+    try {
+      log('  尝试 device.reset()...', 'dim');
+      await device.reset();
+      log('  ✓ reset 完成', 'ok');
+      await new Promise(r => setTimeout(r, 1500));
+      // reset 后设备会自动重新枚举，需要重新 open
+      if (device.opened) await device.close().catch(()=>{});
+      await new Promise(r => setTimeout(r, 500));
+      await device.open();
+      log('  ✓ reset 后重新打开成功', 'ok');
+    } catch (e) {
+      log(`  reset 失败: ${e.message}`, 'warn');
+      try { if (device.opened) await device.close(); } catch(_){}
+      await new Promise(r => setTimeout(r, 300));
+      await device.open();
+    }
+
+    // 选配置
+    try {
+      if (!device.configuration || device.configuration.configurationValue !== 1) {
+        await device.selectConfiguration(1);
+      }
+      log(`  当前配置: ${device.configuration.configurationValue}`, 'ok');
+    } catch (e) {
+      log(`  selectConfiguration 失败: ${e.message}`, 'err');
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // 策略 2：先 alt 0 再 alt 1（技巧性触发内核驱动让位）
+    // ═══════════════════════════════════════════════════════════════
+    log('══════ 策略2：接口1 切 alt 0 → alt 1 ══════', 'head');
+    try {
+      await device.selectAlternateInterface(1, 0);
+      log('  ✓ selectAlternateInterface(1, 0)', 'dim');
+      await new Promise(r => setTimeout(r, 300));
+      await device.selectAlternateInterface(1, 1);
+      log('  ✓ selectAlternateInterface(1, 1)', 'dim');
+      await new Promise(r => setTimeout(r, 300));
+    } catch (e) {
+      log(`  ✗ 切换 alt 失败: ${e.message}`, 'warn');
+    }
+
+    // 尝试 claim 接口 1
+    log('  尝试 claim 接口 1...', 'dim');
+    let claimed1 = false;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        await device.claimInterface(1);
+        claimed1 = true;
+        log(`  ✓ 第 ${attempt} 次 claim 接口1 成功！`, 'ok');
+        break;
+      } catch (e) {
+        log(`  ✗ 第 ${attempt} 次失败: ${e.message}`, 'warn');
+        await new Promise(r => setTimeout(r, 500));
+      }
+    }
+
+    if (claimed1) {
+      log('  → 发送 AT ...', 'dim');
+      const resp = await trySendRead(0x01, 0x81, 'AT', 1200);
+      if (resp && /\bOK\b/.test(resp)) {
+        log(`🎯🎯🎯 AT 通道命中：接口1 alt1 OUT=0x01 IN=0x81`, 'hit');
+        log(`   响应: ${resp.replace(/\r/g,'').replace(/\n/g,' | ')}`, 'resp');
+        return;
+      } else {
+        log(`  ⚠️ claim 成功但 AT 无 OK 响应`, 'warn');
+      }
+    } else {
+      log(`  接口1 三次 claim 均失败——内核驱动占用`, 'err');
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // 策略 3：接口 3（ADB 通道）—— 尝试发 AT 看是否响应
+    // ═══════════════════════════════════════════════════════════════
+    log('══════ 策略3：接口3 (ADB) 尝试发 AT ══════', 'head');
+    try {
+      await device.claimInterface(3);
+      log('  ✓ claim 接口3 成功', 'ok');
+      const resp = await trySendRead(0x03, 0x83, 'AT', 1500);
+      if (resp && /\bOK\b/.test(resp)) {
+        log(`🎯 AT 通道在接口3：OUT=0x03 IN=0x83`, 'hit');
+        return;
+      } else if (resp) {
+        log(`  有响应但不是 AT：${resp.substring(0, 100)}`, 'warn');
+      } else {
+        log(`  接口3 无响应`, 'warn');
+      }
+    } catch (e) {
+      log(`  claim 接口3 失败: ${e.message}`, 'warn');
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // 策略 4：控制传输（EP0）—— 部分中兴设备走 control transfer
+    // ═══════════════════════════════════════════════════════════════
+    log('══════ 策略4：控制传输 (EP0) ══════', 'head');
+    // 尝试发送一个 AT 到一个常见的 vendor control 请求
+    // bmRequestType=0x40 (Host→Device, Vendor, Device), bRequest=0x01
+    // 这只是一个尝试，具体请求号需要厂商文档
+    const controlAttempts = [
+      { bmRequestType: 0x40, bRequest: 0x01, wValue: 0, wIndex: 0, desc: 'Vendor OUT req=1' },
+      { bmRequestType: 0x40, bRequest: 0x00, wValue: 0, wIndex: 0, desc: 'Vendor OUT req=0' },
+      { bmRequestType: 0x40, bRequest: 0x09, wValue: 0, wIndex: 0, desc: 'Vendor OUT req=9' },
+    ];
+    const atBytes = new TextEncoder().encode('AT\r\n');
+    for (const c of controlAttempts) {
+      try {
+        log(`  尝试 ${c.desc} ...`, 'dim');
+        // 中兴部分设备对 control 请求有特殊响应，但大多数不响应 AT
+        await device.controlTransferOut({
+          requestType: 'vendor',
+          recipient: 'device',
+          request: c.bRequest,
+          value: c.wValue,
+          index: c.wIndex,
+        }, atBytes);
+        log(`    发送成功，等待响应...`, 'dim');
+        await new Promise(r => setTimeout(r, 500));
+        // 尝试通过任何已声明接口读
+        let anyResp = null;
+        for (const ifaceNum of [2, 4, 5]) {
+          try {
+            const inAddr = ifaceNum | 0x80;
+            const res = await device.transferIn(inAddr, 256);
+            if (res.status === 'ok' && res.data && res.data.byteLength > 0) {
+              const txt = new TextDecoder().decode(res.data);
+              if (/\bOK\b|\bERROR\b/i.test(txt)) {
+                log(`    🎯 控制传输响应: ${txt.replace(/\r/g,'')}`, 'hit');
+                anyResp = txt;
+                break;
+              }
+            }
+          } catch(e){}
+        }
+        if (anyResp) return;
+      } catch (e) {
+        log(`    失败: ${e.message}`, 'warn');
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // 策略 5：ADB 通道尝试 shell
+    // ═══════════════════════════════════════════════════════════════
+    log('══════ 策略5：接口3 发送 ADB 握手 ══════', 'head');
+    // ADB 协议握手：CNXN 请求，可以判断接口3是不是真的 ADB
+    try {
+      const adbCnxn = new Uint8Array([
+        0x43,0x4E,0x58,0x4E, // "CNXN"
+        0x01,0x00,0x00,0x01, // version=0x01000001
+        0x00,0x10,0x00,0x00, // maxdata=0x1000
+        0xBC,0xB1,0xA7,0xB1, // magic
+        0x00,0x00,0x00,0x00, // checksum
+        0x00,0x00,0x00,0x00, // command
+        ...new TextEncoder().encode('host::\0'),
+      ]);
+      // 上面只是示意，真实 CNXN payload 更复杂，这里只发 magic 部分试探
+      const simpleAdbMagic = new Uint8Array([0x43,0x4E,0x58,0x4E]);
+      const outWriter = device.configuration.interfaces.find(i => i.interfaceNumber === 3);
+      if (outWriter) {
+        try {
+          await device.transferOut(0x03, simpleAdbMagic);
+          log('  已发送 ADB CNXN magic', 'dim');
+          await new Promise(r => setTimeout(r, 800));
+          const res = await device.transferIn(0x83, 256);
+          if (res.status === 'ok' && res.data.byteLength > 0) {
+            const head = String.fromCharCode(...res.data.slice(0, 4));
+            if (head === 'CNXN' || head === 'AUTH') {
+              log(`  🎯 接口3 确认是 ADB 通道！响应头: ${head}`, 'hit');
+            } else {
+              log(`  响应头: ${head} (非 ADB 或非 ASCII)`, 'warn');
+            }
+          }
+        } catch(e){}
+      }
+    } catch (e) {
+      log(`  接口3 ADB 探测失败: ${e.message}`, 'warn');
+    }
+
+    log('══════ 结果 ══════', 'head');
+    log('❌ 所有策略均未找到可用的 AT 通道', 'err');
+    log('', 'dim');
+    log('📋 分析：', 'info');
+    log('  1. 接口1（CDC-ACM AT 通道）被 Android 内核 cdc_acm 驱动占用', 'warn');
+    log('  2. WebUSB 无法从内核驱动中"抢"走接口，这是 Android 平台的已知限制', 'warn');
+    log('  3. 接口2/4/5 是厂商私有诊断通道，需要特定协议（非标准 AT）', 'warn');
+    log('  4. 接口3 是 ADB 通道，但 ADB 协议需要复杂握手，不适合直接作为 AT 中转', 'warn');
+    log('', 'dim');
+    log('💡 建议：', 'info');
+    log('  • 安卓端无法通过 WebUSB 访问 CDC-ACM AT 通道，这是平台限制', 'warn');
+    log('  • 保持电脑端为主要使用场景', 'ok');
+    log('  • 安卓端可考虑：通过 USB tethering + HTTP 后台控制（如果设备支持）', 'ok');
+    log('  • 或者：越狱/root 手机后修改 cdc_acm 驱动绑定策略（不推荐）', 'dim');
+
+  } catch (e) {
+    log(`❌ 未捕获错误: ${e.name} - ${e.message}`, 'err');
+    console.error(e);
+  } finally {
+    document.getElementById('btnStart').disabled = false;
+  }
+}
+</script>
+
+</body>
+</html>
