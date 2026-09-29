@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebUSB 直连测试 · 中兴设备</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: -apple-system, monospace; background:#0f1117; color:#e8eaf0; padding:14px; font-size:13px; }
+  h1 { font-size:16px; margin-bottom:12px; }
+  h1 span { font-size:11px; color:#8b91a5; font-weight:400; }
+  .card { background:#1a1d27; border:1px solid #343a4d; border-radius:10px; padding:12px 14px; margin-bottom:10px; }
+  .card h3 { font-size:11px; color:#8b91a5; text-transform:uppercase; letter-spacing:.6px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; }
+  .btn { width:100%; padding:10px; border:none; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; margin-bottom:6px; font-family:inherit; }
+  .btn-primary { background:#4f7cff; color:#fff; }
+  .btn-primary:active { background:#6b92ff; }
+  .btn-primary:disabled { opacity:.4; cursor:not-allowed; }
+  .btn-danger { background:rgba(231,76,60,.15); color:#e74c3c; border:1px solid rgba(231,76,60,.3); }
+  .btn-outline { background:transparent; color:#8b91a5; border:1px solid #343a4d; }
+  .btn-success { background:#2ecc71; color:#fff; }
+  .btn-success:active { background:#27ae60; }
+  .btn-success:disabled { opacity:.4; cursor:not-allowed; }
+
+  #log { background:#0a0c12; border:1px solid #343a4d; border-radius:8px; padding:10px; font-family:monospace; font-size:11px; line-height:1.7; height:400px; overflow-y:auto; white-space:pre-wrap; word-break:break-all; }
+  #log .line { margin-bottom:2px; }
+  #log .ts { color:#5a6275; }
+  #log .ok { color:#2ecc71; }
+  #log .err { color:#ff8a80; }
+  #log .warn { color:#f39c12; }
+  #log .info { color:#7fa4ff; }
+  #log .dim { color:#8b91a5; }
+  #log .resp { color:#c8cdd8; }
+  #log .head { color:#a78bfa; font-weight:700; border-top:1px solid #343a4d; padding-top:6px; margin-top:6px; }
+
+  .terminal-input-row { display:flex; gap:6px; margin-top:6px; }
+  .terminal-input-row input { flex:1; padding:8px 10px; background:#2a2e3d; border:1px solid #343a4d; border-radius:7px; color:#e8eaf0; font-family:monospace; font-size:13px; outline:none; }
+  .terminal-input-row button { padding:8px 16px; background:#4f7cff; border:none; border-radius:6px; color:#fff; font-size:12px; font-weight:600; cursor:pointer; flex-shrink:0; }
+  .terminal-input-row button:disabled { opacity:.4; }
+  .badge { display:inline-block; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:600; font-family:monospace; }
+  .badge-green { background:rgba(46,204,113,.15); color:#2ecc71; }
+  .badge-red { background:rgba(231,76,60,.15); color:#e74c3c; }
+  .badge-blue { background:rgba(79,124,255,.15); color:#7fa4ff; }
+  .info-row { display:flex; justify-content:space-between; padding:4px 0; font-size:12px; gap:8px; border-bottom:1px solid rgba(255,255,255,.04); }
+  .info-row:last-child { border-bottom:none; }
+  .info-row .k { color:#8b91a5; flex-shrink:0; }
+  .info-row .v { font-family:monospace; font-size:11px; word-break:break-all; text-align:right; }
+</style>
+</head>
+<body>
+
+<h1>WebUSB 直连测试 <span>中兴 ZTE 0x19d2:0x0581</span></h1>
+
+<div class="card">
+  <h3>设备状态</h3>
+  <div class="info-row"><span class="k">设备</span><span class="v" id="v-dev">未连接</span></div>
+  <div class="info-row"><span class="k">接口配置</span><span class="v" id="v-cfg">-</span></div>
+  <div class="info-row"><span class="k">AT 接口</span><span class="v" id="v-at">-</span></div>
+  <div class="info-row"><span class="k">端点</span><span class="v" id="v-ep">-</span></div>
+</div>
+
+<div class="card">
+  <h3>操作</h3>
+  <button class="btn btn-primary" id="btnRequest" onclick="requestDevice()">① 请求 USB 设备</button>
+  <button class="btn btn-primary" id="btnInspect" onclick="inspectDevice()" disabled>② 打开并遍历接口</button>
+  <button class="btn btn-success" id="btnClaim" onclick="claimAtInterface()" disabled>③ 声明 AT 接口</button>
+  <button class="btn btn-outline" onclick="releaseAll()">释放设备</button>
+</div>
+
+<div class="card">
+  <h3>AT 通信测试</h3>
+  <div class="terminal-input-row">
+    <input id="atInput" placeholder="输入 AT 指令，如 ATI" value="ATI" autocomplete="off"
+           onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAt();}">
+    <button id="btnSend" onclick="sendAt()" disabled>发送</button>
+  </div>
+</div>
+
+<div class="card">
+  <h3>日志 <button class="btn btn-outline" style="width:auto;padding:3px 10px;font-size:10px;margin:0;" onclick="document.getElementById('log').innerHTML=''">清屏</button></h3>
+  <div id="log"></div>
+</div>
+
+<script>
+let device = null;
+let atInterface = null;   // 找到的 AT 接口的 interfaceNumber
+let atEndpointIn = null;  // 读端点
+let atEndpointOut = null; // 写端点
+let claimed = false;
+
+function log(msg, cls = '') {
+  const el = document.getElementById('log');
+  const now = new Date();
+  const ts = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0');
+  const line = document.createElement('div');
+  line.className = 'line ' + cls;
+  line.innerHTML = `<span class="ts">[${ts}]</span> ${msg}`;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+  console.log(msg);
+}
+
+function setInfo(id, text, cls = '') {
+  const el = document.getElementById(id);
+  if (el) { el.textContent = text; el.className = 'v ' + cls; }
+}
+
+async function requestDevice() {
+  try {
+    log('请求 USB 设备（过滤中兴 0x19d2）...', 'info');
+    device = await navigator.usb.requestDevice({
+      filters: [{ vendorId: 0x19d2 }]
+    });
+    const vid = device.vendorId.toString(16).padStart(4,'0');
+    const pid = device.productId.toString(16).padStart(4,'0');
+    log(`✅ 已选择: VID=0x${vid} PID=0x${pid}`, 'ok');
+    log(`   产品: ${device.productName || '(未命名)'}`, 'dim');
+    log(`   厂商: ${device.manufacturerName || '(未知)'}`, 'dim');
+    setInfo('v-dev', `0x${vid}:0x${pid}`, 'ok');
+    document.getElementById('btnInspect').disabled = false;
+  } catch (e) {
+    if (e.name === 'NotFoundError') log('❌ 用户取消选择', 'err');
+    else log(`❌ 请求失败: ${e.message}`, 'err');
+  }
+}
+
+async function inspectDevice() {
+  if (!device) return;
+  try {
+    log('══════ 打开设备 ══════', 'head');
+    await device.open();
+    log(`✅ 设备已打开，当前配置: ${device.configuration ? device.configuration.configurationValue : 'none'}`, 'ok');
+
+    log('══════ 遍历所有配置 ══════', 'head');
+    const configs = device.configurations;
+    log(`共 ${configs.length} 个配置`, 'info');
+
+    for (let ci = 0; ci < configs.length; ci++) {
+      const cfg = configs[ci];
+      log(`[配置 ${cfg.configurationValue}] ${cfg.configurationName || '(未命名)'}`, 'head');
+
+      for (const iface of cfg.interfaces) {
+        log(`  接口 ${iface.interfaceNumber}: class=0x${iface.alternates[0].interfaceClass.toString(16).padStart(2,'0')} subclass=0x${iface.alternates[0].interfaceSubclass.toString(16).padStart(2,'0')} protocol=0x${iface.alternates[0].interfaceProtocol.toString(16).padStart(2,'0')}`, 'info');
+        log(`    名称: ${iface.alternates[0].interfaceName || '(未命名)'}`, 'dim');
+
+        for (const ep of iface.alternates[0].endpoints) {
+          const dir = ep.direction;
+          const type = ep.type;
+          log(`    端点 0x${ep.endpointNumber.toString(16)} ${dir} ${type} maxPacket=${ep.packetSize}`, 'dim');
+        }
+      }
+    }
+
+    setInfo('v-cfg', `${configs.length} 个配置`, 'ok');
+
+    // 自动尝试选择配置1
+    if (configs.length >= 1 && (!device.configuration || device.configuration.configurationValue !== 1)) {
+      try {
+        log('尝试 selectConfiguration(1)...', 'info');
+        await device.selectConfiguration(1);
+        log('✅ 配置1 已选中', 'ok');
+      } catch (e) {
+        log(`⚠️ selectConfiguration(1) 失败: ${e.message}`, 'warn');
+        log('   尝试 selectConfiguration(2)...', 'info');
+        try {
+          await device.selectConfiguration(2);
+          log('✅ 配置2 已选中', 'ok');
+        } catch (e2) {
+          log(`⚠️ selectConfiguration(2) 也失败: ${e2.message}`, 'warn');
+        }
+      }
+    }
+
+    log('══════ 查找 Vendor-Specific 接口 (class=0xFF) ══════', 'head');
+    const cfg = device.configuration;
+    if (!cfg) {
+      log('❌ 无当前配置', 'err');
+      return;
+    }
+
+    let found = false;
+    for (const iface of cfg.interfaces) {
+      for (const alt of iface.alternates) {
+        if (alt.interfaceClass === 0xFF) {
+          log(`✅ 找到 Vendor-Specific 接口 #${iface.interfaceNumber}: subclass=0x${alt.interfaceSubclass.toString(16).padStart(2,'0')} protocol=0x${alt.interfaceProtocol.toString(16).padStart(2,'0')}`, 'ok');
+          log(`   端点列表:`, 'info');
+          for (const ep of alt.endpoints) {
+            log(`     0x${ep.endpointNumber.toString(16)} ${ep.direction} ${ep.type} maxPacket=${ep.packetSize}`, 'dim');
+          }
+          found = true;
+        }
+      }
+    }
+    if (!found) {
+      log('⚠️ 未找到 class=0xFF 的接口，列出所有接口的 class:', 'warn');
+      for (const iface of cfg.interfaces) {
+        for (const alt of iface.alternates) {
+          log(`  接口 #${iface.interfaceNumber}: class=0x${alt.interfaceClass.toString(16).padStart(2,'0')}`, 'dim');
+        }
+      }
+    }
+
+    document.getElementById('btnClaim').disabled = false;
+  } catch (e) {
+    log(`❌ 遍历失败: ${e.name} - ${e.message}`, 'err');
+  }
+}
+
+async function claimAtInterface() {
+  if (!device || !device.configuration) { log('请先执行步骤①②', 'err'); return; }
+  try {
+    log('══════ 声明接口 ══════', 'head');
+    const cfg = device.configuration;
+
+    // 优先找 class=0xFF 的接口，其次找接口 0/1/2
+    let candidates = [];
+    for (const iface of cfg.interfaces) {
+      const alt = iface.alternates[0];
+      if (alt.interfaceClass === 0xFF) {
+        candidates.push({ iface, alt, priority: 0 });
+      } else if (alt.endpoints.length >= 2) {
+        candidates.push({ iface, alt, priority: 1 });
+      }
+    }
+    candidates.sort((a, b) => a.priority - b.priority);
+
+    if (candidates.length === 0) {
+      log('❌ 没有可用的接口', 'err');
+      return;
+    }
+
+    for (const c of candidates) {
+      const ifaceNum = c.iface.interfaceNumber;
+      log(`尝试声明接口 #${ifaceNum} (class=0x${c.alt.interfaceClass.toString(16).padStart(2,'0')})...`, 'info');
+      try {
+        await device.claimInterface(ifaceNum);
+        log(`✅ 接口 #${ifaceNum} 已声明`, 'ok');
+
+        // 找 bulk IN / OUT 端点
+        let epIn = null, epOut = null;
+        for (const ep of c.alt.endpoints) {
+          if (ep.type === 'bulk') {
+            if (ep.direction === 'in' && !epIn) epIn = ep.endpointNumber;
+            if (ep.direction === 'out' && !epOut) epOut = ep.endpointNumber;
+          }
+        }
+        if (!epIn || !epOut) {
+          log(`  ⚠️ 接口 #${ifaceNum} 缺少 bulk IN/OUT 端点 (in=${epIn} out=${epOut})`, 'warn');
+          await device.releaseInterface(ifaceNum).catch(() => {});
+          continue;
+        }
+
+        atInterface = ifaceNum;
+        atEndpointIn = epIn;
+        atEndpointOut = epOut;
+        claimed = true;
+
+        log(`✅ 选定 AT 接口: #${ifaceNum}`, 'ok');
+        log(`   → Bulk OUT 端点: 0x${epOut.toString(16)}`, 'ok');
+        log(`   → Bulk IN  端点: 0x${epIn.toString(16)}`, 'ok');
+
+        setInfo('v-at', `接口 #${ifaceNum}`, 'ok');
+        setInfo('v-ep', `OUT=0x${epOut.toString(16)} / IN=0x${epIn.toString(16)}`, 'ok');
+
+        document.getElementById('btnSend').disabled = false;
+        return;
+      } catch (e) {
+        log(`  ❌ 声明接口 #${ifaceNum} 失败: ${e.message}`, 'err');
+      }
+    }
+    log('❌ 所有接口都无法声明', 'err');
+  } catch (e) {
+    log(`❌ claimAtInterface 错误: ${e.message}`, 'err');
+  }
+}
+
+async function sendAt() {
+  if (!device || !claimed) { log('请先完成步骤①②③', 'err'); return; }
+  const cmd = document.getElementById('atInput').value.trim();
+  if (!cmd) return;
+
+  try {
+    const payload = new TextEncoder().encode(cmd + '\r\n');
+    log(`→ ${cmd}`, 'info');
+    await device.transferOut(atEndpointOut, payload);
+
+    // 等待响应
+    await new Promise(r => setTimeout(r, 800));
+
+    // 尝试读取（可能有多个响应片段）
+    let totalRead = 0;
+    for (let i = 0; i < 5; i++) {
+      try {
+        const result = await device.transferIn(atEndpointIn, 256);
+        if (result.status === 'ok' && result.data && result.data.byteLength > 0) {
+          const text = new TextDecoder().decode(result.data);
+          const clean = text.replace(/\r/g, '');
+          log(`← ${clean}`, 'resp');
+          totalRead += result.data.byteLength;
+
+          // 收到 OK 或 ERROR 就停止
+          if (/\bOK\b/.test(text) || /\bERROR\b/i.test(text)) break;
+        } else {
+          break;
+        }
+      } catch (e) {
+        break;
+      }
+      await new Promise(r => setTimeout(r, 200));
+    }
+    if (totalRead === 0) {
+      log('  ⚠️ 未收到响应（可能端点不对，或设备需要时间响应）', 'warn');
+    }
+  } catch (e) {
+    log(`❌ 发送失败: ${e.name} - ${e.message}`, 'err');
+    if (e.name === 'NetworkError') log('  可能原因：端点号错误 / 设备已断开', 'warn');
+  }
+}
+
+async function releaseAll() {
+  try {
+    if (device && device.opened) {
+      if (claimed && atInterface !== null) {
+        await device.releaseInterface(atInterface).catch(() => {});
+      }
+      await device.close();
+      log('✅ 设备已释放', 'ok');
+    }
+  } catch (e) {}
+  device = null;
+  atInterface = null;
+  atEndpointIn = null;
+  atEndpointOut = null;
+  claimed = false;
+  setInfo('v-dev', '未连接');
+  setInfo('v-cfg', '-');
+  setInfo('v-at', '-');
+  setInfo('v-ep', '-');
+  document.getElementById('btnInspect').disabled = true;
+  document.getElementById('btnClaim').disabled = true;
+  document.getElementById('btnSend').disabled = true;
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  log('══════ WebUSB 直连测试 ══════', 'head');
+  log('目标设备: ZTE VID=0x19d2 PID=0x0581', 'info');
+  log('步骤: ① 请求设备 → ② 遍历接口 → ③ 声明 AT 接口 → 发送 AT', 'dim');
+});
+</script>
+
+</body>
+</html>
