@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>串口连接测试 · 安卓 Polyfill 验证</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+    background: #0f1117; color: #e8eaf0; padding: 16px;
+    min-height: 100vh; font-size: 14px;
+  }
+  h1 { font-size: 18px; margin-bottom: 4px; }
+  h1 span { font-size: 12px; color: #8b91a5; font-weight: 400; margin-left: 6px; }
+  .env-card {
+    padding: 12px 14px; border-radius: 10px; margin: 14px 0;
+    background: #1a1d27; border: 1px solid #343a4d;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .env-card .icon { font-size: 20px; flex-shrink: 0; }
+  .env-card .info { flex: 1; }
+  .env-card .label { font-size: 10px; color: #8b91a5; text-transform: uppercase; letter-spacing: .5px; }
+  .env-card .value { font-size: 13px; font-family: monospace; margin-top: 2px; }
+  .env-card.ok { border-color: rgba(46,204,113,.4); }
+  .env-card.ok .value { color: #2ecc71; }
+  .env-card.warn { border-color: rgba(243,156,18,.4); }
+  .env-card.warn .value { color: #f39c12; }
+  .env-card.err { border-color: rgba(231,76,60,.4); }
+  .env-card.err .value { color: #e74c3c; }
+
+  .panel {
+    background: #1a1d27; border: 1px solid #343a4d; border-radius: 10px;
+    padding: 14px; margin-bottom: 12px;
+  }
+  .panel-title {
+    font-size: 11px; color: #8b91a5; text-transform: uppercase;
+    letter-spacing: .6px; margin-bottom: 10px; font-weight: 600;
+  }
+  .form-group { margin-bottom: 10px; }
+  .form-group label {
+    display: block; font-size: 11px; color: #8b91a5;
+    margin-bottom: 4px; font-weight: 500;
+  }
+  select, input {
+    width: 100%; padding: 8px 10px; background: #2a2e3d;
+    border: 1px solid #343a4d; border-radius: 7px; color: #e8eaf0;
+    font-size: 13px; font-family: monospace; outline: none;
+  }
+  select:focus, input:focus { border-color: #4f7cff; }
+  .btn {
+    width: 100%; padding: 10px; border: none; border-radius: 8px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    transition: all .2s; font-family: inherit;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-primary { background: #4f7cff; color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: #6b92ff; }
+  .btn-danger {
+    background: rgba(231,76,60,.15); color: #e74c3c;
+    border: 1px solid rgba(231,76,60,.3);
+  }
+  .btn-outline {
+    background: transparent; color: #8b91a5;
+    border: 1px solid #343a4d;
+  }
+  .btn-outline:hover:not(:disabled) { color: #e8eaf0; border-color: #8b91a5; }
+  .btn-row { display: flex; gap: 8px; margin-top: 10px; }
+  .btn-row .btn { flex: 1; }
+
+  #log {
+    background: #0a0c12; border: 1px solid #343a4d; border-radius: 8px;
+    padding: 10px 12px; font-family: monospace; font-size: 12px;
+    line-height: 1.7; height: 360px; overflow-y: auto;
+    white-space: pre-wrap; word-break: break-all;
+  }
+  #log .line { display: flex; gap: 6px; }
+  #log .ts { color: #5a6275; font-size: 10.5px; flex-shrink: 0; }
+  #log .msg { flex: 1; }
+  #log .info .msg { color: #f39c12; }
+  #log .ok .msg { color: #2ecc71; }
+  #log .err .msg { color: #ff8a80; }
+  #log .cmd .msg { color: #4f7cff; }
+  #log .resp .msg { color: #2ecc71; }
+  #log .dim .msg { color: #8b91a5; }
+
+  .chip-info {
+    background: rgba(79,124,255,.06); border: 1px solid rgba(79,124,255,.22);
+    border-radius: 8px; padding: 10px 12px; font-size: 11.5px;
+    line-height: 1.8; color: #7fa4ff;
+  }
+  .chip-info b { color: #e8eaf0; }
+  .chip-info .no { color: #ff8a80; }
+  .chip-info .yes { color: #2ecc71; }
+  code {
+    background: rgba(0,0,0,.35); padding: 1px 5px;
+    border-radius: 3px; font-family: monospace; font-size: 10.5px;
+    color: #a8c0ff;
+  }
+  .terminal-input-row { display: flex; gap: 6px; margin-top: 8px; }
+  .terminal-input-row input { flex: 1; font-family: monospace; }
+  .terminal-input-row button {
+    padding: 8px 16px; background: #4f7cff; border: none;
+    border-radius: 6px; color: #fff; font-size: 12px; font-weight: 600;
+    cursor: pointer; flex-shrink: 0;
+  }
+  .terminal-input-row button:disabled { opacity: .4; cursor: not-allowed; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-thumb { background: #2e3342; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<h1>串口连接测试 <span>WebUSB Polyfill 验证 · v1.0</span></h1>
+
+<!-- 环境检测卡片 -->
+<div class="env-card" id="envCard">
+  <div class="icon">⏳</div>
+  <div class="info">
+    <div class="label">运行环境</div>
+    <div class="value" id="envValue">检测中...</div>
+  </div>
+</div>
+
+<!-- 连接设置 -->
+<div class="panel">
+  <div class="panel-title">连接设置</div>
+  <div class="form-group">
+    <label>波特率 Baud Rate</label>
+    <select id="baudRate">
+      <option value="115200" selected>115200（常用）</option>
+      <option value="9600">9600</option>
+      <option value="19200">19200</option>
+      <option value="38400">38400</option>
+      <option value="57600">57600</option>
+      <option value="230400">230400</option>
+      <option value="460800">460800</option>
+      <option value="921600">921600</option>
+    </select>
+  </div>
+  <button class="btn btn-primary" id="btnConnect" onclick="connectUSB()" disabled>
+    🔌 选择设备并连接
+  </button>
+  <div class="btn-row">
+    <button class="btn btn-outline" id="btnSendAT" onclick="sendTestAT()" disabled>🧪 发送 AT</button>
+    <button class="btn btn-danger" id="btnDisconnect" onclick="disconnectUSB()" disabled>断开</button>
+  </div>
+</div>
+
+<!-- AT 指令输入 -->
+<div class="panel">
+  <div class="panel-title">手动发送 AT 指令</div>
+  <div class="terminal-input-row">
+    <input id="atInput" placeholder="输入 AT 指令，如 ATI" autocomplete="off"
+           onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendCustomAT();}">
+    <button id="btnSendCustom" onclick="sendCustomAT()" disabled>发送</button>
+  </div>
+</div>
+
+<!-- 日志 -->
+<div class="panel" style="padding:0;overflow:hidden;">
+  <div class="panel-title" style="padding:14px 14px 0 14px;display:flex;justify-content:space-between;align-items:center;">
+    <span>调试日志</span>
+    <button class="btn btn-outline" style="width:auto;padding:4px 10px;font-size:11px;" onclick="clearLog()">清屏</button>
+  </div>
+  <div id="log" style="margin:10px 14px 14px 14px;"></div>
+</div>
+
+<!-- 芯片兼容性 -->
+<div class="panel">
+  <div class="panel-title">芯片兼容性参考</div>
+  <div class="chip-info">
+    <b>✅ 已支持：</b><br>
+    · CDC-ACM（Arduino / STM32 / RP2040 / 部分 CP210x）<br>
+    · PL2303（含 HXN 系列）<br>
+    · FTDI（FT232R / FT232H / FT2232H / FT4232H 等）<br>
+    <br>
+    <b class="no">❌ 当前不支持：</b><br>
+    · <b>CH340 / CH341</b>（随身WiFi 最常见的芯片）<br>
+    <br>
+    如果设备列表里看不到你的随身WiFi，很可能是 CH340 芯片，当前 Polyfill 无法支持。
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════ */
+/* 全局状态                                                             */
+/* ═══════════════════════════════════════════════════════════════════ */
+const state = {
+  port: null,
+  reader: null,
+  readLoopActive: false,
+  connected: false,
+  env: 'unknown',
+  polyfillLoaded: false,
+  rxBuffer: '',       // 用于累积响应以判断 OK/ERROR
+};
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* 日志工具                                                             */
+/* ═══════════════════════════════════════════════════════════════════ */
+function log(msg, type = 'info') {
+  const logDiv = document.getElementById('log');
+  const now = new Date();
+  const ts = String(now.getHours()).padStart(2, '0') + ':' +
+             String(now.getMinutes()).padStart(2, '0') + ':' +
+             String(now.getSeconds()).padStart(2, '0');
+  const line = document.createElement('div');
+  line.className = 'line ' + type;
+  line.innerHTML = `<span class="ts">${ts}</span><span class="msg"></span>`;
+  line.querySelector('.msg').textContent = msg;
+  logDiv.appendChild(line);
+  // 保留最近 300 行
+  while (logDiv.children.length > 300) logDiv.removeChild(logDiv.firstChild);
+  logDiv.scrollTop = logDiv.scrollHeight;
+  // 同时输出到浏览器控制台（方便截图排查）
+  console.log(`[${type}] ${msg}`);
+}
+function clearLog() {
+  document.getElementById('log').innerHTML = '';
+  log('日志已清空', 'dim');
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* 环境检测                                                             */
+/* ═══════════════════════════════════════════════════════════════════ */
+function detectEnvironment() {
+  const hasSerial = 'serial' in navigator;
+  const hasUsb = 'usb' in navigator;
+
+  // 判断是否安卓（UA + 触摸屏）
+  const isAndroid = /Android/i.test(navigator.userAgent);
+
+  let env, cardClass, icon, text;
+
+  if (hasSerial) {
+    env = 'desktop-serial';
+    cardClass = 'ok';
+    icon = '🖥️';
+    text = '桌面模式 · 原生 Web Serial 可用';
+  } else if (isAndroid && hasUsb) {
+    env = 'android-polyfill';
+    cardClass = 'warn';
+    icon = '📱';
+    text = '安卓模式 · WebUSB 可用（需加载 Polyfill）';
+  } else if (hasUsb) {
+    env = 'android-polyfill';
+    cardClass = 'warn';
+    icon = '📱';
+    text = 'WebUSB 可用（未知系统，按安卓模式处理）';
+  } else {
+    env = 'unsupported';
+    cardClass = 'err';
+    icon = '❌';
+    text = '当前环境不支持串口连接';
+  }
+
+  state.env = env;
+  const card = document.getElementById('envCard');
+  card.className = 'env-card ' + cardClass;
+  card.querySelector('.icon').textContent = icon;
+  document.getElementById('envValue').textContent = text;
+
+  // 附带更详细的环境信息
+  log(`环境检测: ${env}`, 'info');
+  log(`  navigator.serial: ${hasSerial}`, 'dim');
+  log(`  navigator.usb: ${hasUsb}`, 'dim');
+  log(`  User-Agent: ${navigator.userAgent.substring(0, 100)}...`, 'dim');
+
+  return env;
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* Polyfill 动态加载                                                    */
+/* ═══════════════════════════════════════════════════════════════════ */
+async function loadPolyfillIfNeeded() {
+  if ('serial' in navigator) return true;  // 桌面端无需加载
+  if (!('usb' in navigator)) return false;
+  if (state.polyfillLoaded) return true;
+
+  log('正在从 CDN 加载 WebUSB Polyfill...', 'info');
+
+  // 备用 CDN 列表
+  const cdns = [
+    'https://cdn.jsdelivr.net/npm/@cmuav/web-serial-polyfill@1.2.0/dist/web-serial-polyfill.min.js',
+    'https://unpkg.com/@cmuav/web-serial-polyfill@1.2.0/dist/web-serial-polyfill.min.js',
+  ];
+
+  for (const url of cdns) {
+    try {
+      log(`尝试加载: ${url}`, 'dim');
+      await new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = url;
+        script.onload = resolve;
+        script.onerror = () => reject(new Error('脚本加载失败'));
+        document.head.appendChild(script);
+        // 10 秒超时
+        setTimeout(() => reject(new Error('加载超时')), 10000);
+      });
+
+      // 验证 Polyfill 是否成功挂载
+      if ('serial' in navigator) {
+        state.polyfillLoaded = true;
+        log('✅ Polyfill 加载成功，navigator.serial 已可用', 'ok');
+        return true;
+      } else {
+        log('⚠️ Polyfill 已加载但 navigator.serial 未挂载', 'err');
+      }
+    } catch (e) {
+      log(`此 CDN 加载失败: ${e.message}`, 'err');
+    }
+  }
+
+  log('❌ 所有 CDN 均加载失败', 'err');
+  return false;
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* 连接流程                                                             */
+/* ═══════════════════════════════════════════════════════════════════ */
+async function connectUSB() {
+  const env = detectEnvironment();
+
+  if (env === 'unsupported') {
+    alert('当前环境不支持串口连接。\n\n建议：\n1. 桌面端使用 Chrome / Edge 89+\n2. 安卓端使用 Chrome for Android 并支持 OTG');
+    return;
+  }
+
+  // 安卓环境：加载 Polyfill
+  if (env === 'android-polyfill') {
+    const ok = await loadPolyfillIfNeeded();
+    if (!ok) {
+      alert('Polyfill 加载失败，无法在安卓上使用串口。\n\n可能原因：\n1. 网络问题（CDN 被墙）\n2. 浏览器版本过旧');
+      return;
+    }
+  }
+
+  try {
+    log('══════ 开始连接流程 ══════', 'info');
+
+    // 请求端口
+    log('正在请求串口设备（浏览器将弹出 USB 设备选择框）...', 'info');
+    const port = await navigator.serial.requestPort();
+
+    // 显示设备信息
+    try {
+      const info = port.getInfo ? port.getInfo() : {};
+      const vid = info.usbVendorId ? info.usbVendorId.toString(16).padStart(4, '0') : '????';
+      const pid = info.usbProductId ? info.usbProductId.toString(16).padStart(4, '0') : '????';
+      log(`✅ 已选择设备: VID=0x${vid} PID=0x${pid}`, 'ok');
+    } catch (e) {
+      log('已选择设备（无法获取 VID/PID）', 'ok');
+    }
+
+    // 打开端口
+    const baud = parseInt(document.getElementById('baudRate').value);
+    log(`正在打开串口 (波特率 ${baud})...`, 'info');
+
+    await port.open({
+      baudRate: baud,
+      dataBits: 8,
+      stopBits: 1,
+      parity: 'none',
+      flowControl: 'none',
+      bufferSize: 255,
+    });
+
+    state.port = port;
+    state.connected = true;
+    state.rxBuffer = '';
+
+    log('✅ 串口已成功打开！', 'ok');
+    updateUI(true);
+    startReadLoop();
+
+    // 自动发送 AT 测试
+    setTimeout(async () => {
+      log('自动发送测试指令 AT...', 'info');
+      await writeToPort('AT');
+    }, 600);
+
+  } catch (err) {
+    log(`❌ 连接失败: ${err.name} - ${err.message}`, 'err');
+
+    if (err.name === 'NotFoundError') {
+      log('用户取消了设备选择', 'info');
+    } else if (err.name === 'SecurityError') {
+      log('权限被拒绝，请重新连接并允许 USB 权限', 'err');
+    } else if (err.message && /Failed to open serial port/i.test(err.message)) {
+      log('串口打开失败，可能原因：', 'err');
+      log('  ① 该芯片不被 Polyfill 支持（最常见：CH340）', 'err');
+      log('  ② 设备被其他 App 占用（如毛坯助手）', 'err');
+      log('  ③ OTG 连接不稳定，请拔插后重试', 'err');
+      log('  ④ 波特率不匹配，请尝试其他波特率', 'err');
+      alert('串口打开失败。\n\n如果设备列表能看到设备但打不开：\n1. 检查是否被其他 App 占用\n2. 尝试更换波特率\n3. 拔插 OTG 后重试\n\n如果设备列表看不到设备：\n很可能是 CH340 芯片，当前 Polyfill 不支持。');
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* 读取循环                                                             */
+/* ═══════════════════════════════════════════════════════════════════ */
+async function startReadLoop() {
+  if (!state.port || !state.port.readable) {
+    log('端口不可读', 'err');
+    return;
+  }
+  state.readLoopActive = true;
+  log('读取循环已启动', 'dim');
+
+  while (state.port.readable && state.readLoopActive) {
+    state.reader = state.port.readable.getReader();
+    let decoder = new TextDecoder();
+    let buffer = '';
+    try {
+      while (state.readLoopActive) {
+        const { value, done } = await state.reader.read();
+        if (done) break;
+        if (value) {
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split(/\r\n|\r|\n/);
+          buffer = lines.pop() || '';
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed) continue;
+            log(trimmed, 'resp');
+            state.rxBuffer += trimmed + '\n';
+          }
+        }
+      }
+    } catch (err) {
+      if (state.readLoopActive && state.connected) {
+        log(`读取错误: ${err.message}`, 'err');
+      }
+    } finally {
+      try { state.reader.releaseLock(); } catch (e) {}
+    }
+  }
+  state.reader = null;
+  log('读取循环已停止', 'dim');
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* 写入                                                                 */
+/* ═══════════════════════════════════════════════════════════════════ */
+async function writeToPort(data) {
+  if (!state.port || !state.port.writable) {
+    log('串口不可写', 'err');
+    return false;
+  }
+  try {
+    const writer = state.port.writable.getWriter();
+    const payload = data + '\r\n';
+    await writer.write(new TextEncoder().encode(payload));
+    writer.releaseLock();
+    log(data, 'cmd');
+    return true;
+  } catch (e) {
+    log(`写入失败: ${e.message}`, 'err');
+    return false;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* AT 测试                                                              */
+/* ═══════════════════════════════════════════════════════════════════ */
+async function sendTestAT() {
+  if (!state.connected) {
+    log('未连接', 'err');
+    return;
+  }
+  state.rxBuffer = '';
+  await writeToPort('AT');
+  await waitForOK(2000);
+}
+
+async function sendCustomAT() {
+  if (!state.connected) {
+    log('未连接', 'err');
+    return;
+  }
+  const input = document.getElementById('atInput');
+  const cmd = input.value.trim();
+  if (!cmd) return;
+  input.value = '';
+  state.rxBuffer = '';
+  await writeToPort(cmd);
+  await waitForOK(2000);
+}
+
+async function waitForOK(timeoutMs) {
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    await new Promise(r => setTimeout(r, 100));
+    if (/\bOK\b/.test(state.rxBuffer)) {
+      log('✓ 收到 OK 响应，设备通信正常', 'ok');
+      return true;
+    }
+    if (/\bERROR\b/i.test(state.rxBuffer)) {
+      log('收到 ERROR 响应（指令被拒绝，但设备通信正常）', 'info');
+      return true;
+    }
+  }
+  log('⚠️ 未在超时内收到 OK/ERROR 响应', 'info');
+  return false;
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* 断开                                                                 */
+/* ═══════════════════════════════════════════════════════════════════ */
+async function disconnectUSB() {
+  log('正在断开...', 'info');
+  state.readLoopActive = false;
+  state.connected = false;
+
+  try {
+    if (state.reader) {
+      await state.reader.cancel().catch(() => {});
+      state.reader = null;
+    }
+    if (state.port) {
+      await state.port.close();
+      state.port = null;
+    }
+    log('✅ 串口已断开', 'ok');
+  } catch (err) {
+    log(`断开时出错: ${err.message}`, 'err');
+  }
+  updateUI(false);
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* UI 更新                                                              */
+/* ═══════════════════════════════════════════════════════════════════ */
+function updateUI(connected) {
+  document.getElementById('btnConnect').disabled = connected;
+  document.getElementById('btnDisconnect').disabled = !connected;
+  document.getElementById('btnSendAT').disabled = !connected;
+  document.getElementById('btnSendCustom').disabled = !connected;
+  document.getElementById('baudRate').disabled = connected;
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* 初始化                                                               */
+/* ═══════════════════════════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', () => {
+  const env = detectEnvironment();
+  document.getElementById('btnConnect').disabled = (env === 'unsupported');
+
+  log('═══════════════════════════════════════', 'dim');
+  log('串口连接测试页面已就绪', 'info');
+  log('请点击上方"选择设备并连接"开始测试', 'info');
+  log('═══════════════════════════════════════', 'dim');
+
+  if (env === 'unsupported') {
+    log('⚠️ 当前环境不支持串口连接', 'err');
+    log('建议：', 'info');
+    log('  · 桌面端：Chrome / Edge 89+', 'dim');
+    log('  · 安卓端：Chrome for Android + OTG', 'dim');
+  }
+});
+
+/* 页面卸载时清理 */
+window.addEventListener('beforeunload', () => {
+  try { if (state.port) state.port.close(); } catch (e) {}
+});
+</script>
+
+</body>
+</html>
