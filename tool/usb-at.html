@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AT 端点智能探测</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: -apple-system, monospace; background:#0f1117; color:#e8eaf0; padding:14px; font-size:13px; }
+  h1 { font-size:16px; margin-bottom:12px; }
+  .card { background:#1a1d27; border:1px solid #343a4d; border-radius:10px; padding:12px 14px; margin-bottom:10px; }
+  .card h3 { font-size:11px; color:#8b91a5; text-transform:uppercase; letter-spacing:.6px; margin-bottom:8px; }
+  .btn { width:100%; padding:10px; border:none; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; margin-bottom:6px; font-family:inherit; }
+  .btn-primary { background:#4f7cff; color:#fff; }
+  .btn-primary:disabled { opacity:.4; }
+  .btn-success { background:#2ecc71; color:#fff; }
+  .btn-danger { background:rgba(231,76,60,.15); color:#e74c3c; border:1px solid rgba(231,76,60,.3); }
+  #log { background:#0a0c12; border:1px solid #343a4d; border-radius:8px; padding:10px; font-family:monospace; font-size:11px; line-height:1.7; height:500px; overflow-y:auto; white-space:pre-wrap; word-break:break-all; }
+  #log .line { margin-bottom:2px; }
+  #log .ok { color:#2ecc71; }
+  #log .err { color:#ff8a80; }
+  #log .warn { color:#f39c12; }
+  #log .info { color:#7fa4ff; }
+  #log .dim { color:#8b91a5; }
+  #log .resp { color:#c8cdd8; }
+  #log .head { color:#a78bfa; font-weight:700; border-top:1px solid #343a4d; padding-top:6px; margin-top:6px; }
+  #log .hit { color:#2ecc71; font-weight:700; background:rgba(46,204,113,.1); padding:2px 4px; }
+</style>
+</head>
+<body>
+
+<h1>AT 端点智能探测</h1>
+
+<div class="card">
+  <h3>操作</h3>
+  <button class="btn btn-primary" id="btnStart" onclick="runProbe()">🚀 一键探测（请求设备 + 遍历 + 逐个尝试）</button>
+  <button class="btn btn-danger" onclick="location.reload()">重置页面</button>
+</div>
+
+<div class="card">
+  <h3>日志</h3>
+  <div id="log"></div>
+</div>
+
+<script>
+let device = null;
+let currentClaimed = null;
+
+function log(msg, cls = '') {
+  const el = document.getElementById('log');
+  const now = new Date();
+  const ts = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0');
+  const line = document.createElement('div');
+  line.className = 'line ' + cls;
+  line.innerHTML = `<span class="ts" style="color:#5a6275">[${ts}]</span> ${msg}`;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+  console.log(msg);
+}
+
+async function runProbe() {
+  document.getElementById('btnStart').disabled = true;
+
+  try {
+    // ① 请求设备
+    log('══════ ① 请求设备 ══════', 'head');
+    device = await navigator.usb.requestDevice({ filters: [{ vendorId: 0x19d2 }] });
+    log(`✅ ${device.productName || '未命名'} (VID=0x${device.vendorId.toString(16)}:PID=0x${device.productId.toString(16)})`, 'ok');
+
+    // ② 打开
+    log('══════ ② 打开设备 ══════', 'head');
+    await device.open();
+    log('✅ 已打开', 'ok');
+
+    // 强制选中配置 1
+    if (!device.configuration || device.configuration.configurationValue !== 1) {
+      await device.selectConfiguration(1);
+    }
+    const cfg = device.configuration;
+    log(`当前配置: ${cfg.configurationValue}，共 ${cfg.interfaces.length} 个接口`, 'info');
+
+    // 打印所有接口 + 所有 alternate + 所有 endpoint
+    log('══════ ③ 完整接口列表 ══════', 'head');
+    for (const iface of cfg.interfaces) {
+      log(`接口 #${iface.interfaceNumber} (共 ${iface.alternates.length} 个 alt)`, 'info');
+      for (let ai = 0; ai < iface.alternates.length; ai++) {
+        const alt = iface.alternates[ai];
+        log(`  [alt ${ai}] class=0x${alt.interfaceClass.toString(16).padStart(2,'0')} subclass=0x${alt.interfaceSubclass.toString(16).padStart(2,'0')} protocol=0x${alt.interfaceProtocol.toString(16).padStart(2,'0')}`, 'dim');
+        for (const ep of alt.endpoints) {
+          log(`    ep 0x${ep.endpointNumber.toString(16)} ${ep.direction} ${ep.type} maxPkt=${ep.packetSize}`, 'dim');
+        }
+      }
+    }
+
+    // ④ 构造候选（接口号, out端点, in端点, 描述）
+    log('══════ ④ 构造候选端点组合 ══════', 'head');
+    const candidates = [];
+
+    // 候选1：接口 0 的 interrupt 端点 0x7（中兴 CDC-ACM AT 接口常用）
+    // 先看接口 0 有没有 0x7 端点
+    const iface0 = cfg.interfaces.find(i => i.interfaceNumber === 0);
+    if (iface0) {
+      for (const alt of iface0.alternates) {
+        let inEp = null;
+        for (const ep of alt.endpoints) {
+          if (ep.direction === 'in') inEp = ep.endpointNumber;
+        }
+        if (inEp !== null) {
+          // CDC-ACM 的 interrupt 端点通常只能读 URC，AT 命令还是走 Data 接口
+          // 但有些设备支持在 interrupt 端点直接收发
+          candidates.push({ iface: 0, out: inEp, in: inEp, desc: '接口0 interrupt(0x7) 单端点双用' });
+        }
+      }
+    }
+
+    // 候选2：接口 0 + 接口 1 组合（CDC-ACM 标准组合）
+    // 需要找接口 1 的 bulk 端点
+    const iface1 = cfg.interfaces.find(i => i.interfaceNumber === 1);
+    if (iface1 && iface0) {
+      for (const alt1 of iface1.alternates) {
+        let in1 = null, out1 = null;
+        for (const ep of alt1.endpoints) {
+          if (ep.direction === 'in') in1 = ep.endpointNumber;
+          if (ep.direction === 'out') out1 = ep.endpointNumber;
+        }
+        if (in1 !== null && out1 !== null) {
+          candidates.push({ iface: [0, 1], out: out1, in: in1, desc: `接口0+1(Data) bulk out=0x${out1.toString(16)} in=0x${in1.toString(16)}` });
+        }
+      }
+    }
+
+    // 候选3-6：接口 2/3/4/5 的 bulk 端点
+    for (const ifaceNum of [2, 3, 4, 5]) {
+      const iface = cfg.interfaces.find(i => i.interfaceNumber === ifaceNum);
+      if (!iface) continue;
+      for (const alt of iface.alternates) {
+        let inEp = null, outEp = null;
+        for (const ep of alt.endpoints) {
+          if (ep.type !== 'bulk') continue;
+          if (ep.direction === 'in') inEp = ep.endpointNumber;
+          if (ep.direction === 'out') outEp = ep.endpointNumber;
+        }
+        if (inEp !== null && outEp !== null) {
+          candidates.push({ iface: ifaceNum, out: outEp, in: inEp, desc: `接口${ifaceNum} bulk out=0x${outEp.toString(16)} in=0x${inEp.toString(16)}` });
+        }
+      }
+    }
+
+    log(`共 ${candidates.length} 个候选组合:`, 'info');
+    candidates.forEach((c, i) => log(`  [${i+1}] ${c.desc}`, 'dim'));
+
+    // ⑤ 逐个尝试
+    log('══════ ⑤ 逐个尝试 AT 通信 ══════', 'head');
+
+    let hit = null;
+
+    for (let i = 0; i < candidates.length; i++) {
+      const c = candidates[i];
+      log(`--- 尝试 [${i+1}/${candidates.length}]: ${c.desc} ---`, 'info');
+
+      // 先释放之前声明的接口
+      if (currentClaimed !== null) {
+        try { await device.releaseInterface(currentClaimed); } catch(e){}
+        currentClaimed = null;
+      }
+      // 支持多接口声明
+      if (Array.isArray(c.iface)) {
+        for (const n of c.iface) {
+          try { await device.claimInterface(n); currentClaimed = n; } catch(e){}
+        }
+      } else {
+        try {
+          await device.claimInterface(c.iface);
+          currentClaimed = c.iface;
+        } catch(e) {
+          log(`  ✗ claimInterface(${c.iface}) 失败: ${e.message}`, 'err');
+          continue;
+        }
+      }
+      log(`  ✓ 已声明接口`, 'dim');
+
+      // 发送 AT
+      try {
+        const payload = new TextEncoder().encode('AT\r\n');
+        await device.transferOut(c.out, payload);
+        log(`  → 已发送 AT`, 'dim');
+      } catch (e) {
+        log(`  ✗ transferOut 失败: ${e.message}`, 'err');
+        continue;
+      }
+
+      // 等待并读取
+      await new Promise(r => setTimeout(r, 800));
+
+      let gotResponse = false;
+      let respText = '';
+      for (let t = 0; t < 4; t++) {
+        try {
+          const res = await device.transferIn(c.in, 256);
+          if (res.status === 'ok' && res.data && res.data.byteLength > 0) {
+            const text = new TextDecoder().decode(res.data);
+            respText += text;
+            if (/\bOK\b/.test(text) || /\bERROR\b/i.test(text)) {
+              gotResponse = true;
+              break;
+            }
+          }
+        } catch (e) {
+          break;
+        }
+        await new Promise(r => setTimeout(r, 250));
+      }
+
+      if (gotResponse) {
+        log(`  ← 响应: ${respText.replace(/\r/g,'').replace(/\n/g,' | ')}`, 'resp');
+        log(`  ✅✅✅ 命中！${c.desc}`, 'hit');
+        hit = c;
+        break;
+      } else if (respText) {
+        log(`  ← 部分响应: ${respText.replace(/\r/g,'')}`, 'warn');
+      } else {
+        log(`  ✗ 无响应`, 'err');
+      }
+    }
+
+    // ⑥ 结果
+    log('══════ ⑥ 探测结果 ══════', 'head');
+    if (hit) {
+      log(`🎯 AT 通道已找到: ${hit.desc}`, 'hit');
+      log(`   接口: ${JSON.stringify(hit.iface)}`, 'ok');
+      log(`   OUT 端点: 0x${hit.out.toString(16)}`, 'ok');
+      log(`   IN  端点: 0x${hit.in.toString(16)}`, 'ok');
+      log(`   ⚠️ 请把以上信息截图发给开发者`, 'warn');
+    } else {
+      log(`❌ 所有 ${candidates.length} 个候选组合均无响应`, 'err');
+      log(`   可能原因：`, 'warn');
+      log(`   1. 设备需要更长的响应时间（尝试等待 2~3 秒）`, 'dim');
+      log(`   2. AT 命令需要额外的前缀/后缀（如 \\r\\n 或 \\n 单独）`, 'dim');
+      log(`   3. 设备有专属的 AT 通道，需要不同波特率或初始化序列`, 'dim');
+      log(`   4. 请把接口列表截图发给开发者进一步分析`, 'dim');
+    }
+
+  } catch (e) {
+    log(`❌ 未捕获错误: ${e.name} - ${e.message}`, 'err');
+    console.error(e);
+  } finally {
+    document.getElementById('btnStart').disabled = false;
+  }
+}
+</script>
+
+</body>
+</html>
