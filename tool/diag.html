@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USB 诊断 · 安卓 Chrome 154</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: -apple-system, monospace; background:#0f1117; color:#e8eaf0; padding:14px; font-size:13px; }
+  h1 { font-size:16px; margin-bottom:12px; }
+  h1 span { font-size:11px; color:#8b91a5; font-weight:400; }
+  .card { background:#1a1d27; border:1px solid #343a4d; border-radius:10px; padding:12px 14px; margin-bottom:10px; }
+  .card h3 { font-size:11px; color:#8b91a5; text-transform:uppercase; letter-spacing:.6px; margin-bottom:8px; }
+  .kv { display:flex; justify-content:space-between; padding:4px 0; font-size:12px; gap:8px; border-bottom:1px solid rgba(255,255,255,.04); }
+  .kv:last-child { border-bottom:none; }
+  .kv .k { color:#8b91a5; flex-shrink:0; }
+  .kv .v { font-family:monospace; font-size:11px; word-break:break-all; text-align:right; }
+  .ok { color:#2ecc71; }
+  .err { color:#e74c3c; }
+  .warn { color:#f39c12; }
+  .dim { color:#8b91a5; }
+  .btn { width:100%; padding:10px; border:none; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; margin-bottom:6px; font-family:inherit; }
+  .btn-primary { background:#4f7cff; color:#fff; }
+  .btn-primary:disabled { opacity:.4; cursor:not-allowed; }
+  .btn-outline { background:transparent; color:#8b91a5; border:1px solid #343a4d; }
+  .btn-outline:active { color:#e8eaf0; }
+  #log { background:#0a0c12; border:1px solid #343a4d; border-radius:8px; padding:10px; font-family:monospace; font-size:11.5px; line-height:1.7; height:280px; overflow-y:auto; white-space:pre-wrap; word-break:break-all; }
+  #log .line { margin-bottom:2px; }
+  #log .ts { color:#5a6275; }
+  .big { font-size:15px; font-weight:700; }
+  .step { padding:8px 10px; border-radius:6px; margin-bottom:6px; font-size:11.5px; line-height:1.6; }
+  .step.pass { background:rgba(46,204,113,.08); border:1px solid rgba(46,204,113,.3); color:#2ecc71; }
+  .step.fail { background:rgba(231,76,60,.08); border:1px solid rgba(231,76,60,.3); color:#ff8a80; }
+  .step.pend { background:rgba(243,156,18,.08); border:1px solid rgba(243,156,18,.3); color:#f39c12; }
+</style>
+</head>
+<body>
+
+<h1>USB 诊断工具 <span>Chrome 154 · Android</span></h1>
+
+<div class="card">
+  <h3>环境检测</h3>
+  <div class="kv"><span class="k">navigator.serial</span><span class="v" id="v-serial">-</span></div>
+  <div class="kv"><span class="k">navigator.usb</span><span class="v" id="v-usb">-</span></div>
+  <div class="kv"><span class="k">User-Agent</span><span class="v" id="v-ua">-</span></div>
+  <div class="kv"><span class="k">安全上下文</span><span class="v" id="v-secure">-</span></div>
+</div>
+
+<div class="card">
+  <h3>诊断步骤</h3>
+  <div class="step pend" id="s1">① 等待启动...</div>
+  <div class="step pend" id="s2">② 等待启动...</div>
+  <div class="step pend" id="s3">③ 等待启动...</div>
+  <div class="step pend" id="s4">④ 等待启动...</div>
+</div>
+
+<div class="card">
+  <h3>操作</h3>
+  <button class="btn btn-primary" id="btnScan" onclick="scanUsb()">🔍 扫描已识别 USB 设备</button>
+  <button class="btn btn-primary" id="btnRequest" onclick="requestUsb()">📡 请求访问新 USB 设备</button>
+  <button class="btn btn-primary" id="btnPort" onclick="requestPort()">🔌 请求串口 (Web Serial)</button>
+  <button class="btn btn-outline" onclick="document.getElementById('log').innerHTML=''">清屏</button>
+</div>
+
+<div class="card">
+  <h3>日志</h3>
+  <div id="log"></div>
+</div>
+
+<script>
+function log(msg, cls = '') {
+  const logEl = document.getElementById('log');
+  const now = new Date();
+  const ts = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0');
+  const line = document.createElement('div');
+  line.className = 'line ' + cls;
+  line.innerHTML = `<span class="ts">[${ts}]</span> ${msg}`;
+  logEl.appendChild(line);
+  logEl.scrollTop = logEl.scrollHeight;
+  console.log(msg);
+}
+
+function setStep(id, status, text) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = 'step ' + status;
+  el.textContent = text;
+}
+
+function checkEnv() {
+  const vSerial = document.getElementById('v-serial');
+  const vUsb = document.getElementById('v-usb');
+  const vUa = document.getElementById('v-ua');
+  const vSecure = document.getElementById('v-secure');
+
+  const hasSerial = 'serial' in navigator;
+  const hasUsb = 'usb' in navigator;
+  vSerial.textContent = hasSerial ? '✅ true' : '❌ false';
+  vSerial.className = 'v ' + (hasSerial ? 'ok' : 'err');
+  vUsb.textContent = hasUsb ? '✅ true' : '❌ false';
+  vUsb.className = 'v ' + (hasUsb ? 'ok' : 'err');
+  vUa.textContent = navigator.userAgent;
+  vSecure.textContent = (window.isSecureContext ? '✅ HTTPS' : '❌ 非HTTPS');
+
+  setStep('s1', hasSerial ? 'pass' : 'fail',
+    `① Web Serial API: ${hasSerial ? '✅ 支持' : '❌ 不支持'}`);
+  setStep('s2', hasUsb ? 'pass' : 'fail',
+    `② WebUSB API: ${hasUsb ? '✅ 支持' : '❌ 不支持'}`);
+
+  return { hasSerial, hasUsb };
+}
+
+async function scanUsb() {
+  log('--- 扫描已识别的 USB 设备 ---', 'dim');
+  try {
+    const devices = await navigator.usb.getDevices();
+    if (devices.length === 0) {
+      log('⚠️ 未找到任何已授权 USB 设备', 'warn');
+      log('  提示：这说明还没有通过本页面授权过任何 USB 设备', 'dim');
+      setStep('s3', 'warn', '③ 已识别 USB 设备: 0 个（需先点击"请求访问新 USB 设备"）');
+    } else {
+      log(`✅ 找到 ${devices.length} 个已授权 USB 设备:`, 'ok');
+      devices.forEach((d, i) => {
+        const vid = d.vendorId.toString(16).padStart(4,'0');
+        const pid = d.productId.toString(16).padStart(4,'0');
+        log(`  [${i+1}] VID=0x${vid} PID=0x${pid} | ${d.productName || '(未命名)'} | ${d.manufacturerName || ''}`, 'ok');
+      });
+      setStep('s3', 'pass', `③ 已识别 USB 设备: ${devices.length} 个`);
+    }
+  } catch (e) {
+    log(`扫描失败: ${e.message}`, 'err');
+  }
+}
+
+async function requestUsb() {
+  log('--- 请求访问新 USB 设备 ---', 'dim');
+  log('即将弹出系统 USB 设备选择框...', 'dim');
+  try {
+    const device = await navigator.usb.requestDevice({ filters: [] });
+    const vid = device.vendorId.toString(16).padStart(4,'0');
+    const pid = device.productId.toString(16).padStart(4,'0');
+    log(`✅ 用户选择了设备:`, 'ok');
+    log(`  VID=0x${vid} PID=0x${pid}`, 'ok');
+    log(`  产品: ${device.productName || '(未命名)'}`, 'ok');
+    log(`  厂商: ${device.manufacturerName || '(未知)'}`, 'ok');
+    setStep('s3', 'pass', `③ USB 设备可见: VID=0x${vid} PID=0x${pid}`);
+  } catch (e) {
+    if (e.name === 'NotFoundError') {
+      log('❌ 用户取消了选择，或系统没有可用的 USB 设备', 'err');
+      log('  这意味着：安卓系统根本没有识别到任何 USB 设备', 'err');
+      log('  排查：', 'warn');
+      log('  1. 换一根确定能传数据的 USB 线（充电线不行）', 'warn');
+      log('  2. 确认手机已开启 OTG 功能', 'warn');
+      log('  3. 换个 OTG 转接头试试', 'warn');
+      setStep('s3', 'fail', '③ USB 设备: 系统未识别到任何设备');
+    } else {
+      log(`请求失败: ${e.name} - ${e.message}`, 'err');
+    }
+  }
+}
+
+async function requestPort() {
+  log('--- 请求串口 (Web Serial) ---', 'dim');
+  try {
+    const port = await navigator.serial.requestPort();
+    log('✅ 已选择串口', 'ok');
+    setStep('s4', 'pass', '④ 串口可见: 用户已选择');
+  } catch (e) {
+    if (e.name === 'NotFoundError') {
+      log('❌ 未找到兼容的串口设备', 'err');
+      log('  这意味着：安卓识别到了 USB 设备，但设备的 USB 接口', 'warn');
+      log('  不符合 Web Serial 的规范（没有暴露 CDC/ACM 或 FTDI/PL2303 接口）', 'warn');
+      log('  可能原因：', 'warn');
+      log('  1. 设备使用 CH340 芯片（Android Chrome 不识别）', 'warn');
+      log('  2. 设备 USB 接口被系统识别为"仅充电"模式', 'warn');
+      log('  3. 设备固件没有向 Android 暴露 AT 串口', 'warn');
+      setStep('s4', 'fail', '④ 串口可见: 未找到兼容串口');
+    } else {
+      log(`请求失败: ${e.name} - ${e.message}`, 'err');
+    }
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  log('══════ 诊断工具启动 ══════', 'dim');
+  checkEnv();
+  log('请依次点击下方三个按钮，观察每一步结果', 'dim');
+});
+</script>
+
+</body>
+</html>
