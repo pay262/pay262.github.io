@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AT 通道修正测试</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: -apple-system, monospace; background:#0f1117; color:#e8eaf0; padding:14px; font-size:13px; }
+  h1 { font-size:16px; margin-bottom:12px; }
+  .card { background:#1a1d27; border:1px solid #343a4d; border-radius:10px; padding:12px 14px; margin-bottom:10px; }
+  .btn { width:100%; padding:10px; border:none; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; margin-bottom:6px; font-family:inherit; }
+  .btn-primary { background:#4f7cff; color:#fff; }
+  .btn-primary:disabled { opacity:.4; }
+  .btn-danger { background:rgba(231,76,60,.15); color:#e74c3c; border:1px solid rgba(231,76,60,.3); }
+  #log { background:#0a0c12; border:1px solid #343a4d; border-radius:8px; padding:10px; font-family:monospace; font-size:11px; line-height:1.7; height:500px; overflow-y:auto; white-space:pre-wrap; word-break:break-all; }
+  #log .ok { color:#2ecc71; }
+  #log .err { color:#ff8a80; }
+  #log .warn { color:#f39c12; }
+  #log .info { color:#7fa4ff; }
+  #log .dim { color:#8b91a5; }
+  #log .resp { color:#c8cdd8; }
+  #log .head { color:#a78bfa; font-weight:700; border-top:1px solid #343a4d; padding-top:6px; margin-top:6px; }
+  #log .hit { color:#2ecc71; font-weight:700; background:rgba(46,204,113,.1); padding:2px 4px; }
+</style>
+</head>
+<body>
+
+<h1>AT 通道修正测试 <span>CDC-ACM 双接口模式</span></h1>
+
+<div class="card">
+  <button class="btn btn-primary" id="btnStart" onclick="runProbe()">🚀 开始探测</button>
+  <button class="btn btn-danger" onclick="location.reload()">重置</button>
+</div>
+
+<div class="card">
+  <h3 style="font-size:11px;color:#8b91a5;text-transform:uppercase;margin-bottom:8px;">日志</h3>
+  <div id="log"></div>
+</div>
+
+<script>
+let device = null;
+let claimedIfaces = [];  // 已声明的接口号
+
+function log(msg, cls = '') {
+  const el = document.getElementById('log');
+  const now = new Date();
+  const ts = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0');
+  const line = document.createElement('div');
+  line.className = 'line ' + cls;
+  line.innerHTML = `<span style="color:#5a6275">[${ts}]</span> ${msg}`;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+  console.log(msg);
+}
+
+async function claimIface(n) {
+  if (claimedIfaces.includes(n)) return true;
+  try {
+    await device.claimInterface(n);
+    claimedIfaces.push(n);
+    log(`  ✓ claimInterface(${n}) 成功`, 'dim');
+    return true;
+  } catch (e) {
+    log(`  ✗ claimInterface(${n}) 失败: ${e.message}`, 'warn');
+    return false;
+  }
+}
+
+async function tryAt(ifaceNum, altNum, outAddr, inAddr, desc) {
+  log(`--- 尝试: ${desc} ---`, 'info');
+
+  // 声明接口
+  const ok = await claimIface(ifaceNum);
+  if (!ok) return false;
+
+  // 切换 alternate
+  if (altNum !== null) {
+    try {
+      await device.selectAlternateInterface(ifaceNum, altNum);
+      log(`  ✓ selectAlternateInterface(${ifaceNum}, ${altNum}) 成功`, 'dim');
+    } catch (e) {
+      log(`  ✗ selectAlternateInterface 失败: ${e.message}`, 'warn');
+      return false;
+    }
+  }
+
+  // 发送 AT
+  try {
+    const payload = new TextEncoder().encode('AT\r\n');
+    await device.transferOut(outAddr, payload);
+    log(`  → 已发送 AT (OUT 端点 0x${outAddr.toString(16)})`, 'dim');
+  } catch (e) {
+    log(`  ✗ transferOut 失败: ${e.message}`, 'err');
+    return false;
+  }
+
+  // 读响应
+  await new Promise(r => setTimeout(r, 800));
+  let got = '';
+  for (let t = 0; t < 5; t++) {
+    try {
+      const res = await device.transferIn(inAddr, 512);
+      if (res.status === 'ok' && res.data && res.data.byteLength > 0) {
+        const text = new TextDecoder().decode(res.data);
+        got += text;
+        log(`  ← 片段[${t+1}]: ${text.replace(/\r/g,'').replace(/\n/g,' | ')}`, 'resp');
+        if (/\bOK\b/.test(got) || /\bERROR\b/i.test(got)) {
+          log(`  ✅✅✅ 命中！`, 'hit');
+          return { ifaceNum, altNum, outAddr, inAddr, desc, response: got };
+        }
+      }
+    } catch (e) {
+      break;
+    }
+    await new Promise(r => setTimeout(r, 250));
+  }
+  if (got) log(`  ⚠️ 有响应但未收到 OK/ERROR`, 'warn');
+  else log(`  ✗ 无响应`, 'err');
+  return false;
+}
+
+async function runProbe() {
+  document.getElementById('btnStart').disabled = true;
+  try {
+    log('══════ 请求设备 ══════', 'head');
+    device = await navigator.usb.requestDevice({ filters: [{ vendorId: 0x19d2 }] });
+    log(`✅ ${device.productName} (0x${device.vendorId.toString(16)}:0x${device.productId.toString(16)})`, 'ok');
+
+    log('══════ 打开 + 配置 ══════', 'head');
+    await device.open();
+    if (!device.configuration || device.configuration.configurationValue !== 1) {
+      await device.selectConfiguration(1);
+    }
+    log(`✅ 配置 ${device.configuration.configurationValue}`, 'ok');
+
+    const cfg = device.configuration;
+    const iface1 = cfg.interfaces.find(i => i.interfaceNumber === 1);
+    const iface0 = cfg.interfaces.find(i => i.interfaceNumber === 0);
+    if (!iface1) { log('❌ 找不到接口 1', 'err'); return; }
+
+    // 打印接口 1 的所有 alternate
+    log('接口 1 的 alternate 列表:', 'info');
+    for (let ai = 0; ai < iface1.alternates.length; ai++) {
+      const alt = iface1.alternates[ai];
+      log(`  alt ${ai}: class=0x${alt.interfaceClass.toString(16)} 端点数=${alt.endpoints.length}`, 'dim');
+      for (const ep of alt.endpoints) {
+        const dirAddr = ep.direction === 'in' ? (ep.endpointNumber | 0x80) : ep.endpointNumber;
+        log(`    ep 地址=0x${dirAddr.toString(16)} ${ep.direction} ${ep.type}`, 'dim');
+      }
+    }
+
+    // 收集候选
+    const candidates = [];
+
+    // 优先：接口 1 的 alt 1（有 bulk 端点）
+    for (let ai = 0; ai < iface1.alternates.length; ai++) {
+      const alt = iface1.alternates[ai];
+      let inAddr = null, outAddr = null;
+      for (const ep of alt.endpoints) {
+        if (ep.type !== 'bulk') continue;
+        if (ep.direction === 'in') inAddr = ep.endpointNumber | 0x80;
+        else if (ep.direction === 'out') outAddr = ep.endpointNumber;
+      }
+      if (inAddr !== null && outAddr !== null) {
+        candidates.push({
+          ifaceNum: 1, altNum: ai, outAddr, inAddr,
+          desc: `接口1 alt${ai} bulk OUT=0x${outAddr.toString(16)} IN=0x${inAddr.toString(16)}`
+        });
+      }
+    }
+
+    // 备选：接口 0（Communication）的 interrupt 端点
+    if (iface0) {
+      for (const alt of iface0.alternates) {
+        for (const ep of alt.endpoints) {
+          if (ep.direction === 'in' && ep.type === 'interrupt') {
+            const inAddr = ep.endpointNumber | 0x80;
+            candidates.push({
+              ifaceNum: 0, altNum: null, outAddr: null, inAddr,
+              desc: `接口0 interrupt IN=0x${inAddr.toString(16)}（只读 URC）`,
+              readOnly: true,
+            });
+          }
+        }
+      }
+    }
+
+    // 备选：厂商私有接口 bulk（虽然大概率不是 AT，但试一下）
+    for (const ifaceNum of [2, 4, 5]) {
+      const iface = cfg.interfaces.find(i => i.interfaceNumber === ifaceNum);
+      if (!iface) continue;
+      for (const alt of iface.alternates) {
+        let inAddr = null, outAddr = null;
+        for (const ep of alt.endpoints) {
+          if (ep.type !== 'bulk') continue;
+          if (ep.direction === 'in') inAddr = ep.endpointNumber | 0x80;
+          else if (ep.direction === 'out') outAddr = ep.endpointNumber;
+        }
+        if (inAddr !== null && outAddr !== null) {
+          candidates.push({
+            ifaceNum, altNum: null, outAddr, inAddr,
+            desc: `接口${ifaceNum} bulk OUT=0x${outAddr.toString(16)} IN=0x${inAddr.toString(16)}`
+          });
+        }
+      }
+    }
+
+    log(`══════ 共 ${candidates.length} 个候选 ══════`, 'head');
+    candidates.forEach((c, i) => log(`  [${i+1}] ${c.desc}`, 'dim'));
+
+    log('══════ 逐个尝试 ══════', 'head');
+    let hit = null;
+    for (let i = 0; i < candidates.length; i++) {
+      const c = candidates[i];
+      if (c.readOnly) continue;  // 只读端点跳过发送
+      const r = await tryAt(c.ifaceNum, c.altNum, c.outAddr, c.inAddr, c.desc);
+      if (r) { hit = r; break; }
+    }
+
+    log('══════ 结果 ══════', 'head');
+    if (hit) {
+      log(`🎯 AT 通道: ${hit.desc}`, 'hit');
+      log(`   接口: ${hit.ifaceNum}`, 'ok');
+      if (hit.altNum !== null) log(`   alternate: ${hit.altNum}`, 'ok');
+      log(`   OUT 端点: 0x${hit.outAddr.toString(16)}`, 'ok');
+      log(`   IN  端点: 0x${hit.inAddr.toString(16)}`, 'ok');
+      log(`   响应: ${hit.response.replace(/\r/g,'').replace(/\n/g,' | ')}`, 'resp');
+    } else {
+      log(`❌ 所有候选均失败`, 'err');
+      log(`   建议：`, 'warn');
+      log(`   1. 截取此完整日志给开发者分析`, 'dim');
+      log(`   2. 可能需要在 selectConfiguration 后立即声明接口 1`, 'dim');
+    }
+
+  } catch (e) {
+    log(`❌ 错误: ${e.name} - ${e.message}`, 'err');
+    console.error(e);
+  } finally {
+    document.getElementById('btnStart').disabled = false;
+  }
+}
+</script>
+
+</body>
+</html>
