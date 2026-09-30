@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>后台接口测试</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: -apple-system, monospace; background:#0f1117; color:#e8eaf0; padding:14px; font-size:13px; }
+  h1 { font-size:16px; margin-bottom:12px; }
+  .card { background:#1a1d27; border:1px solid #343a4d; border-radius:10px; padding:12px 14px; margin-bottom:10px; }
+  .form-group { margin-bottom:10px; }
+  .form-group label { display:block; font-size:11px; color:#8b91a5; margin-bottom:4px; }
+  input { width:100%; padding:8px 10px; background:#2a2e3d; border:1px solid #343a4d; border-radius:7px; color:#e8eaf0; font-family:monospace; font-size:13px; outline:none; }
+  .btn { width:100%; padding:10px; border:none; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; margin-bottom:6px; }
+  .btn-primary { background:#4f7cff; color:#fff; }
+  .btn-primary:active { background:#6b92ff; }
+  .btn-outline { background:transparent; color:#8b91a5; border:1px solid #343a4d; }
+  pre { background:#0a0c12; border:1px solid #343a4d; border-radius:8px; padding:10px; font-family:monospace; font-size:11px; line-height:1.6; max-height:600px; overflow:auto; white-space:pre-wrap; word-break:break-all; }
+  .ok { color:#2ecc71; }
+  .err { color:#ff8a80; }
+  .warn { color:#f39c12; }
+  .info { color:#7fa4ff; }
+  .row { display:flex; gap:6px; }
+  .row input { flex:1; }
+  .row button { width:auto; padding:0 16px; flex-shrink:0; }
+</style>
+</head>
+<body>
+
+<h1>后台接口测试 <span>ZTE 后台</span></h1>
+
+<div class="card">
+  <div class="form-group">
+    <label>设备网关</label>
+    <input id="gw" value="192.168.0.1">
+  </div>
+  <button class="btn btn-primary" onclick="testHome()">① 测试首页数据接口</button>
+  <button class="btn btn-primary" onclick="testSignal()">② 测试信号详情</button>
+  <button class="btn btn-primary" onclick="testSIM()">③ 测试 SIM 信息</button>
+  <button class="btn btn-outline" onclick="document.getElementById('out').textContent=''">清屏</button>
+</div>
+
+<div class="card">
+  <div class="form-group">
+    <label>自定义命令（多个用英文逗号分隔）</label>
+    <div class="row">
+      <input id="customCmd" value="modem_main_state,signalbar,network_type,network_provider">
+      <button class="btn btn-primary" style="margin:0;" onclick="testCustom()">发送</button>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <pre id="out">等待操作...</pre>
+</div>
+
+<script>
+function log(msg, cls = '') {
+  const el = document.getElementById('out');
+  const line = `[${new Date().toLocaleTimeString()}] ${msg}\n`;
+  el.textContent += line;
+  el.scrollTop = el.scrollHeight;
+  console.log(msg);
+}
+
+async function apiGet(cmd) {
+  const gw = document.getElementById('gw').value.trim();
+  const url = `http://${gw}/goform/goform_get_cmd_process?multi_data=1&cmd=${encodeURIComponent(cmd)}&_=${Date.now()}`;
+  log(`→ GET ${url}`, 'info');
+  try {
+    const r = await fetch(url, {
+      headers: { 'Accept': 'application/json' },
+      credentials: 'include',
+    });
+    const text = await r.text();
+    log(`← HTTP ${r.status}`, r.ok ? 'ok' : 'err');
+    try {
+      const json = JSON.parse(text);
+      log(JSON.stringify(json, null, 2), 'ok');
+      return json;
+    } catch (e) {
+      log(text, 'warn');
+      return text;
+    }
+  } catch (e) {
+    log(`✗ 失败: ${e.message}`, 'err');
+    log('  提示: 需要先在同一浏览器登录 192.168.0.1 后台', 'warn');
+    return null;
+  }
+}
+
+async function testHome() {
+  log('══════ 测试首页数据 ══════', 'info');
+  await apiGet('modem_main_state,pin_status,loginfo,network_provider,network_type,signalbar,simcard_roam,lan_ipaddr,realtime_tx_bytes,realtime_rx_bytes,monthly_rx_bytes,monthly_tx_bytes');
+}
+
+async function testSignal() {
+  log('══════ 测试信号详情 ══════', 'info');
+  // 尝试一堆可能的信号相关命令
+  const candidates = [
+    'rssi,rsrp,rsrq,sinr',
+    'signalbar,network_type',
+    'lte_rsrp,lte_rsrq,lte_sinr,lte_rssi',
+    'wan_lte_ca,wan_active_band',
+    'wan_active_band,wan_lte_ca,network_type',
+  ];
+  for (const c of candidates) {
+    log(`--- 尝试: ${c} ---`, 'info');
+    await apiGet(c);
+    await new Promise(r => setTimeout(r, 300));
+  }
+}
+
+async function testSIM() {
+  log('══════ 测试 SIM 信息 ══════', 'info');
+  const candidates = [
+    'sim_iccid,sim_imsi,sim_msisdn',
+    'iccid,imsi,msisdn',
+    'simcard_iccid,simcard_imsi',
+    'spn_name_data,spn_b1_flag,spn_b2_flag',
+  ];
+  for (const c of candidates) {
+    log(`--- 尝试: ${c} ---`, 'info');
+    await apiGet(c);
+    await new Promise(r => setTimeout(r, 300));
+  }
+}
+
+async function testCustom() {
+  const cmd = document.getElementById('customCmd').value.trim();
+  if (!cmd) return;
+  log(`══════ 自定义命令: ${cmd} ══════`, 'info');
+  await apiGet(cmd);
+}
+</script>
+
+</body>
+</html>
