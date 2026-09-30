@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>随身WiFi 控制台 · 手机版</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:#0f1117;color:#e8eaf0;padding:20px;font-size:15px;line-height:1.7}
+  .wrap{max-width:520px;margin:0 auto}
+  h1{font-size:20px;margin-bottom:6px;background:linear-gradient(135deg,#4f7cff,#7c5cff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .sub{color:#8b91a5;font-size:13px;margin-bottom:24px}
+  .card{background:#1a1d27;border:1px solid #343a4d;border-radius:14px;padding:20px;margin-bottom:16px}
+  .card h2{font-size:15px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .card p{color:#8b91a5;font-size:13px;margin-bottom:12px}
+  .bookmark-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:16px 20px;background:linear-gradient(135deg,#4f7cff,#7c5cff);color:#fff;font-size:16px;font-weight:700;border-radius:12px;text-decoration:none;user-select:none;-webkit-user-select:none;cursor:pointer;box-shadow:0 4px 20px rgba(79,124,255,.3);margin:10px 0}
+  .bookmark-btn:active{transform:scale(.98)}
+  .steps{list-style:none;counter-reset:s}
+  .steps li{position:relative;padding:8px 0 8px 34px;font-size:13px;color:#c8cdd8;border-bottom:1px solid rgba(255,255,255,.04)}
+  .steps li:last-child{border-bottom:none}
+  .steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:8px;width:22px;height:22px;background:#4f7cff;color:#fff;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .hint{font-size:11.5px;color:#8b91a5;padding:8px 12px;background:rgba(79,124,255,.08);border-radius:8px;margin-top:10px;line-height:1.6}
+  .hint b{color:#7fa4ff}
+  details{background:#222633;border-radius:8px;padding:10px 14px;margin-top:10px;font-size:12.5px}
+  summary{cursor:pointer;color:#8b91a5;font-weight:600}
+  details p{margin-top:8px;color:#c8cdd8;font-size:12px}
+  code{background:rgba(0,0,0,.4);padding:1px 6px;border-radius:3px;font-family:monospace;font-size:11px;color:#a8c0ff}
+  .env-tip{display:none;padding:10px 14px;background:rgba(46,204,113,.1);border:1px solid rgba(46,204,113,.3);color:#2ecc71;border-radius:10px;font-size:13px;margin-bottom:16px}
+  .env-tip.show{display:block}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>📶 随身WiFi 控制台</h1>
+  <div class="sub">在手机浏览器里给设备后台加上美化面板</div>
+
+  <div class="env-tip" id="envTip">
+    ✅ 你已在设备后台页面，点击下方按钮可直接打开
+  </div>
+
+  <div class="card">
+    <h2>📌 添加书签（仅需一次）</h2>
+    <p>长按下面的按钮 → 选择"添加到书签"</p>
+    <a class="bookmark-btn" id="bm" href="#">📶 WiFi控制台</a>
+    <ol class="steps">
+      <li>长按上方蓝色按钮</li>
+      <li>选择"添加到书签"或"收藏"</li>
+      <li>名称可改为"WiFi控制台"</li>
+      <li>保存到书签栏或书签文件夹</li>
+    </ol>
+    <div class="hint">
+      <b>支持的浏览器：</b>任意手机浏览器（Chrome / Edge / 夸克 / UC / 三星）<br>
+      <b>不需要：</b>装 App、装扩展、root 手机
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🎯 使用方法（每次）</h2>
+    <ol class="steps">
+      <li>手机连上随身WiFi</li>
+      <li>打开 <code>192.168.0.1</code></li>
+      <li>等待后台页面加载完成</li>
+      <li>点书签里的"WiFi控制台"</li>
+      <li>面板自动弹出 ✅</li>
+    </ol>
+  </div>
+
+  <details>
+    <summary>❓ 常见问题</summary>
+    <p><b>Q：长按按钮没反应？</b><br>手动新建书签，URL 粘贴下面代码：</p>
+    <p style="background:#000;padding:8px;border-radius:5px;margin-top:6px;word-break:break-all;color:#7fa4ff;font-family:monospace;font-size:11px" id="codePreview">加载中...</p>
+    <p style="margin-top:10px"><b>Q：点了没反应？</b><br>确保先打开 <code>192.168.0.1</code> 页面，再点书签。书签只能在设备后台页面里执行。</p>
+    <p style="margin-top:10px"><b>Q：能改串/改 IMEI 吗？</b><br>不能。手机端只支持查看状态和锁频/切卡。改串需要在电脑端用 AT 指令。</p>
+    <p style="margin-top:10px"><b>Q：iOS Safari 上点了没反应？</b><br>iOS 会剥离 javascript: 前缀。打开书签编辑，手动在 URL 前面补上 <code>javascript:</code> 即可。</p>
+  </details>
+</div>
+
+<script>
+  // ══════ 书签脚本 ══════
+  var SCRIPT_URL = 'https://pay262.github.io/tool/wifi-panel.js';
+  var BOOKMARKLET = 'javascript:(function(){if(window.__ZZP)return;window.__ZZP=1;var s=document.createElement("script");s.src="' + SCRIPT_URL + '?t="+Date.now();document.head.appendChild(s);})();';
+
+  // 设置按钮 href
+  document.getElementById('bm').setAttribute('href', BOOKMARKLET);
+  document.getElementById('codePreview').textContent = BOOKMARKLET;
+
+  // 检测是否已经在设备页面
+  var isInDevice = /^(192\.168\.|10\.10\.|10\.0\.)/.test(location.hostname);
+  if (isInDevice) {
+    document.getElementById('envTip').classList.add('show');
+    var btn = document.getElementById('bm');
+    btn.textContent = '▶️ 立即打开控制台';
+    btn.onclick = function (e) {
+      e.preventDefault();
+      var s = document.createElement('script');
+      s.src = SCRIPT_URL + '?t=' + Date.now();
+      document.head.appendChild(s);
+    };
+  }
+</script>
+</body>
+</html>
