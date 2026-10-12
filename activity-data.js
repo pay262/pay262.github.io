@@ -281,12 +281,12 @@ window.adCarouselList = [
     },
     {
         type: 'iframe',
-        src: 'https://m.zniymht.cn/x/G7Jcpl',   // 仅限允许被嵌入的网站
+        src: 'http://di.zxcjk.asia/qV3Ob2722I',   // 仅限允许被嵌入的网站
         link: ''  //跳转链接
     },
     {
         type: 'iframe',
-        src: 'http://di.zxcjk.asia/qV3Ob2722I',   // 仅限允许被嵌入的网站
+        src: 'https://m.zniymht.cn/x/G7Jcpl',   // 仅限允许被嵌入的网站
         link: ''  //跳转链接
     }
 ];
