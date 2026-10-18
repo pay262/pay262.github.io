@@ -193,48 +193,48 @@
 
     playBtn.disabled = true;
     statusPanel.classList.add('visible');
-    statusText.textContent = '正在检查 sw.min.js 文件...';
-
-    const swPath = new URL('./sw.min.js', window.location.href).href;
+    statusText.textContent = '正在清理旧缓存并注册 SW...';
 
     try {
-      // 1. 自动检测文件是否真的为纯 JS
-      const response = await fetch(swPath, { cache: 'no-store' });
-      if (!response.ok) {
-        throw new Error(`无法读取文件，状态码: ${response.status}。请确认 sw.min.js 已上传到相同目录。`);
-      }
-      const text = await response.text();
-      if (text.trim().startsWith('<')) {
-        throw new Error('sw.min.js 文件内容错误！你下载到的是 HTML 网页，而不是代码文件。请重新下载。');
+      // 1. 【核心修复】强制注销当前页面遗留的所有旧 Service Worker 注册
+      // 这能彻底解决 "Invalid worker registration" 的缓存死循环问题
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (let registration of registrations) {
+        await registration.unregister();
       }
 
-      // 2. 开始注册
       statusText.textContent = '正在注册 Service Worker...';
       
-      // 注意：如果浏览器存在旧的错误缓存，这里可能还是会报错
-      const swReg = await navigator.serviceWorker.register(swPath);
+      // 2. 显式指定相对路径和 scope，确保在 GitHub Pages 子目录下正常工作
+      const swReg = await navigator.serviceWorker.register('./sw.min.js', { scope: './' });
+      
+      // 3. 等待激活
       await navigator.serviceWorker.ready;
+      
+      // 4. 如果还是没激活，强制更新一次
+      if (!swReg.active) {
+         await swReg.update();
+         await new Promise(resolve => setTimeout(resolve, 500));
+      }
       
       if (!swReg.active) {
          throw new Error('Service Worker 尚未激活，请刷新页面重试。');
       }
       
+      // 5. 将激活的 SW 绑定到 WebTorrent
       client = new WebTorrent();
       client.createServer({ controller: swReg.active });
       
       statusText.textContent = '正在连接 DHT / Trackers...';
       
     } catch (err) {
-      // 给出明确的排查建议
-      let msg = err.message;
-      if (msg.includes('Invalid worker registration')) {
-        msg += '\n\n💡 解决建议：\n1. 确保 sw.min.js 是纯代码文件。\n2. 如果文件正确，请在浏览器设置中清除此网站的缓存，或强制刷新。';
-      }
-      showError('注册失败：' + msg);
+      let msg = err.message || String(err);
+      showError('注册失败：' + msg + '\n\n💡 如果一直报错，请尝试：\n1. 在浏览器设置中清除该网站的所有数据。\n2. 确认 sw.min.js 文本无误。');
       playBtn.disabled = false;
       return;
     }
 
+    // 添加公共 WebSocket Trackers 提高连上 Peer 的概率
     const announceTrackers = [
       'wss://tracker.openwebtorrent.com',
       'wss://tracker.webtorrent.io',
