@@ -92,7 +92,7 @@
 </div>
 
 <script type="module">
-  // 使用更稳定的 esm.sh，带版本号防止缓存错乱
+  // 使用稳定的版本，防止 CDN 缓存导致 API 偏移
   import WebTorrent from 'https://esm.sh/webtorrent@2.4.1';
 
   const magnetInput = document.getElementById('magnetInput');
@@ -195,44 +195,50 @@
 
     playBtn.disabled = true;
     statusPanel.classList.add('visible');
-    statusText.textContent = '正在注册流媒体服务...';
+    statusText.textContent = '正在清理旧服务并注册...';
 
     try {
-      // 彻底注销旧注册，清理残余状态
+      // 1. 强制注销所有的旧注册（解决缓存死锁）
       const regs = await navigator.serviceWorker.getRegistrations();
       for (let reg of regs) { await reg.unregister(); }
 
-      // 【核心修复】官方标准写法：不传 scope，直接使用相对路径
-      // 浏览器会自动将当前目录作为 scope
-      let swReg = await navigator.serviceWorker.register('./sw.min.js');
+      // 2. 动态计算当前目录的绝对路径，例如 /tool/sw.min.js
+      // 这能完美适配 GitHub Pages 的 /tool/ 目录，不会报 Invalid
+      const swUrl = new URL('./sw.min.js', window.location.href);
+      const absolutePath = swUrl.pathname; 
       
-      // 等待 SW 激活的严谨逻辑
-      const waitForActivation = (reg) => {
-        return new Promise((resolve, reject) => {
-          if (reg.active) { return resolve(reg.active); }
-          const worker = reg.installing || reg.waiting;
-          if (!worker) { return reject(new Error('找不到 SW 实例')); }
-          worker.addEventListener('statechange', () => {
-            if (worker.state === 'activated') { resolve(worker); }
-            else if (worker.state === 'redundant') { reject(new Error('SW 安装失败')); }
-          });
-        });
-      };
+      // 3. 添加时间戳防止浏览器强制缓存旧文件
+      const finalSwUrl = `${absolutePath}?v=${Date.now()}`;
+      
+      statusText.textContent = '正在注册流媒体服务...';
+      
+      // 4. 强制传入当前目录作为 scope
+      const swReg = await navigator.serviceWorker.register(finalSwUrl, { scope: './' });
+      
+      // 5. 严格等待激活
+      await navigator.serviceWorker.ready;
+      if (!swReg.active) {
+         await swReg.update();
+         await new Promise(r => setTimeout(r, 500));
+      }
+      
+      if (!swReg.active) {
+         throw new Error('Service Worker 未能激活，请刷新页面重试。');
+      }
 
-      const activeWorker = await waitForActivation(swReg);
-
-      // 【核心修复】传入 activeWorker（官方要求），而不是 reg 对象
+      // 6. 绑定 WebTorrent
       client = new WebTorrent();
-      client.createServer({ controller: activeWorker });
+      client.createServer({ controller: swReg.active });
       
       statusText.textContent = '正在连接 DHT / Trackers...';
       
     } catch (err) {
-      showError('注册失败：' + (err.message || String(err)) + '\n\n💡 请尝试清除浏览器缓存，或使用 Chrome/Edge 浏览器。');
+      showError(`注册失败：${err.message}\n\n💡 排查建议：\n1. 确认 sw.min.js 和 yun.html 在同一个目录。\n2. 手动清理一次浏览器缓存。`);
       playBtn.disabled = false;
       return;
     }
 
+    // 添加公共 WebSocket Trackers
     const announceTrackers = [
       'wss://tracker.openwebtorrent.com',
       'wss://tracker.webtorrent.io',
