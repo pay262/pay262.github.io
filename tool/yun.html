@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>云播放 · 磁力流媒体</title>
+<style>
+  :root {
+    --bg: #0b0e14; --surface: #151a23; --border: #262d3a;
+    --text: #e6edf3; --muted: #8b949e; --accent: #3b82f6;
+    --danger: #ef4444;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg); color: var(--text); min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; padding: 16px;
+  }
+  .container { width: 100%; max-width: 600px; }
+  h1 { font-size: 1.25rem; font-weight: 600; margin-bottom: 4px; }
+  .subtitle { color: var(--muted); font-size: 0.8rem; margin-bottom: 16px; }
+
+  .input-row { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+  .input-row input {
+    width: 100%; padding: 14px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text); font-size: 16px;
+    outline: none;
+  }
+  .input-row input:focus { border-color: var(--accent); }
+  .input-row button {
+    width: 100%; padding: 14px; border-radius: 10px; border: none;
+    background: var(--accent); color: #fff; font-weight: 600; font-size: 16px;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .input-row button:active { background: #1d4ed8; }
+  .input-row button:disabled { opacity: 0.5; }
+
+  .player-wrap {
+    background: #000; border-radius: 10px; overflow: hidden;
+    aspect-ratio: 16 / 9; display: flex; align-items: center;
+    justify-content: center; position: relative; margin-bottom: 16px;
+  }
+  .player-wrap video { width: 100%; height: 100%; object-fit: contain; }
+  .placeholder { color: var(--muted); text-align: center; font-size: 0.85rem; padding: 20px; }
+
+  .status-panel {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 18px; font-size: 0.85rem; display: none;
+  }
+  .status-panel.visible { display: block; }
+  .status-row { display: flex; justify-content: space-between; padding: 4px 0; color: var(--muted); }
+  .status-row span:last-child { color: var(--text); font-variant-numeric: tabular-nums; }
+  .progress-bar { height: 4px; background: var(--border); border-radius: 2px; margin-top: 10px; overflow: hidden; }
+  .progress-bar .fill { height: 100%; width: 0%; background: var(--accent); border-radius: 2px; transition: width 0.3s; }
+  .error-msg { color: var(--danger); font-size: 0.85rem; margin-top: 12px; display: none; word-break: break-all; line-height: 1.4; }
+  .error-msg.visible { display: block; }
+
+  .file-select {
+    width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text); font-size: 16px; margin-top: 12px;
+    display: none;
+  }
+  .file-select.visible { display: block; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>☁️ 云播放</h1>
+  <p class="subtitle">粘贴磁力链接，直接在浏览器中流式播放</p>
+
+  <div class="input-row">
+    <input id="magnetInput" type="text" placeholder="magnet:?xt=urn:btih:..." autocomplete="off">
+    <button id="playBtn">开始播放</button>
+  </div>
+
+  <div class="player-wrap" id="playerWrap">
+    <div class="placeholder" id="placeholder">等待输入磁力链接…</div>
+  </div>
+
+  <select class="file-select" id="fileSelect"></select>
+
+  <div class="status-panel" id="statusPanel">
+    <div class="status-row"><span>状态</span><span id="statusText">初始化…</span></div>
+    <div class="status-row"><span>Peers</span><span id="peerCount">0</span></div>
+    <div class="status-row"><span>下载速度</span><span id="downSpeed">0 KB/s</span></div>
+    <div class="status-row"><span>已下载</span><span id="downloaded">0 MB</span></div>
+    <div class="status-row"><span>进度</span><span id="progressText">0%</span></div>
+    <div class="progress-bar"><div class="fill" id="progressFill"></div></div>
+  </div>
+
+  <div class="error-msg" id="errorMsg"></div>
+</div>
+
+<script type="module">
+  import WebTorrent from 'https://esm.sh/webtorrent@2';
+
+  const magnetInput = document.getElementById('magnetInput');
+  const playBtn = document.getElementById('playBtn');
+  const playerWrap = document.getElementById('playerWrap');
+  const placeholder = document.getElementById('placeholder');
+  const fileSelect = document.getElementById('fileSelect');
+  const statusPanel = document.getElementById('statusPanel');
+  const statusText = document.getElementById('statusText');
+  const peerCountEl = document.getElementById('peerCount');
+  const downSpeedEl = document.getElementById('downSpeed');
+  const downloadedEl = document.getElementById('downloaded');
+  const progressText = document.getElementById('progressText');
+  const progressFill = document.getElementById('progressFill');
+  const errorMsg = document.getElementById('errorMsg');
+
+  let client = null, currentTorrent = null, currentVideo = null;
+
+  // 辅助函数
+  function fmtBytes(bytes) {
+    if (!bytes || bytes === 0) return '0 B';
+    const u = ['B', 'KB', 'MB', 'GB']; const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + u[i];
+  }
+  function showError(msg) { errorMsg.textContent = msg; errorMsg.classList.add('visible'); }
+  function clearError() { errorMsg.classList.remove('visible'); }
+  function resetPlayer() {
+    if (currentVideo) { currentVideo.pause(); currentVideo.remove(); currentVideo = null; }
+    placeholder.style.display = 'flex';
+    playerWrap.querySelectorAll('video').forEach(v => v.remove());
+    fileSelect.classList.remove('visible'); fileSelect.innerHTML = '';
+    statusPanel.classList.remove('visible');
+  }
+  function destroyCurrentTorrent() {
+    if (currentTorrent) { try { currentTorrent.destroy(); } catch (_) {} currentTorrent = null; }
+  }
+
+  // 渲染视频
+  function renderFile(file) {
+    if (!file) return;
+    if (currentVideo) { currentVideo.pause(); currentVideo.remove(); }
+    currentVideo = document.createElement('video');
+    currentVideo.controls = true; 
+    currentVideo.autoplay = true; 
+    currentVideo.playsInline = true;
+    playerWrap.innerHTML = ''; 
+    playerWrap.appendChild(currentVideo);
+    file.streamTo(currentVideo);
+  }
+
+  // Torrent 准备就绪
+  function onTorrentReady(torrent) {
+    currentTorrent = torrent;
+    statusText.textContent = 'Torrent 就绪'; 
+    placeholder.style.display = 'none';
+    
+    const playable = torrent.files.filter(f => /\.(mp4|webm|mkv|m4v|mov|avi|mp3|wav|ogg|flac|m4a)$/i.test(f.name));
+    if (playable.length === 0) { showError('未找到可播放的媒体文件。'); return; }
+    if (playable.length === 1) { fileSelect.classList.remove('visible'); renderFile(playable[0]); return; }
+    
+    fileSelect.classList.add('visible');
+    fileSelect.innerHTML = playable.map((f, i) => `<option value="${i}">${f.name} (${fmtBytes(f.length)})</option>`).join('');
+    
+    // 默认播放最大的文件
+    const largest = playable.reduce((a, b) => a.length > b.length ? a : b);
+    const largestIdx = playable.indexOf(largest);
+    fileSelect.value = largestIdx; 
+    renderFile(largest);
+    
+    fileSelect.onchange = () => { renderFile(playable[parseInt(fileSelect.value, 10)]); };
+  }
+
+  // 更新统计数据
+  let statsTimer = null;
+  function startStats(torrent) {
+    clearInterval(statsTimer);
+    statsTimer = setInterval(() => {
+      if (!torrent || torrent.destroyed) { clearInterval(statsTimer); return; }
+      peerCountEl.textContent = torrent.numPeers;
+      downSpeedEl.textContent = fmtBytes(torrent.downloadSpeed) + '/s';
+      downloadedEl.textContent = fmtBytes(torrent.downloaded);
+      const pct = Math.min(100, Math.round((torrent.progress || 0) * 100));
+      progressText.textContent = pct + '%'; 
+      progressFill.style.width = pct + '%';
+    }, 1000);
+  }
+
+  // 主流程：播放磁力链接
+  async function playMagnet(magnetURI) {
+    clearError(); resetPlayer(); destroyCurrentTorrent();
+
+    const uri = magnetURI.trim();
+    if (!uri) { showError('请输入磁力链接。'); return; }
+    if (!uri.startsWith('magnet:?')) { showError('请输入有效的 magnet:? 开头的链接。'); return; }
+
+    // 1. 检测 Service Worker
+    if (!('serviceWorker' in navigator)) {
+      showError('当前浏览器不支持 Service Worker。请确保使用 HTTPS 访问。');
+      return;
+    }
+    
+    // 2. 检测 WebRTC
+    if (!WebTorrent.WEBRTC_SUPPORT) {
+      showError('当前浏览器不支持 WebRTC，无法使用 P2P 播放。');
+      return;
+    }
+
+    playBtn.disabled = true;
+    statusPanel.classList.add('visible');
+    statusText.textContent = '正在注册 Service Worker...';
+
+    try {
+      // 3. 【关键修复】必须使用同源的相对路径 './sw.min.js'
+      // 如果你把 html 放在子目录，请确保 sw.min.js 也在这个目录下
+      const swReg = await navigator.serviceWorker.register('./sw.min.js', { scope: './' });
+      await navigator.serviceWorker.ready;
+      
+      if (!swReg.active) {
+         throw new Error('Service Worker 尚未激活，请刷新页面重试。');
+      }
+      
+      client = new WebTorrent();
+      client.createServer({ controller: swReg.active });
+      
+      statusText.textContent = '正在连接 DHT / Trackers...';
+      
+    } catch (err) {
+      showError('Service Worker 注册失败：' + (err.message || err) + '\n(请确保已下载 sw.min.js 并放在同级目录)');
+      playBtn.disabled = false;
+      return;
+    }
+
+    // 4. 添加公共 WebSocket Trackers 提高连上 Peer 的概率
+    const announceTrackers = [
+      'wss://tracker.openwebtorrent.com',
+      'wss://tracker.webtorrent.io',
+      'wss://tracker.btorrent.xyz',
+      'wss://tracker.fastcast.nz'
+    ];
+
+    client.add(uri, { announce: announceTrackers }, (torrent) => {
+      playBtn.disabled = false;
+      onTorrentReady(torrent);
+      startStats(torrent);
+    });
+
+    client.on('error', (err) => {
+      showError('WebTorrent 错误：' + (err.message || String(err)));
+      playBtn.disabled = false;
+    });
+  }
+
+  // 事件绑定
+  playBtn.addEventListener('click', () => playMagnet(magnetInput.value));
+  magnetInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') playMagnet(magnetInput.value); });
+  
+  window.addEventListener('beforeunload', () => {
+    clearInterval(statsTimer); destroyCurrentTorrent();
+    if (client) { try { client.destroy(); } catch (_) {} }
+  });
+</script>
+</body>
+</html>
