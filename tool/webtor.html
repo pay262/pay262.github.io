@@ -6,158 +6,117 @@
     <title>Webtor 云播放</title>
     <style>
         :root {
-            --bg: #0b0e14;
-            --surface: #161b22;
-            --border: #30363d;
-            --text: #e6edf3;
-            --muted: #8b949e;
-            --accent: #238636;
-            --accent-hover: #2ea043;
+            --bg: #0b0e14; --surface: #161b22; --border: #30363d;
+            --text: #e6edf3; --muted: #8b949e; --accent: #238636; --accent-hover: #2ea043;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body {
             font-family: system-ui, -apple-system, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px 16px;
+            background: var(--bg); color: var(--text);
+            min-height: 100vh; display: flex; flex-direction: column;
+            align-items: center; padding: 20px 16px;
         }
         .container { width: 100%; max-width: 800px; }
-        
         h2 { font-size: 1.25rem; margin-bottom: 6px; }
         p.subtitle { color: var(--muted); font-size: 0.85rem; margin-bottom: 20px; line-height: 1.4; }
 
-        /* 修复手机端输入框和按钮重叠、竖排的问题 */
         .input-group {
-            display: flex;
-            flex-direction: column; /* 手机端默认上下排列 */
-            gap: 12px;
-            margin-bottom: 20px;
+            display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;
         }
         .input-group input {
-            width: 100%;
-            padding: 14px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background: var(--surface);
-            color: var(--text);
-            font-size: 16px; /* 防止 iOS 自动放大 */
-            outline: none;
+            width: 100%; padding: 14px; border-radius: 8px;
+            border: 1px solid var(--border); background: var(--surface);
+            color: var(--text); font-size: 16px; outline: none;
         }
         .input-group input:focus { border-color: var(--accent); }
-        
         .input-group button {
-            width: 100%;
-            padding: 14px;
-            border-radius: 8px;
-            border: none;
-            background: var(--accent);
-            color: white;
-            font-weight: 600;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background 0.2s;
-            white-space: nowrap;
+            width: 100%; padding: 14px; border-radius: 8px; border: none;
+            background: var(--accent); color: white; font-weight: 600;
+            font-size: 16px; cursor: pointer; transition: background 0.2s;
         }
         .input-group button:active { background: var(--accent-hover); }
 
-        /* 电脑端恢复左右排列 */
         @media (min-width: 600px) {
             .input-group { flex-direction: row; }
             .input-group input { flex: 1; }
             .input-group button { width: auto; padding: 14px 28px; }
         }
 
-        /* 播放器容器 */
-        #player-container {
-            width: 100%;
-            aspect-ratio: 16 / 9; /* 强制 16:9，比原代码的 400px 更适配手机 */
-            background: #000;
-            border-radius: 10px;
-            overflow: hidden;
-            border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--muted);
-            position: relative;
+        /* 播放器容器：确保比例正确 */
+        #webtor-player {
+            width: 100%; aspect-ratio: 16 / 9; background: #000;
+            border-radius: 10px; overflow: hidden; border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--muted); position: relative;
         }
         
-        /* 修复 UI 重叠：隐藏原生 video，让 Webtor 的 iframe 铺满 */
-        #player-container video {
-            display: none !important; /* 隐藏那个丑丑的灰色胶片报错 */
-        }
-        #player-container iframe {
-            width: 100% !important;
-            height: 100% !important;
-            border: none;
-            position: absolute;
-            top: 0;
-            left: 0;
+        /* SDK 生成内容后铺满 */
+        #webtor-player iframe, #webtor-player video {
+            width: 100% !important; height: 100% !important;
+            border: none; position: absolute; top: 0; left: 0;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>☁️ Webtor 云播放</h2>
-        <p class="subtitle">由 Webtor 服务器解析并提供流媒体播放。</p>
+        <p class="subtitle">由 Webtor 服务器解析并提供流媒体播放（支持多文件切换）。</p>
         
         <div class="input-group">
             <input type="text" id="magnetInput" placeholder="粘贴 magnet:?xt=urn:btih:..." />
             <button onclick="playMagnet()" id="playBtn">开始播放</button>
         </div>
 
-        <div id="player-container">
-            等待输入磁力链接...
+        <!-- 这里只保留纯容器，不给任何默认内容，完全交给 SDK 渲染 -->
+        <div id="webtor-player">
+            <span style="color:#8b949e; font-size:14px;">等待输入磁力链接...</span>
         </div>
     </div>
 
-    <!-- 引入 Webtor 官方 Embed SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@webtor/embed-sdk-js/dist/index.min.js" charset="utf-8" async></script>
 
     <script>
         function playMagnet() {
-            const magnet = document.getElementById('magnetInput').value.trim();
-            const container = document.getElementById('player-container');
+            const input = document.getElementById('magnetInput').value.trim();
+            const container = document.getElementById('webtor-player');
             const playBtn = document.getElementById('playBtn');
 
-            if (!magnet.startsWith('magnet:?')) {
+            if (!input.startsWith('magnet:?')) {
                 alert('请输入有效的磁力链接 (magnet:? 开头)');
                 return;
             }
 
-            // 更改按钮状态
             playBtn.innerText = '解析中...';
             playBtn.style.opacity = '0.7';
+            container.innerHTML = '<span style="color:#8b949e; font-size:14px;">正在初始化播放器...</span>';
 
-            // 清空容器并创建 video 标签（保留原代码的核心逻辑）
-            container.innerHTML = '';
-            const video = document.createElement('video');
-            video.controls = true;
-            video.style.width = '100%';
-            video.style.height = '100%';
-            video.src = magnet; 
-            container.appendChild(video);
+            // 自动追加公共 Tracker 提高成功率
+            let finalMagnet = input;
+            if (!input.includes('tr=')) {
+                const trackers = [
+                    '&tr=udp%3A%2F%2Fexplodie.org%3A6969',
+                    '&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337',
+                    '&tr=wss%3A%2F%2Ftracker.openwebtorrent.com'
+                ].join('');
+                finalMagnet = input + trackers;
+            }
 
-            // 初始化 Webtor SDK
+            // 核心逻辑：直接 push 给 SDK，让它自己生成 UI 和视频元素
             if (window.webtor) {
                 window.webtor.push({
-                    id: 'player-container',
-                    magnet: magnet,
+                    id: 'webtor-player',
+                    magnet: finalMagnet,
                     width: '100%',
-                    height: '100%' // 适配容器高度
+                    height: '100%'
                 });
             } else {
-                // 如果 SDK 还没加载完，等待一下再试
+                // 如果 SDK 还没加载完，延迟一下
                 const checkSdk = setInterval(() => {
                     if (window.webtor) {
                         clearInterval(checkSdk);
                         window.webtor.push({
-                            id: 'player-container',
-                            magnet: magnet,
+                            id: 'webtor-player',
+                            magnet: finalMagnet,
                             width: '100%',
                             height: '100%'
                         });
