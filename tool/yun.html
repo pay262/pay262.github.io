@@ -110,7 +110,6 @@
 
   let client = null, currentTorrent = null, currentVideo = null;
 
-  // 辅助函数
   function fmtBytes(bytes) {
     if (!bytes || bytes === 0) return '0 B';
     const u = ['B', 'KB', 'MB', 'GB']; const i = Math.floor(Math.log(bytes) / Math.log(1024));
@@ -129,7 +128,6 @@
     if (currentTorrent) { try { currentTorrent.destroy(); } catch (_) {} currentTorrent = null; }
   }
 
-  // 渲染视频
   function renderFile(file) {
     if (!file) return;
     if (currentVideo) { currentVideo.pause(); currentVideo.remove(); }
@@ -142,7 +140,6 @@
     file.streamTo(currentVideo);
   }
 
-  // Torrent 准备就绪
   function onTorrentReady(torrent) {
     currentTorrent = torrent;
     statusText.textContent = 'Torrent 就绪'; 
@@ -163,7 +160,6 @@
     fileSelect.onchange = () => { renderFile(playable[parseInt(fileSelect.value, 10)]); };
   }
 
-  // 更新统计数据
   let statsTimer = null;
   function startStats(torrent) {
     clearInterval(statsTimer);
@@ -178,7 +174,6 @@
     }, 1000);
   }
 
-  // 主流程：播放磁力链接
   async function playMagnet(magnetURI) {
     clearError(); resetPlayer(); destroyCurrentTorrent();
 
@@ -198,14 +193,26 @@
 
     playBtn.disabled = true;
     statusPanel.classList.add('visible');
-    statusText.textContent = '正在注册 Service Worker...';
+    statusText.textContent = '正在检查 sw.min.js 文件...';
+
+    const swPath = new URL('./sw.min.js', window.location.href).href;
 
     try {
-      // 【重要】针对 GitHub Pages 的绝对路径处理
-      // 如果你的文件在 /tool/ 目录下，这里会自动获取 /tool/sw.min.js
-      const swPath = new URL('./sw.min.js', window.location.href).href;
-      const swReg = await navigator.serviceWorker.register(swPath);
+      // 1. 自动检测文件是否真的为纯 JS
+      const response = await fetch(swPath, { cache: 'no-store' });
+      if (!response.ok) {
+        throw new Error(`无法读取文件，状态码: ${response.status}。请确认 sw.min.js 已上传到相同目录。`);
+      }
+      const text = await response.text();
+      if (text.trim().startsWith('<')) {
+        throw new Error('sw.min.js 文件内容错误！你下载到的是 HTML 网页，而不是代码文件。请重新下载。');
+      }
+
+      // 2. 开始注册
+      statusText.textContent = '正在注册 Service Worker...';
       
+      // 注意：如果浏览器存在旧的错误缓存，这里可能还是会报错
+      const swReg = await navigator.serviceWorker.register(swPath);
       await navigator.serviceWorker.ready;
       
       if (!swReg.active) {
@@ -218,12 +225,16 @@
       statusText.textContent = '正在连接 DHT / Trackers...';
       
     } catch (err) {
-      showError('Service Worker 注册失败：' + (err.message || err) + '\n(请确保 sw.min.js 与 yun.html 处于同一目录)');
+      // 给出明确的排查建议
+      let msg = err.message;
+      if (msg.includes('Invalid worker registration')) {
+        msg += '\n\n💡 解决建议：\n1. 确保 sw.min.js 是纯代码文件。\n2. 如果文件正确，请在浏览器设置中清除此网站的缓存，或强制刷新。';
+      }
+      showError('注册失败：' + msg);
       playBtn.disabled = false;
       return;
     }
 
-    // 添加公共 WebSocket Trackers 提高连上 Peer 的概率
     const announceTrackers = [
       'wss://tracker.openwebtorrent.com',
       'wss://tracker.webtorrent.io',
@@ -243,7 +254,6 @@
     });
   }
 
-  // 事件绑定
   playBtn.addEventListener('click', () => playMagnet(magnetInput.value));
   magnetInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') playMagnet(magnetInput.value); });
   
