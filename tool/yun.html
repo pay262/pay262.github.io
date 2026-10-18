@@ -155,7 +155,6 @@
     fileSelect.classList.add('visible');
     fileSelect.innerHTML = playable.map((f, i) => `<option value="${i}">${f.name} (${fmtBytes(f.length)})</option>`).join('');
     
-    // 默认播放最大的文件
     const largest = playable.reduce((a, b) => a.length > b.length ? a : b);
     const largestIdx = playable.indexOf(largest);
     fileSelect.value = largestIdx; 
@@ -187,13 +186,11 @@
     if (!uri) { showError('请输入磁力链接。'); return; }
     if (!uri.startsWith('magnet:?')) { showError('请输入有效的 magnet:? 开头的链接。'); return; }
 
-    // 1. 检测 Service Worker
     if (!('serviceWorker' in navigator)) {
       showError('当前浏览器不支持 Service Worker。请确保使用 HTTPS 访问。');
       return;
     }
     
-    // 2. 检测 WebRTC
     if (!WebTorrent.WEBRTC_SUPPORT) {
       showError('当前浏览器不支持 WebRTC，无法使用 P2P 播放。');
       return;
@@ -204,9 +201,11 @@
     statusText.textContent = '正在注册 Service Worker...';
 
     try {
-      // 3. 【关键修复】必须使用同源的相对路径 './sw.min.js'
-      // 如果你把 html 放在子目录，请确保 sw.min.js 也在这个目录下
-      const swReg = await navigator.serviceWorker.register('./sw.min.js', { scope: './' });
+      // 【重要】针对 GitHub Pages 的绝对路径处理
+      // 如果你的文件在 /tool/ 目录下，这里会自动获取 /tool/sw.min.js
+      const swPath = new URL('./sw.min.js', window.location.href).href;
+      const swReg = await navigator.serviceWorker.register(swPath);
+      
       await navigator.serviceWorker.ready;
       
       if (!swReg.active) {
@@ -219,12 +218,12 @@
       statusText.textContent = '正在连接 DHT / Trackers...';
       
     } catch (err) {
-      showError('Service Worker 注册失败：' + (err.message || err) + '\n(请确保已下载 sw.min.js 并放在同级目录)');
+      showError('Service Worker 注册失败：' + (err.message || err) + '\n(请确保 sw.min.js 与 yun.html 处于同一目录)');
       playBtn.disabled = false;
       return;
     }
 
-    // 4. 添加公共 WebSocket Trackers 提高连上 Peer 的概率
+    // 添加公共 WebSocket Trackers 提高连上 Peer 的概率
     const announceTrackers = [
       'wss://tracker.openwebtorrent.com',
       'wss://tracker.webtorrent.io',
