@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Webtor 云播放 (极速解析版)</title>
+    <style>
+        :root {
+            --bg: #0b0e14; --surface: #161b22; --border: #30363d;
+            --text: #e6edf3; --muted: #8b949e; --accent: #238636; --accent-hover: #2ea043;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: var(--bg); color: var(--text);
+            min-height: 100vh; display: flex; flex-direction: column;
+            align-items: center; padding: 20px 16px;
+        }
+        .container { width: 100%; max-width: 800px; }
+        h2 { font-size: 1.25rem; margin-bottom: 6px; }
+        p.subtitle { color: var(--muted); font-size: 0.85rem; margin-bottom: 20px; line-height: 1.4; }
+
+        .input-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        .input-group input {
+            width: 100%; padding: 14px; border-radius: 8px;
+            border: 1px solid var(--border); background: var(--surface);
+            color: var(--text); font-size: 16px; outline: none;
+        }
+        .input-group input:focus { border-color: var(--accent); }
+        .input-group button {
+            width: 100%; padding: 14px; border-radius: 8px; border: none;
+            background: var(--accent); color: white; font-weight: 600;
+            font-size: 16px; cursor: pointer; transition: background 0.2s;
+        }
+        .input-group button:active { background: var(--accent-hover); }
+        .input-group button:disabled { opacity: 0.7; cursor: not-allowed; }
+
+        @media (min-width: 600px) {
+            .input-group { flex-direction: row; }
+            .input-group input { flex: 1; }
+            .input-group button { width: auto; padding: 14px 28px; }
+        }
+
+        #file-list-container { display: none; margin-bottom: 20px; animation: fadeIn 0.3s; }
+        #file-list-container label { display: block; color: var(--muted); font-size: 0.9rem; margin-bottom: 8px; font-weight: bold;}
+        #file-select {
+            width: 100%; padding: 12px; border-radius: 8px;
+            border: 1px solid var(--accent); background: var(--surface);
+            color: var(--text); font-size: 15px; outline: none;
+        }
+
+        #webtor-player {
+            width: 100%; aspect-ratio: 16 / 9; background: #000;
+            border-radius: 10px; overflow: hidden; border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--muted); position: relative;
+        }
+        #webtor-player iframe, #webtor-player video {
+            width: 100% !important; height: 100% !important;
+            border: none; position: absolute; top: 0; left: 0;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>☁️ Webtor 云播放 (极速解析版)</h2>
+        <p class="subtitle">多源代理并发抓取，突破限制，完整获取所有文件。</p>
+        
+        <div class="input-group">
+            <input type="text" id="magnetInput" placeholder="粘贴 magnet:?xt=urn:btih:..." />
+            <button onclick="parseMagnet()" id="parseBtn">开始解析</button>
+        </div>
+
+        <div id="file-list-container">
+            <label id="file-list-label">📂 已解析到全部文件，请选择：</label>
+            <select id="file-select"></select>
+        </div>
+
+        <div id="webtor-player">
+            <span style="color:#8b949e; font-size:14px;">等待输入磁力链接...</span>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@webtor/embed-sdk-js/dist/index.min.js" charset="utf-8" async></script>
+
+    <script>
+        const TRACKERS = [
+            '&tr=udp%3A%2F%2Fexplodie.org%3A6969',
+            '&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337',
+            '&tr=wss%3A%2F%2Ftracker.openwebtorrent.com'
+        ].join('');
+
+        // 提取 Infohash
+        function getInfohash(magnet) {
+            const match = magnet.match(/urn:btih:([a-fA-F0-9]{40})/);
+            return match ? match[1].toLowerCase() : null;
+        }
+
+        // 多源代理请求封装 (解决获取慢、获取不全的问题)
+        async function fetchWithProxy(url) {
+            const proxies = [
+                'https://corsproxy.io/?',
+                'https://api.allorigins.win/raw?url=',
+                'https://api.codetabs.com/v1/proxy?quest='
+            ];
+            
+            // 随机打乱代理顺序，分摊压力
+            proxies.sort(() => Math.random() - 0.5);
+
+            for (let proxy of proxies) {
+                try {
+                    const proxyUrl = proxy + encodeURIComponent(url);
+                    const res = await fetch(proxyUrl);
+                    if (res.ok) {
+                        const text = await res.text();
+                        if (text.includes('webtor') && text.includes('<!doctype html>')) {
+                            return text; // 成功拿到有效网页
+                        }
+                    }
+                } catch (e) {
+                    console.warn(`代理 ${proxy} 请求失败，尝试下一个...`);
+                }
+            }
+            throw new Error('所有代理均无法获取数据');
+        }
+
+        // 解析单页 HTML 数据
+        function parseHtmlPage(html) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const inputs = doc.querySelectorAll('input[data-path]');
+            const files = [];
+            
+            inputs.forEach(input => {
+                const filePath = input.getAttribute('data-path');
+                const sizeBytes = parseInt(input.getAttribute('data-size') || '0');
+                const name = input.getAttribute('aria-label');
+                
+                if (filePath && name) {
+                    // 格式化大小
+                    const sizeStr = sizeBytes > 1024 * 1024 * 1024 
+                        ? (sizeBytes / 1024 / 1024 / 1024).toFixed(2) + ' GB'
+                        : (sizeBytes / 1024 / 1024).toFixed(1) + ' MB';
+                        
+                    files.push({ path: filePath, name: name, size: sizeStr });
+                }
+            });
+
+            // 提取分页信息
+            let maxPage = 1;
+            let pwd = '';
+            const links = doc.querySelectorAll('a[href*="page="]');
+            links.forEach(a => {
+                const href = a.getAttribute('href');
+                const params = new URLSearchParams(href.split('?')[1]);
+                const pageStr = params.get('page');
+                if (pageStr) {
+                    const p = parseInt(pageStr);
+                    if (p > maxPage) maxPage = p;
+                }
+                if (!pwd) pwd = params.get('pwd');
+            });
+
+            return { files, maxPage, pwd };
+        }
+
+        // 核心：并发获取全部页面
+        async function fetchAllPagesConcurrent(infohash, onProgress) {
+            onProgress('正在获取首页数据...');
+            const baseUrl = `https://webtor.io/${infohash}`;
+            
+            // 1. 抓取第一页，获取总页数和目录参数
+            const firstHtml = await fetchWithProxy(baseUrl);
+            const firstPageData = parseHtmlPage(firstHtml);
+            
+            let allFiles = [...firstPageData.files];
+            let maxPage = firstPageData.maxPage;
+            let pwd = firstPageData.pwd;
+
+            // 2. 如果有多页，开启并发抓取
+            if (maxPage > 1) {
+                onProgress(`共 ${maxPage} 页，正在并发抓取...`);
+                const promises = [];
+                
+                for (let i = 2; i <= maxPage; i++) {
+                    const pageUrl = `https://webtor.io/${infohash}?pwd=${encodeURIComponent(pwd)}&page=${i}`;
+                    promises.push(
+                        fetchWithProxy(pageUrl)
+                        .then(html => parseHtmlPage(html).files)
+                        .catch(e => {
+                            console.warn(`第 ${i} 页抓取失败`, e);
+                            return []; // 某页失败不影响整体
+                        })
+                    );
+                }
+                
+                // 等待所有页面抓取完毕
+                const results = await Promise.all(promises);
+                results.forEach(files => { allFiles = allFiles.concat(files); });
+            }
+
+            // 3. 去重 & 自然排序 (001, 002...)
+            const uniqueFiles = [];
+            const seen = new Set();
+            for (let f of allFiles) {
+                if (!seen.has(f.path)) {
+                    seen.add(f.path);
+                    uniqueFiles.push(f);
+                }
+            }
+            uniqueFiles.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'}));
+            
+            return uniqueFiles;
+        }
+
+        async function parseMagnet() {
+            const input = document.getElementById('magnetInput').value.trim();
+            const container = document.getElementById('webtor-player');
+            const parseBtn = document.getElementById('parseBtn');
+            const listContainer = document.getElementById('file-list-container');
+            const listLabel = document.getElementById('file-list-label');
+            const fileSelect = document.getElementById('file-select');
+
+            if (!input.startsWith('magnet:?')) {
+                alert('请输入有效的磁力链接');
+                return;
+            }
+
+            const infohash = getInfohash(input);
+            if (!infohash) {
+                alert('无法识别磁力链接中的 Hash');
+                return;
+            }
+
+            // UI 状态更新
+            parseBtn.disabled = true;
+            parseBtn.innerText = '解析中...';
+            container.innerHTML = '<span style="color:#8b949e; font-size:14px;">准备就绪，请在上方选择视频...</span>';
+            listContainer.style.display = 'none';
+
+            let finalMagnet = input;
+            if (!input.includes('tr=')) finalMagnet = input + TRACKERS;
+
+            try {
+                const files = await fetchAllPagesConcurrent(infohash, (msg) => {
+                    parseBtn.innerText = msg;
+                });
+                
+                if (files && files.length > 0) {
+                    fileSelect.innerHTML = '';
+                    files.forEach((file) => {
+                        const option = document.createElement('option');
+                        option.value = file.path;
+                        option.textContent = `[${file.size}] ${file.name}`;
+                        fileSelect.appendChild(option);
+                    });
+
+                    listLabel.innerText = `📂 解析成功！共 ${files.length} 个文件，请下拉选择：`;
+                    listContainer.style.display = 'block';
+                    
+                    // 切换事件 -> 立即播放选中的视频
+                    fileSelect.onchange = (e) => {
+                        renderPlayer(finalMagnet, e.target.value);
+                    };
+
+                    // 自动选中并播放第一个文件
+                    fileSelect.selectedIndex = 0;
+                    renderPlayer(finalMagnet, files[0].path);
+                } else {
+                    throw new Error('未找到视频文件');
+                }
+            } catch (e) {
+                console.error(e);
+                container.innerHTML = '<span style="color:#ff7b72; font-size:14px;">解析失败，代理请求超时，请重试或更换链接。</span>';
+                alert('解析失败，请检查网络或稍后再试。');
+            }
+
+            parseBtn.innerText = '开始解析';
+            parseBtn.disabled = false;
+        }
+
+        function renderPlayer(magnet, filePath) {
+            const container = document.getElementById('webtor-player');
+            container.innerHTML = '<span style="color:#8b949e; font-size:14px;">正在加载播放器...</span>'; 
+
+            const render = () => {
+                const config = {
+                    id: 'webtor-player',
+                    magnet: magnet,
+                    width: '100%',
+                    height: '100%'
+                };
+                if (filePath) {
+                    config.path = filePath; 
+                }
+                window.webtor.push(config);
+            };
+
+            if (window.webtor) {
+                render();
+            } else {
+                let attempts = 0;
+                const checkSdk = setInterval(() => {
+                    if (window.webtor) {
+                        clearInterval(checkSdk);
+                        render();
+                    }
+                    if (++attempts > 50) {
+                        clearInterval(checkSdk);
+                        container.innerHTML = '<span style="color:#ff7b72;">SDK 加载失败，请刷新页面</span>';
+                    }
+                }, 100);
+            }
+        }
+    </script>
+</body>
+</html>
