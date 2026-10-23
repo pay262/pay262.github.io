@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Webtor 云播放 (极速美化版)</title>
+    <title>Webtor 云播放 (稳定优化版)</title>
     <style>
         :root {
             --bg: #0b0e14; --surface: #161b22; --border: #30363d;
@@ -42,13 +42,13 @@
             .input-group button { width: auto; padding: 14px 28px; }
         }
 
-        /* 顶部快捷切换按钮 */
         #toggle-list-btn {
             display: none; width: 100%; margin-bottom: 15px; padding: 12px;
             background: rgba(241, 62, 122, 0.1); border: 1px solid rgba(241, 62, 122, 0.3);
             color: var(--pink); border-radius: 8px; font-weight: bold; font-size: 15px;
-            cursor: pointer; text-align: center;
+            cursor: pointer; text-align: center; transition: 0.2s;
         }
+        #toggle-list-btn:active { background: rgba(241, 62, 122, 0.2); }
 
         #webtor-player {
             width: 100%; aspect-ratio: 16 / 9; background: #000;
@@ -61,29 +61,23 @@
             border: none; position: absolute; top: 0; left: 0;
         }
 
-        /* 美化版悬浮文件列表 */
+        /* 悬浮列表 UI */
         #file-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); z-index: 1000;
-            justify-content: center; align-items: flex-end; /* 移动端从底部弹起 */
+            justify-content: center; align-items: flex-end;
         }
-        @media (min-width: 600px) {
-            #file-modal { align-items: center; }
-        }
+        @media (min-width: 600px) { #file-modal { align-items: center; } }
         .modal-content {
             background: var(--card); width: 100%; max-width: 600px;
             max-height: 80vh; border-radius: 20px 20px 0 0; display: flex; flex-direction: column;
             border: 1px solid var(--border); animation: slideUp 0.3s ease-out;
         }
-        @media (min-width: 600px) {
-            .modal-content { border-radius: 16px; animation: fadeIn 0.2s ease-out; }
-        }
+        @media (min-width: 600px) { .modal-content { border-radius: 16px; animation: fadeIn 0.2s ease-out; } }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
-        .modal-header {
-            padding: 16px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px;
-        }
+        .modal-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px; }
         .modal-title { font-size: 1.1rem; font-weight: bold; display: flex; justify-content: space-between; align-items: center;}
         .close-btn { background: none; border: none; color: var(--muted); font-size: 1.5rem; cursor: pointer; padding: 0 5px; }
         .search-box {
@@ -91,10 +85,7 @@
             border: 1px solid var(--border); background: var(--bg); color: var(--text); outline: none;
         }
         .search-box:focus { border-color: var(--pink); }
-
-        .file-list-scroll {
-            overflow-y: auto; padding: 10px; flex: 1;
-        }
+        .file-list-scroll { overflow-y: auto; padding: 10px; flex: 1; }
         .file-item {
             display: flex; justify-content: space-between; align-items: center;
             padding: 12px; border-radius: 8px; cursor: pointer;
@@ -109,15 +100,14 @@
 <body>
     <div class="container">
         <h2>☁️ Webtor 云播放</h2>
-        <p class="subtitle">极致解析，多源代理容灾，智能列表切换。</p>
+        <p class="subtitle">稳定解析引擎，智能容错列表切换。</p>
         
         <div class="input-group">
             <input type="text" id="magnetInput" placeholder="粘贴 magnet:?xt=urn:btih:..." />
             <button onclick="parseMagnet()" id="parseBtn">开始解析</button>
         </div>
 
-        <!-- 替代原生下拉框的按钮 -->
-        <button id="toggle-list-btn" onclick="openModal()">📂 打开文件列表 (点击切换)</button>
+        <button id="toggle-list-btn" onclick="openModal()">📂 打开文件列表</button>
 
         <div id="webtor-player">
             <span style="color:#8b949e; font-size:14px;">等待输入磁力链接...</span>
@@ -132,7 +122,7 @@
                     <span id="modal-title-text">文件列表</span>
                     <button class="close-btn" onclick="closeModal()">×</button>
                 </div>
-                <input type="text" id="searchInput" class="search-box" placeholder="🔍 搜索文件名 (如 063, 001)..." oninput="filterFiles()">
+                <input type="text" id="searchInput" class="search-box" placeholder="🔍 输入编号搜索，如 063..." oninput="filterFiles()">
             </div>
             <div class="file-list-scroll" id="file-list-container">
                 <!-- 列表项通过 JS 插入 -->
@@ -150,37 +140,39 @@
         let globalFiles = [];
         let currentMagnet = '';
         let currentInfohash = '';
-        let currentFilePath = '';
 
         function getInfohash(magnet) {
             const match = magnet.match(/urn:btih:([a-fA-F0-9]{40})/);
             return match ? match[1].toLowerCase() : null;
         }
 
-        // 多代理请求重试机制
-        async function fetchWithRetry(url, retries = 3) {
-            const proxies = [
-                'https://api.allorigins.win/raw?url=',
-                'https://corsproxy.io/?',
-                'https://api.codetabs.com/v1/proxy?quest='
-            ];
+        // 强制超时机制，避免卡死
+        async function fetchWithTimeout(resource, options = {}) {
+            const { timeout = 8000 } = options;
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeout);
+            const response = await fetch(resource, { ...options, signal: controller.signal });
+            clearTimeout(id);
+            return response;
+        }
+
+        // 稳定请求函数，优先使用 allorigins
+        async function fetchStableHtml(url) {
+            const proxy = 'https://api.allorigins.win/raw?url=';
+            const proxyUrl = proxy + encodeURIComponent(url);
             
-            for (let i = 0; i < retries; i++) {
-                const proxy = proxies[i % proxies.length]; // 轮流使用代理
-                try {
-                    const res = await fetch(proxy + encodeURIComponent(url));
-                    if (res.ok) {
-                        const text = await res.text();
-                        if (text.includes('<!doctype html>') || text.includes('<!DOCTYPE html>')) {
-                            return text;
-                        }
-                    }
-                } catch (e) {
-                    console.warn(`请求失败，重试中 (${i+1}/${retries})...`, e);
+            try {
+                const res = await fetchWithTimeout(proxyUrl, { timeout: 8000 });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const text = await res.text();
+                if (text.includes('<!doctype html>') || text.includes('<!DOCTYPE html>')) {
+                    return text;
                 }
-                await new Promise(r => setTimeout(r, 800)); // 每次重试等待 800ms
+                throw new Error('内容无效');
+            } catch (e) {
+                console.warn('代理请求失败:', e.message);
+                throw e;
             }
-            throw new Error('抓取彻底失败');
         }
 
         function parseHtmlPage(html) {
@@ -226,59 +218,67 @@
             currentMagnet = input.includes('tr=') ? input : input + TRACKERS;
 
             parseBtn.disabled = true;
-            parseBtn.innerText = '解析中...';
             toggleBtn.style.display = 'none';
-            container.innerHTML = '<span style="color:#8b949e; font-size:14px;">正在提取全量文件列表，请稍候...</span>';
+            container.innerHTML = '<span style="color:#8b949e; font-size:14px;">正在连接服务器提取列表，请稍候...</span>';
 
             try {
-                parseBtn.innerText = '获取首页...';
+                parseBtn.innerText = '正在获取第 1 页...';
                 const baseUrl = `https://webtor.io/${currentInfohash}`;
-                const firstHtml = await fetchWithRetry(baseUrl);
+                
+                // 1. 必须成功获取第一页
+                const firstHtml = await fetchStableHtml(baseUrl);
                 const firstData = parseHtmlPage(firstHtml);
                 
                 let allFiles = [...firstData.files];
+                let successCount = 1;
                 
+                // 2. 抓取剩余页
                 if (firstData.maxPage > 1) {
                     for (let i = 2; i <= firstData.maxPage; i++) {
                         parseBtn.innerText = `正在获取第 ${i}/${firstData.maxPage} 页...`;
                         const pageUrl = `https://webtor.io/${currentInfohash}?pwd=${encodeURIComponent(firstData.pwd)}&page=${i}`;
+                        
                         try {
-                            const pageHtml = await fetchWithRetry(pageUrl);
+                            const pageHtml = await fetchStableHtml(pageUrl);
                             allFiles = allFiles.concat(parseHtmlPage(pageHtml).files);
+                            successCount++;
                         } catch (e) {
-                            console.warn(`第 ${i} 页彻底失败，跳过`);
+                            console.warn(`第 ${i} 页抓取失败，跳过并继续后续操作`);
                         }
                     }
                 }
 
-                // 去重排序
+                // 3. 处理数据
                 const seen = new Set();
                 globalFiles = allFiles.filter(f => {
                     if (!seen.has(f.path)) { seen.add(f.path); return true; }
                     return false;
                 }).sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
 
-                if (globalFiles.length === 0) throw new Error('无视频文件');
+                if (globalFiles.length === 0) throw new Error('无法获取到任何视频文件');
 
-                // 渲染列表
                 renderFileList(globalFiles);
                 
-                // 显示按钮并自动播放第一个
                 toggleBtn.style.display = 'block';
-                toggleBtn.innerText = `📂 已解析 ${globalFiles.length} 个文件 (点击切换)`;
+                // 如果成功页数少于总页数，给出提示，但不影响使用
+                const incompleteMsg = successCount < firstData.maxPage ? `(部分加载:${successCount}/${firstData.maxPage}页)` : '';
+                toggleBtn.innerText = `📂 已获取 ${globalFiles.length} 个文件 ${incompleteMsg} (点击切换)`;
                 
                 playVideo(globalFiles[0]);
 
             } catch (e) {
                 console.error(e);
-                container.innerHTML = '<span style="color:#ff7b72; font-size:14px;">解析失败，可能是代理超时，请重新点击解析。</span>';
+                container.innerHTML = `
+                    <div style="text-align:center; padding: 20px;">
+                        <p style="color:#ff7b72; margin-bottom:10px;">解析失败，代理网络超时。</p>
+                        <p style="color:#8b949e; font-size:12px;">提示：国内访问官方网页极不稳定，请多点击几次“开始解析”重试。</p>
+                    </div>`;
             }
 
             parseBtn.innerText = '开始解析';
             parseBtn.disabled = false;
         }
 
-        // 渲染美化列表
         function renderFileList(files) {
             const list = document.getElementById('file-list-container');
             list.innerHTML = '';
@@ -289,7 +289,6 @@
                 div.dataset.path = file.path;
                 div.dataset.name = file.name.toLowerCase();
                 
-                // 提取文件名前面的序号用于显示
                 const numMatch = file.name.match(/(\d+)/);
                 const displayNum = numMatch ? numMatch[1].padStart(3, '0') : index + 1;
 
@@ -305,46 +304,32 @@
             document.getElementById('modal-title-text').innerText = `文件列表 (共 ${files.length} 个)`;
         }
 
-        // 搜索过滤功能
         function filterFiles() {
             const keyword = document.getElementById('searchInput').value.toLowerCase();
-            const items = document.querySelectorAll('.file-item');
-            
-            items.forEach(item => {
-                if (item.dataset.name.includes(keyword)) {
-                    item.style.display = 'flex';
-                } else {
-                    item.style.display = 'none';
-                }
+            document.querySelectorAll('.file-item').forEach(item => {
+                item.style.display = item.dataset.name.includes(keyword) ? 'flex' : 'none';
             });
         }
 
-        function openModal() {
-            document.getElementById('file-modal').style.display = 'flex';
-        }
+        function openModal() { document.getElementById('file-modal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('file-modal').style.display = 'none'; }
 
-        function closeModal() {
-            document.getElementById('file-modal').style.display = 'none';
-        }
-
-        // 播放逻辑：使用官方 iframe 接口，容错率远高于 SDK
+        // 使用 iframe 原生嵌入播放
         function playVideo(fileObj) {
-            currentFilePath = fileObj.path;
             closeModal();
             
             const container = document.getElementById('webtor-player');
-            // 更新列表高亮状态
             document.querySelectorAll('.file-item').forEach(el => {
                 if (el.dataset.path === fileObj.path) el.classList.add('active');
                 else el.classList.remove('active');
             });
 
-            // 更新顶部按钮文字
             document.getElementById('toggle-list-btn').innerText = `▶️ 正在播放: ${fileObj.name} (点击切换)`;
 
-            container.innerHTML = '<span style="color:#8b949e; font-size:14px;">正在连接 P2P 节点，准备视频流...</span>';
+            // 清理旧内容
+            container.innerHTML = '<span style="color:#8b949e; font-size:14px;">正在建立 P2P 连接，如果长时间无响应说明该资源已死种...</span>';
 
-            // 构造官方 Embed URL
+            // 官方原生 embed 接口
             const embedUrl = `https://webtor.io/embed/${currentInfohash}?path=${encodeURIComponent(fileObj.path)}`;
             
             const iframe = document.createElement('iframe');
@@ -352,14 +337,11 @@
             iframe.allow = "autoplay; fullscreen";
             iframe.allowFullscreen = true;
             
-            // 延迟清空提示，插入 iframe
-            setTimeout(() => {
-                container.innerHTML = '';
-                container.appendChild(iframe);
-            }, 500);
+            // 立即插入 iframe
+            container.innerHTML = '';
+            container.appendChild(iframe);
         }
 
-        // 点击遮罩层关闭
         document.getElementById('file-modal').addEventListener('click', function(e) {
             if (e.target === this) closeModal();
         });
