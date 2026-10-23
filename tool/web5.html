@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Webtor 云播放 (完美切换版)</title>
+    <style>
+        :root {
+            --bg: #0b0e14; --surface: #161b22; --border: #30363d;
+            --text: #e6edf3; --muted: #8b949e; --accent: #238636; --accent-hover: #2ea043;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: var(--bg); color: var(--text);
+            min-height: 100vh; display: flex; flex-direction: column;
+            align-items: center; padding: 20px 16px;
+        }
+        .container { width: 100%; max-width: 800px; }
+        h2 { font-size: 1.25rem; margin-bottom: 6px; }
+        p.subtitle { color: var(--muted); font-size: 0.85rem; margin-bottom: 20px; line-height: 1.4; }
+
+        .input-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        .input-group input {
+            width: 100%; padding: 14px; border-radius: 8px;
+            border: 1px solid var(--border); background: var(--surface);
+            color: var(--text); font-size: 16px; outline: none;
+        }
+        .input-group input:focus { border-color: var(--accent); }
+        .input-group button {
+            width: 100%; padding: 14px; border-radius: 8px; border: none;
+            background: var(--accent); color: white; font-weight: 600;
+            font-size: 16px; cursor: pointer; transition: background 0.2s;
+        }
+        .input-group button:active { background: var(--accent-hover); }
+        .input-group button:disabled { opacity: 0.7; cursor: not-allowed; }
+
+        @media (min-width: 600px) {
+            .input-group { flex-direction: row; }
+            .input-group input { flex: 1; }
+            .input-group button { width: auto; padding: 14px 28px; }
+        }
+
+        #file-list-container { display: none; margin-bottom: 20px; animation: fadeIn 0.3s; }
+        #file-list-container label { display: block; color: var(--muted); font-size: 0.9rem; margin-bottom: 8px; }
+        #file-select {
+            width: 100%; padding: 12px; border-radius: 8px;
+            border: 1px solid var(--accent); background: var(--surface);
+            color: var(--text); font-size: 15px; outline: none;
+        }
+
+        #webtor-player {
+            width: 100%; aspect-ratio: 16 / 9; background: #000;
+            border-radius: 10px; overflow: hidden; border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--muted); position: relative;
+        }
+        #webtor-player iframe, #webtor-player video {
+            width: 100% !important; height: 100% !important;
+            border: none; position: absolute; top: 0; left: 0;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>☁️ Webtor 云播放 (完美切换版)</h2>
+        <p class="subtitle">深度解析官方页面，支持多文件完美切换。</p>
+        
+        <div class="input-group">
+            <input type="text" id="magnetInput" placeholder="粘贴 magnet:?xt=urn:btih:..." />
+            <button onclick="playMagnet()" id="playBtn">开始播放</button>
+        </div>
+
+        <div id="file-list-container">
+            <label>📂 已解析到文件列表，请选择：</label>
+            <select id="file-select"></select>
+        </div>
+
+        <div id="webtor-player">
+            <span style="color:#8b949e; font-size:14px;">等待输入磁力链接...</span>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@webtor/embed-sdk-js/dist/index.min.js" charset="utf-8" async></script>
+
+    <script>
+        const TRACKERS = [
+            '&tr=udp%3A%2F%2Fexplodie.org%3A6969',
+            '&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337',
+            '&tr=wss%3A%2F%2Ftracker.openwebtorrent.com'
+        ].join('');
+
+        // 提取 Infohash (40位十六进制)
+        function getInfohash(magnet) {
+            const match = magnet.match(/urn:btih:([a-fA-F0-9]{40})/);
+            return match ? match[1].toLowerCase() : null;
+        }
+
+        // 核心逻辑：通过抓取官方页面HTML来解析文件列表
+        async function fetchFileList(infohash) {
+            // 使用公共 CORS 代理抓取官方网页代码
+            const targetUrl = `https://webtor.io/${infohash}`;
+            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
+            
+            const response = await fetch(proxyUrl);
+            if (!response.ok) throw new Error('网页抓取失败');
+            
+            const htmlText = await response.text();
+            
+            // 解析 HTML
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlText, 'text/html');
+            
+            // 抓取所有的文件链接（官方代码中，文件链接带有 data-async-target="#content" 属性）
+            const links = doc.querySelectorAll('a[data-async-target="#content"]');
+            const files = [];
+            
+            links.forEach(link => {
+                const href = link.getAttribute('href');
+                if (!href) return;
+                
+                // 从 URL 中提取 file 参数 (例如：file=%2fCzech...%2f001.mp4)
+                const urlParams = new URLSearchParams(href.split('?')[1]);
+                const filePath = urlParams.get('file'); // 拿到绝对路径
+                
+                // 提取文件名和大小 (在 span 标签里)
+                const spans = link.querySelectorAll('span');
+                let name = '', size = '';
+                spans.forEach(span => {
+                    const text = span.innerText.trim();
+                    if (text.match(/\.(mp4|mkv|avi|webm)$/i)) name = text;
+                    if (text.match(/(MB|GB|TB)$/i)) size = text;
+                });
+
+                if (filePath && name) {
+                    files.push({ path: filePath, name: name, size: size });
+                }
+            });
+
+            return files;
+        }
+
+        async function playMagnet() {
+            const input = document.getElementById('magnetInput').value.trim();
+            const container = document.getElementById('webtor-player');
+            const playBtn = document.getElementById('playBtn');
+            const listContainer = document.getElementById('file-list-container');
+            const fileSelect = document.getElementById('file-select');
+
+            if (!input.startsWith('magnet:?')) {
+                alert('请输入有效的磁力链接');
+                return;
+            }
+
+            const infohash = getInfohash(input);
+            if (!infohash) {
+                alert('无法识别磁力链接中的 Hash');
+                return;
+            }
+
+            playBtn.disabled = true;
+            playBtn.innerText = '解析中...';
+            container.innerHTML = '<span style="color:#8b949e; font-size:14px;">正在尝试获取文件列表...</span>';
+            listContainer.style.display = 'none';
+
+            let finalMagnet = input;
+            if (!input.includes('tr=')) finalMagnet = input + TRACKERS;
+
+            try {
+                // 尝试抓取列表
+                const files = await fetchFileList(infohash);
+                
+                if (files && files.length > 0) {
+                    // 渲染下拉列表
+                    fileSelect.innerHTML = '';
+                    files.forEach((file) => {
+                        const option = document.createElement('option');
+                        option.value = file.path; // 把文件路径作为 value
+                        option.textContent = `[${file.size}] ${file.name}`;
+                        fileSelect.appendChild(option);
+                    });
+
+                    listContainer.style.display = 'block';
+                    
+                    // 监听切换事件 -> 重新渲染播放器并传入 path
+                    fileSelect.onchange = (e) => {
+                        renderPlayer(finalMagnet, e.target.value);
+                    };
+
+                    // 默认播放第一个
+                    renderPlayer(finalMagnet, files[0].path);
+                } else {
+                    throw new Error('未找到视频文件');
+                }
+            } catch (e) {
+                console.warn("解析列表失败，回退到默认播放模式:", e);
+                container.innerHTML = '<span style="color:#ff7b72; font-size:14px;">解析列表失败，尝试直接播放...</span>';
+                // 兜底：不传 path，直接让 SDK 自己找第一个文件
+                renderPlayer(finalMagnet, null);
+            }
+
+            playBtn.innerText = '开始播放';
+            playBtn.disabled = false;
+        }
+
+        // 渲染播放器（支持通过 path 精准定位文件）
+        function renderPlayer(magnet, filePath) {
+            const container = document.getElementById('webtor-player');
+            container.innerHTML = ''; // 必须清空旧实例
+
+            const render = () => {
+                const config = {
+                    id: 'webtor-player',
+                    magnet: magnet,
+                    width: '100%',
+                    height: '100%'
+                };
+                // 如果传了路径，直接指定播放该文件
+                if (filePath) {
+                    config.path = filePath;
+                }
+                
+                window.webtor.push(config);
+            };
+
+            if (window.webtor) {
+                render();
+            } else {
+                let attempts = 0;
+                const checkSdk = setInterval(() => {
+                    if (window.webtor) {
+                        clearInterval(checkSdk);
+                        render();
+                    }
+                    if (++attempts > 50) {
+                        clearInterval(checkSdk);
+                        container.innerHTML = '<span style="color:#ff7b72;">SDK 加载失败，请刷新</span>';
+                    }
+                }, 100);
+            }
+        }
+    </script>
+</body>
+</html
