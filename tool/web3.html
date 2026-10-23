@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Webtor 云播放</title>
+    <style>
+        :root {
+            --bg: #0b0e14; --surface: #161b22; --border: #30363d;
+            --text: #e6edf3; --muted: #8b949e; --accent: #238636; --accent-hover: #2ea043;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: var(--bg); color: var(--text);
+            min-height: 100vh; display: flex; flex-direction: column;
+            align-items: center; padding: 20px 16px;
+        }
+        .container { width: 100%; max-width: 800px; }
+        h2 { font-size: 1.25rem; margin-bottom: 6px; }
+        p.subtitle { color: var(--muted); font-size: 0.85rem; margin-bottom: 20px; line-height: 1.4; }
+
+        .input-group {
+            display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;
+        }
+        .input-group input {
+            width: 100%; padding: 14px; border-radius: 8px;
+            border: 1px solid var(--border); background: var(--surface);
+            color: var(--text); font-size: 16px; outline: none;
+        }
+        .input-group input:focus { border-color: var(--accent); }
+        .input-group button {
+            width: 100%; padding: 14px; border-radius: 8px; border: none;
+            background: var(--accent); color: white; font-weight: 600;
+            font-size: 16px; cursor: pointer; transition: background 0.2s;
+        }
+        .input-group button:active { background: var(--accent-hover); }
+
+        @media (min-width: 600px) {
+            .input-group { flex-direction: row; }
+            .input-group input { flex: 1; }
+            .input-group button { width: auto; padding: 14px 28px; }
+        }
+
+        /* 播放器容器 */
+        #webtor-player {
+            width: 100%; aspect-ratio: 16 / 9; background: #000;
+            border-radius: 10px; overflow: hidden; border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--muted); position: relative;
+        }
+        
+        #webtor-player iframe, #webtor-player video {
+            width: 100% !important; height: 100% !important;
+            border: none; position: absolute; top: 0; left: 0;
+        }
+
+        /* 新增：操作提示文字 */
+        .tips { margin-top: 12px; font-size: 0.85rem; color: var(--muted); text-align: center; line-height: 1.5; }
+        .tips strong { color: var(--text); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>☁️ Webtor 云播放</h2>
+        <p class="subtitle">由 Webtor 服务器解析并提供流媒体播放（支持多文件切换）。</p>
+        
+        <div class="input-group">
+            <input type="text" id="magnetInput" placeholder="粘贴 magnet:?xt=urn:btih:..." />
+            <button onclick="playMagnet()" id="playBtn">开始播放</button>
+        </div>
+
+        <div id="webtor-player">
+            <span style="color:#8b949e; font-size:14px;">等待输入磁力链接...</span>
+        </div>
+
+        <!-- 针对移动端无内置列表的提示 -->
+        <div class="tips" id="tips" style="display: none;">
+            💡 提示：如果播放器内没有切换按钮，说明当前移动端 UI 被精简。<br>
+            你可以尝试 <strong>横屏全屏</strong>，或在电脑端打开本页面使用官方完整列表。
+        </div>
+    </div>
+
+    <!-- 引入官方 SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@webtor/embed-sdk-js/dist/index.min.js" charset="utf-8" async></script>
+
+    <script>
+        // 公共 Tracker 补充，提高连接成功率
+        const TRACKERS = [
+            '&tr=udp%3A%2F%2Fexplodie.org%3A6969',
+            '&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337',
+            '&tr=wss%3A%2F%2Ftracker.openwebtorrent.com'
+        ].join('');
+
+        function playMagnet() {
+            const input = document.getElementById('magnetInput').value.trim();
+            const container = document.getElementById('webtor-player');
+            const playBtn = document.getElementById('playBtn');
+            const tips = document.getElementById('tips');
+
+            if (!input.startsWith('magnet:?')) {
+                alert('请输入有效的磁力链接 (magnet:? 开头)');
+                return;
+            }
+
+            // UI 状态更新
+            playBtn.innerText = '初始化中...';
+            playBtn.disabled = true;
+            tips.style.display = 'block';
+            container.innerHTML = '<span style="color:#8b949e; font-size:14px;">正在连接 P2P 节点，请稍候...</span>';
+
+            // 补充 Tracker
+            let finalMagnet = input;
+            if (!input.includes('tr=')) {
+                finalMagnet = input + TRACKERS;
+            }
+
+            // 清理旧播放器
+            container.innerHTML = '';
+
+            // 核心渲染逻辑
+            const render = () => {
+                window.webtor.push({
+                    id: 'webtor-player',
+                    magnet: finalMagnet,
+                    width: '100%',
+                    height: '100%',
+                    // 如果后续你想强制指定某个文件，可以解开下面这行的注释并填入路径
+                    // path: '/Czech Streets siterip (1-126)/Czech Streets-001.mp4' 
+                });
+                
+                playBtn.innerText = '开始播放';
+                playBtn.disabled = false;
+            };
+
+            // 检查 SDK 是否已加载
+            if (window.webtor) {
+                render();
+            } else {
+                // SDK 加载延迟处理
+                let attempts = 0;
+                const checkSdk = setInterval(() => {
+                    if (window.webtor) {
+                        clearInterval(checkSdk);
+                        render();
+                    }
+                    if (++attempts > 50) { // 5秒超时
+                        clearInterval(checkSdk);
+                        container.innerHTML = '<span style="color:#ff7b72; font-size:14px;">播放器加载失败，请刷新重试</span>';
+                        playBtn.innerText = '开始播放';
+                        playBtn.disabled = false;
+                    }
+                }, 100);
+            }
+        }
+    </script>
+</body>
+</html>
