@@ -31,10 +31,11 @@
         .input-group button {
             width: 100%; padding: 14px; border-radius: 8px; border: none;
             background: var(--accent); color: white; font-weight: 600;
-            font-size: 16px; cursor: pointer; transition: background 0.2s;
+            font-size: 16px; cursor: pointer; transition: all 0.2s;
+            display: flex; justify-content: center; align-items: center; gap: 8px;
         }
         .input-group button:active { background: var(--accent-hover); }
-        .input-group button:disabled { opacity: 0.7; cursor: not-allowed; }
+        .input-group button:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
 
         @media (min-width: 600px) {
             .input-group { flex-direction: row; }
@@ -70,7 +71,6 @@
             display: flex; justify-content: center; align-items: center; overflow: hidden;
         }
         
-        /* 视频容器 */
         #webtor-player {
             width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
             color: var(--muted); position: absolute; top: 0; left: 0; z-index: 1;
@@ -80,16 +80,12 @@
             border: none; position: absolute; top: 0; left: 0;
         }
 
-        /* 预览容器 */
         #preview-container {
             width: 100%; height: 100%; position: absolute; top: 0; left: 0;
             background: var(--bg); z-index: 5; display: none; overflow: auto;
             flex-direction: column; align-items: center; justify-content: flex-start;
         }
-        #preview-img {
-            max-width: 100%; max-height: 100%; object-fit: contain;
-            display: none; 
-        }
+        #preview-img { max-width: 100%; max-height: 100%; object-fit: contain; display: none; }
         #preview-text {
             width: 100%; height: 100%; padding: 20px; color: var(--text);
             font-family: monospace; white-space: pre-wrap; word-wrap: break-word;
@@ -101,21 +97,16 @@
             z-index: 6; width: 100%; text-align: center;
         }
 
-        /* 控制栏 */
         .player-controls {
             display: flex; flex-direction: column; background: var(--surface); 
             border-top: 1px solid var(--border); position: relative; z-index: 10;
         }
-        .file-info-row {
-            padding: 10px 16px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
+        .file-info-row { padding: 10px 16px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
         #current-file-info { 
             font-size: 14px; color: var(--pink); font-weight: bold; 
             overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; display: block;
         }
-        .ctrl-buttons-row {
-            display: flex; justify-content: space-between; padding: 10px 16px; gap: 10px;
-        }
+        .ctrl-buttons-row { display: flex; justify-content: space-between; padding: 10px 16px; gap: 10px; }
         .ctrl-btn {
             flex: 1; background: transparent; border: 1px solid var(--border); color: var(--text);
             padding: 10px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;
@@ -124,7 +115,6 @@
         .ctrl-btn:hover:not(:disabled) { background: rgba(255,255,255,0.05); border-color: var(--muted); }
         .ctrl-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-        /* 死种提示遮罩 */
         #dead-link-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(11, 14, 20, 0.95); display: none; flex-direction: column;
@@ -141,7 +131,6 @@
         .btn-copy { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
         .btn-download { background: var(--pink); color: white; }
 
-        /* 悬浮列表 UI */
         #file-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); z-index: 1000;
@@ -184,7 +173,10 @@
         
         <div class="input-group">
             <input type="text" id="magnetInput" placeholder="粘贴 magnet:?xt=urn:btih:..." />
-            <button onclick="startParse()" id="parseBtn">开始解析</button>
+            <button onclick="startParse()" id="parseBtn">
+                <span id="btnSpinner" class="spinner" style="display:none;"></span>
+                <span id="btnText">开始解析</span>
+            </button>
         </div>
 
         <div class="status-bar">
@@ -194,12 +186,10 @@
 
         <div class="player-container">
             <div class="media-area">
-                <!-- 视频容器 -->
                 <div id="webtor-player">
                     <span style="color:#8b949e; font-size:14px;">等待输入磁力链接...</span>
                 </div>
                 
-                <!-- 非视频预览容器 -->
                 <div id="preview-container">
                     <img id="preview-img" style="display: none;" />
                     <pre id="preview-text" style="display: none;"></pre>
@@ -210,7 +200,6 @@
                 </div>
             </div>
             
-            <!-- 死种降级遮罩 -->
             <div id="dead-link-overlay">
                 <h3>⚠️ 解析遇到问题</h3>
                 <p>可能是该文件已死种（无人做种或官方无缓存）。<br>你可以尝试以下降级方案：</p>
@@ -221,7 +210,6 @@
                 <button onclick="closeOverlay()" style="margin-top: 15px; background: transparent; border: none; color: var(--muted); text-decoration: underline; cursor: pointer;">继续尝试</button>
             </div>
             
-            <!-- 控制栏 -->
             <div class="player-controls">
                 <div class="file-info-row">
                     <span id="current-file-info">暂无选择</span>
@@ -234,7 +222,6 @@
         </div>
     </div>
 
-    <!-- 悬浮列表 UI -->
     <div id="file-modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -256,6 +243,7 @@
         let currentInfohash = '';
         let globalFiles = [];
         let isFetchingList = false;
+        let isParsing = false; // 全局解析状态锁
         
         let missingPages = [];
         let basePwd = '';
@@ -271,6 +259,17 @@
             'https://corsproxy.io/?',
             'https://api.allorigins.win/raw?url='
         ];
+
+        // UI 状态控制函数
+        function setParseState(text, isDisabled) {
+            const btn = document.getElementById('parseBtn');
+            const spinner = document.getElementById('btnSpinner');
+            const btnText = document.getElementById('btnText');
+            
+            btn.disabled = isDisabled;
+            btnText.innerText = text;
+            spinner.style.display = isDisabled ? 'inline-block' : 'none';
+        }
 
         function getInfohash(magnet) {
             const match = magnet.match(/urn:btih:([a-fA-F0-9]{40})/);
@@ -330,8 +329,9 @@
         }
 
         async function startParse() {
+            if (isParsing) return; // 防止重复点击
+
             const input = document.getElementById('magnetInput').value.trim();
-            const parseBtn = document.getElementById('parseBtn');
             const toggleBtn = document.getElementById('toggle-list-btn');
             const statusText = document.getElementById('list-status');
 
@@ -343,6 +343,7 @@
             currentMagnet = input.includes('tr=') ? input : input + '&tr=udp://explodie.org:6969&tr=wss://tracker.openwebtorrent.com';
 
             // 全局重置
+            isParsing = true;
             globalFiles = [];
             missingPages = [];
             basePwd = '';
@@ -352,19 +353,21 @@
             updateControlBtns();
             document.getElementById('searchInput').value = '';
             
-            // 彻底清理预览
             document.getElementById('preview-img').src = '';
             document.getElementById('preview-img').style.display = 'none';
             document.getElementById('preview-text').style.display = 'none';
             document.getElementById('preview-container').style.display = 'none';
 
-            parseBtn.innerText = '解析中...';
-            parseBtn.disabled = true;
+            // 1. 设置按钮为加载状态
+            setParseState('正在初始化...', true);
             
             try {
-                // 引入版本号 v3，隔离旧版可能存在的死循环缓存
                 const cachedData = localStorage.getItem('webtor_cache_v3_' + currentInfohash);
                 if (cachedData) {
+                    // 如果有缓存
+                    setParseState('读取本地缓存...', true);
+                    await new Promise(r => setTimeout(r, 300)); // 强制停留 300ms 视觉反馈
+                    
                     try {
                         const parsed = JSON.parse(cachedData);
                         if (parsed.files && parsed.files.length > 0) {
@@ -373,12 +376,9 @@
                             updateListUI();
                             statusText.innerHTML = `<span style="color:var(--accent)">⚡</span> 已从本地缓存秒出列表`;
                             
-                            // 延迟执行，防止阻塞 UI 渲染
-                            setTimeout(() => {
-                                selectIndex(0, true);
-                            }, 100);
-                            
-                            // 缓存命中，直接结束
+                            selectIndex(0, true);
+                            setParseState('解析完成', false);
+                            isParsing = false;
                             return;
                         }
                     } catch (e) { 
@@ -387,19 +387,20 @@
                     }
                 }
 
-                // 无缓存，开启播放
-                setTimeout(() => {
-                    selectIndex(0, true);
-                }, 100);
+                // 无缓存，开启网络请求
+                selectIndex(0, true); // 默认播第一个
+                await fetchListSerial(); // 等待列表抓取完毕，改变按钮状态
                 
-                fetchListSerial();
             } catch (err) {
                 console.error("解析流程异常:", err);
-                alert("解析程序出错，请刷新页面重试。");
+                statusText.className = 'error';
+                statusText.innerText = '❌ 解析程序出错，请刷新重试';
             } finally {
-                // 绝对保证按钮恢复，防止“死按无反应”
-                parseBtn.innerText = '开始解析';
-                parseBtn.disabled = false;
+                isParsing = false;
+                // 如果没有在 fetchListSerial 内部恢复按钮，在这里兜底
+                if (document.getElementById('parseBtn').disabled) {
+                    setParseState('开始解析', false);
+                }
             }
         }
 
@@ -436,9 +437,8 @@
 
             playerTimeout = setTimeout(showOverlay, 12000);
 
-            // 使用 setTimeout 将渲染延后，留出 DOM 清理时间
             setTimeout(() => {
-                container.innerHTML = ''; // 彻底清空旧内容
+                container.innerHTML = ''; 
                 if (window.webtor) {
                     const config = { id: 'webtor-player', magnet: currentMagnet, width: '100%', height: '100%' };
                     if (filePath) config.path = filePath;
@@ -446,7 +446,7 @@
                 } else {
                     container.innerHTML = '<span style="color:#ff7b72;">播放器组件加载失败，请刷新</span>';
                 }
-            }, 100);
+            }, 50);
         }
 
         function playPreviewMode(fileObj, type) {
@@ -626,7 +626,6 @@
         function saveToCache() {
             if (!currentInfohash || globalFiles.length === 0) return;
             try {
-                // 使用 v3 版本号隔离
                 localStorage.setItem('webtor_cache_v3_' + currentInfohash, JSON.stringify({ files: globalFiles, basePwd: basePwd }));
             } catch (e) { }
         }
@@ -636,6 +635,7 @@
             if (statusText.classList.contains('error') && !isFetchingList) fetchListSerial();
         }
 
+        // 核心修改：让 fetchListSerial 实时汇报进度到按钮和状态栏
         async function fetchListSerial() {
             if (isFetchingList) return;
             isFetchingList = true;
@@ -646,7 +646,9 @@
             try {
                 let maxPage = 1;
                 if (globalFiles.length === 0 || !basePwd) {
+                    setParseState('获取列表中...', true);
                     statusText.innerHTML = '<span class="spinner"></span> 正在解析首屏数据...';
+                    
                     const firstHtml = await fetchPageStrict(`https://webtor.io/${currentInfohash}`);
                     if (!firstHtml) throw new Error('首页解析失败');
                     
@@ -665,6 +667,9 @@
 
                 for (let i = 2; i <= maxPage; i++) {
                     if (!missingPages.includes(i) && globalFiles.length >= (i-1)*25) continue;
+                    
+                    // 按钮和状态栏同步更新
+                    setParseState(`获取分页 (${i}/${maxPage})`, true);
                     statusText.innerHTML = `<span class="spinner"></span> 渐进加载 (${i}/${maxPage})...`;
                     
                     const pageUrl = `https://webtor.io/${currentInfohash}?pwd=${encodeURIComponent(basePwd)}&page=${i}`;
@@ -691,6 +696,7 @@
                 statusText.innerHTML = '❌ 解析失败，点击此处重试';
             } finally {
                 isFetchingList = false;
+                setParseState('重新解析', false); // 抓取结束恢复按钮
             }
         }
 
