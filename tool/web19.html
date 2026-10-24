@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Webtor 云播放 (全能优化版)</title>
+    <title>Webtor 云播放 (全能解析版)</title>
     <style>
         :root {
             --bg: #0b0e14; --surface: #161b22; --border: #30363d;
@@ -64,20 +64,22 @@
         .player-container {
             width: 100%; background: #000; border-radius: 10px; overflow: hidden;
             border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            position: relative; /* 为遮罩层提供定位基准 */
         }
         #webtor-player {
             width: 100%; aspect-ratio: 16 / 9; display: flex; align-items: center; justify-content: center;
-            color: var(--muted); position: relative;
+            color: var(--muted); position: relative; z-index: 1;
         }
         #webtor-player iframe, #webtor-player video {
             width: 100% !important; height: 100% !important;
             border: none; position: absolute; top: 0; left: 0;
         }
 
-        /* 新增：控制栏 */
+        /* 控制栏 */
         .player-controls {
             display: flex; justify-content: space-between; align-items: center;
             padding: 10px 16px; background: var(--surface); border-top: 1px solid var(--border);
+            position: relative; z-index: 2;
         }
         .ctrl-btn {
             background: transparent; border: 1px solid var(--border); color: var(--text);
@@ -88,7 +90,7 @@
         .ctrl-btn:disabled { opacity: 0.3; cursor: not-allowed; }
         #current-file-info { font-size: 13px; color: var(--pink); font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 50%;}
 
-        /* 新增：死种提示遮罩 */
+        /* 死种提示遮罩 (绝对定位覆盖整个播放器) */
         #dead-link-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(11, 14, 20, 0.95); display: none; flex-direction: column;
@@ -105,7 +107,7 @@
         .btn-copy { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
         .btn-download { background: var(--pink); color: white; }
 
-        /* 悬浮列表 UI (保持不变) */
+        /* 悬浮列表 UI */
         #file-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); z-index: 1000;
@@ -148,7 +150,7 @@
         
         <div class="input-group">
             <input type="text" id="magnetInput" placeholder="粘贴 magnet:?xt=urn:btih:..." />
-            <button onclick="startPlay()" id="playBtn">开始播放</button>
+            <button onclick="startParse()" id="parseBtn">开始解析</button>
         </div>
 
         <div class="status-bar">
@@ -159,20 +161,20 @@
         <div class="player-container">
             <div id="webtor-player">
                 <span style="color:#8b949e; font-size:14px;">等待输入磁力链接...</span>
-                
-                <!-- 死种降级遮罩 -->
-                <div id="dead-link-overlay">
-                    <h3>⚠️ 播放遇到问题</h3>
-                    <p>可能是该文件已死种（无人做种或官方无缓存）。<br>你可以尝试以下降级方案：</p>
-                    <div class="fallback-btns">
-                        <button class="fallback-btn btn-copy" onclick="copyMagnet()">📋 复制磁力链接</button>
-                        <a class="fallback-btn btn-download" id="downloadTorrentBtn" href="#" target="_blank">⬇️ 下载 .torrent</a>
-                    </div>
-                    <button onclick="closeOverlay()" style="margin-top: 15px; background: transparent; border: none; color: var(--muted); text-decoration: underline; cursor: pointer;">继续尝试播放</button>
-                </div>
             </div>
             
-            <!-- 新增：上下集控制栏 -->
+            <!-- 死种降级遮罩 (移出播放器容器内部) -->
+            <div id="dead-link-overlay">
+                <h3>⚠️ 解析遇到问题</h3>
+                <p>可能是该文件已死种（无人做种或官方无缓存）。<br>你可以尝试以下降级方案：</p>
+                <div class="fallback-btns">
+                    <button class="fallback-btn btn-copy" onclick="copyMagnet()">📋 复制磁力链接</button>
+                    <a class="fallback-btn btn-download" id="downloadTorrentBtn" href="#" target="_blank">⬇️ 下载 .torrent</a>
+                </div>
+                <button onclick="closeOverlay()" style="margin-top: 15px; background: transparent; border: none; color: var(--muted); text-decoration: underline; cursor: pointer;">继续尝试播放</button>
+            </div>
+            
+            <!-- 上下集控制栏 -->
             <div class="player-controls">
                 <button class="ctrl-btn" id="prevBtn" onclick="playPrev()" disabled>◀ 上一集</button>
                 <div id="current-file-info">暂无播放</div>
@@ -206,7 +208,6 @@
         let missingPages = [];
         let basePwd = '';
         
-        // 新增：当前播放索引和超时监控
         let currentIndex = -1;
         let playerTimeout = null;
 
@@ -266,10 +267,10 @@
             return { files, maxPage, pwd };
         }
 
-        function startPlay() {
+        async function startParse() {
             const input = document.getElementById('magnetInput').value.trim();
             const container = document.getElementById('webtor-player');
-            const playBtn = document.getElementById('playBtn');
+            const parseBtn = document.getElementById('parseBtn');
             const toggleBtn = document.getElementById('toggle-list-btn');
             const statusText = document.getElementById('list-status');
 
@@ -289,59 +290,57 @@
             closeOverlay();
             updateControlBtns();
             document.getElementById('searchInput').value = '';
-            document.getElementById('current-file-info').innerText = '正在加载...';
             
-            // 1. 官方极速播放
-            playBtn.innerText = '加载中...';
-            playBtn.disabled = true;
-            container.innerHTML = '<span style="color:#8b949e; font-size:14px;">正在极速直连服务器...</span>';
-            renderPlayer(null); // 播放默认第一个
+            // 1. 修改按钮状态，确保防卡死
+            parseBtn.innerText = '解析中...';
+            parseBtn.disabled = true;
+            container.innerHTML = '<span style="color:#8b949e; font-size:14px;">正在连接节点并加载视频...</span>';
+            
+            try {
+                // 2. 检查本地缓存
+                const cachedData = localStorage.getItem('webtor_cache_' + currentInfohash);
+                if (cachedData) {
+                    try {
+                        const parsed = JSON.parse(cachedData);
+                        if (parsed.files && parsed.files.length > 0) {
+                            globalFiles = parsed.files;
+                            basePwd = parsed.basePwd;
+                            updateListUI();
+                            statusText.innerHTML = `<span style="color:var(--accent)">⚡</span> 已从本地缓存秒出列表`;
+                            
+                            // 默认选中第一个并开始播放
+                            selectIndex(0, true);
+                            return; // 结束解析
+                        }
+                    } catch (e) { console.warn('缓存解析失败', e); }
+                }
 
-            // 2. 检查本地缓存，决定是拉取列表还是直接读取
-            const cachedData = localStorage.getItem('webtor_cache_' + currentInfohash);
-            if (cachedData) {
-                try {
-                    const parsed = JSON.parse(cachedData);
-                    if (parsed.files && parsed.files.length > 0) {
-                        globalFiles = parsed.files;
-                        basePwd = parsed.basePwd;
-                        updateListUI();
-                        statusText.innerHTML = `<span style="color:var(--accent)">⚡</span> 已从本地缓存秒出列表`;
-                        
-                        // 默认选中第一个，并更新控制栏
-                        selectIndex(0, false);
-                        
-                        // 只要缓存存在，就不去网络请求了
-                        playBtn.innerText = '开始播放';
-                        playBtn.disabled = false;
-                        return;
-                    }
-                } catch (e) { console.warn('缓存解析失败', e); }
+                // 3. 无缓存，开启官方极速播放（默认播第一个）
+                renderPlayer(null); 
+                // 4. 开启网络拉取列表
+                fetchListSerial();
+            } finally {
+                parseBtn.innerText = '开始解析';
+                parseBtn.disabled = false;
             }
-
-            // 3. 如果没缓存，开启网络拉取
-            fetchListSerial();
-            playBtn.innerText = '开始播放';
-            playBtn.disabled = false;
         }
 
         function renderPlayer(filePath = null) {
             const container = document.getElementById('webtor-player');
-            // 保留遮罩层元素
-            const overlay = document.getElementById('dead-link-overlay');
-            container.innerHTML = ''; 
-            container.appendChild(overlay);
+            // 重新设置提示文字
+            container.innerHTML = '<span style="color:#8b949e; font-size:14px;">正在连接节点并加载视频...</span>';
+            closeOverlay(); // 确保遮罩关闭
 
             // 清理旧的超时监控
             if (playerTimeout) clearTimeout(playerTimeout);
-            // 启动死种监控：如果 12 秒内视频还在转圈报错，大概率是死种
+            
+            // 启动死种监控：如果 10 秒内视频没起播，大概率是死种
             playerTimeout = setTimeout(() => {
-                if (!document.getElementById('dead-link-overlay').style.display.includes('flex')) {
-                    showOverlay();
-                }
-            }, 12000);
+                showOverlay();
+            }, 10000);
 
             const render = () => {
+                container.innerHTML = ''; // 清空提示文字
                 const config = {
                     id: 'webtor-player',
                     magnet: currentMagnet,
@@ -369,8 +368,6 @@
             }
         }
 
-        // ================= 新增：缓存与列表渲染逻辑 =================
-
         function saveToCache() {
             if (!currentInfohash || globalFiles.length === 0) return;
             try {
@@ -389,7 +386,7 @@
             if (globalFiles.length > 0) {
                 renderFileList(globalFiles);
                 document.getElementById('toggle-list-btn').style.display = 'block';
-                saveToCache(); // 只要列表更新就尝试保存
+                saveToCache();
             }
         }
 
@@ -424,8 +421,6 @@
             document.getElementById('modal-title-text').innerText = `文件列表 (共 ${files.length} 个)`;
         }
 
-        // ================= 新增：上下集切换控制 =================
-
         function updateControlBtns() {
             const prevBtn = document.getElementById('prevBtn');
             const nextBtn = document.getElementById('nextBtn');
@@ -443,7 +438,6 @@
             
             const file = globalFiles[currentIndex];
             info.innerText = file.name;
-            // 标记列表高亮
             document.querySelectorAll('.file-item').forEach(el => {
                 el.classList.toggle('active', parseInt(el.dataset.index) === currentIndex);
             });
@@ -456,7 +450,6 @@
             
             if (playNow) {
                 renderPlayer(globalFiles[currentIndex].path);
-                closeOverlay();
             }
         }
 
@@ -468,12 +461,9 @@
             if (currentIndex < globalFiles.length - 1) selectIndex(currentIndex + 1, true);
         }
 
-        // ================= 新增：死种遮罩与降级逻辑 =================
-
         function showOverlay() {
             const overlay = document.getElementById('dead-link-overlay');
             overlay.style.display = 'flex';
-            // 生成 Torrent 下载链接
             document.getElementById('downloadTorrentBtn').href = `https://webtor.io/${currentInfohash}.torrent`;
         }
 
@@ -486,7 +476,6 @@
             navigator.clipboard.writeText(currentMagnet).then(() => {
                 alert('磁力链接已复制，请打开迅雷、qBittorrent 等工具下载。');
             }).catch(() => {
-                // 降级兼容方案
                 const input = document.createElement('textarea');
                 input.value = currentMagnet;
                 document.body.appendChild(input);
@@ -496,8 +485,6 @@
                 alert('磁力链接已复制');
             });
         }
-
-        // ================= 列表抓取与搜索 (保留原逻辑) =================
 
         function retryFetchList() {
             const statusText = document.getElementById('list-status');
@@ -526,7 +513,6 @@
                     maxPage = firstData.maxPage;
                     basePwd = firstData.pwd;
                     
-                    // 如果是没缓存的情况，渲染完首屏后自动选中第一个
                     if (currentIndex === -1 && globalFiles.length > 0) {
                         selectIndex(0, false);
                     }
