@@ -46,10 +46,16 @@
         .status-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; min-height: 24px;}
         #list-status { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 5px; cursor: pointer; transition: 0.2s;}
         #list-status.error { color: var(--danger); text-decoration: underline; text-underline-offset: 3px; }
+        
         .spinner {
             display: inline-block; width: 12px; height: 12px;
             border: 2px solid rgba(255,255,255,0.3); border-top-color: var(--pink);
             border-radius: 50%; animation: spin 1s linear infinite; flex-shrink: 0;
+        }
+        .spinner-btn {
+            display: none; width: 14px; height: 14px;
+            border: 2px solid rgba(255,255,255,0.3); border-top-color: white;
+            border-radius: 50%; animation: spin 1s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
         
@@ -85,7 +91,10 @@
             background: var(--bg); z-index: 5; display: none; overflow: auto;
             flex-direction: column; align-items: center; justify-content: flex-start;
         }
-        #preview-img { max-width: 100%; max-height: 100%; object-fit: contain; display: none; }
+        #preview-img {
+            max-width: 100%; max-height: 100%; object-fit: contain;
+            display: none; 
+        }
         #preview-text {
             width: 100%; height: 100%; padding: 20px; color: var(--text);
             font-family: monospace; white-space: pre-wrap; word-wrap: break-word;
@@ -101,12 +110,16 @@
             display: flex; flex-direction: column; background: var(--surface); 
             border-top: 1px solid var(--border); position: relative; z-index: 10;
         }
-        .file-info-row { padding: 10px 16px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .file-info-row {
+            padding: 10px 16px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
         #current-file-info { 
             font-size: 14px; color: var(--pink); font-weight: bold; 
             overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; display: block;
         }
-        .ctrl-buttons-row { display: flex; justify-content: space-between; padding: 10px 16px; gap: 10px; }
+        .ctrl-buttons-row {
+            display: flex; justify-content: space-between; padding: 10px 16px; gap: 10px;
+        }
         .ctrl-btn {
             flex: 1; background: transparent; border: 1px solid var(--border); color: var(--text);
             padding: 10px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;
@@ -174,7 +187,7 @@
         <div class="input-group">
             <input type="text" id="magnetInput" placeholder="粘贴 magnet:?xt=urn:btih:..." />
             <button onclick="startParse()" id="parseBtn">
-                <span id="btnSpinner" class="spinner" style="display:none;"></span>
+                <span id="btnSpinner" class="spinner-btn"></span>
                 <span id="btnText">开始解析</span>
             </button>
         </div>
@@ -243,13 +256,14 @@
         let currentInfohash = '';
         let globalFiles = [];
         let isFetchingList = false;
-        let isParsing = false; // 全局解析状态锁
+        let isParsing = false;
         
         let missingPages = [];
         let basePwd = '';
         
         let currentIndex = -1;
         let playerTimeout = null;
+        
         let wtClient = null;
         let previewTimeout = null;
 
@@ -260,7 +274,7 @@
             'https://api.allorigins.win/raw?url='
         ];
 
-        // UI 状态控制函数
+        // 按钮状态控制
         function setParseState(text, isDisabled) {
             const btn = document.getElementById('parseBtn');
             const spinner = document.getElementById('btnSpinner');
@@ -329,8 +343,7 @@
         }
 
         async function startParse() {
-            if (isParsing) return; // 防止重复点击
-
+            if (isParsing) return;
             const input = document.getElementById('magnetInput').value.trim();
             const toggleBtn = document.getElementById('toggle-list-btn');
             const statusText = document.getElementById('list-status');
@@ -358,15 +371,14 @@
             document.getElementById('preview-text').style.display = 'none';
             document.getElementById('preview-container').style.display = 'none';
 
-            // 1. 设置按钮为加载状态
+            // 锁定按钮
             setParseState('正在初始化...', true);
             
             try {
-                const cachedData = localStorage.getItem('webtor_cache_v3_' + currentInfohash);
+                const cachedData = localStorage.getItem('webtor_cache_' + currentInfohash);
                 if (cachedData) {
-                    // 如果有缓存
                     setParseState('读取本地缓存...', true);
-                    await new Promise(r => setTimeout(r, 300)); // 强制停留 300ms 视觉反馈
+                    await new Promise(r => setTimeout(r, 300)); // 强制视觉停留
                     
                     try {
                         const parsed = JSON.parse(cachedData);
@@ -376,20 +388,22 @@
                             updateListUI();
                             statusText.innerHTML = `<span style="color:var(--accent)">⚡</span> 已从本地缓存秒出列表`;
                             
-                            selectIndex(0, true);
+                            setTimeout(() => selectIndex(0, true), 100);
                             setParseState('解析完成', false);
                             isParsing = false;
                             return;
                         }
                     } catch (e) { 
-                        console.warn('旧版缓存解析失败，已自动清除', e); 
-                        localStorage.removeItem('webtor_cache_v3_' + currentInfohash);
+                        console.warn('缓存解析失败', e);
+                        localStorage.removeItem('webtor_cache_' + currentInfohash);
                     }
                 }
 
-                // 无缓存，开启网络请求
-                selectIndex(0, true); // 默认播第一个
-                await fetchListSerial(); // 等待列表抓取完毕，改变按钮状态
+                // 无缓存，开启播放和抓取
+                setTimeout(() => selectIndex(0, true), 100);
+                
+                // 关键修复：await 等待抓取完成，保持按钮禁用状态
+                await fetchListSerial();
                 
             } catch (err) {
                 console.error("解析流程异常:", err);
@@ -397,7 +411,7 @@
                 statusText.innerText = '❌ 解析程序出错，请刷新重试';
             } finally {
                 isParsing = false;
-                // 如果没有在 fetchListSerial 内部恢复按钮，在这里兜底
+                // 确保最后恢复按钮状态
                 if (document.getElementById('parseBtn').disabled) {
                     setParseState('开始解析', false);
                 }
@@ -437,14 +451,28 @@
 
             playerTimeout = setTimeout(showOverlay, 12000);
 
-            setTimeout(() => {
+            const render = () => {
                 container.innerHTML = ''; 
+                const config = { id: 'webtor-player', magnet: currentMagnet, width: '100%', height: '100%' };
+                if (filePath) config.path = filePath;
+                window.webtor.push(config);
+            };
+
+            setTimeout(() => {
                 if (window.webtor) {
-                    const config = { id: 'webtor-player', magnet: currentMagnet, width: '100%', height: '100%' };
-                    if (filePath) config.path = filePath;
-                    window.webtor.push(config);
+                    render();
                 } else {
-                    container.innerHTML = '<span style="color:#ff7b72;">播放器组件加载失败，请刷新</span>';
+                    let attempts = 0;
+                    const checkSdk = setInterval(() => {
+                        if (window.webtor) {
+                            clearInterval(checkSdk);
+                            render();
+                        }
+                        if (++attempts > 50) {
+                            clearInterval(checkSdk);
+                            container.innerHTML = '<span style="color:#ff7b72;">SDK 加载失败</span>';
+                        }
+                    }, 100);
                 }
             }, 50);
         }
@@ -626,16 +654,19 @@
         function saveToCache() {
             if (!currentInfohash || globalFiles.length === 0) return;
             try {
-                localStorage.setItem('webtor_cache_v3_' + currentInfohash, JSON.stringify({ files: globalFiles, basePwd: basePwd }));
+                localStorage.setItem('webtor_cache_' + currentInfohash, JSON.stringify({ files: globalFiles, basePwd: basePwd }));
             } catch (e) { }
         }
 
         function retryFetchList() {
             const statusText = document.getElementById('list-status');
-            if (statusText.classList.contains('error') && !isFetchingList) fetchListSerial();
+            if (statusText.classList.contains('error') && !isFetchingList) {
+                // 补齐时也显示加载状态
+                setParseState('补齐缺失中...', true);
+                fetchListSerial();
+            }
         }
 
-        // 核心修改：让 fetchListSerial 实时汇报进度到按钮和状态栏
         async function fetchListSerial() {
             if (isFetchingList) return;
             isFetchingList = true;
@@ -646,9 +677,7 @@
             try {
                 let maxPage = 1;
                 if (globalFiles.length === 0 || !basePwd) {
-                    setParseState('获取列表中...', true);
                     statusText.innerHTML = '<span class="spinner"></span> 正在解析首屏数据...';
-                    
                     const firstHtml = await fetchPageStrict(`https://webtor.io/${currentInfohash}`);
                     if (!firstHtml) throw new Error('首页解析失败');
                     
@@ -668,7 +697,7 @@
                 for (let i = 2; i <= maxPage; i++) {
                     if (!missingPages.includes(i) && globalFiles.length >= (i-1)*25) continue;
                     
-                    // 按钮和状态栏同步更新
+                    // 实时更新按钮进度
                     setParseState(`获取分页 (${i}/${maxPage})`, true);
                     statusText.innerHTML = `<span class="spinner"></span> 渐进加载 (${i}/${maxPage})...`;
                     
@@ -696,7 +725,7 @@
                 statusText.innerHTML = '❌ 解析失败，点击此处重试';
             } finally {
                 isFetchingList = false;
-                setParseState('重新解析', false); // 抓取结束恢复按钮
+                setParseState('重新解析', false);
             }
         }
 
