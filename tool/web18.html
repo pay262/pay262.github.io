@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebTorrent 纯前端播放器 (Magnet Player 逻辑)</title>
+    <script src="https://cdn.jsdelivr.net/npm/webtorrent@latest/webtorrent.min.js"></script>
+    <style>
+        :root { --bg: #0b0e14; --surface: #161b22; --border: #30363d; --text: #e6edf3; --muted: #8b949e; --accent: #238636; --pink: #f13e7a; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .container { width: 100%; max-width: 1200px; display: flex; flex-direction: column; gap: 16px; }
+        
+        .input-group { display: flex; gap: 10px; }
+        .input-group input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); outline: none; }
+        .input-group button { padding: 12px 24px; border-radius: 8px; border: none; background: var(--accent); color: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .input-group button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .main-layout { display: flex; gap: 16px; align-items: flex-start; }
+        @media (max-width: 768px) { .main-layout { flex-direction: column; } }
+
+        .player-section { flex: 2; width: 100%; }
+        .video-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); position: relative; display: flex; align-items: center; justify-content: center; }
+        video { width: 100%; height: 100%; outline: none; }
+        .status-text { position: absolute; color: var(--muted); font-size: 14px; pointer-events: none; text-align: center; padding: 20px; }
+
+        .sidebar { flex: 1; width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; display: flex; flex-direction: column; max-height: 600px; }
+        .sidebar-header { padding: 12px 16px; border-bottom: 1px solid var(--border); font-weight: bold; font-size: 14px; display: flex; justify-content: space-between; }
+        .file-list { overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 4px; }
+        .file-item { padding: 10px 12px; border-radius: 6px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 13px; transition: 0.2s; border: 1px solid transparent; }
+        .file-item:hover { background: rgba(255,255,255,0.05); }
+        .file-item.active { background: rgba(241, 62, 122, 0.1); border-color: rgba(241, 62, 122, 0.3); color: var(--pink); }
+        .file-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 10px; }
+        .file-size { color: var(--muted); font-size: 11px; white-space: nowrap; }
+        .file-item.active .file-size { color: var(--pink); }
+
+        .stats-panel { display: flex; gap: 20px; padding: 12px 16px; background: var(--surface); border-radius: 8px; border: 1px solid var(--border); font-size: 13px; color: var(--muted); flex-wrap: wrap; }
+        .stat-item span { color: var(--text); font-weight: bold; margin-left: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 style="display: flex; align-items: center; gap: 8px;">🌐 WebTorrent 纯前端播放器</h2>
+        <div class="input-group">
+            <input type="text" id="magnetInput" placeholder="粘贴 magnet:?xt=urn:btih:... 或 .torrent URL" />
+            <button id="playBtn" onclick="startPlay()">开始播放</button>
+        </div>
+
+        <div class="main-layout">
+            <div class="player-section">
+                <div class="video-wrapper" id="videoWrapper">
+                    <div class="status-text" id="statusText">等待输入磁力链接...</div>
+                    <video id="player" controls autoplay playsinline style="display: none;"></video>
+                </div>
+                <div class="stats-panel" id="statsPanel" style="display: none;">
+                    <div class="stat-item">下载速度: <span id="downloadSpeed">0 KB/s</span></div>
+                    <div class="stat-item">上传速度: <span id="uploadSpeed">0 KB/s</span></div>
+                    <div class="stat-item">节点数: <span id="peerCount">0</span></div>
+                    <div class="stat-item">进度: <span id="progressPercent">0%</span></div>
+                </div>
+            </div>
+
+            <div class="sidebar" id="sidebar" style="display: none;">
+                <div class="sidebar-header">
+                    <span>文件列表</span>
+                    <span id="fileCount" style="color: var(--muted); font-weight: normal;">0 个文件</span>
+                </div>
+                <div class="file-list" id="fileList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let client = new WebTorrent();
+        let currentTorrent = null;
+        let currentFile = null;
+
+        // 实时更新统计面板
+        setInterval(() => {
+            if (!currentTorrent) return;
+            document.getElementById('downloadSpeed').innerText = formatSpeed(currentTorrent.downloadSpeed);
+            document.getElementById('uploadSpeed').innerText = formatSpeed(currentTorrent.uploadSpeed);
+            document.getElementById('peerCount').innerText = currentTorrent.numPeers;
+            if (currentTorrent.progress !== undefined) {
+                document.getElementById('progressPercent').innerText = (currentTorrent.progress * 100).toFixed(1) + '%';
+            }
+        }, 1000);
+
+        function formatSpeed(bytes) {
+            if (bytes === 0) return '0 KB/s';
+            const k = 1024, sizes = ['B/s', 'KB/s', 'MB/s', 'GB/s'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        function startPlay() {
+            const input = document.getElementById('magnetInput').value.trim();
+            if (!input) return alert('请输入磁力链接或种子地址');
+
+            const playBtn = document.getElementById('playBtn');
+            const statusText = document.getElementById('statusText');
+            const video = document.getElementById('player');
+            const sidebar = document.getElementById('sidebar');
+            const statsPanel = document.getElementById('statsPanel');
+            const fileList = document.getElementById('fileList');
+
+            playBtn.disabled = true;
+            playBtn.innerText = '连接中...';
+            statusText.style.display = 'block';
+            statusText.innerText = '正在连接到 P2P 网络，寻找节点...';
+            video.style.display = 'none';
+            sidebar.style.display = 'none';
+            statsPanel.style.display = 'none';
+            fileList.innerHTML = '';
+
+            if (currentTorrent) {
+                currentTorrent.destroy();
+                currentTorrent = null;
+            }
+
+            // 添加磁力链接或 Torrent 文件
+            client.add(input, (torrent) => {
+                currentTorrent = torrent;
+                playBtn.disabled = false;
+                playBtn.innerText = '开始播放';
+                statusText.style.display = 'none';
+                video.style.display = 'block';
+                statsPanel.style.display = 'flex';
+                sidebar.style.display = 'flex';
+
+                // 筛选出视频文件并按大小降序排列 (自动选最大)
+                const videoFiles = torrent.files
+                    .filter(f => /\.(mp4|mkv|avi|webm|mov|flv|wmv)$/i.test(f.name))
+                    .sort((a, b) => b.length - a.length);
+
+                if (videoFiles.length === 0) {
+                    alert('该种子中没有可播放的视频文件');
+                    return;
+                }
+
+                // 渲染文件列表
+                document.getElementById('fileCount').innerText = `${videoFiles.length} 个视频`;
+                videoFiles.forEach((file, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'file-item' + (index === 0 ? ' active' : '');
+                    div.innerHTML = `
+                        <span class="file-name" title="${file.name}">${file.name}</span>
+                        <span class="file-size">${(file.length / 1024 / 1024).toFixed(1)} MB</span>
+                    `;
+                    div.onclick = () => switchFile(file, div);
+                    fileList.appendChild(div);
+                });
+
+                // 自动播放最大的文件 (index 0)
+                switchFile(videoFiles[0], fileList.firstChild);
+            });
+
+            client.on('error', (err) => {
+                console.error(err);
+                playBtn.disabled = false;
+                playBtn.innerText = '开始播放';
+                statusText.innerText = `连接失败: ${err.message}。请确保该资源有 WebRTC 节点做种。`;
+            });
+        }
+
+        function switchFile(file, divElement) {
+            if (currentFile === file) return;
+            currentFile = file;
+
+            // 更新列表高亮
+            document.querySelectorAll('.file-item').forEach(el => el.classList.remove('active'));
+            if (divElement) divElement.classList.add('active');
+
+            const video = document.getElementById('player');
+            video.pause();
+            video.innerHTML = ''; // 清空旧源
+
+            // 将选中的文件流式渲染到 video 标签
+            file.renderTo(video, { autoplay: true }, (err) => {
+                if (err) {
+                    console.error('渲染失败:', err);
+                    alert('播放此文件时出错，可能格式不兼容或死种。');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
