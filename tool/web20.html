@@ -42,7 +42,6 @@
             .input-group button { width: auto; padding: 14px 28px; }
         }
 
-        /* 列表状态提示条 */
         .status-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; min-height: 24px;}
         #list-status { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 5px; cursor: pointer; transition: 0.2s;}
         #list-status.error { color: var(--danger); text-decoration: underline; text-underline-offset: 3px; }
@@ -60,19 +59,18 @@
             animation: fadeIn 0.3s;
         }
 
-        /* 播放器与控制栏容器 */
         .player-container {
             width: 100%; background: #000; border-radius: 10px; overflow: hidden;
             border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            position: relative;
-            display: flex; flex-direction: column;
+            position: relative; display: flex; flex-direction: column;
         }
         
-        /* 视频与预览区域 */
         .media-area {
             width: 100%; aspect-ratio: 16 / 9; position: relative; background: #000;
             display: flex; justify-content: center; align-items: center; overflow: hidden;
         }
+        
+        /* 视频容器，置于底层 */
         #webtor-player {
             width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
             color: var(--muted); position: absolute; top: 0; left: 0; z-index: 1;
@@ -82,15 +80,15 @@
             border: none; position: absolute; top: 0; left: 0;
         }
 
-        /* 图片/文本预览容器 */
+        /* 预览容器，置于顶层，默认隐藏 */
         #preview-container {
             width: 100%; height: 100%; position: absolute; top: 0; left: 0;
-            background: var(--bg); z-index: 2; display: none; overflow: auto;
+            background: var(--bg); z-index: 5; display: none; overflow: auto;
             flex-direction: column; align-items: center; justify-content: flex-start;
         }
         #preview-img {
             max-width: 100%; max-height: 100%; object-fit: contain;
-            display: none;
+            display: none; /* 默认隐藏，防止漏出空图占位符 */
         }
         #preview-text {
             width: 100%; height: 100%; padding: 20px; color: var(--text);
@@ -100,12 +98,13 @@
         .preview-loading {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             color: var(--pink); font-weight: bold; display: flex; flex-direction: column; align-items: center; gap: 10px;
+            z-index: 6; width: 100%; text-align: center;
         }
 
-        /* 控制栏 (优化布局) */
+        /* 控制栏 */
         .player-controls {
             display: flex; flex-direction: column; background: var(--surface); 
-            border-top: 1px solid var(--border); position: relative; z-index: 3;
+            border-top: 1px solid var(--border); position: relative; z-index: 10;
         }
         .file-info-row {
             padding: 10px 16px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05);
@@ -130,7 +129,7 @@
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(11, 14, 20, 0.95); display: none; flex-direction: column;
             justify-content: center; align-items: center; text-align: center; padding: 20px;
-            z-index: 10; backdrop-filter: blur(3px);
+            z-index: 20; backdrop-filter: blur(3px);
         }
         #dead-link-overlay h3 { color: var(--danger); margin-bottom: 10px; font-size: 18px;}
         #dead-link-overlay p { color: var(--muted); font-size: 13px; margin-bottom: 20px; line-height: 1.5;}
@@ -195,14 +194,15 @@
 
         <div class="player-container">
             <div class="media-area">
+                <!-- 视频容器 -->
                 <div id="webtor-player">
                     <span style="color:#8b949e; font-size:14px;">等待输入磁力链接...</span>
                 </div>
                 
-                <!-- 新增：非视频预览容器 -->
+                <!-- 非视频预览容器 (默认隐藏，且空图默认隐藏) -->
                 <div id="preview-container">
-                    <img id="preview-img" src="" alt="图片预览" />
-                    <pre id="preview-text"></pre>
+                    <img id="preview-img" style="display: none;" />
+                    <pre id="preview-text" style="display: none;"></pre>
                     <div id="preview-loading" class="preview-loading" style="display: none;">
                         <span class="spinner" style="width:20px; height:20px; border-width:3px;"></span>
                         <span>正在通过 P2P 拉取文件内容...</span>
@@ -221,7 +221,7 @@
                 <button onclick="closeOverlay()" style="margin-top: 15px; background: transparent; border: none; color: var(--muted); text-decoration: underline; cursor: pointer;">继续尝试</button>
             </div>
             
-            <!-- 优化后的控制栏 -->
+            <!-- 控制栏 -->
             <div class="player-controls">
                 <div class="file-info-row">
                     <span id="current-file-info">暂无选择</span>
@@ -281,7 +281,6 @@
             return match ? match[1].toLowerCase() : null;
         }
 
-        // 判断文件类型
         function getFileType(name) {
             const ext = name.split('.').pop().toLowerCase();
             if (['mp4','mkv','webm','avi','mov','flv','wmv','m4v','ts','mpg','mpeg'].includes(ext)) return 'video';
@@ -356,8 +355,13 @@
             closeOverlay();
             updateControlBtns();
             document.getElementById('searchInput').value = '';
-            document.getElementById('current-file-info').innerText = '正在加载...';
             
+            // 彻底清理预览容器
+            document.getElementById('preview-img').src = '';
+            document.getElementById('preview-img').style.display = 'none';
+            document.getElementById('preview-text').style.display = 'none';
+            document.getElementById('preview-container').style.display = 'none';
+
             parseBtn.innerText = '解析中...';
             parseBtn.disabled = true;
             
@@ -371,14 +375,16 @@
                             basePwd = parsed.basePwd;
                             updateListUI();
                             statusText.innerHTML = `<span style="color:var(--accent)">⚡</span> 已从本地缓存秒出列表`;
-                            selectIndex(0, true);
+                            
+                            // 延迟一点执行，确保 DOM 渲染完毕
+                            setTimeout(() => selectIndex(0, true), 100);
                             return;
                         }
                     } catch (e) { console.warn('缓存解析失败', e); }
                 }
 
-                // 无缓存，默认选第一个文件
-                selectIndex(0, true);
+                // 无缓存，开启播放
+                setTimeout(() => selectIndex(0, true), 100);
                 fetchListSerial();
             } finally {
                 parseBtn.innerText = '开始解析';
@@ -386,7 +392,6 @@
             }
         }
 
-        // 核心：根据类型分流处理
         function selectIndex(index, playNow) {
             if (index < 0 || index >= globalFiles.length) return;
             currentIndex = index;
@@ -401,51 +406,58 @@
                 } else if (type === 'image' || type === 'text') {
                     playPreviewMode(file, type);
                 } else {
-                    playVideoMode(file.path); // 未知类型先按视频尝试
+                    playVideoMode(file.path); 
                 }
             }
         }
 
-        // 视频播放逻辑 (原有 Webtor SDK)
+        // 视频播放模式
         function playVideoMode(filePath) {
             const container = document.getElementById('webtor-player');
             const previewContainer = document.getElementById('preview-container');
             
+            // 隐藏预览层，显示视频层
             previewContainer.style.display = 'none';
             container.style.display = 'flex';
+            
+            // 清空并重新渲染容器
             container.innerHTML = '<span style="color:#8b949e; font-size:14px;">正在连接节点并加载视频...</span>';
             closeOverlay();
 
             if (playerTimeout) clearTimeout(playerTimeout);
-            if (wtClient) { wtClient.destroy(); wtClient = null; } // 销毁 P2P 预览客户端释放资源
+            if (wtClient) { wtClient.destroy(); wtClient = null; }
 
             playerTimeout = setTimeout(showOverlay, 12000);
 
             const render = () => {
+                // 关键：清空整个容器，确保没有旧节点残留
                 container.innerHTML = ''; 
                 const config = { id: 'webtor-player', magnet: currentMagnet, width: '100%', height: '100%' };
                 if (filePath) config.path = filePath;
                 window.webtor.push(config);
             };
 
-            if (window.webtor) {
-                render();
-            } else {
-                let attempts = 0;
-                const checkSdk = setInterval(() => {
-                    if (window.webtor) {
-                        clearInterval(checkSdk);
-                        render();
-                    }
-                    if (++attempts > 50) {
-                        clearInterval(checkSdk);
-                        container.innerHTML = '<span style="color:#ff7b72;">SDK 加载失败</span>';
-                    }
-                }, 100);
-            }
+            // 给一点点延迟，确保旧 iframe 完全销毁
+            setTimeout(() => {
+                if (window.webtor) {
+                    render();
+                } else {
+                    let attempts = 0;
+                    const checkSdk = setInterval(() => {
+                        if (window.webtor) {
+                            clearInterval(checkSdk);
+                            render();
+                        }
+                        if (++attempts > 50) {
+                            clearInterval(checkSdk);
+                            container.innerHTML = '<span style="color:#ff7b72;">SDK 加载失败</span>';
+                        }
+                    }, 100);
+                }
+            }, 50);
         }
 
-        // 图片/文本预览逻辑 (纯前端 WebTorrent 拉取)
+        // 图片/文本预览模式
         function playPreviewMode(fileObj, type) {
             const container = document.getElementById('webtor-player');
             const previewContainer = document.getElementById('preview-container');
@@ -453,16 +465,19 @@
             const textEl = document.getElementById('preview-text');
             const loadingEl = document.getElementById('preview-loading');
             
+            // 隐藏视频层，显示预览层
             container.style.display = 'none';
-            container.innerHTML = ''; // 清空视频播放器
+            container.innerHTML = ''; 
             previewContainer.style.display = 'flex';
             closeOverlay();
 
+            // 彻底重置预览元素
             imgEl.style.display = 'none';
+            imgEl.src = '';
             textEl.style.display = 'none';
+            textEl.innerText = '';
             loadingEl.style.display = 'flex';
             
-            // 清理旧的超时和客户端
             if (playerTimeout) clearTimeout(playerTimeout);
             if (previewTimeout) clearTimeout(previewTimeout);
             if (wtClient) wtClient.destroy();
@@ -474,14 +489,13 @@
                     loadingEl.style.display = 'none';
                     textEl.style.display = 'block';
                     textEl.innerText = '⚠️ 连接超时。纯前端预览极度依赖 WebRTC 节点。\n该文件可能在 P2P 网络中无活跃的 WebRTC 做种者。建议使用下方按钮下载种子。';
-                    showOverlay(); // 借用遮罩层的下载按钮
+                    showOverlay();
                 }
             }, 15000);
 
             wtClient.add(currentMagnet, { strategy: 'sequential' }, (torrent) => {
                 if (previewTimeout) clearTimeout(previewTimeout);
                 
-                // 找到对应的文件
                 const file = torrent.files.find(f => f.path === fileObj.path);
                 if (!file) {
                     loadingEl.style.display = 'none';
@@ -490,7 +504,6 @@
                     return;
                 }
 
-                // 获取文件的 Blob URL
                 file.getBlobURL((err, url) => {
                     loadingEl.style.display = 'none';
                     if (err) {
@@ -503,7 +516,6 @@
                         imgEl.src = url;
                         imgEl.style.display = 'block';
                     } else if (type === 'text') {
-                        // 如果是文本，需要 fetch 一下 blob url 来读取内容
                         fetch(url).then(res => res.text()).then(text => {
                             textEl.innerText = text;
                             textEl.style.display = 'block';
@@ -513,7 +525,6 @@
                         });
                     }
                     
-                    // 文件读完可以销毁客户端节省内存 (对于小图片/文本)
                     wtClient.destroy();
                     wtClient = null;
                 });
@@ -553,7 +564,6 @@
                 div.dataset.name = file.name.toLowerCase();
                 div.dataset.index = index;
                 
-                // 根据类型添加小图标
                 const type = getFileType(file.name);
                 let icon = '📄';
                 if (type === 'video') icon = '🎬';
