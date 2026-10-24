@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Webtor 云播放</title>
+    <style>
+        :root {
+            --bg: #0b0e14; --surface: #161b22; --border: #30363d;
+            --text: #e6edf3; --muted: #8b949e; --accent: #238636; --accent-hover: #2ea043;
+            --pink: #f13e7a; --card: #1f242c; --danger: #ff7b72;
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: var(--bg); color: var(--text);
+            height: 100vh; display: flex; flex-direction: column;
+            overflow: hidden; 
+        }
+
+        /* 顶部沉浸式导航栏 */
+        .app-header {
+            padding: 16px;
+            padding-top: calc(16px + var(--safe-top));
+            background: rgba(11, 14, 20, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 100;
+        }
+        .app-header h1 { font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .app-header .status-badge {
+            font-size: 12px; color: var(--muted); background: var(--surface);
+            padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border);
+        }
+
+        /* 中间滚动内容区 */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            padding-bottom: 120px; 
+            display: flex; flex-direction: column; gap: 16px;
+        }
+
+        /* 播放器卡片 */
+        .player-card {
+            width: 100%; background: #000; border-radius: 16px; overflow: hidden;
+            border: 1px solid var(--border); box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+            display: flex; flex-direction: column; position: relative;
+        }
+        
+        .media-area {
+            width: 100%; aspect-ratio: 16 / 9; position: relative; background: #000;
+            display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+        
+        #webtor-player {
+            width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+            color: var(--muted); position: absolute; top: 0; left: 0; z-index: 1; font-size: 14px; text-align: center; padding: 20px;
+        }
+        #webtor-player iframe, #webtor-player video {
+            width: 100% !important; height: 100% !important;
+            border: none; position: absolute; top: 0; left: 0;
+        }
+
+        #preview-container {
+            width: 100%; height: 100%; position: absolute; top: 0; left: 0;
+            background: var(--bg); z-index: 5; display: none; overflow: auto;
+            flex-direction: column; align-items: center; justify-content: flex-start;
+        }
+        #preview-img { max-width: 100%; max-height: 100%; object-fit: contain; display: none !important; }
+        #preview-text {
+            width: 100%; height: 100%; padding: 20px; color: var(--text);
+            font-family: monospace; white-space: pre-wrap; word-break: break-all;
+            display: none; font-size: 13px; line-height: 1.6;
+        }
+        .preview-loading {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: var(--pink); font-weight: bold; display: flex; flex-direction: column; align-items: center; gap: 10px;
+            z-index: 6; width: 100%; text-align: center;
+        }
+
+        /* 播放器下方信息栏 */
+        .player-info-bar {
+            padding: 12px 16px; background: var(--surface); display: flex;
+            justify-content: space-between; align-items: center;
+        }
+        #current-file-info { 
+            font-size: 14px; color: var(--pink); font-weight: bold; 
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%;
+        }
+
+        /* 快捷控制区 */
+        .control-grid {
+            display: flex; gap: 12px; align-items: center;
+        }
+        .app-btn {
+            flex: 1; display: flex; justify-content: center; align-items: center; gap: 6px;
+            background: var(--surface); border: 1px solid var(--border); color: var(--text);
+            padding: 14px 0; border-radius: 12px; font-size: 14px; font-weight: 500;
+            transition: 0.2s;
+        }
+        .app-btn:active { background: rgba(255,255,255,0.1); }
+        .app-btn:disabled { opacity: 0.3; }
+        .app-btn-primary {
+            background: rgba(241, 62, 122, 0.15); border-color: rgba(241, 62, 122, 0.4); color: var(--pink);
+        }
+        .app-btn-primary:active { background: rgba(241, 62, 122, 0.25); }
+
+        /* 新增：黄金信息面板 (填补空白) */
+        .info-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex; flex-direction: column; gap: 16px;
+            animation: fadeIn 0.5s ease;
+        }
+        .info-header {
+            font-size: 15px; font-weight: bold; color: var(--text);
+            display: flex; align-items: center; gap: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 12px;
+        }
+        .info-row {
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 13px;
+        }
+        .info-label { color: var(--muted); }
+        .info-value { color: var(--text); font-weight: 500; max-width: 60%; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
+        .info-value.highlight { color: var(--accent); }
+        
+        .tips-box {
+            background: rgba(241, 62, 122, 0.05);
+            border-left: 3px solid var(--pink);
+            padding: 12px;
+            border-radius: 4px 8px 8px 4px;
+            font-size: 12px; color: var(--muted); line-height: 1.6;
+            margin-top: 8px;
+        }
+        .tips-box b { color: var(--pink); }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 状态与进度提示 */
+        .status-area {
+            display: flex; justify-content: center; align-items: center;
+            font-size: 13px; color: var(--muted); gap: 8px; padding: 10px 0;
+        }
+        .spinner {
+            width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.2);
+            border-top-color: var(--pink); border-radius: 50%; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* 底部悬浮输入栏 */
+        .bottom-input-bar {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: rgba(22, 27, 34, 0.95); backdrop-filter: blur(15px);
+            border-top: 1px solid var(--border);
+            padding: 12px 16px; 
+            padding-bottom: calc(12px + var(--safe-bottom));
+            display: flex; gap: 10px; z-index: 100;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+            box-sizing: border-box;
+        }
+        .input-box {
+            flex: 1; min-width: 0; width: 100%;
+            background: var(--bg); border: 1px solid var(--border);
+            border-radius: 24px; padding: 0 16px; color: var(--text); font-size: 14px;
+            outline: none; transition: 0.2s;
+        }
+        .input-box:focus { border-color: var(--accent); }
+        .btn-submit {
+            flex-shrink: 0; background: var(--accent); color: white; border: none;
+            border-radius: 24px; padding: 0 20px; height: 44px; font-weight: bold;
+            font-size: 15px; display: flex; align-items: center; justify-content: center;
+            white-space: nowrap;
+        }
+        .btn-submit:disabled { background: var(--border); color: var(--muted); }
+        .btn-submit .spinner-btn {
+            display: none; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 6px;
+        }
+
+        /* 抽屉式文件列表 */
+        #file-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 1000;
+            justify-content: center; align-items: flex-end;
+        }
+        .modal-content {
+            background: var(--card); width: 100%; max-width: 800px;
+            height: 80vh; border-radius: 24px 24px 0 0; display: flex; flex-direction: column;
+            border: 1px solid var(--border); animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            padding-bottom: var(--safe-bottom);
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        
+        .drag-handle { width: 40px; height: 5px; background: rgba(255,255,255,0.2); border-radius: 5px; margin: 10px auto; }
+        .modal-header { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 12px; }
+        .modal-title { font-size: 16px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;}
+        .close-btn { background: rgba(255,255,255,0.1); border: none; color: var(--text); font-size: 14px; padding: 6px 12px; border-radius: 20px; }
+        .search-box { width: 100%; padding: 12px 16px; border-radius: 12px; border: none; background: var(--bg); color: var(--text); font-size: 14px; outline: none; }
+        .file-list-scroll { overflow-y: auto; padding: 0 10px 10px; flex: 1; }
+        .file-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px; border-radius: 12px; cursor: pointer; margin-bottom: 4px; transition: 0.2s;
+        }
+        .file-item:active { background: rgba(255,255,255,0.08); }
+        .file-item.active { background: rgba(241, 62, 122, 0.15); border: 1px solid rgba(241, 62, 122, 0.3); }
+        .file-name { font-size: 14px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 10px;}
+        .file-size { font-size: 12px; color: var(--muted); background: rgba(255,255,255,0.08); padding: 4px 10px; border-radius: 12px; flex-shrink: 0;}
+
+        /* 错误遮罩 */
+        #dead-link-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(11, 14, 20, 0.95); display: none; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center; padding: 20px;
+            z-index: 20; backdrop-filter: blur(5px);
+        }
+        #dead-link-overlay h3 { color: var(--danger); margin-bottom: 10px; font-size: 18px;}
+        #dead-link-overlay p { color: var(--muted); font-size: 13px; margin-bottom: 20px; line-height: 1.5;}
+        .fallback-btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;}
+        .fallback-btn { padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: bold; border: none; text-decoration: none; }
+        .btn-copy { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+        .btn-download { background: var(--pink); color: white; }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <h1>☁️ Webtor 云播</h1>
+        <span class="status-badge" id="global-status">就绪</span>
+    </header>
+
+    <main class="main-content">
+        <!-- 播放器卡片 -->
+        <div class="player-card">
+            <div class="media-area">
+                <div id="webtor-player">
+                    <span>等待解析视频...</span>
+                </div>
+                
+                <div id="preview-container">
+                    <img id="preview-img" style="display: none;" />
+                    <pre id="preview-text" style="display: none;"></pre>
+                    <div id="preview-loading" class="preview-loading" style="display: none;">
+                        <span class="spinner" style="width:24px; height:24px;"></span>
+                        <span>正在通过 P2P 拉取文件...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="player-info-bar">
+                <span id="current-file-info">暂无播放</span>
+            </div>
+
+            <!-- 错误遮罩 -->
+            <div id="dead-link-overlay">
+                <h3>⚠️ 加载超时或死种</h3>
+                <p>当前文件可能无人做种或网络受限。</p>
+                <div class="fallback-btns">
+                    <button class="fallback-btn btn-copy" onclick="copyMagnet()">📋 复制链接</button>
+                    <a class="fallback-btn btn-download" id="downloadTorrentBtn" href="#" target="_blank">⬇️ 下载种子</a>
+                </div>
+                <button onclick="closeOverlay()" style="margin-top: 20px; background: transparent; border: none; color: var(--muted); text-decoration: underline; font-size: 13px;">继续尝试</button>
+            </div>
+        </div>
+
+        <!-- 快捷控制按钮 -->
+        <div class="control-grid">
+            <button class="app-btn" id="prevBtn" onclick="playPrev()" disabled>◀ 上一集</button>
+            <button class="app-btn app-btn-primary" onclick="openModal()">📂 列表</button>
+            <button class="app-btn" id="nextBtn" onclick="playNext()" disabled>下一集 ▶</button>
+        </div>
+
+        <!-- 新增：黄金信息面板 (填补底部空白区域) -->
+        <div class="info-panel">
+            <div class="info-header">📄 当前播放详情</div>
+            
+            <div class="info-row">
+                <span class="info-label">播放状态</span>
+                <span class="info-value highlight" id="panel-status">暂无播放</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">文件大小</span>
+                <span class="info-value" id="panel-size">-</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">文件格式</span>
+                <span class="info-value" id="panel-type">-</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">解析进度</span>
+                <span class="info-value" id="panel-parse">等待输入...</span>
+            </div>
+
+            <div class="tips-box">
+                💡 <b>提示：</b>如果官方播放器底部的控制条（进度条、音量等）一直挡着画面，只需在视频画面上<b>轻轻点击一下</b>，它就会自动隐藏。
+            </div>
+        </div>
+
+        <!-- 底部解析状态栏 -->
+        <div class="status-area">
+            <span id="list-status" onclick="retryFetchList()"></span>
+        </div>
+    </main>
+
+    <!-- 底部悬浮输入栏 -->
+    <footer class="bottom-input-bar">
+        <input type="text" id="magnetInput" class="input-box" placeholder="粘贴 magnet 磁力链接..." />
+        <button onclick="startParse()" id="parseBtn" class="btn-submit">
+            <span id="btnSpinner" class="spinner-btn"></span>
+            <span id="btnText">解析</span>
+        </button>
+    </footer>
+
+    <!-- 抽屉式列表 -->
+    <div id="file-modal">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="drag-handle"></div>
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span id="modal-title-text">文件列表</span>
+                    <button class="close-btn" onclick="closeModal()">收起</button>
+                </div>
+                <input type="text" id="searchInput" class="search-box" placeholder="🔍 搜索编号，如 063..." oninput="filterFiles()">
+            </div>
+            <div class="file-list-scroll" id="file-list-container"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@webtor/embed-sdk-js/dist/index.min.js" charset="utf-8" async></script>
+    <script src="https://cdn.jsdelivr.net/npm/webtorrent@latest/webtorrent.min.js"></script>
+
+    <script>
+        let currentMagnet = '';
+        let currentInfohash = '';
+        let globalFiles = [];
+        let isFetchingList = false;
+        let isParsing = false;
+        let missingPages = [];
+        let basePwd = '';
+        let currentIndex = -1;
+        let playerTimeout = null;
+        let wtClient = null;
+        let previewTimeout = null;
+
+        const PROXIES = [
+            'https://cors.eu.org/',
+            'https://api.codetabs.com/v1/proxy?quest=',
+            'https://corsproxy.io/?',
+            'https://api.allorigins.win/raw?url='
+        ];
+
+        // ============== 更新信息面板数据 ==============
+        function updateInfoPanel(status, size, type, parseStatus) {
+            document.getElementById('panel-status').innerText = status || '暂无播放';
+            document.getElementById('panel-size').innerText = size || '-';
+            document.getElementById('panel-type').innerText = type || '-';
+            if(parseStatus !== undefined) {
+                document.getElementById('panel-parse').innerText = parseStatus;
+            }
+        }
+
+        function setParseState(text, isDisabled) {
+            const btn = document.getElementById('parseBtn');
+            const spinner = document.getElementById('btnSpinner');
+            const btnText = document.getElementById('btnText');
+            
+            btn.disabled = isDisabled;
+            btnText.innerText = text;
+            spinner.style.display = isDisabled ? 'inline-block' : 'none';
+            
+            if(isDisabled) {
+                document.getElementById('global-status').innerText = "处理中...";
+                updateInfoPanel(undefined, undefined, undefined, '正在解析...');
+            } else {
+                document.getElementById('global-status').innerText = "就绪";
+            }
+        }
+
+        function getInfohash(magnet) {
+            const match = magnet.match(/urn:btih:([a-fA-F0-9]{40})/);
+            return match ? match[1].toLowerCase() : null;
+        }
+
+        function getFileType(name) {
+            const ext = name.split('.').pop().toLowerCase();
+            if (['mp4','mkv','webm','avi','mov','flv','wmv','m4v','ts','mpg','mpeg'].includes(ext)) return 'video';
+            if (['jpg','jpeg','png','gif','webp','bmp','svg'].includes(ext)) return 'image';
+            if (['txt','srt','ass','vtt','md','json','html','css','js','xml','log'].includes(ext)) return 'text';
+            return 'other';
+        }
+
+        async function fetchPageStrict(pageUrl) {
+            const shuffled = [...PROXIES].sort(() => Math.random() - 0.5);
+            for (let proxy of shuffled) {
+                try {
+                    const controller = new AbortController();
+                    const id = setTimeout(() => controller.abort(), 6000);
+                    const res = await fetch(proxy + encodeURIComponent(pageUrl), { signal: controller.signal });
+                    clearTimeout(id);
+                    if (res.ok) {
+                        const text = await res.text();
+                        if (text.includes('data-path')) return text;
+                    }
+                } catch (e) {}
+            }
+            return null;
+        }
+
+        function parseHtmlPage(html) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const inputs = doc.querySelectorAll('input[data-path]');
+            const files = [];
+            inputs.forEach(input => {
+                const path = input.getAttribute('data-path');
+                const sizeBytes = parseInt(input.getAttribute('data-size') || '0');
+                const name = input.getAttribute('aria-label');
+                if (path && name) {
+                    const sizeStr = sizeBytes > 1024 * 1024 * 1024 
+                        ? (sizeBytes / 1024 / 1024 / 1024).toFixed(2) + ' GB'
+                        : (sizeBytes / 1024 / 1024).toFixed(1) + ' MB';
+                    files.push({ path, name, size: sizeStr });
+                }
+            });
+
+            let maxPage = 1;
+            let pwd = '';
+            doc.querySelectorAll('a[href*="page="]').forEach(a => {
+                const params = new URLSearchParams(a.getAttribute('href').split('?')[1]);
+                if (params.get('page')) maxPage = Math.max(maxPage, parseInt(params.get('page')));
+                if (!pwd && params.get('pwd')) pwd = params.get('pwd');
+            });
+            return { files, maxPage, pwd };
+        }
+
+        async function startParse() {
+            if (isParsing) return;
+            const input = document.getElementById('magnetInput').value.trim();
+            const statusText = document.getElementById('list-status');
+
+            if (!input.startsWith('magnet:?')) return alert('请输入有效的磁力链接');
+
+            currentInfohash = getInfohash(input);
+            if (!currentInfohash) return alert('无法识别有效的 Infohash');
+
+            currentMagnet = input.includes('tr=') ? input : input + '&tr=udp://explodie.org:6969&tr=wss://tracker.openwebtorrent.com';
+
+            isParsing = true;
+            globalFiles = [];
+            missingPages = [];
+            basePwd = '';
+            currentIndex = -1;
+            closeOverlay();
+            updateControlBtns();
+            document.getElementById('searchInput').value = '';
+            
+            document.getElementById('preview-img').src = '';
+            document.getElementById('preview-img').style.display = 'none';
+            document.getElementById('preview-text').style.display = 'none';
+            document.getElementById('preview-container').style.display = 'none';
+
+            setParseState('解析中...', true);
+            
+            try {
+                const cachedData = localStorage.getItem('webtor_cache_' + currentInfohash);
+                if (cachedData) {
+                    setParseState('读缓存...', true);
+                    await new Promise(r => setTimeout(r, 300)); 
+                    
+                    try {
+                        const parsed = JSON.parse(cachedData);
+                        if (parsed.files && parsed.files.length > 0) {
+                            globalFiles = parsed.files;
+                            basePwd = parsed.basePwd;
+                            updateListUI();
+                            statusText.innerHTML = `<span style="color:var(--accent)">⚡</span> 缓存秒开`;
+                            updateInfoPanel(undefined, undefined, undefined, '缓存已加载');
+                            
+                            setTimeout(() => selectIndex(0, true), 100);
+                            setParseState('解析', false);
+                            isParsing = false;
+                            return;
+                        }
+                    } catch (e) { 
+                        localStorage.removeItem('webtor_cache_' + currentInfohash);
+                    }
+                }
+
+                setTimeout(() => selectIndex(0, true), 100);
+                await fetchListSerial();
+                
+            } catch (err) {
+                statusText.className = 'error';
+                statusText.innerText = '❌ 解析出错';
+                updateInfoPanel(undefined, undefined, undefined, '解析失败');
+            } finally {
+                isParsing = false;
+                if (document.getElementById('parseBtn').disabled) {
+                    setParseState('解析', false);
+                }
+            }
+        }
+
+        function selectIndex(index, playNow) {
+            if (index < 0 || index >= globalFiles.length) return;
+            currentIndex = index;
+            updateControlBtns();
+            
+            if (playNow) {
+                const file = globalFiles[currentIndex];
+                const type = getFileType(file.name);
+                
+                // 更新信息面板
+                let typeName = '未知';
+                if(type === 'video') typeName = '视频';
+                if(type === 'image') typeName = '图片';
+                if(type === 'text') typeName = '文本';
+                updateInfoPanel('正在缓冲...', file.size, typeName);
+
+                if (type === 'video') {
+                    playVideoMode(file.path);
+                } else if (type === 'image' || type === 'text') {
+                    playPreviewMode(file, type);
+                } else {
+                    playVideoMode(file.path); 
+                }
+            }
+        }
+
+        function playVideoMode(filePath) {
+            const container = document.getElementById('webtor-player');
+            const previewContainer = document.getElementById('preview-container');
+            
+            previewContainer.style.display = 'none';
+            container.style.display = 'flex';
+            container.innerHTML = '<span style="color:var(--pink);">正在连接 P2P 节点...</span>';
+            closeOverlay();
+
+            if (playerTimeout) clearTimeout(playerTimeout);
+            if (wtClient) { wtClient.destroy(); wtClient = null; }
+
+            playerTimeout = setTimeout(showOverlay, 12000);
+
+            const render = () => {
+                container.innerHTML = ''; 
+                const config = { id: 'webtor-player', magnet: currentMagnet, width: '100%', height: '100%' };
+                if (filePath) config.path = filePath;
+                window.webtor.push(config);
+                // 延迟更新状态为播放中
+                setTimeout(() => updateInfoPanel('播放中', undefined, undefined, '完成'), 1500);
+            };
+
+            setTimeout(() => {
+                if (window.webtor) {
+                    render();
+                } else {
+                    let attempts = 0;
+                    const checkSdk = setInterval(() => {
+                        if (window.webtor) {
+                            clearInterval(checkSdk);
+                            render();
+                        }
+                        if (++attempts > 50) {
+                            clearInterval(checkSdk);
+                            container.innerHTML = '<span style="color:var(--danger);">SDK 加载失败</span>';
+                            updateInfoPanel('加载失败', undefined, undefined, 'SDK 故障');
+                        }
+                    }, 100);
+                }
+            }, 50);
+        }
+
+        function playPreviewMode(fileObj, type) {
+            const container = document.getElementById('webtor-player');
+            const previewContainer = document.getElementById('preview-container');
+            const imgEl = document.getElementById('preview-img');
+            const textEl = document.getElementById('preview-text');
+            const loadingEl = document.getElementById('preview-loading');
+            
+            container.style.display = 'none';
+            container.innerHTML = ''; 
+            previewContainer.style.display = 'flex';
+            closeOverlay();
+
+            imgEl.style.display = 'none';
+            imgEl.src = '';
+            textEl.style.display = 'none';
+            textEl.innerText = '';
+            loadingEl.style.display = 'flex';
+            updateInfoPanel('拉取数据...', undefined, undefined, '纯前端P2P');
+            
+            if (playerTimeout) clearTimeout(playerTimeout);
+            if (previewTimeout) clearTimeout(previewTimeout);
+            if (wtClient) wtClient.destroy();
+            
+            wtClient = new WebTorrent();
+
+            previewTimeout = setTimeout(() => {
+                if (loadingEl.style.display !== 'none') {
+                    loadingEl.style.display = 'none';
+                    textEl.style.display = 'block';
+                    textEl.innerText = '⚠️ 连接超时。该文件可能无活跃的 WebRTC 做种者。';
+                    showOverlay();
+                    updateInfoPanel('拉取超时', undefined, undefined, '可能无种子');
+                }
+            }, 15000);
+
+            wtClient.add(currentMagnet, { strategy: 'sequential' }, (torrent) => {
+                if (previewTimeout) clearTimeout(previewTimeout);
+                
+                const file = torrent.files.find(f => f.path === fileObj.path);
+                if (!file) {
+                    loadingEl.style.display = 'none';
+                    textEl.style.display = 'block';
+                    textEl.innerText = '无法找到该文件。';
+                    return;
+                }
+
+                file.getBlobURL((err, url) => {
+                    loadingEl.style.display = 'none';
+                    if (err) {
+                        textEl.style.display = 'block';
+                        textEl.innerText = '读取失败：' + err.message;
+                        updateInfoPanel('读取失败', undefined, undefined, '解析故障');
+                        return;
+                    }
+
+                    if (type === 'image') {
+                        imgEl.src = url;
+                        imgEl.style.display = 'block';
+                    } else if (type === 'text') {
+                        fetch(url).then(res => res.text()).then(text => {
+                            textEl.innerText = text;
+                            textEl.style.display = 'block';
+                        }).catch(e => {
+                            textEl.innerText = '解码文本失败';
+                            textEl.style.display = 'block';
+                        });
+                    }
+                    updateInfoPanel('预览就绪', undefined, undefined, '拉取完成');
+                    
+                    wtClient.destroy();
+                    wtClient = null;
+                });
+            });
+        }
+
+        function updateListUI() {
+            const seen = new Set();
+            globalFiles = globalFiles.filter(f => {
+                if (!seen.has(f.path)) { seen.add(f.path); return true; }
+                return false;
+            }).sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
+
+            if (globalFiles.length > 0) {
+                renderFileList(globalFiles);
+                saveToCache();
+            }
+        }
+
+        function renderFileList(files) {
+            const list = document.getElementById('file-list-container');
+            list.innerHTML = '';
+            
+            files.forEach((file, index) => {
+                const div = document.createElement('div');
+                div.className = 'file-item';
+                if (index === currentIndex) div.classList.add('active');
+                
+                div.dataset.path = file.path;
+                div.dataset.name = file.name.toLowerCase();
+                div.dataset.index = index;
+                
+                const type = getFileType(file.name);
+                let icon = '📄';
+                if (type === 'video') icon = '🎬';
+                if (type === 'image') icon = '🖼️';
+                if (type === 'text') icon = '📝';
+
+                div.innerHTML = `
+                    <div class="file-name" title="${file.name}">${icon} ${file.name}</div>
+                    <div class="file-size">${file.size}</div>
+                `;
+                
+                div.onclick = () => {
+                    closeModal();
+                    selectIndex(index, true);
+                };
+                list.appendChild(div);
+            });
+            
+            document.getElementById('modal-title-text').innerText = `文件列表 (${files.length})`;
+        }
+
+        function updateControlBtns() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const info = document.getElementById('current-file-info');
+
+            if (currentIndex < 0 || globalFiles.length === 0) {
+                prevBtn.disabled = true;
+                nextBtn.disabled = true;
+                info.innerText = '暂无播放';
+                return;
+            }
+
+            prevBtn.disabled = currentIndex === 0;
+            nextBtn.disabled = currentIndex === globalFiles.length - 1;
+            
+            info.innerText = globalFiles[currentIndex].name;
+            document.querySelectorAll('.file-item').forEach(el => {
+                el.classList.toggle('active', parseInt(el.dataset.index) === currentIndex);
+            });
+        }
+
+        function playPrev() { if (currentIndex > 0) selectIndex(currentIndex - 1, true); }
+        function playNext() { if (currentIndex < globalFiles.length - 1) selectIndex(currentIndex + 1, true); }
+
+        function showOverlay() {
+            document.getElementById('dead-link-overlay').style.display = 'flex';
+            document.getElementById('downloadTorrentBtn').href = `https://webtor.io/${currentInfohash}.torrent`;
+            updateInfoPanel('加载超时', undefined, undefined, '请点击重试');
+        }
+
+        function closeOverlay() {
+            document.getElementById('dead-link-overlay').style.display = 'none';
+            if (playerTimeout) clearTimeout(playerTimeout);
+            if (previewTimeout) clearTimeout(previewTimeout);
+        }
+
+        function copyMagnet() {
+            navigator.clipboard.writeText(currentMagnet).then(() => {
+                alert('磁力链接已复制');
+            }).catch(() => {
+                const input = document.createElement('textarea');
+                input.value = currentMagnet;
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('copy');
+                document.body.removeChild(input);
+                alert('磁力链接已复制');
+            });
+        }
+
+        function saveToCache() {
+            if (!currentInfohash || globalFiles.length === 0) return;
+            try {
+                localStorage.setItem('webtor_cache_' + currentInfohash, JSON.stringify({ files: globalFiles, basePwd: basePwd }));
+            } catch (e) { }
+        }
+
+        function retryFetchList() {
+            const statusText = document.getElementById('list-status');
+            if (statusText.classList.contains('error') && !isFetchingList) {
+                setParseState('补齐中...', true);
+                fetchListSerial();
+            }
+        }
+
+        async function fetchListSerial() {
+            if (isFetchingList) return;
+            isFetchingList = true;
+
+            const statusText = document.getElementById('list-status');
+            statusText.className = '';
+            
+            try {
+                let maxPage = 1;
+                if (globalFiles.length === 0 || !basePwd) {
+                    statusText.innerHTML = '<span class="spinner"></span> 解析首屏...';
+                    const firstHtml = await fetchPageStrict(`https://webtor.io/${currentInfohash}`);
+                    if (!firstHtml) throw new Error('首页解析失败');
+                    
+                    const firstData = parseHtmlPage(firstHtml);
+                    globalFiles = firstData.files;
+                    maxPage = firstData.maxPage;
+                    basePwd = firstData.pwd;
+                    
+                    if (currentIndex === -1 && globalFiles.length > 0) selectIndex(0, false);
+                    updateListUI();
+                } else {
+                    maxPage = Math.max(...missingPages, 1); 
+                }
+
+                if (missingPages.length > 0) maxPage = missingPages[missingPages.length - 1];
+
+                for (let i = 2; i <= maxPage; i++) {
+                    if (!missingPages.includes(i) && globalFiles.length >= (i-1)*25) continue;
+                    
+                    setParseState(`获取 (${i}/${maxPage})`, true);
+                    statusText.innerHTML = `<span class="spinner"></span> 加载分页 (${i}/${maxPage})...`;
+                    updateInfoPanel(undefined, undefined, undefined, `拉取分页 ${i}/${maxPage}...`);
+                    
+                    const pageUrl = `https://webtor.io/${currentInfohash}?pwd=${encodeURIComponent(basePwd)}&page=${i}`;
+                    const pageHtml = await fetchPageStrict(pageUrl);
+                    
+                    if (pageHtml) {
+                        globalFiles = globalFiles.concat(parseHtmlPage(pageHtml).files);
+                        updateListUI();
+                        missingPages = missingPages.filter(p => p !== i);
+                    } else {
+                        if (!missingPages.includes(i)) missingPages.push(i);
+                    }
+                    await new Promise(r => setTimeout(r, 600)); 
+                }
+
+                if (missingPages.length > 0) {
+                    statusText.className = 'error';
+                    statusText.innerHTML = `⚠️ 缺${globalFiles.length}个，点击补齐`;
+                    updateInfoPanel(undefined, undefined, undefined, `部分缺失`);
+                } else {
+                    statusText.innerHTML = `<span style="color:var(--accent)">✅</span> 已获取全部 ${globalFiles.length} 个`;
+                    updateInfoPanel(undefined, undefined, undefined, `全部就绪`);
+                }
+            } catch (e) {
+                statusText.className = 'error';
+                statusText.innerHTML = '❌ 失败，点击重试';
+                updateInfoPanel(undefined, undefined, undefined, '解析中断');
+            } finally {
+                isFetchingList = false;
+                setParseState('解析', false);
+            }
+        }
+
+        function filterFiles() {
+            const keyword = document.getElementById('searchInput').value.toLowerCase();
+            document.querySelectorAll('.file-item').forEach(item => {
+                item.style.display = item.dataset.name.includes(keyword) ? 'flex' : 'none';
+            });
+        }
+
+        function openModal() { document.getElementById('file-modal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('file-modal').style.display = 'none'; }
+        document.getElementById('file-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+    </script>
+</body>
+</html>
